@@ -262,16 +262,12 @@ CAirplanePlayer::~CAirplanePlayer()
 
 void CAirplanePlayer::OnInitialize()
 {
-//	m_pMainRotorFrame = FindFrame("rotor");
-//	m_pTailRotorFrame = FindFrame("black_m_7");
-
 	m_pMainRotorFrame = FindFrame("Rotor");
 	m_pTailRotorFrame = FindFrame("Back_Rotor");
 }
 
 void CAirplanePlayer::Animate(float fTimeElapsed, XMFLOAT4X4 *pxmf4x4Parent)
 {
-
 	if (m_pMainRotorFrame)
 	{
 		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(360.0f * 2.0f) * fTimeElapsed);
@@ -282,7 +278,6 @@ void CAirplanePlayer::Animate(float fTimeElapsed, XMFLOAT4X4 *pxmf4x4Parent)
 		XMMATRIX xmmtxRotate = XMMatrixRotationX(XMConvertToRadians(360.0f * 4.0f) * fTimeElapsed);
 		m_pTailRotorFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4Transform);
 	}
-
 	CPlayer::Animate(fTimeElapsed, pxmf4x4Parent);
 }
 
@@ -342,6 +337,7 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 	return(m_pCamera);
 }
+
 void CAirplanePlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 {
 

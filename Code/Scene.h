@@ -72,7 +72,7 @@ public:
 public:
 	ID3D12RootSignature			*m_pd3dGraphicsRootSignature = NULL;
 
-	vector<vector<unique_ptr<CGameObject>>>					m_ppGameObjects;
+	vector<unique_ptr<CGameObject>>					m_ppGameObjects;
 
 	LIGHT						*m_pLights = NULL;
 	int							m_nLights = 0;

@@ -22,7 +22,7 @@ CScene::~CScene()
 
 void CScene::BuildDefaultLightsAndMaterials()
 {
-	m_nLights = 4;
+	m_nLights = 2;
 	m_pLights = new LIGHT[m_nLights];
 	lightc = new XMFLOAT4[m_nLights*3];
 	XMFLOAT3 lp[3] = { 
@@ -33,20 +33,12 @@ void CScene::BuildDefaultLightsAndMaterials()
 
 	m_xmf4GlobalAmbient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 
-	for (int i = 0; i < m_nLights - 1; ++i) {
-		lightc[i * 3] = XMFLOAT4(uid(dre), uid(dre), uid(dre), 1.0f);
-		lightc[i * 3+1] = XMFLOAT4(uid(dre), uid(dre), uid(dre), 1.0f);
-		lightc[i * 3+2] = XMFLOAT4(uid(dre), uid(dre), uid(dre), 1.0f);
-		m_pLights[i].m_bEnable = true;
-		m_pLights[i].m_nType = POINT_LIGHT;
-		m_pLights[i].m_fRange = 100000.0f;
-		m_pLights[i].m_xmf4Ambient = lightc[i * 3];
-		m_pLights[i].m_xmf4Diffuse = lightc[i * 3 + 1];
-		m_pLights[i].m_xmf4Specular = lightc[i * 3 + 2];
-		m_pLights[i].m_xmf3Position = lp[i];
-		m_pLights[i].m_xmf3Direction = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		m_pLights[i].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.001f, 0.0001f);
-	}
+	m_pLights[0].m_bEnable = true;
+	m_pLights[0].m_nType = DIRECTIONAL_LIGHT;
+	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
+	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 0.0f);
+	m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
 
 	m_pLights[1].m_bEnable = true;
 	m_pLights[1].m_nType = SPOT_LIGHT;
@@ -60,13 +52,6 @@ void CScene::BuildDefaultLightsAndMaterials()
 	m_pLights[1].m_fFalloff = 8.0f;
 	m_pLights[1].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
 	m_pLights[1].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
-
-	m_pLights[3].m_bEnable = true;
-	m_pLights[3].m_nType = DIRECTIONAL_LIGHT;
-	m_pLights[3].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	m_pLights[3].m_xmf4Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
-	m_pLights[3].m_xmf4Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 0.0f);
-	m_pLights[3].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
 }
 
 void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -95,21 +80,18 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	pMesh = new CAABBMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
 
 	// 첫번째 배열 - Object의 종류 ex) [0] - Apache, [1] - OldCar
-	// 두번째 배열 - Object 객체 하나하나 ex) [0][3] - 0번째 종류의 3번째 객체 == Apache의 3번째 객체
 
-	m_ppGameObjects.push_back(vector<unique_ptr<CGameObject>>{}); // 같은 객체들을 모을 배열 생성
-	m_ppGameObjects[0].emplace_back(new CHellicopterObject{}); // 객체 생성
-	// 객체 하나의 생성은 이것을 활용
+	m_ppGameObjects.emplace_back(new CApacheObject{}); // 객체 생성
 
-	m_ppGameObjects[0][0]->SetChild(pApacheModel, true);
-	m_ppGameObjects[0][0]->OnInitialize();
-	m_ppGameObjects[0][0]->SetPosition({ 9993.642578,1781.7,1898.392334 });
-	m_ppGameObjects[0][0]->SetScale(7.5f, 7.5f, 7.5f);
-	m_ppGameObjects[0][0]->Rotate(0.0f, 90.0f, 0.0f);
-	m_ppGameObjects[0][0]->m_AABBCenter = m_ppGameObjects[0][0]->GetPosition();
-	m_ppGameObjects[0][0]->m_AABBExtents = { 10.2f,5.2f,10.2f };
-	m_ppGameObjects[0][0]->m_AABB.Center = m_ppGameObjects[0][0]->GetPosition();
-	m_ppGameObjects[0][0]->m_AABB.Extents = { 50.2 * 2.5f,25.2 * 2.5f,50.2 * 2.5f };
+	m_ppGameObjects[0]->SetChild(pApacheModel, true);
+	m_ppGameObjects[0]->OnInitialize();
+	m_ppGameObjects[0]->SetPosition({ 0.0,0.0,300.0 });
+	m_ppGameObjects[0]->SetScale(7.5f, 7.5f, 7.5f);
+	m_ppGameObjects[0]->Rotate(0.0f, 90.0f, 0.0f);
+	m_ppGameObjects[0]->m_AABBCenter = m_ppGameObjects[0]->GetPosition();
+	m_ppGameObjects[0]->m_AABBExtents = { 10.2f,5.2f,10.2f };
+	m_ppGameObjects[0]->m_AABB.Center = m_ppGameObjects[0]->GetPosition();
+	m_ppGameObjects[0]->m_AABB.Extents = { 50.2 * 2.5f,25.2 * 2.5f,50.2 * 2.5f };
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -190,9 +172,8 @@ void CScene::ReleaseShaderVariables()
 
 void CScene::ReleaseUploadBuffers()
 {
-	for (int i{}; i < m_ppGameObjects.size(); ++i)
-		for (auto& object : m_ppGameObjects[i])
-			object->ReleaseUploadBuffers();
+	for (auto& object : m_ppGameObjects)
+		object->ReleaseUploadBuffers();
 }
 
 bool CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -252,20 +233,17 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
-	for (int i{}; i < m_ppGameObjects.size(); ++i) {
-		for (auto& object : m_ppGameObjects[i]) {
-			object->Animate(m_fElapsedTime, NULL);
-			object->UpdateTransform(NULL);
-			object->Render(pd3dCommandList, pCamera);
-		}
+	for (auto& object : m_ppGameObjects) {
+		object->Animate(m_fElapsedTime, NULL);
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
 	}
+	
 
 }
 
 void CScene::BoundingCheck() {
-	for (int i{}; i < m_ppGameObjects.size(); ++i) {
-		for (auto& object : m_ppGameObjects[i]) {
-			object->UpdateAABB();
-		}
+	for (auto& object : m_ppGameObjects) {
+		object->UpdateAABB();
 	}
 }
