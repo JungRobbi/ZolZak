@@ -318,22 +318,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 
 			break;
 		case VK_F2:							// 적과의 전투
-			m_pPlayer->SetPosition({ 8968.618164,1731.708008,6488.774414 });
-			if (m_pPlayer->GetCamera()->GetMode() == THIRD_PERSON_CAMERA) {
-				m_pPlayer->m_xmf3Look = Vector3::Normalize(Vector3::Subtract(XMFLOAT3{ 10057.421875, 1731.708008, 2491.699463 }, XMFLOAT3{ 8968.618164, 1731.708008, 6488.774414 }));
-				m_pPlayer->m_xmf3Right = Vector3::CrossProduct(m_pPlayer->m_xmf3Up, m_pPlayer->m_xmf3Look, true);
-				m_pPlayer->m_xmf3Up = Vector3::CrossProduct(m_pPlayer->m_xmf3Look, m_pPlayer->m_xmf3Right, true);
-			}
-			m_pScene->m_ppGameObjects[0] = new CApacheObject();
-			m_pScene->m_ppGameObjects[0]->SetChild(m_pScene->pApacheModel, true);
-			m_pScene->m_ppGameObjects[0]->OnInitialize();
-			m_pScene->m_ppGameObjects[0]->SetPosition({ 9993.642578,1781.7,1898.392334 });
-			m_pScene->m_ppGameObjects[0]->SetScale(7.5f, 7.5f, 7.5f);
-			m_pScene->m_ppGameObjects[0]->Rotate(0.0f, 90.0f, 0.0f);
-			m_pScene->m_ppGameObjects[0]->m_AABBCenter = m_pScene->m_ppGameObjects[0]->GetPosition();
-			m_pScene->m_ppGameObjects[0]->m_AABBExtents = { 10.2f,5.2f,10.2f };
-			m_pScene->m_ppGameObjects[0]->m_AABB.Center = m_pScene->m_ppGameObjects[0]->GetPosition();
-			m_pScene->m_ppGameObjects[0]->m_AABB.Extents = { 50.2 * 2.5f,25.2 * 2.5f,50.2 * 2.5f };
+
 			break;
 		case VK_F3:							// 시점 변경
 			if (m_pCamera->GetMode() == THIRD_PERSON_CAMERA) {

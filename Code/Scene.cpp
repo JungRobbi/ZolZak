@@ -87,9 +87,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 #endif
 
-	m_nGameObjects = 1;
-	m_ppGameObjects = new CHellicopterObject*[m_nGameObjects];
-
 	pApacheModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Apache.bin");
 
 	float x, y, z{};
@@ -97,16 +94,22 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	CMesh* pMesh = NULL;
 	pMesh = new CAABBMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
 
-	m_ppGameObjects[0] = new CApacheObject();
-	m_ppGameObjects[0]->SetChild(pApacheModel, true);
-	m_ppGameObjects[0]->OnInitialize();
-	m_ppGameObjects[0]->SetPosition({ 9993.642578,1781.7,1898.392334 });
-	m_ppGameObjects[0]->SetScale(7.5f, 7.5f, 7.5f);
-	m_ppGameObjects[0]->Rotate(0.0f, 90.0f, 0.0f);
-	m_ppGameObjects[0]->m_AABBCenter = m_ppGameObjects[0]->GetPosition();
-	m_ppGameObjects[0]->m_AABBExtents = { 10.2f,5.2f,10.2f };
-	m_ppGameObjects[0]->m_AABB.Center = m_ppGameObjects[0]->GetPosition();
-	m_ppGameObjects[0]->m_AABB.Extents = { 50.2 * 2.5f,25.2 * 2.5f,50.2 * 2.5f };
+	// 첫번째 배열 - Object의 종류 ex) [0] - Apache, [1] - OldCar
+	// 두번째 배열 - Object 객체 하나하나 ex) [0][3] - 0번째 종류의 3번째 객체 == Apache의 3번째 객체
+
+	m_ppGameObjects.push_back(vector<unique_ptr<CGameObject>>{}); // 같은 객체들을 모을 배열 생성
+	m_ppGameObjects[0].emplace_back(new CHellicopterObject{}); // 객체 생성
+	// 객체 하나의 생성은 이것을 활용
+
+	m_ppGameObjects[0][0]->SetChild(pApacheModel, true);
+	m_ppGameObjects[0][0]->OnInitialize();
+	m_ppGameObjects[0][0]->SetPosition({ 9993.642578,1781.7,1898.392334 });
+	m_ppGameObjects[0][0]->SetScale(7.5f, 7.5f, 7.5f);
+	m_ppGameObjects[0][0]->Rotate(0.0f, 90.0f, 0.0f);
+	m_ppGameObjects[0][0]->m_AABBCenter = m_ppGameObjects[0][0]->GetPosition();
+	m_ppGameObjects[0][0]->m_AABBExtents = { 10.2f,5.2f,10.2f };
+	m_ppGameObjects[0][0]->m_AABB.Center = m_ppGameObjects[0][0]->GetPosition();
+	m_ppGameObjects[0][0]->m_AABB.Extents = { 50.2 * 2.5f,25.2 * 2.5f,50.2 * 2.5f };
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -114,12 +117,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 void CScene::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
-
-	if (m_ppGameObjects)
-	{
-		for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
-		delete[] m_ppGameObjects;
-	}
 
 	ReleaseShaderVariables();
 
@@ -193,7 +190,9 @@ void CScene::ReleaseShaderVariables()
 
 void CScene::ReleaseUploadBuffers()
 {
-	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
+	for (int i{}; i < m_ppGameObjects.size(); ++i)
+		for (auto& object : m_ppGameObjects[i])
+			object->ReleaseUploadBuffers();
 }
 
 bool CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -232,53 +231,10 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 	BoundingCheck();
 
-	for (int i = 0; i < m_nGameObjects; i++) {
-		if (m_ppGameObjects[i]->fly == true) {
-			m_ppGameObjects[i]->MoveUp(-0.7f);
-			m_ppGameObjects[i]->Rotate(0.0f, -1.0f, -0.5f);
-			if (m_ppGameObjects[i]->GetPosition().y < 500) {
 
-				m_ppGameObjects[0] = new CApacheObject();
-				m_ppGameObjects[0]->SetChild(pApacheModel, true);
-				m_ppGameObjects[0]->OnInitialize();
-				m_ppGameObjects[0]->SetPosition({ 9993.642578,1781.7,1898.392334 });
-				m_ppGameObjects[0]->SetScale(7.5f, 7.5f, 7.5f);
-				m_ppGameObjects[0]->Rotate(0.0f, 90.0f, 0.0f);
-				m_ppGameObjects[0]->m_AABBCenter = m_ppGameObjects[0]->GetPosition();
-				m_ppGameObjects[0]->m_AABBExtents = { 10.2f,5.2f,10.2f };
-				m_ppGameObjects[0]->m_AABB.Center = m_ppGameObjects[0]->GetPosition();
-				m_ppGameObjects[0]->m_AABB.Extents = { 50.2 * 2.5f,25.2 * 2.5f,50.2 * 2.5f };
-			}
-		}
-		m_ppGameObjects[i]->TargetPosition = m_pPlayer->GetPosition();
-		m_ppGameObjects[i]->FollowPlayer(fTimeElapsed);
-	}
-
-
-	if (m_pLights)
-	{
+	if (m_pLights) {
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
-		for (int i = 0; i < m_nGameObjects; i++) {
-			if (m_ppGameObjects[i]->attack == true) {
-				for (int j = 0; j < m_nLights; j++) {
-					if (j != 3) {
-						m_pLights[j].m_xmf4Ambient = XMFLOAT4(10.3f, 0.0f, 0.0f, 1.0f);
-						m_pLights[j].m_xmf4Diffuse = XMFLOAT4(10.3f, 0.0f, 0.0f, 1.0f);
-						m_pLights[j].m_xmf4Specular = XMFLOAT4(10.3f, 0.0f, 0.0f, 1.0f);
-					}
-				}
-			}
-			else {
-				for (int j = 0; j < m_nLights; j++) {
-					if (j != 3) {
-						m_pLights[j].m_xmf4Ambient = lightc[j * 3];
-						m_pLights[j].m_xmf4Diffuse = lightc[j * 3 + 1];
-						m_pLights[j].m_xmf4Specular = lightc[j * 3 + 2];
-					}
-				}
-			}
-		}
 	}
 	
 
@@ -296,26 +252,20 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
-	for (int i = 0; i < m_nGameObjects; i++)
-	{
-		if (m_ppGameObjects[i])
-		{
-			m_ppGameObjects[i]->Animate(m_fElapsedTime, NULL);
-			m_ppGameObjects[i]->UpdateTransform(NULL);
-			m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
+	for (int i{}; i < m_ppGameObjects.size(); ++i) {
+		for (auto& object : m_ppGameObjects[i]) {
+			object->Animate(m_fElapsedTime, NULL);
+			object->UpdateTransform(NULL);
+			object->Render(pd3dCommandList, pCamera);
 		}
 	}
 
 }
 
 void CScene::BoundingCheck() {
-	for (int i = 0; i < m_nGameObjects; ++i)
-	{
-		m_ppGameObjects[i]->UpdateAABB();
-	}
-
-	for (int i = 0; i < m_nGameObjects; ++i)
-	{
-
+	for (int i{}; i < m_ppGameObjects.size(); ++i) {
+		for (auto& object : m_ppGameObjects[i]) {
+			object->UpdateAABB();
+		}
 	}
 }

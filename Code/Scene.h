@@ -72,9 +72,7 @@ public:
 public:
 	ID3D12RootSignature			*m_pd3dGraphicsRootSignature = NULL;
 
-	CHellicopterObject					**m_ppGameObjects = NULL;
-	int							m_nGameObjects = 0;
-
+	vector<vector<unique_ptr<CGameObject>>>					m_ppGameObjects;
 
 	LIGHT						*m_pLights = NULL;
 	int							m_nLights = 0;
@@ -86,4 +84,3 @@ public:
 
 	float						m_fElapsedTime = 0.0f;
 };
-
