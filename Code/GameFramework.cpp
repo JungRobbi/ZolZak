@@ -404,8 +404,8 @@ void CGameFramework::BuildObjects()
 	m_pScene = new CScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
-	CAirplanePlayer *pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(),NULL);
-	pAirplanePlayer->SetPosition(XMFLOAT3({ 0.0,0.0,0.0 }));
+	CAirplanePlayer *pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->m_pTerrain);
+	pAirplanePlayer->SetPosition(XMFLOAT3({ 3000.0,1000.0,4000.0 }));
 	pAirplanePlayer->m_AABB.Extents = { 30.2 * 3.5f,30.2 * 3.5f,70.2 * 3.5f };
 	m_pScene->m_pPlayer = m_pPlayer = pAirplanePlayer;
 	m_pCamera = m_pPlayer->GetCamera();
@@ -466,14 +466,6 @@ void CGameFramework::ProcessInput()
 					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 			}
 			if (dwDirection) {
-				if (pKeysBuffer[0x41] & 0xF0) {
-					m_pPlayer->Rotate(0.0f, -0.1f, 0.0f);
-					pKeysBuffer[0x41] = false;
-				}
-				else if (pKeysBuffer[0x44] & 0xF0) {
-					m_pPlayer->Rotate(0.0f, +0.1f, 0.0f);
-					pKeysBuffer[0x44] = false;
-				}
 				m_pPlayer->Move(dwDirection, 0.5f, true);
 			}
 		}

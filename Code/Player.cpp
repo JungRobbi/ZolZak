@@ -161,7 +161,7 @@ void CPlayer::Update(float fTimeElapsed)
 	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 
-	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
+	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed * 3, false);
 	Move(xmf3Velocity, false);
 
 	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
@@ -251,6 +251,12 @@ CAirplanePlayer::CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 
 	pGameObject->SetScale(15.5f, 15.5f, 15.5f);
 	SetChild(pGameObject, true);
+	
+	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
+	//플레이어의 위치가 변경될 때 지형의 정보에 따라 플레이어의 위치를 변경할 수 있도록 설정한다. 
+	SetPlayerUpdatedContext(pTerrain);
+	//카메라의 위치가 변경될 때 지형의 정보에 따라 카메라의 위치를 변경할 수 있도록 설정한다. 
+	SetCameraUpdatedContext(pTerrain);
 
 	OnInitialize();
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -317,12 +323,12 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 			break;
 		case THIRD_PERSON_CAMERA:
-			SetFriction(200.5f);
+			SetFriction(500.0f);
 			SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 			SetMaxVelocityXZ(800.0f);
 			SetMaxVelocityY(500.0f);
 			m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
-			m_pCamera->SetTimeLag(0.25f);
+			m_pCamera->SetTimeLag(0.1f);
 			m_pCamera->SetOffset(XMFLOAT3(0.0f, 400.0f, -1000.0f));
 			m_pCamera->GenerateProjectionMatrix(1.01f, 50000.0f, ASPECT_RATIO, 60.0f);
 			m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
@@ -338,12 +344,40 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	return(m_pCamera);
 }
 
-void CAirplanePlayer::OnPlayerUpdateCallback(float fTimeElapsed)
-{
+void CAirplanePlayer::OnPlayerUpdateCallback(float fTimeElapsed) {
+	XMFLOAT3 xmf3PlayerPosition = GetPosition();
+	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pPlayerUpdatedContext;
+	
+	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z) +
+		25.0f;
 
+	if (xmf3PlayerPosition.y < fHeight) {
+		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
+		xmf3PlayerVelocity.y = 0.0f;
+		SetVelocity(xmf3PlayerVelocity);
+
+		xmf3PlayerPosition.y = fHeight;
+		if (xmf3PlayerPosition.y < 330.0f) {
+			SetPosition(xmf3PlayerPosition);
+			xmf3PlayerVelocity.x = 0.0f;
+			xmf3PlayerVelocity.z = 0.0f;
+			SetVelocity(xmf3PlayerVelocity);
+		}
+	}
 }
 
 void CAirplanePlayer::OnCameraUpdateCallback(float fTimeElapsed)
 {
+	XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
 
+	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pCameraUpdatedContext;
+	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z) +
+		30.0f;
+	if (xmf3CameraPosition.y <= fHeight) {
+		xmf3CameraPosition.y = fHeight;
+
+		m_pCamera->SetPosition(xmf3CameraPosition);
+		CThirdPersonCamera* p3rdPersonCamera = (CThirdPersonCamera*)m_pCamera;
+		p3rdPersonCamera->SetLookAt(GetPosition());
+	}
 }

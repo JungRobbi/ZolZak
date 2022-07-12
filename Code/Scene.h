@@ -67,6 +67,8 @@ public:
 
 	void ReleaseUploadBuffers();
 
+	void CheckPlayerByMapCollisions();
+
 	CPlayer						*m_pPlayer = NULL;
 
 public:
@@ -76,6 +78,8 @@ public:
 
 	LIGHT						*m_pLights = NULL;
 	int							m_nLights = 0;
+
+	CHeightMapTerrain* m_pTerrain = NULL;
 
 	XMFLOAT4					m_xmf4GlobalAmbient;
 

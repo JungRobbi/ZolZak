@@ -66,10 +66,12 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	XMFLOAT4 xmf4Color(0.2f, 0.9f, 0.005f, 0.0f);
 #ifdef _WITH_TERRAIN_PARTITION
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList,
-		m_pd3dGraphicsRootSignature, _T("../Assets/Image/Terrain/HeightMap.raw"), 257, 257, 17,
+		m_pd3dGraphicsRootSignature, _T("HeightMap.raw"), 257, 257, 17,
 		17, xmf3Scale, xmf4Color);
 #else
-
+	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList,
+		m_pd3dGraphicsRootSignature, _T("HeightMap.raw"), 257, 257, 257,
+		257, xmf3Scale, xmf4Color);
 #endif
 
 	pApacheModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Apache.bin");
@@ -85,7 +87,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_ppGameObjects[0]->SetChild(pApacheModel, true);
 	m_ppGameObjects[0]->OnInitialize();
-	m_ppGameObjects[0]->SetPosition({ 0.0,0.0,300.0 });
+	m_ppGameObjects[0]->SetPosition({ 3000.0,1000.0,5000.0 });
 	m_ppGameObjects[0]->SetScale(7.5f, 7.5f, 7.5f);
 	m_ppGameObjects[0]->Rotate(0.0f, 90.0f, 0.0f);
 	m_ppGameObjects[0]->m_AABBCenter = m_ppGameObjects[0]->GetPosition();
@@ -207,18 +209,14 @@ bool CScene::ProcessInput(UCHAR *pKeysBuffer)
 
 void CScene::AnimateObjects(float fTimeElapsed)
 {
-
 	m_fElapsedTime = fTimeElapsed;
 
-	BoundingCheck();
-
+	CheckPlayerByMapCollisions();
 
 	if (m_pLights) {
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
 	}
-	
-
 }
 
 void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
@@ -239,11 +237,14 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		object->Render(pd3dCommandList, pCamera);
 	}
 	
-
+	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 }
 
-void CScene::BoundingCheck() {
-	for (auto& object : m_ppGameObjects) {
-		object->UpdateAABB();
+void CScene::CheckPlayerByMapCollisions() {
+	XMFLOAT3 Player_pos = m_pPlayer->GetPosition();
+
+	if (Player_pos.y - m_pTerrain->GetPosition().y < m_pTerrain->GetHeight(-m_pTerrain->GetPosition().x + Player_pos.x, -m_pTerrain->GetPosition().z + Player_pos.z)) {
+		m_pPlayer->SetVelocity(XMFLOAT3(m_pPlayer->GetVelocity().x / -40.0f, m_pPlayer->GetVelocity().y / -40.0f, m_pPlayer->GetVelocity().z / -40.0f));
+		m_pPlayer->Move(m_pPlayer->GetVelocity(), false);
 	}
 }
