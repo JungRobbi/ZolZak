@@ -211,8 +211,6 @@ void CScene::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
 
-	CheckPlayerByMapCollisions();
-
 	if (m_pLights) {
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
@@ -238,13 +236,4 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	}
 	
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
-}
-
-void CScene::CheckPlayerByMapCollisions() {
-	XMFLOAT3 Player_pos = m_pPlayer->GetPosition();
-
-	if (Player_pos.y - m_pTerrain->GetPosition().y < m_pTerrain->GetHeight(-m_pTerrain->GetPosition().x + Player_pos.x, -m_pTerrain->GetPosition().z + Player_pos.z)) {
-		m_pPlayer->SetVelocity(XMFLOAT3(m_pPlayer->GetVelocity().x / -40.0f, m_pPlayer->GetVelocity().y / -40.0f, m_pPlayer->GetVelocity().z / -40.0f));
-		m_pPlayer->Move(m_pPlayer->GetVelocity(), false);
-	}
 }

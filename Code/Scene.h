@@ -67,8 +67,6 @@ public:
 
 	void ReleaseUploadBuffers();
 
-	void CheckPlayerByMapCollisions();
-
 	CPlayer						*m_pPlayer = NULL;
 
 public:

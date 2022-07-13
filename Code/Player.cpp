@@ -247,6 +247,8 @@ CAirplanePlayer::CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 {
 	m_pCamera = ChangeCamera(/*SPACESHIP_CAMERA*/THIRD_PERSON_CAMERA, 0.0f);
 
+	m_xmf3Gravity = XMFLOAT3(0.0f, -0.5f, 0.0f);
+
 	CGameObject *pGameObject = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Gunship.bin");
 
 	pGameObject->SetScale(15.5f, 15.5f, 15.5f);
@@ -351,18 +353,10 @@ void CAirplanePlayer::OnPlayerUpdateCallback(float fTimeElapsed) {
 	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z) +
 		25.0f;
 
-	if (xmf3PlayerPosition.y < fHeight) {
-		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
-		xmf3PlayerVelocity.y = 0.0f;
-		SetVelocity(xmf3PlayerVelocity);
+	if (xmf3PlayerPosition.y - pTerrain->GetPosition().y < pTerrain->GetHeight(-pTerrain->GetPosition().x + xmf3PlayerPosition.x, -pTerrain->GetPosition().z + xmf3PlayerPosition.z)) {
 
-		xmf3PlayerPosition.y = fHeight;
-		if (xmf3PlayerPosition.y < 330.0f) {
-			SetPosition(xmf3PlayerPosition);
-			xmf3PlayerVelocity.x = 0.0f;
-			xmf3PlayerVelocity.z = 0.0f;
-			SetVelocity(xmf3PlayerVelocity);
-		}
+		xmf3PlayerPosition.y = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z) + pTerrain->GetPosition().y;
+		SetPosition(xmf3PlayerPosition);
 	}
 }
 
