@@ -90,6 +90,10 @@ public:
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
 	bool crash = false;
+
+public:
+	virtual void JumpEvent(float fDistance, float fJumpTime, float fTimeElapsed) {};
+	virtual void JumpAnimate(float fTimeElapsed) {};
 };
 
 class CAirplanePlayer : public CPlayer
@@ -101,6 +105,7 @@ public:
 	CGameObject*				m_pMainRotorFrame = NULL;
 	CGameObject*				m_pTailRotorFrame = NULL;
 
+	float fJumpTimer = 0.0f;
 
 private:
 	virtual void OnInitialize();
@@ -111,4 +116,8 @@ public:
 	virtual void OnPrepareRender();
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
+
+public:
+	virtual void JumpEvent(float fDistance, float fJumpTime, float fTimeElapsed);
+	virtual void JumpAnimate(float fTimeElapsed);
 };

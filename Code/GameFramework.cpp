@@ -328,6 +328,11 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				m_pCamera = m_pPlayer->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 			}
 			break;
+
+		case VK_SPACE:
+			m_pPlayer->JumpEvent(100.0f, 3.0f, m_GameTimer.GetTimeElapsed());
+
+			break;
 		default:
 			break;
 		}
@@ -442,8 +447,8 @@ void CGameFramework::ProcessInput()
 		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;
 		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;
 		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;
-		if (pKeysBuffer[0x45] & 0xF0) dwDirection = DIR_UP;
-		if (pKeysBuffer[0x51] & 0xF0) dwDirection = DIR_DOWN;
+		if (pKeysBuffer[0x45] & 0xF0) dwDirection |= DIR_UP;
+		if (pKeysBuffer[0x51] & 0xF0) dwDirection |= DIR_DOWN;
 
 		float cxDelta = 0.0f, cyDelta = 0.0f;
 		POINT ptCursorPos;

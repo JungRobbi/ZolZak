@@ -247,7 +247,7 @@ CAirplanePlayer::CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 {
 	m_pCamera = ChangeCamera(/*SPACESHIP_CAMERA*/THIRD_PERSON_CAMERA, 0.0f);
 
-	m_xmf3Gravity = XMFLOAT3(0.0f, -0.5f, 0.0f);
+	m_xmf3Gravity = XMFLOAT3(0.0f, -4.5f, 0.0f);
 
 	CGameObject *pGameObject = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Gunship.bin");
 
@@ -287,6 +287,10 @@ void CAirplanePlayer::Animate(float fTimeElapsed, XMFLOAT4X4 *pxmf4x4Parent)
 		m_pTailRotorFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4Transform);
 	}
 	CPlayer::Animate(fTimeElapsed, pxmf4x4Parent);
+
+	if (fJumpTimer > 0.0f) {
+		JumpAnimate(fTimeElapsed);
+	}
 }
 
 void CAirplanePlayer::OnPrepareRender()
@@ -374,4 +378,12 @@ void CAirplanePlayer::OnCameraUpdateCallback(float fTimeElapsed)
 		CThirdPersonCamera* p3rdPersonCamera = (CThirdPersonCamera*)m_pCamera;
 		p3rdPersonCamera->SetLookAt(GetPosition());
 	}
+}
+
+void CAirplanePlayer::JumpEvent(float fDistance, float fJumpTime, float fTimeElapsed) {
+	fJumpTimer = fJumpTime;
+}
+
+void CAirplanePlayer::JumpAnimate(float fTimeElapsed) {
+
 }
