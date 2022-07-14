@@ -35,6 +35,10 @@ public:
 	virtual ~CPlayer();
 	XMFLOAT3					m_xmf3Position;
 	CCamera* m_pCamera = NULL;
+
+	float fJumpTimer = 0.0f;
+	float fJumpPower = 0.0f;
+
 	float						m_Effect = 0;
 	int							ecount = 0;
 	int							Bullet = 10;
@@ -92,8 +96,7 @@ public:
 	bool crash = false;
 
 public:
-	virtual void JumpEvent(float fDistance, float fJumpTime) {};
-	virtual void JumpAnimate(float fTimeElapsed) {};
+	virtual void JumpEvent(float fPower);
 };
 
 class CAirplanePlayer : public CPlayer
@@ -105,8 +108,6 @@ public:
 	CGameObject*				m_pMainRotorFrame = NULL;
 	CGameObject*				m_pTailRotorFrame = NULL;
 
-	float fJumpTimer = 0.0f;
-	float fJumpDistance = 0.0f;
 
 private:
 	virtual void OnInitialize();
@@ -118,7 +119,5 @@ public:
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
 
-public:
-	virtual void JumpEvent(float fDistance, float fJumpTime);
-	virtual void JumpAnimate(float fTimeElapsed);
+
 };

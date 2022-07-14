@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "Shader.h"
 
+using namespace std;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CPlayer
 
@@ -286,10 +287,6 @@ void CAirplanePlayer::Animate(float fTimeElapsed, XMFLOAT4X4 *pxmf4x4Parent)
 		m_pTailRotorFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4Transform);
 	}
 	CPlayer::Animate(fTimeElapsed, pxmf4x4Parent);
-
-	if (fJumpTimer > 0.0f) {
-		JumpAnimate(fTimeElapsed);
-	}
 }
 
 void CAirplanePlayer::OnPrepareRender()
@@ -350,7 +347,6 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 }
 
 void CAirplanePlayer::OnPlayerUpdateCallback(float fTimeElapsed) {
-	printf("%f\n", m_xmf3Velocity.y);
 	XMFLOAT3 xmf3PlayerPosition = GetPosition();
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pPlayerUpdatedContext;
 	
@@ -362,7 +358,6 @@ void CAirplanePlayer::OnPlayerUpdateCallback(float fTimeElapsed) {
 		xmf3PlayerPosition.y = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z) + pTerrain->GetPosition().y;
 		SetPosition(xmf3PlayerPosition);
 		m_xmf3Velocity.y = 0;
-		printf("check");
 	}
 }
 
@@ -382,13 +377,7 @@ void CAirplanePlayer::OnCameraUpdateCallback(float fTimeElapsed)
 	}
 }
 
-void CAirplanePlayer::JumpEvent(float fDistance, float fJumpTime) {
-	fJumpTimer = fJumpTime;
-	fJumpDistance = fDistance;
-}
-
-void CAirplanePlayer::JumpAnimate(float fTimeElapsed) {
-
-	fJumpTimer -= fTimeElapsed;
-	if (fJumpTimer < 0) { fJumpTimer = 0; };
+void CPlayer::JumpEvent(float fPower) {
+	fJumpPower = fPower;
+	m_xmf3Velocity.y = fJumpPower;
 }
