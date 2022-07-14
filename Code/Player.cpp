@@ -380,8 +380,9 @@ void CAirplanePlayer::OnCameraUpdateCallback(float fTimeElapsed)
 	}
 }
 
-void CAirplanePlayer::JumpEvent(float fDistance, float fJumpTime, float fTimeElapsed) {
+void CAirplanePlayer::JumpEvent(float fDistance, float fJumpTime) {
 	fJumpTimer = fJumpTime;
+	fJumpDistance = fDistance;
 }
 
 void CAirplanePlayer::JumpAnimate(float fTimeElapsed) {

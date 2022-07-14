@@ -92,7 +92,7 @@ public:
 	bool crash = false;
 
 public:
-	virtual void JumpEvent(float fDistance, float fJumpTime, float fTimeElapsed) {};
+	virtual void JumpEvent(float fDistance, float fJumpTime) {};
 	virtual void JumpAnimate(float fTimeElapsed) {};
 };
 
@@ -106,6 +106,7 @@ public:
 	CGameObject*				m_pTailRotorFrame = NULL;
 
 	float fJumpTimer = 0.0f;
+	float fJumpDistance = 0.0f;
 
 private:
 	virtual void OnInitialize();
@@ -118,6 +119,6 @@ public:
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
 
 public:
-	virtual void JumpEvent(float fDistance, float fJumpTime, float fTimeElapsed);
+	virtual void JumpEvent(float fDistance, float fJumpTime);
 	virtual void JumpAnimate(float fTimeElapsed);
 };
