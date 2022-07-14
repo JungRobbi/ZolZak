@@ -330,7 +330,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 
 		case VK_SPACE:
-			m_pPlayer->JumpEvent(100.0f, 3.0f, m_GameTimer.GetTimeElapsed());
+			m_pPlayer->JumpEvent(100.0f, 3.0f);
 
 			break;
 		default:

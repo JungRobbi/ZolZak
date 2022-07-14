@@ -176,7 +176,6 @@ void CPlayer::Update(float fTimeElapsed)
 	float fDeceleration = (m_fFriction * fTimeElapsed);
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
-	if (m_xmf3Position.y >= 3000) SetPosition({ m_xmf3Position.x, 3000, m_xmf3Position.z });
 	m_AABB.Center = GetPosition();
 }
 
@@ -202,7 +201,7 @@ CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 		m_xmf3Look = Vector3::Normalize(XMFLOAT3(0.0f, -1.0f, 0.0f));
 
 		m_fPitch = 0.0f;
-		m_fRoll = 0.0f;
+		m_fRoll = 0.0f; 
 		m_fYaw = Vector3::Angle(XMFLOAT3(0.0f, 0.0f, 1.0f), m_xmf3Look);
 		if (m_xmf3Look.x < 0.0f) m_fYaw = -m_fYaw;
 	}
@@ -247,7 +246,7 @@ CAirplanePlayer::CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 {
 	m_pCamera = ChangeCamera(/*SPACESHIP_CAMERA*/THIRD_PERSON_CAMERA, 0.0f);
 
-	m_xmf3Gravity = XMFLOAT3(0.0f, -4.5f, 0.0f);
+	m_xmf3Gravity = XMFLOAT3(0.0f, -1.5f, 0.0f);
 
 	CGameObject *pGameObject = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Gunship.bin");
 
@@ -332,7 +331,7 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			SetFriction(500.0f);
 			SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 			SetMaxVelocityXZ(800.0f);
-			SetMaxVelocityY(500.0f);
+			SetMaxVelocityY(10000.0f);
 			m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 			m_pCamera->SetTimeLag(0.1f);
 			m_pCamera->SetOffset(XMFLOAT3(0.0f, 400.0f, -1000.0f));
@@ -351,6 +350,7 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 }
 
 void CAirplanePlayer::OnPlayerUpdateCallback(float fTimeElapsed) {
+	printf("%f\n", m_xmf3Velocity.y);
 	XMFLOAT3 xmf3PlayerPosition = GetPosition();
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pPlayerUpdatedContext;
 	
@@ -361,6 +361,8 @@ void CAirplanePlayer::OnPlayerUpdateCallback(float fTimeElapsed) {
 
 		xmf3PlayerPosition.y = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z) + pTerrain->GetPosition().y;
 		SetPosition(xmf3PlayerPosition);
+		m_xmf3Velocity.y = 0;
+		printf("check");
 	}
 }
 
@@ -387,4 +389,6 @@ void CAirplanePlayer::JumpEvent(float fDistance, float fJumpTime) {
 
 void CAirplanePlayer::JumpAnimate(float fTimeElapsed) {
 
+	fJumpTimer -= fTimeElapsed;
+	if (fJumpTimer < 0) { fJumpTimer = 0; };
 }
