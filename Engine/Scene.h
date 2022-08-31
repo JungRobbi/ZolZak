@@ -31,8 +31,8 @@ public:
 
 	void PushDelete(GameObject* gameObject)
 	{
-		if (std::find(deletionQueue.begin(), deletionQueue.end(), gameObject) == deletionQueue.end());
-		deletionQueue.push_back(gameObject);
+		if (std::find(deletionQueue.begin(), deletionQueue.end(), gameObject) == deletionQueue.end())
+			deletionQueue.push_back(gameObject);
 	}
 
 	friend GameObject;

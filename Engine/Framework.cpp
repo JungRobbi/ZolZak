@@ -10,11 +10,15 @@ void Framework::run()
 		Time::update();
 		Input::update();
 
+		if (Input::keyDown[27])
+			return;
+
 		while (Time::lag >= MS_PER_UPDATE) {
 			scene->update();
-			Time::lag -= MS_PER_UPDATE;
 			Input::clear();
+			Time::lag -= MS_PER_UPDATE;
 		}
+
 		render();
 	}
 }

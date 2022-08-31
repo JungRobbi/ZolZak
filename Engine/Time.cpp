@@ -3,6 +3,7 @@
 
 s_clock::time_point Time::previous{};
 double Time::lag{};
+double Time::elapsed{};
 
 void Time::initialize()
 {
