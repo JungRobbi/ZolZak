@@ -50,6 +50,9 @@
     <ClCompile Include="Component.cpp">
       <Filter>소스 파일\Framework</Filter>
     </ClCompile>
+    <ClCompile Include="Framework.cpp">
+      <Filter>소스 파일\Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -71,6 +74,9 @@
       <Filter>소스 파일\Framework</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
+      <Filter>소스 파일\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework.h">
       <Filter>소스 파일\Framework</Filter>
     </ClInclude>
   </ItemGroup>
