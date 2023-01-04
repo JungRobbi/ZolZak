@@ -66,11 +66,11 @@
     <ClInclude Include="Time.h">
       <Filter>소스 파일\System\Time</Filter>
     </ClInclude>
+    <ClInclude Include="GameFramework.h">
+      <Filter>소스 파일\Framework</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="NonSense.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Component.cpp">
       <Filter>소스 파일\Framework</Filter>
     </ClCompile>
@@ -94,6 +94,12 @@
     </ClCompile>
     <ClCompile Include="Time.cpp">
       <Filter>소스 파일\System\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFramework.cpp">
+      <Filter>소스 파일\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="NonSense.cpp">
+      <Filter>소스 파일\Framework</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
