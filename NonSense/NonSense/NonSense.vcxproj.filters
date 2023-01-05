@@ -25,6 +25,9 @@
     <Filter Include="소스 파일\System\Time">
       <UniqueIdentifier>{ffe8fef2-d47d-4e58-87b2-ca194014c8ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\DirectX 12">
+      <UniqueIdentifier>{e01b3cd7-4898-49e0-aa36-1cf3143ed41f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -51,14 +54,17 @@
     <ClInclude Include="Time.h">
       <Filter>소스 파일\System\Time</Filter>
     </ClInclude>
-    <ClInclude Include="GameFramework.h">
-      <Filter>소스 파일\Framework</Filter>
-    </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>소스 파일\System\Time</Filter>
     </ClInclude>
     <ClInclude Include="NonSense.h">
       <Filter>소스 파일\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFramework.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScene.h">
+      <Filter>소스 파일\DirectX 12</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -80,14 +86,17 @@
     <ClCompile Include="Time.cpp">
       <Filter>소스 파일\System\Time</Filter>
     </ClCompile>
-    <ClCompile Include="GameFramework.cpp">
-      <Filter>소스 파일\Framework</Filter>
-    </ClCompile>
     <ClCompile Include="NonSense.cpp">
       <Filter>소스 파일\Framework</Filter>
     </ClCompile>
     <ClCompile Include="Timer.cpp">
       <Filter>소스 파일\System\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFramework.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScene.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -102,5 +111,8 @@
     <Image Include="NonSense.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders.hlsl" />
   </ItemGroup>
 </Project>

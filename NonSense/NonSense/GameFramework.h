@@ -1,5 +1,6 @@
 #pragma once
 #include "Timer.h"
+#include "GameScene.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
@@ -7,6 +8,8 @@
 class GameFramework
 {
 private:
+	GameScene* m_pScene;
+
 	HINSTANCE m_hInstance;
 	HWND m_hWnd;
 	int m_nWndClientWidth;
@@ -42,7 +45,7 @@ private:
 	ID3D12PipelineState *m_pd3dPipelineState;
 	//그래픽스 파이프라인 상태 객체에 대한 인터페이스 포인터이다.
 	ID3D12Fence *m_pd3dFence;
-	UINT64 m_nFenceValue;
+	UINT64 m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE m_hFenceEvent;
 	//펜스 인터페이스 포인터, 펜스의 값, 이벤트 핸들이다.
 	D3D12_VIEWPORT m_d3dViewport;
@@ -59,6 +62,7 @@ public:
 	void CreateRtvAndDsvDescriptorHeaps();
 	void CreateDirect3DDevice();
 	void CreateCommandQueueAndList();
+	void MoveToNextFrame();
 	//스왑 체인, 디바이스, 서술자 힙, 명령 큐/할당자/리스트를 생성하는 함수이다.
 	void CreateRenderTargetViews();
 	void CreateDepthStencilView();
