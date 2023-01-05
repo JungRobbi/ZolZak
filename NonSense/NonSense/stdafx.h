@@ -38,3 +38,5 @@ using Microsoft::WRL::ComPtr;
 
 #define FRAME_BUFFER_WIDTH 800
 #define FRAME_BUFFER_HEIGHT 800
+
+#define _WITH_SWAPCHAIN_FULLSCREEN_STATE 0
