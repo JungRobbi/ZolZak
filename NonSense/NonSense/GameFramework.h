@@ -1,7 +1,8 @@
 #pragma once
-#include "Scene.h"
+#include "Timer.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
+
 
 class GameFramework
 {
@@ -10,6 +11,8 @@ private:
 	HWND m_hWnd;
 	int m_nWndClientWidth;
 	int m_nWndClientHeight;
+	Timer m_GameTimer;
+	_TCHAR m_FrameRate[50];
 
 	IDXGIFactory4* m_pdxgiFactory;
 	//DXGI 팩토리 인터페이스에 대한 포인터이다.
