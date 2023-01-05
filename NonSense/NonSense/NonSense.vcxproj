@@ -131,8 +131,6 @@
     <ClInclude Include="FrameWork.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="Input.h" />
-    <ClInclude Include="Output.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="NonSense.h" />
@@ -145,9 +143,7 @@
     <ClCompile Include="Framework.cpp" />
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="Input.cpp" />
     <ClCompile Include="NonSense.cpp" />
-    <ClCompile Include="Output.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

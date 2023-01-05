@@ -37,4 +37,4 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "dxguid.lib")
 
 #define FRAME_BUFFER_WIDTH 800
-#define FRAME_BUFFER_HEIGHT 
+#define FRAME_BUFFER_HEIGHT 800

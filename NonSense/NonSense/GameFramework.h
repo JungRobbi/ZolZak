@@ -1,5 +1,9 @@
 #pragma once
-class CGameFramework
+#include "Scene.h"
+
+#define MS_PER_UPDATE (1'000'000 / 60) // microsec
+
+class GameFramework
 {
 private:
 	HINSTANCE m_hInstance;
@@ -42,8 +46,8 @@ private:
 	D3D12_RECT m_d3dScissorRect;
 	//뷰포트와 씨저 사각형이다.
 public:
-	CGameFramework();
-	~CGameFramework();
+	GameFramework();
+	~GameFramework();
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
 	//프레임워크를 초기화하는 함수이다(주 윈도우가 생성되면 호출된다).
 	void OnDestroy();

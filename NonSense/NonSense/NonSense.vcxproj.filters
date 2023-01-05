@@ -22,12 +22,6 @@
     <Filter Include="소스 파일\System">
       <UniqueIdentifier>{efe17ced-486a-481f-ab9c-87d79ac431e3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\System\Input">
-      <UniqueIdentifier>{5f4413fb-6d70-4ebb-b6a3-1443afae91f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\System\Output">
-      <UniqueIdentifier>{55872479-4546-4969-a67e-c29461e85264}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\System\Time">
       <UniqueIdentifier>{ffe8fef2-d47d-4e58-87b2-ca194014c8ef}</UniqueIdentifier>
     </Filter>
@@ -57,12 +51,6 @@
     <ClInclude Include="stdafx.h">
       <Filter>소스 파일\PCH_AND_MISC</Filter>
     </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>소스 파일\System\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="Output.h">
-      <Filter>소스 파일\System\Output</Filter>
-    </ClInclude>
     <ClInclude Include="Time.h">
       <Filter>소스 파일\System\Time</Filter>
     </ClInclude>
@@ -85,12 +73,6 @@
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일\PCH_AND_MISC</Filter>
-    </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>소스 파일\System\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="Output.cpp">
-      <Filter>소스 파일\System\Output</Filter>
     </ClCompile>
     <ClCompile Include="Time.cpp">
       <Filter>소스 파일\System\Time</Filter>
