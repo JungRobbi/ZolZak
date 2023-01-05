@@ -108,7 +108,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
    DWORD dwstyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
-   RECT rect = { 0,0,1000,800 };
+   RECT rect = { 0,0,FRAME_BUFFER_WIDTH,FRAME_BUFFER_HEIGHT };
    AdjustWindowRect(&rect, dwstyle, FALSE);
    HWND hWnd = CreateWindow(szWindowClass, szTitle, dwstyle, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInst, NULL);
    if (!hWnd)

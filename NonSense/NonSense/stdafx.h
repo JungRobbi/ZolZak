@@ -36,7 +36,7 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
 
-#define FRAME_BUFFER_WIDTH 800
+#define FRAME_BUFFER_WIDTH 1000
 #define FRAME_BUFFER_HEIGHT 800
 
-#define _WITH_SWAPCHAIN_FULLSCREEN_STATE 0
+//#define _WITH_SWAPCHAIN_FULLSCREEN_STATE // 전체화면 default
