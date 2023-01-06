@@ -66,6 +66,15 @@
     <ClInclude Include="GameScene.h">
       <Filter>소스 파일\DirectX 12</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Component.cpp">
@@ -96,6 +105,15 @@
       <Filter>소스 파일\DirectX 12</Filter>
     </ClCompile>
     <ClCompile Include="GameScene.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
       <Filter>소스 파일\DirectX 12</Filter>
     </ClCompile>
   </ItemGroup>
