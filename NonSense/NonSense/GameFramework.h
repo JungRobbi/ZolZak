@@ -1,5 +1,6 @@
 #pragma once
 #include "Timer.h"
+#include "Camera.h"
 #include "GameScene.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
@@ -48,10 +49,9 @@ private:
 	UINT64 m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE m_hFenceEvent;
 	//펜스 인터페이스 포인터, 펜스의 값, 이벤트 핸들이다.
-	D3D12_VIEWPORT m_d3dViewport;
-	D3D12_RECT m_d3dScissorRect;
-	//뷰포트와 씨저 사각형이다.
 public:
+	Camera* m_pCamera = NULL;
+
 	GameFramework();
 	~GameFramework();
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
