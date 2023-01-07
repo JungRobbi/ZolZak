@@ -8,35 +8,26 @@ GameScene::GameScene()
 void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-	CubeMesh* pMesh = new CubeMesh(pd3dDevice, pd3dCommandList,12.0f, 12.0f, 12.0f);
-	m_nObjects = 1;
-	m_ppObjects = new Object * [m_nObjects];
-	RotatingObject* pRotatingObject = new RotatingObject();
-	pRotatingObject->SetMesh(pMesh);
-	DiffusedShader* pShader = new DiffusedShader();
-	pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
-	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	pRotatingObject->SetShader(pShader);
-	m_ppObjects[0] = pRotatingObject;
+	m_nShaders = 1;
+	m_pShaders = new ObjectsShader[m_nShaders];
+	m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	m_pShaders[0].BuildObjects(pd3dDevice, pd3dCommandList);
 }
 
 void GameScene::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
-	if (m_ppObjects)
+	for (int i = 0; i < m_nShaders; i++)
 	{
-		for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) delete m_ppObjects[j];
-		delete[] m_ppObjects;
+		m_pShaders[i].ReleaseShaderVariables();
+		m_pShaders[i].ReleaseObjects();
 	}
+	if (m_pShaders) delete[] m_pShaders;
 }
 
 void GameScene::ReleaseUploadBuffers()
 {
-	if (m_ppObjects)
-	{
-		for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j])
-			m_ppObjects[j]->ReleaseUploadBuffers();
-	}
+	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].ReleaseUploadBuffers();
 }
 
 ID3D12RootSignature* GameScene::GetGraphicsRootSignature()
@@ -94,20 +85,14 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 
 void GameScene::AnimateObjects(float fTimeElapsed)
 {
-	for (int j = 0; j < m_nObjects; j++)
-	{
-		m_ppObjects[j]->Animate(fTimeElapsed);
-	}
+	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].AnimateObjects(fTimeElapsed);
 }
 
 void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
-	if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
-	//씬을 렌더링하는 것은 씬을 구성하는 게임 객체(셰이더를 포함하는 객체)들을 렌더링하는 것이다.
-	for (int j = 0; j < m_nObjects; j++)
-	{
-		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
-	}
+	pCamera->UpdateShaderVariables(pd3dCommandList);
+
+	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].Render(pd3dCommandList, pCamera);
 }

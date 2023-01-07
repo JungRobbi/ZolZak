@@ -27,6 +27,87 @@ void Object::SetMesh(Mesh* pMesh)
 	m_pMesh = pMesh;
 	if (m_pMesh) m_pMesh->AddRef();
 }
+
+void Object::SetPosition(float x, float y, float z)
+{
+	m_xmf4x4World._41 = x;
+	m_xmf4x4World._42 = y;
+	m_xmf4x4World._43 = z;
+}
+void Object::SetPosition(XMFLOAT3 xmf3Position)
+{
+	SetPosition(xmf3Position.x, xmf3Position.y, xmf3Position.z);
+}
+XMFLOAT3 Object::GetPosition()
+{
+	return(XMFLOAT3(m_xmf4x4World._41, m_xmf4x4World._42, m_xmf4x4World._43));
+}
+
+XMFLOAT3 Object::GetLook()
+{
+	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._31, m_xmf4x4World._32,
+		m_xmf4x4World._33)));
+}
+
+XMFLOAT3 Object::GetUp()
+{
+	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._21, m_xmf4x4World._22,
+		m_xmf4x4World._23)));
+}
+
+XMFLOAT3 Object::GetRight()
+{
+	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._11, m_xmf4x4World._12,
+		m_xmf4x4World._13)));
+}
+
+void Object::MoveStrafe(float fDistance)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	XMFLOAT3 xmf3Right = GetRight();
+	xmf3Position = Vector3::Add(xmf3Position, xmf3Right, fDistance);
+	Object::SetPosition(xmf3Position);
+}
+
+void Object::MoveUp(float fDistance)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	XMFLOAT3 xmf3Up = GetUp();
+	xmf3Position = Vector3::Add(xmf3Position, xmf3Up, fDistance);
+	Object::SetPosition(xmf3Position);
+}
+
+void Object::MoveForward(float fDistance)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	XMFLOAT3 xmf3Look = GetLook();
+	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
+	Object::SetPosition(xmf3Position);
+}
+
+void Object::Rotate(float fPitch, float fYaw, float fRoll)
+{
+	XMMATRIX mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(fPitch),
+		XMConvertToRadians(fYaw), XMConvertToRadians(fRoll));
+	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
+}
+
+void Object::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+}
+
+void Object::ReleaseShaderVariables()
+{
+}
+
+void Object::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	XMFLOAT4X4 xmf4x4World;
+	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
+	//객체의 월드 변환 행렬을 루트 상수(32-비트 값)를 통하여 셰이더 변수(상수 버퍼)로 복사한다.
+	pd3dCommandList->SetGraphicsRoot32BitConstants(0, 16, &xmf4x4World, 0);
+}
+
 void Object::ReleaseUploadBuffers()
 {
 	//정점 버퍼를 위한 업로드 버퍼를 소멸시킨다.
@@ -46,12 +127,9 @@ void Object::OnPrepareRender()
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	OnPrepareRender();
-	if (m_pShader)
-	{
-		//게임 객체의 월드 변환 행렬을 셰이더의 상수 버퍼로 전달(복사)한다.
-		m_pShader->UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-		m_pShader->Render(pd3dCommandList, pCamera);
-	}
+	//객체의 정보를 셰이더 변수(상수 버퍼)로 복사한다.
+	UpdateShaderVariables(pd3dCommandList);
+	if (m_pShader) m_pShader->Render(pd3dCommandList, pCamera);
 	if (m_pMesh) m_pMesh->Render(pd3dCommandList);
 }
 
