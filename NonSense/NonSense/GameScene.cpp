@@ -8,7 +8,7 @@ GameScene::GameScene()
 void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-	TriangleMesh* pMesh = new TriangleMesh(pd3dDevice, pd3dCommandList);
+	CubeMesh* pMesh = new CubeMesh(pd3dDevice, pd3dCommandList,12.0f, 12.0f, 12.0f);
 	m_nObjects = 1;
 	m_ppObjects = new Object * [m_nObjects];
 	RotatingObject* pRotatingObject = new RotatingObject();
