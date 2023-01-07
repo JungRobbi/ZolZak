@@ -272,6 +272,11 @@ void GameFramework::BuildObjects()
 	//씬 객체를 생성하고 씬에 포함될 게임 객체들을 생성한다.
 	m_pScene = new GameScene();
 	m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+
+	CubePlayer* pAirplanePlayer = new CubePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+	m_pPlayer = pAirplanePlayer;
+	m_pCamera = m_pPlayer->GetCamera();
+
 	//씬 객체를 생성하기 위하여 필요한 그래픽 명령 리스트들을 명령 큐에 추가한다.
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -295,13 +300,12 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 	{
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
+		//마우스 캡쳐를 하고 현재 마우스 위치를 가져온다.
+		::SetCapture(hWnd);
 		break;
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
-		break;
-	case WM_MOUSEMOVE:
-		break;
-	default:
+		::ReleaseCapture();
 		break;
 	}
 }
@@ -313,6 +317,11 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 	case WM_KEYUP:
 		switch (wParam)
 		{
+		case VK_F1:
+		case VK_F2:
+		case VK_F3:
+			if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
+			break;
 		case VK_ESCAPE:
 			::PostQuitMessage(0);
 			break;
@@ -358,7 +367,50 @@ LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessa
 }
 void GameFramework::ProcessInput()
 {
+	static UCHAR pKeyBuffer[256];
+	DWORD dwDirection = 0;
+
+	if (::GetKeyboardState(pKeyBuffer))
+	{
+		if (pKeyBuffer[VK_UP] & 0xF0) dwDirection |= DIR_FORWARD;
+		if (pKeyBuffer[VK_DOWN] & 0xF0) dwDirection |= DIR_BACKWARD;
+		if (pKeyBuffer[VK_LEFT] & 0xF0) dwDirection |= DIR_LEFT;
+		if (pKeyBuffer[VK_RIGHT] & 0xF0) dwDirection |= DIR_RIGHT;
+		if (pKeyBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
+		if (pKeyBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
+	}
+	float cxDelta = 0.0f, cyDelta = 0.0f;
+	POINT ptCursorPos;
+
+	if (::GetCapture() == m_hWnd)
+	{
+		//마우스 커서를 화면에서 없앤다(보이지 않게 한다).
+		::SetCursor(NULL);
+		//현재 마우스 커서의 위치를 가져온다.
+		::GetCursorPos(&ptCursorPos);
+		//마우스 버튼이 눌린 상태에서 마우스가 움직인 양을 구한다.
+		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+		//마우스 커서의 위치를 마우스가 눌려졌던 위치로 설정한다.
+		::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+	}
+	//마우스 또는 키 입력이 있으면 플레이어를 이동하거나(dwDirection) 회전한다(cxDelta 또는 cyDelta).
+	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+	{
+		if (cxDelta || cyDelta)
+		{
+
+			if (pKeyBuffer[VK_RBUTTON] & 0xF0)
+				m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+			else
+				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+		}
+		if (dwDirection) m_pPlayer->Move(dwDirection, 50.0f * m_GameTimer.GetTimeElapsed(),
+			true);
+	}
+	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 }
+
 void GameFramework::AnimateObjects()
 {
 	if (m_pScene) m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
@@ -397,8 +449,6 @@ void GameFramework::FrameAdvance()
 	AnimateObjects();
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
-
-	//명령 할당자와 명령 리스트를 리셋한다.
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
 	d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -408,44 +458,29 @@ void GameFramework::FrameAdvance()
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
-	/*현재 렌더 타겟에 대한 프리젠트가 끝나기를 기다린다. 프리젠트가 끝나면 렌더 타겟 버퍼의 상태는 프리젠트 상태(D3D12_RESOURCE_STATE_PRESENT)에서 렌더 타겟 상태(D3D12_RESOURCE_STATE_RENDER_TARGET)로 바뀔 것이다.*/
-
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
-	//현재의 렌더 타겟에 해당하는 서술자의 CPU 주소(핸들)를 계산한다.
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
-
 	float pfClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
-	//원하는 색상으로 렌더 타겟(뷰)을 지운다.
-
-	//깊이-스텐실 서술자의 CPU 주소를 계산한다.
+	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-	//원하는 값으로 깊이-스텐실(뷰)을 지운다.
-	if (m_pScene) m_pScene->Render(m_pd3dCommandList,m_pCamera);
-	
-	//렌더 타겟 뷰(서술자)와 깊이-스텐실 뷰(서술자)를 출력-병합 단계(OM)에 연결한다. //렌더링 코드는 여기에 추가될 것이다.
+	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
+	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
+	 #ifdef _WITH_PLAYER_TOP
+	 m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle,
+	D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+#endif
+	if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
-	/*현재 렌더 타겟에 대한 렌더링이 끝나기를 기다린다. GPU가 렌더 타겟(버퍼)을 더 이상 사용하지 않으면 렌더 타겟의 상태는 프리젠트 상태(D3D12_RESOURCE_STATE_PRESENT)로 바뀔 것이다.*/
 	hResult = m_pd3dCommandList->Close();
-	//명령 리스트를 닫힌 상태로 만든다.
-	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
+	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-	//명령 리스트를 명령 큐에 추가하여 실행한다.
 	WaitForGpuComplete();
-	//GPU가 모든 명령 리스트를 실행할 때 까지 기다린다.
-	DXGI_PRESENT_PARAMETERS dxgiPresentParameters;
-	dxgiPresentParameters.DirtyRectsCount = 0;
-	dxgiPresentParameters.pDirtyRects = NULL;
-	dxgiPresentParameters.pScrollRect = NULL;
-	dxgiPresentParameters.pScrollOffset = NULL;
 	m_pdxgiSwapChain->Present(0, 0);
 	MoveToNextFrame();
-
 	m_GameTimer.GetFrameRate(m_FrameRate + 12, 37);
 	::SetWindowText(m_hWnd, m_FrameRate);
 }

@@ -2,6 +2,7 @@
 #include "Timer.h"
 #include "Camera.h"
 #include "GameScene.h"
+#include "Player.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
@@ -51,6 +52,9 @@ private:
 	//펜스 인터페이스 포인터, 펜스의 값, 이벤트 핸들이다.
 public:
 	Camera* m_pCamera = NULL;
+	Player* m_pPlayer = NULL;
+	//마지막으로 마우스 버튼을 클릭할 때의 마우스 커서의 위치이다.
+	POINT m_ptOldCursorPos;
 
 	GameFramework();
 	~GameFramework();
