@@ -36,6 +36,28 @@ void Mesh::Render(ID3D12GraphicsCommandList* pd3dCommandList)
 	}
 }
 
+void Mesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nInstances)
+{
+	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+	if (m_pd3dIndexBuffer)
+	{
+		pd3dCommandList->IASetIndexBuffer(&m_d3dIndexBufferView);
+		pd3dCommandList->DrawIndexedInstanced(m_nIndices, nInstances, 0, 0, 0);
+	}
+	else
+	{
+		pd3dCommandList->DrawInstanced(m_nVertices, nInstances, m_nOffset, 0);
+	}
+}
+void Mesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nInstances,
+	D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
+{
+	//정점 버퍼 뷰와 인스턴싱 버퍼 뷰를 입력-조립 단계에 설정한다.
+	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[] = { m_d3dVertexBufferView, d3dInstancingBufferView };
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, _countof(pVertexBufferViews), pVertexBufferViews);
+	Render(pd3dCommandList, nInstances);
+}
+
 TriangleMesh::TriangleMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) : Mesh(pd3dDevice, pd3dCommandList)
 {
 	//삼각형 메쉬를 정의한다.

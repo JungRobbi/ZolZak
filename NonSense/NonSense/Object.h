@@ -19,6 +19,7 @@ public:
 	XMFLOAT3 GetLook();
 	XMFLOAT3 GetUp();
 	XMFLOAT3 GetRight();
+	XMFLOAT4X4 GetWorld() { return m_xmf4x4World; }
 	void SetPosition(float x, float y, float z);
 	void SetPosition(XMFLOAT3 xmf3Position);
 	void MoveStrafe(float fDistance = 1.0f);
@@ -37,6 +38,7 @@ public:
 	virtual void Animate(float fTimeElapsed);
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView);
 	//상수 버퍼를 생성한다.
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	//상수 버퍼의 내용을 갱신한다.
