@@ -63,9 +63,6 @@
     <ClInclude Include="GameFramework.h">
       <Filter>소스 파일\DirectX 12</Filter>
     </ClInclude>
-    <ClInclude Include="GameScene.h">
-      <Filter>소스 파일\DirectX 12</Filter>
-    </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>소스 파일\DirectX 12</Filter>
     </ClInclude>
@@ -79,6 +76,9 @@
       <Filter>소스 파일\DirectX 12</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScene.h">
       <Filter>소스 파일\DirectX 12</Filter>
     </ClInclude>
   </ItemGroup>
@@ -107,12 +107,6 @@
     <ClCompile Include="Timer.cpp">
       <Filter>소스 파일\System\Time</Filter>
     </ClCompile>
-    <ClCompile Include="GameFramework.cpp">
-      <Filter>소스 파일\DirectX 12</Filter>
-    </ClCompile>
-    <ClCompile Include="GameScene.cpp">
-      <Filter>소스 파일\DirectX 12</Filter>
-    </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>소스 파일\DirectX 12</Filter>
     </ClCompile>
@@ -126,6 +120,12 @@
       <Filter>소스 파일\DirectX 12</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScene.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFramework.cpp">
       <Filter>소스 파일\DirectX 12</Filter>
     </ClCompile>
   </ItemGroup>
@@ -143,6 +143,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders.hlsl" />
+    <FxCompile Include="Light.hlsl" />
+    <FxCompile Include="Shaders.hlsl" />
   </ItemGroup>
 </Project>
