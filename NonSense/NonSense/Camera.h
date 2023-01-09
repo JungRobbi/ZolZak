@@ -16,6 +16,7 @@ struct VS_CB_CAMERA_INFO
 class Camera
 {
 protected:
+	BoundingFrustum m_xmFrustum;
 	//카메라의 위치(월드좌표계) 벡터이다.
 	XMFLOAT3 m_xmf3Position;
 	//카메라의 로컬 x-축(Right), y-축(Up), z-축(Look)을 나타내는 벡터이다.*/
@@ -58,6 +59,10 @@ public:
 	void SetViewport(int xTopLeft, int yTopLeft, int nWidth, int nHeight, float fMinZ = 0.0f, float fMaxZ = 1.0f);
 	void SetScissorRect(LONG xLeft, LONG yTop, LONG xRight, LONG yBottom);
 	virtual void SetViewportsAndScissorRects(ID3D12GraphicsCommandList* pd3dCommandList);
+	//절두체(월드 좌표계)를 생성한다.
+	void GenerateFrustum();
+	//바운딩 박스(OOBB, 월드 좌표계)가 절두체에 포함되는 가를 검사한다.
+	bool IsInFrustum(BoundingOrientedBox& xmBoundingBox);
 	void SetPlayer(Player* pPlayer) { m_pPlayer = pPlayer; }
 	Player* GetPlayer() { return(m_pPlayer); }
 	void SetMode(DWORD nMode) { m_nMode = nMode; }

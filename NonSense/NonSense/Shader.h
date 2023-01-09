@@ -2,7 +2,16 @@
 #include "Object.h"
 #include "Camera.h"
 
+//객체를 렌더링할 때 적용하는 상수 버퍼 데이터
 struct CB_GAMEOBJECT_INFO
+{
+	XMFLOAT4X4 m_xmf4x4World;
+	//객체에 적용될 재질 번호
+	UINT m_nMaterial;
+};
+
+//플레이어 객체를 렌더링할 때 적용하는 상수 버퍼 데이터
+struct CB_PLAYER_INFO
 {
 	XMFLOAT4X4 m_xmf4x4World;
 };
@@ -34,6 +43,7 @@ public:
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
+	void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, MATERIAL* pMaterial) {};
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World);
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
@@ -58,9 +68,14 @@ class ObjectsShader : public Shader
 public:
 	ObjectsShader();
 	virtual ~ObjectsShader();
+	//셰이더에 포함되어 있는 모든 게임 객체들에 대한 마우스 픽킹을 수행한다.
+	virtual Object *PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition,XMFLOAT4X4& xmf4x4View, float* pfNearHitDistance);
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void AnimateObjects(float fTimeElapsed);
 	virtual void ReleaseObjects();
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void ReleaseShaderVariables();
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
@@ -70,28 +85,7 @@ public:
 protected:
 	Object** m_ppObjects = NULL;
 	int m_nObjects = 0;
-};
-
-class InstancingShader : public ObjectsShader
-{
-public:
-	InstancingShader();
-	virtual ~InstancingShader();
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
-	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature
-		* pd3dGraphicsRootSignature);
-	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void ReleaseShaderVariables();
-	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
-		* pd3dCommandList);
-	virtual void ReleaseObjects() {};
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
-protected:
-	//인스턴스 정점 버퍼와 정점 버퍼 뷰이다.
-	ID3D12Resource *m_pd3dcbGameObjects = NULL;
-	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
-	D3D12_VERTEX_BUFFER_VIEW m_d3dInstancingBufferView;
+	//쉐이더 객체에 포함되어 있는 모든 게임 객체들에 대한 리소스와 리소스 포인터
+	ID3D12Resource* m_pd3dcbGameObjects = NULL;
+	UINT8* m_pcbMappedGameObjects = NULL;
 };
