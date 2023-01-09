@@ -41,6 +41,11 @@ protected:
 	D3D12_RECT m_d3dScissorRect;
 	//카메라를 가지고 있는 플레이어에 대한 포인터이다.
 	Player *m_pPlayer = NULL;
+
+	//카메라의 정보를 루트파라미터로 넘겨주기 위한 리소스
+	ID3D12Resource* m_pd3dcbCamera = NULL;
+	VS_CB_CAMERA_INFO* m_pcbMappedCamera = NULL;
+
 public:
 	Camera();
 	Camera(Camera* pCamera);
