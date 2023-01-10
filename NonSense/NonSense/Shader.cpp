@@ -351,7 +351,7 @@ void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 			for (int z = -zObjects; z <= zObjects; z++)
 			{
 				pRotatingObject = new RotatingObject();
-				pRotatingObject->SetMaterial((UINT)0);
+				pRotatingObject->SetMaterial(i % MAX_MATERIALS);
 				pRotatingObject->SetMesh(pCubeMesh);
 				pRotatingObject->SetPosition(fxPitch * x, fyPitch * y, fzPitch * z);
 				pRotatingObject->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
