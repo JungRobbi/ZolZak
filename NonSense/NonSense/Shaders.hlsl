@@ -26,6 +26,7 @@ cbuffer cbGameObjectInfo : register(b2)
 //정점 조명을 사용
 #define _WITH_VERTEX_LIGHTING
 
+
 //정점 쉐이더의 입력 정점 구조
 struct VS_LIGHTING_INPUT
 {
@@ -38,12 +39,13 @@ struct VS_LIGHTING_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float3 positionW : POSITION;
-#ifdef _WITH_VERTEX_LIGHTING
+//#ifdef _WITH_VERTEX_LIGHTING
 	float4 color : COLOR;
-#else
+//#else
 	float3 normalW : NORMAL;
-#endif
+//#endif
 };
+
 //정점 쉐이더 함수
 VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
 {
@@ -51,23 +53,25 @@ VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
 	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	float3 normalW = mul(input.normal, (float3x3)gmtxGameObject);
-#ifdef _WITH_VERTEX_LIGHTING
+//#ifdef _WITH_VERTEX_LIGHTING
 	output.color = Lighting(output.positionW, normalize(normalW));
-#else
+//#else
 	output.normalW = normalW;
-#endif
+//#endif
 	return(output);
 }
+
 //픽셀 쉐이더 함수
 float4 PSLighting(VS_LIGHTING_OUTPUT input) : SV_TARGET
 {
-#ifdef _WITH_VERTEX_LIGHTING
-	return(input.color);
-#else
+//#ifdef _WITH_VERTEX_LIGHTING
+	//return(input.color);
+//#else
 	float3 normalW = normalize(input.normalW);
+	//return(input.color);
 	float4 color = Lighting(input.positionW, normalW);
 	return(color);
-#endif
+//#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

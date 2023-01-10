@@ -272,10 +272,12 @@ void ObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* p
 	UpdateShaderVariables(pd3dCommandList);
 	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbGameObjectGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
+	UINT stencil = 1;
 	for (int j = 0; j < m_nObjects; j++)
 	{
 		if (m_ppObjects[j])
 		{
+			pd3dCommandList->OMSetStencilRef(stencil++);
 			pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbGameObjectGpuVirtualAddress + (ncbGameObjectBytes * j));
 			m_ppObjects[j]->Render(pd3dCommandList, pCamera);
 		}
@@ -334,9 +336,8 @@ void ObjectsShader::ReleaseShaderVariables()
 
 void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(pd3dDevice,
-		pd3dCommandList, 12.0f, 12.0f, 12.0f);
-	int xObjects = 10, yObjects = 10, zObjects = 10, i = 0;
+	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(pd3dDevice, pd3dCommandList, 12.0f, 12.0f, 12.0f);
+	int xObjects = 1, yObjects = 1, zObjects = 1, i = 0;
 	m_nObjects = (xObjects * 2 + 1) * (yObjects * 2 + 1) * (zObjects * 2 + 1);
 	m_ppObjects = new Object * [m_nObjects];
 	float fxPitch = 12.0f * 2.5f;
@@ -350,7 +351,7 @@ void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 			for (int z = -zObjects; z <= zObjects; z++)
 			{
 				pRotatingObject = new RotatingObject();
-				pRotatingObject->SetMaterial(i % MAX_MATERIALS);
+				pRotatingObject->SetMaterial((UINT)0);
 				pRotatingObject->SetMesh(pCubeMesh);
 				pRotatingObject->SetPosition(fxPitch * x, fyPitch * y, fzPitch * z);
 				pRotatingObject->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
