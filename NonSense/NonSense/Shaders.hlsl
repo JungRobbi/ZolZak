@@ -1,18 +1,104 @@
-//정점 셰이더를 정의한다.
-float4 VSMain(uint nVertexID : SV_VertexID) : SV_POSITION
+////////////////////////////////////////////////////////////////////////////
+
+//플레이어 객체의 데이터를 위한 상수 버퍼
+cbuffer cbPlayerInfo : register(b0)
 {
-	float4 output;
-	//프리미티브(삼각형)를 구성하는 정점의 인덱스(SV_VertexID)에 따라 정점을 반환한다.
-	//정점의 위치 좌표는 변환이 된 좌표(SV_POSITION)이다. 즉, 투영좌표계의 좌표이다.
-	if (nVertexID == 0) output = float4(0.0, 0.5, 0.5, 1.0);
-	else if (nVertexID == 1) output = float4(0.5, -0.5, 0.5, 1.0);
-	else if (nVertexID == 2) output = float4(-0.5, -0.5, 0.5, 1.0);
+	matrix gmtxPlayerWorld : packoffset(c0);
+};
+//카메라의 정보를 위한 상수 버퍼를 선언한다.
+cbuffer cbCameraInfo : register(b1)
+{
+	matrix gmtxView : packoffset(c0);
+	matrix gmtxProjection : packoffset(c4);
+	float3 gvCameraPosition : packoffset(c8);
+};
+//게임 객체의 데이터를 위한 상수 버퍼(게임 객체에 대한 재질 번호를 추가)
+cbuffer cbGameObjectInfo : register(b2)
+{
+	matrix gmtxGameObject : packoffset(c0);
+	uint gnMaterial : packoffset(c4);
+};
+
+#include "Light.hlsl"
+
+/////////////////////////////////////////////////////////////////////////////
+
+//정점 조명을 사용
+//#define _WITH_VERTEX_LIGHTING
+
+
+//정점 쉐이더의 입력 정점 구조
+struct VS_LIGHTING_INPUT
+{
+	float3 position : POSITION;
+	float3 normal : NORMAL;
+};
+
+//정점 쉐이더의 출력 정점 구조
+struct VS_LIGHTING_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float3 positionW : POSITION;
+#ifdef _WITH_VERTEX_LIGHTING
+	float4 color : COLOR;
+#else
+	float3 normalW : NORMAL;
+#endif
+};
+
+//정점 쉐이더 함수
+VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
+{
+	VS_LIGHTING_OUTPUT output;
+	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
+	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	float3 normalW = mul(input.normal, (float3x3)gmtxGameObject);
+#ifdef _WITH_VERTEX_LIGHTING
+	output.color = Lighting(output.positionW, normalize(normalW));
+#else
+	output.normalW = normalW;
+#endif
 	return(output);
 }
 
-//픽셀 셰이더를 정의한다.
-float4 PSMain(float4 input : SV_POSITION) : SV_TARGET
+//픽셀 쉐이더 함수
+float4 PSLighting(VS_LIGHTING_OUTPUT input) : SV_TARGET
 {
-	//프리미티브의 모든 픽셀의 색상을 노란색으로 반환한다.
-	return(float4(1.0f, 1.0f, 0.0f, 1.0f));
+#ifdef _WITH_VERTEX_LIGHTING
+	return(input.color);
+#else
+	float3 normalW = normalize(input.normalW);
+	float4 color = Lighting(input.positionW, normalW);
+	return(color);
+#endif
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+//정점 셰이더의 입력을 위한 구조체를 선언한다.
+struct VS_INPUT
+{
+	float3 position : POSITION;
+	float4 color : COLOR;
+};
+
+//정점 셰이더의 출력(픽셀 셰이더의 입력)을 위한 구조체를 선언한다.
+struct VS_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float4 color : COLOR;
+};
+//정점 셰이더를 정의한다.
+VS_OUTPUT VSDiffused(VS_INPUT input)
+{
+	VS_OUTPUT output;
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxPlayerWorld), gmtxView),
+	gmtxProjection);
+	output.color = input.color;
+	return(output);
+}
+//픽셀 셰이더를 정의한다.
+float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
+{
+	return(input.color);
 }

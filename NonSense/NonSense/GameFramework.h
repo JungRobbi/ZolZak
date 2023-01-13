@@ -1,6 +1,8 @@
 #pragma once
 #include "Timer.h"
+#include "Camera.h"
 #include "GameScene.h"
+#include "Player.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
@@ -48,10 +50,13 @@ private:
 	UINT64 m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE m_hFenceEvent;
 	//펜스 인터페이스 포인터, 펜스의 값, 이벤트 핸들이다.
-	D3D12_VIEWPORT m_d3dViewport;
-	D3D12_RECT m_d3dScissorRect;
-	//뷰포트와 씨저 사각형이다.
 public:
+	Camera* m_pCamera = NULL;
+	Player* m_pPlayer = NULL;
+	Object* m_pSelectedObject = NULL;
+	//마지막으로 마우스 버튼을 클릭할 때의 마우스 커서의 위치이다.
+	POINT m_ptOldCursorPos;
+
 	GameFramework();
 	~GameFramework();
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
@@ -75,6 +80,7 @@ public:
 	void FrameAdvance();
 	void WaitForGpuComplete();
 	//CPU와 GPU를 동기화하는 함수이다.
+	void ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta);
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,LPARAM lParam);
