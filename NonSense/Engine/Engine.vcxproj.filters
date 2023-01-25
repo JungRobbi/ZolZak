@@ -25,6 +25,9 @@
     <Filter Include="소스 파일\MSG">
       <UniqueIdentifier>{bd36fdcb-6201-4466-89b6-50ad507713ed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\PCH_AND_MISC">
+      <UniqueIdentifier>{3d0d6692-a1ef-4237-8a6a-c377f312ff6d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Framework.cpp">
@@ -59,6 +62,12 @@
     </ClCompile>
     <ClCompile Include="DataMSG.cpp">
       <Filter>소스 파일\MSG</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>소스 파일\System</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>소스 파일\PCH_AND_MISC</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +106,15 @@
     </ClInclude>
     <ClInclude Include="..\Globals.h">
       <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>소스 파일\System</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>소스 파일\PCH_AND_MISC</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>소스 파일\PCH_AND_MISC</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
