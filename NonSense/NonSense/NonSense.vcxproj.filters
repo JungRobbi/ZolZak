@@ -13,17 +13,8 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="소스 파일\Framework">
-      <UniqueIdentifier>{5495e2ad-c9f2-403d-bfeb-a2a5a1feb2cb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\PCH_AND_MISC">
       <UniqueIdentifier>{e28309a9-198d-4059-bcad-39ecaa9b6025}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\System">
-      <UniqueIdentifier>{efe17ced-486a-481f-ab9c-87d79ac431e3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\System\Time">
-      <UniqueIdentifier>{ffe8fef2-d47d-4e58-87b2-ca194014c8ef}</UniqueIdentifier>
     </Filter>
     <Filter Include="소스 파일\DirectX 12">
       <UniqueIdentifier>{e01b3cd7-4898-49e0-aa36-1cf3143ed41f}</UniqueIdentifier>
@@ -36,29 +27,8 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Component.h">
-      <Filter>소스 파일\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameWork.h">
-      <Filter>소스 파일\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>소스 파일\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>소스 파일\Framework</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>소스 파일\PCH_AND_MISC</Filter>
-    </ClInclude>
-    <ClInclude Include="Time.h">
-      <Filter>소스 파일\System\Time</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>소스 파일\System\Time</Filter>
-    </ClInclude>
-    <ClInclude Include="NonSense.h">
-      <Filter>소스 파일\Framework</Filter>
     </ClInclude>
     <ClInclude Include="GameFramework.h">
       <Filter>소스 파일\DirectX 12</Filter>
@@ -81,31 +51,13 @@
     <ClInclude Include="GameScene.h">
       <Filter>소스 파일\DirectX 12</Filter>
     </ClInclude>
+    <ClInclude Include="NonSense.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Component.cpp">
-      <Filter>소스 파일\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework.cpp">
-      <Filter>소스 파일\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>소스 파일\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>소스 파일\Framework</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일\PCH_AND_MISC</Filter>
-    </ClCompile>
-    <ClCompile Include="Time.cpp">
-      <Filter>소스 파일\System\Time</Filter>
-    </ClCompile>
-    <ClCompile Include="NonSense.cpp">
-      <Filter>소스 파일\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp">
-      <Filter>소스 파일\System\Time</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>소스 파일\DirectX 12</Filter>
@@ -127,6 +79,9 @@
     </ClCompile>
     <ClCompile Include="GameFramework.cpp">
       <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="NonSense.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
