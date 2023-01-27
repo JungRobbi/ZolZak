@@ -1,5 +1,5 @@
 #pragma once
-#include "Timer.h"
+#include "../Engine/Timer.h"
 #include "Camera.h"
 #include "GameScene.h"
 #include "Player.h"
@@ -16,7 +16,6 @@ private:
 	HWND m_hWnd;
 	int m_nWndClientWidth;
 	int m_nWndClientHeight;
-	Timer m_GameTimer;
 	_TCHAR m_FrameRate[50];
 
 	IDXGIFactory4* m_pdxgiFactory;

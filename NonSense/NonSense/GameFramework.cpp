@@ -24,6 +24,8 @@ GameFramework::GameFramework()
 	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
 	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
 	_tcscpy_s(m_FrameRate, _T("NonSense"));
+
+	Timer::Initialize();
 }
 
 GameFramework::~GameFramework()
@@ -274,7 +276,7 @@ void GameFramework::BuildObjects()
 	WaitForGpuComplete();
 	if (m_pScene) m_pScene->ReleaseUploadBuffers();
 	if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
-	m_GameTimer.Reset();
+	Timer::Reset();
 }
 
 void GameFramework::ReleaseObjects()
@@ -312,7 +314,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 		case VK_F1:
 		case VK_F2:
 		case VK_F3:
-			if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
+			if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((wParam - VK_F1 + 1), Timer::GetTimeElapsed());
 			break;
 		case VK_ESCAPE:
 			::PostQuitMessage(0);
@@ -421,15 +423,15 @@ void GameFramework::ProcessInput()
 				else
 					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 			}
-			if (dwDirection) m_pPlayer->Move(dwDirection, 50.0f * m_GameTimer.GetTimeElapsed(), true);
+			if (dwDirection) m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
 		}
 	}
-	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+	m_pPlayer->Update(Timer::GetTimeElapsed());
 }
 
 void GameFramework::AnimateObjects()
 {
-	if (m_pScene) m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
+	if (m_pScene) m_pScene->AnimateObjects(Timer::GetTimeElapsed());
 }
 
 void GameFramework::WaitForGpuComplete()
@@ -460,7 +462,7 @@ void GameFramework::MoveToNextFrame()
 
 void GameFramework::FrameAdvance()
 {
-	m_GameTimer.Tick(0.0f);
+	Timer::Tick(0.0f);
 	ProcessInput();
 	AnimateObjects();
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
@@ -497,6 +499,6 @@ void GameFramework::FrameAdvance()
 	WaitForGpuComplete();
 	m_pdxgiSwapChain->Present(0, 0);
 	MoveToNextFrame();
-	m_GameTimer.GetFrameRate(m_FrameRate + 12, 37);
+	Timer::GetFrameRate(m_FrameRate + 12, 37);
 	::SetWindowText(m_hWnd, m_FrameRate);
 }
