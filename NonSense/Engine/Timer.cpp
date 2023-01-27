@@ -1,25 +1,25 @@
 #include "stdafx.h"
 #include "Timer.h"
 
-Timer::Timer()
-{
-	::QueryPerformanceFrequency((LARGE_INTEGER*)&m_nPerformanceFrequencyPerSec);
-	::QueryPerformanceCounter((LARGE_INTEGER*)&m_nLastPerformanceCounter);
-	m_fTimeScale = 1.0 / (double)m_nPerformanceFrequencyPerSec;
+double							Timer::m_fTimeScale;
+float							Timer::m_fTimeElapsed;
 
-	m_nBasePerformanceCounter = m_nLastPerformanceCounter;
-	m_nPausedPerformanceCounter = 0;
-	m_nStopPerformanceCounter = 0;
+__int64							Timer::m_nBasePerformanceCounter;
+__int64							Timer::m_nPausedPerformanceCounter;
+__int64							Timer::m_nStopPerformanceCounter;
+__int64							Timer::m_nCurrentPerformanceCounter;
+__int64							Timer::m_nLastPerformanceCounter;
 
-	m_nSampleCount = 0;
-	m_nCurrentFrameRate = 0;
-	m_nFramesPerSecond = 0;
-	m_fFPSTimeElapsed = 0.0f;
-}
+__int64							Timer::m_nPerformanceFrequencyPerSec;
 
-Timer::~Timer()
-{
-}
+float							Timer::m_fFrameTime[MAX_SAMPLE_COUNT];
+ULONG							Timer::m_nSampleCount;
+
+unsigned long					Timer::m_nCurrentFrameRate;
+unsigned long					Timer::m_nFramesPerSecond;
+float							Timer::m_fFPSTimeElapsed;
+
+bool							Timer::m_bStopped;
 
 void Timer::Tick(float fLockFPS)
 {
@@ -96,6 +96,22 @@ void Timer::Reset()
 	m_nLastPerformanceCounter = nPerformanceCounter;
 	m_nStopPerformanceCounter = 0;
 	m_bStopped = false;
+}
+
+void Timer::Initialize()
+{
+	::QueryPerformanceFrequency((LARGE_INTEGER*)&m_nPerformanceFrequencyPerSec);
+	::QueryPerformanceCounter((LARGE_INTEGER*)&m_nLastPerformanceCounter);
+	m_fTimeScale = 1.0 / (double)m_nPerformanceFrequencyPerSec;
+
+	m_nBasePerformanceCounter = m_nLastPerformanceCounter;
+	m_nPausedPerformanceCounter = 0;
+	m_nStopPerformanceCounter = 0;
+
+	m_nSampleCount = 0;
+	m_nCurrentFrameRate = 0;
+	m_nFramesPerSecond = 0;
+	m_fFPSTimeElapsed = 0.0f;
 }
 
 void Timer::Start()
