@@ -1,6 +1,7 @@
 #pragma once
 #include "Mesh.h"
 #include "Camera.h"
+#include "../Engine/GameObject.h"
 class Shader;
 class Camera;
 
@@ -33,8 +34,7 @@ public:
 	void SetShader(Shader* pShader);
 };
 
-
-class Object
+class Object : public GameObject
 {
 public:
 	Object();

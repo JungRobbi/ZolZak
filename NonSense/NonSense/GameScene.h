@@ -1,5 +1,5 @@
 #pragma once
-#include "../Engine/Time.h"
+#include "../Engine/Scene.h"
 #include "Shader.h"
 #include "Player.h"
 #include "Camera.h"
@@ -30,7 +30,7 @@ struct MATERIALS
 	MATERIAL m_pReflections[MAX_MATERIALS];
 };
 
-class GameScene
+class GameScene : public Scene
 {
 public:
 	GameScene();

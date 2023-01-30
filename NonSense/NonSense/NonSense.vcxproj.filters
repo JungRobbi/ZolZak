@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="소스 파일\PCH_AND_MISC">
-      <UniqueIdentifier>{e28309a9-198d-4059-bcad-39ecaa9b6025}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\DirectX 12">
       <UniqueIdentifier>{e01b3cd7-4898-49e0-aa36-1cf3143ed41f}</UniqueIdentifier>
     </Filter>
@@ -26,9 +23,6 @@
     </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>소스 파일\PCH_AND_MISC</Filter>
     </ClInclude>
     <ClInclude Include="GameFramework.h">
       <Filter>소스 파일\DirectX 12</Filter>
@@ -56,9 +50,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>소스 파일\PCH_AND_MISC</Filter>
-    </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>소스 파일\DirectX 12</Filter>
     </ClCompile>

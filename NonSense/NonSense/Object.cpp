@@ -9,7 +9,7 @@ void Material::SetShader(Shader* pShader)
 	if (m_pShader) m_pShader->AddRef();
 }
 
-Object::Object()
+Object::Object() : GameObject()
 {
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
 }
