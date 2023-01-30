@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "../Engine/stdafx.h"
 #include "Shader.h"
 
 Shader::~Shader()
@@ -278,7 +278,7 @@ void ObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* p
 		if (m_ppObjects[j])
 		{
 			pd3dCommandList->OMSetStencilRef(stencil++);
-			pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbGameObjectGpuVirtualAddress + (ncbGameObjectBytes * j));
+			pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_OBJECT, d3dcbGameObjectGpuVirtualAddress + (ncbGameObjectBytes * j));
 			m_ppObjects[j]->Render(pd3dCommandList, pCamera);
 		}
 	}
