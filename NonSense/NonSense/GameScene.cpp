@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "../Engine/stdafx.h"
 #include "GameScene.h"
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 GameScene::GameScene()

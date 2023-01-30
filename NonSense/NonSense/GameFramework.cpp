@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "../Engine/stdafx.h"
 #include "GameFramework.h"
 
 GameFramework::GameFramework()
