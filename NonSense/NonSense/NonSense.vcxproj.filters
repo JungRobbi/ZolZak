@@ -69,9 +69,6 @@
     <ClInclude Include="Component.h">
       <Filter>소스 파일\Framework</Filter>
     </ClInclude>
-    <ClInclude Include="Framework.h">
-      <Filter>소스 파일\Framework</Filter>
-    </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>소스 파일\Framework</Filter>
     </ClInclude>
@@ -123,9 +120,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Component.cpp">
-      <Filter>소스 파일\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework.cpp">
       <Filter>소스 파일\Framework</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
