@@ -1,5 +1,4 @@
 #pragma once
-
 #include <list>
 #include <queue>
 #include <deque>

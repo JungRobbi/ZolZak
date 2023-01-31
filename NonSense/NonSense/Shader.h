@@ -1,4 +1,6 @@
 #pragma once
+#include <memory>
+#include <list>
 #include "Object.h"
 #include "Camera.h"
 
@@ -24,6 +26,7 @@ struct VS_VB_INSTANCE
 
 class Shader
 {
+	std::list<GameObject*> gameObjects;
 public:
 	Shader() {};
 	virtual ~Shader();
