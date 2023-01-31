@@ -1,11 +1,6 @@
 #include "GameObject.h"
 
-GameObject::GameObject() : position{ 0, 0 }
-{
-	Scene::scene->creationQueue.push(this);
-}
-
-GameObject::GameObject(int x, int y) : position{ x, y }
+GameObject::GameObject() 
 {
 	Scene::scene->creationQueue.push(this);
 }

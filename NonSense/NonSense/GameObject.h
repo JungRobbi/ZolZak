@@ -2,7 +2,6 @@
 #include <list>
 #include "Component.h"
 #include "Scene.h"
-#include "Vectorint2.h"
 
 enum E_LIFE_TYPE { E_LIFE_LIVE, E_LIFE_REMAIN, E_LIFE_DEAD };
 
@@ -11,13 +10,10 @@ class GameObject
 	std::list<Component*> components;
 
 public:
-	Vectorint2 position;
 	E_LIFE_TYPE lifeState{ E_LIFE_LIVE };
 
 public:
 	GameObject();
-	GameObject(int x, int y);
-	Vectorint2 getPosition() { return position; }
 	E_LIFE_TYPE getLifeState() const { return lifeState; }
 	void setLifeState(E_LIFE_TYPE state) { lifeState = state; }
 
