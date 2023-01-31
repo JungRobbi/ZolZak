@@ -143,7 +143,7 @@ void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	// 카메라 정보를 32bit constants로 하려 했는데 왜인지 모르겠는데 32bit가 넘어간다며 안됨 CBV로 해야할 듯
 	// 추후 Position값을 넘겨줘야 하면 나중에 position값도 설정해주면 됨
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGPUVirtualAddress = m_pd3dcbCamera->GetGPUVirtualAddress();
-	pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGPUVirtualAddress);
+	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_CAMERA, d3dGPUVirtualAddress);
 }
 void Camera::ReleaseShaderVariables()
 {

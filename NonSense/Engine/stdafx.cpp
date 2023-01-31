@@ -82,3 +82,15 @@ ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	}
 	return(pd3dBuffer);
 }
+
+void ResourceTransition(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Resource* pd3dResource, D3D12_RESOURCE_STATES d3dStateBefore, D3D12_RESOURCE_STATES d3dStateAfter)
+{
+	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
+	d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	d3dResourceBarrier.Transition.pResource = pd3dResource;
+	d3dResourceBarrier.Transition.StateBefore = d3dStateBefore;
+	d3dResourceBarrier.Transition.StateAfter = d3dStateAfter;
+	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
+}
