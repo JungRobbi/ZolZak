@@ -1,3 +1,0 @@
-﻿  Scene.cpp
-D:\ZolZak\ZolZak\NonSense\Engine\Scene.h(33,95): warning C4390: ';': 제어된 빈 문이 있습니다. 이 문이 필요합니까?
-  Engine.vcxproj -> D:\ZolZak\ZolZak\NonSense\x64\Debug\Engine.lib

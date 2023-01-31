@@ -1,7 +1,7 @@
 #pragma once
 #include "Mesh.h"
 #include "Camera.h"
-#include "../Engine/GameObject.h"
+#include "GameObject.h"
 class Shader;
 class Camera;
 

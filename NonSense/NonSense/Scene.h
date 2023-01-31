@@ -1,5 +1,4 @@
 #pragma once
-
 #include <list>
 #include <queue>
 #include <deque>
@@ -31,7 +30,7 @@ public:
 
 	void PushDelete(GameObject* gameObject)
 	{
-		if (std::find(deletionQueue.begin(), deletionQueue.end(), gameObject) == deletionQueue.end())
+		if(std::find(deletionQueue.begin(), deletionQueue.end(), gameObject) == deletionQueue.end());
 			deletionQueue.push_back(gameObject);
 	}
 

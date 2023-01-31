@@ -1,18 +1,38 @@
-#include "stdafx.h"
 #include "Framework.h"
-#include "Time.h"
+
+Framework::Framework(Scene* scene) : scene{ scene }
+{
+}
+
+Framework::~Framework()
+{
+	delete scene;
+}
 
 void Framework::run()
 {
-	Time::initialize();
-	while (true) {
-		Time::update();
+	//SceneMGR::setScene(scene);
+	//NetworkMGR::setScene(scene);
 
-		while (Time::lag >= MS_PER_UPDATE) {
+	//SceneMGR::start();
+	//NetworkMGR::start();
+
+	while (true)
+	{
+		Time::start();
+		while (gameState)
+		{
+			Time::update();
+			Input::update();
+
 			scene->update();
-			Time::lag -= MS_PER_UPDATE;
+			
+			//NetworkMGR::Tick();
+			//SceneMGR::Tick();
 		}
 
-		render();
+		Output::print("\nGame Over! Press A Key To Restart!\n");
+		_getch();
+		system("cls");
 	}
 }

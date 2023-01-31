@@ -1,4 +1,4 @@
-#include "../Engine/stdafx.h"
+#include "stdafx.h"
 #include "Object.h"
 #include "Shader.h"
 

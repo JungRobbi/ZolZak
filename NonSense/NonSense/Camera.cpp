@@ -1,4 +1,4 @@
-#include "../Engine/stdafx.h"
+#include "stdafx.h"
 #include "Player.h"
 #include "Camera.h"
 
