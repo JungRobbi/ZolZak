@@ -307,11 +307,10 @@ Object* ObjectsShader::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, X
 void ObjectsShader::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL,
-		ncbGameObjectBytes * m_nObjects, D3D12_HEAP_TYPE_UPLOAD,
-		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL,ncbGameObjectBytes * m_nObjects, D3D12_HEAP_TYPE_UPLOAD,D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
 }
+
 //객체의 월드변환 행렬과 재질 번호를 상수 버퍼에 쓴다.
 void ObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 {
@@ -319,12 +318,13 @@ void ObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommand
 	XMFLOAT4X4 xmf4x4World;
 	for (int j = 0; j < m_nObjects; j++)
 	{
-		XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[j]->GetWorld())));
-		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)(m_pcbMappedGameObjects + (j * ncbGameObjectBytes));
-		::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
+		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8 *)m_pcbMappedGameObjects + (j * ncbGameObjectBytes));
+		XMStoreFloat4x4(&pbMappedcbGameObject->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[j]->GetWorld())));
+		pbMappedcbGameObject->m_nObjectID = j;
 		pbMappedcbGameObject->m_nMaterial = m_ppObjects[j]->GetMaterial()->m_nReflection;
 	}
 }
+
 void ObjectsShader::ReleaseShaderVariables()
 {
 	if (m_pd3dcbGameObjects)
