@@ -140,14 +140,12 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="DataMSG.h" />
     <ClInclude Include="GameFramework.h" />
-    <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MSGQueue.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="Scene.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="NonSense.h" />
     <ClInclude Include="Resource.h" />
@@ -160,7 +158,6 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DataMSG.cpp" />
     <ClCompile Include="GameFramework.cpp" />
-    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -168,7 +165,6 @@
     <ClCompile Include="NonSense.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Timer.cpp" />
