@@ -1,8 +1,11 @@
 #pragma once
 #include "stdafx.h"
+#include <list>
+
 #include "Mesh.h"
 #include "Camera.h"
-#include "GameObject.h"
+#include "Component.h"
+
 class Shader;
 class Camera;
 
@@ -35,11 +38,22 @@ public:
 	void SetShader(Shader* pShader);
 };
 
-class Object : public GameObject
+class Object 
 {
+	std::list<Component*> components;
 public:
 	Object();
 	virtual ~Object();
+
+	virtual void start();
+	virtual void update();
+
+	template<typename T>
+	T* AddComponent();
+
+	template<typename T>
+	T* GetComponent();
+
 private:
 	int m_nReferences = 0;
 public:
@@ -99,3 +113,23 @@ public:
 	void SetRotationAxis(XMFLOAT3 xmf3RotationAxis) { m_xmf3RotationAxis = xmf3RotationAxis; }
 	virtual void Animate(float fTimeElapsed);
 };
+
+template<typename T>
+inline T* Object::AddComponent()
+{
+	auto component = new T;
+	component->gameObject = this;
+	components.push_back(component);
+	return component;
+}
+
+template<typename T>
+inline T* Object::GetComponent()
+{
+	for (auto component : components)
+	{
+		auto c = dynamic_cast<T*>(component);
+		if (c) return c;
+	}
+	return nullptr;
+}

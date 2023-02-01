@@ -3,7 +3,6 @@
 #include <queue>
 #include <deque>
 
-#include "Scene.h"
 #include "Shader.h"
 #include "Player.h"
 #include "Camera.h"
@@ -35,7 +34,7 @@ struct MATERIALS
 	MATERIAL m_pReflections[MAX_MATERIALS];
 };
 
-class GameScene : public Scene
+class GameScene
 {
 	std::queue<Object*> creationQueue;
 	std::deque<Object*> deletionQueue;
@@ -52,11 +51,7 @@ public:
 	virtual void update();
 	virtual void render();
 
-	void PushDelete(Object* gameObject)
-	{
-		if (std::find(deletionQueue.begin(), deletionQueue.end(), gameObject) == deletionQueue.end());
-		deletionQueue.push_back(gameObject);
-	}
+	void PushDelete(Object* gameObject);
 
 	friend Object;
 public:

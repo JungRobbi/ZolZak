@@ -1,6 +1,6 @@
-#include "stdafx.h"
 #include "Object.h"
 #include "Shader.h"
+#include "GameScene.h"
 
 void Material::SetShader(Shader* pShader)
 {
@@ -9,14 +9,27 @@ void Material::SetShader(Shader* pShader)
 	if (m_pShader) m_pShader->AddRef();
 }
 
-Object::Object() : GameObject()
+Object::Object()
 {
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
+	GameScene::MainScene->creationQueue.push(this);
 }
 Object::~Object()
 {
 	if (m_pMesh) m_pMesh->Release();
 	if (m_pMaterial) m_pMaterial->Release();
+}
+
+void Object::start()
+{
+	for (auto component : components)
+		component->start();
+}
+
+void Object::update()
+{
+	for (auto component : components)
+		component->update();
 }
 
 void Object::SetShader(Shader* pShader)

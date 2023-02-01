@@ -4,7 +4,7 @@
 
 GameScene* GameScene::MainScene;
 
-GameScene::GameScene() : Scene()
+GameScene::GameScene()
 {
 	MainScene = this;
 }
@@ -47,6 +47,12 @@ void GameScene::update()
 
 void GameScene::render()
 {
+}
+
+void GameScene::PushDelete(Object* gameObject)
+{
+	if (std::find(deletionQueue.begin(), deletionQueue.end(), gameObject) == deletionQueue.end())
+		deletionQueue.push_back(gameObject);
 }
 
 void GameScene::BuildLightsAndMaterials()

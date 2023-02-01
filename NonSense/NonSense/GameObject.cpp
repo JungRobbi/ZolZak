@@ -7,7 +7,5 @@ GameObject::GameObject() //: Object()
 
 GameObject::~GameObject()
 {
-//	if (m_pMesh) m_pMesh->Release();
-//	if (m_pMaterial) m_pMaterial->Release();
 	
 }
