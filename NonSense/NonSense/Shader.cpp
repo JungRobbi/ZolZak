@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Shader.h"
+#include "GameScene.h"
 
 Shader::~Shader()
 {

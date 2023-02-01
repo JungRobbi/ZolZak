@@ -34,6 +34,9 @@
     <Filter Include="소스 파일\System">
       <UniqueIdentifier>{f5061bcb-6788-4774-b63d-e3d3e7f775ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Components\base">
+      <UniqueIdentifier>{487ddc59-b878-4807-a67e-1276b591e7df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -66,9 +69,6 @@
     <ClInclude Include="NonSense.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Component.h">
-      <Filter>소스 파일\Framework</Filter>
-    </ClInclude>
     <ClInclude Include="GameState.h">
       <Filter>소스 파일\Framework</Filter>
     </ClInclude>
@@ -86,6 +86,9 @@
     </ClInclude>
     <ClInclude Include="..\Globals.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>소스 파일\Components\base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -113,9 +116,6 @@
     <ClCompile Include="NonSense.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Component.cpp">
-      <Filter>소스 파일\Framework</Filter>
-    </ClCompile>
     <ClCompile Include="GameState.cpp">
       <Filter>소스 파일\Framework</Filter>
     </ClCompile>
@@ -130,6 +130,9 @@
     </ClCompile>
     <ClCompile Include="Timer.cpp">
       <Filter>소스 파일\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>소스 파일\Components\base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
