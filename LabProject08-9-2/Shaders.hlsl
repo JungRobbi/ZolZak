@@ -158,6 +158,7 @@ struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
 	float4 f4Illumination : SV_TARGET4;
 	float2 f2ObjectIDzDepth : SV_TARGET5;
 	float4 f4CameraNormal : SV_TARGET6;
+	float4 f4Position : SV_TARGET7;
 };
 
 PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTexturedLightingToMultipleRTs(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID)
@@ -179,6 +180,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTexturedLightingToMultipleRTs(VS_TEXTURED_LI
 	output.f2ObjectIDzDepth.x = (float)gnObjectID;
 
 	output.f2ObjectIDzDepth.y = 1.0f - input.position.z;
+
+	output.f4Position = input.position;
 
 	return(output);
 }
@@ -229,7 +232,7 @@ VS_SCREEN_RECT_TEXTURED_OUTPUT VSScreenRectSamplingTextured(uint nVertexID : SV_
 	return(output);
 }
 
-Texture2D gtxtInputTextures[7] : register(t1); //Color, NormalW, Texture, Illumination, ObjectID+zDepth, NormalV, Depth 
+Texture2D gtxtInputTextures[8] : register(t1); //Color, NormalW, Texture, Illumination, ObjectID+zDepth, NormalV, Depth 
 
 static float gfLaplacians[9] = { -1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f };
 static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, { 1,0 }, { -1,1 }, { 0,1 }, { 1,1 } };
@@ -238,6 +241,7 @@ float4 LaplacianEdge(float4 position)
 {
 	float3 LineColor = (0, 1, 0);
 	int EdgeSize = 5;
+
 	bool Edge = false;
 	float fObjectID = gtxtInputTextures[4][int2(position.xy)].r;
 

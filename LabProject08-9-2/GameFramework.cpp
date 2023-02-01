@@ -429,7 +429,7 @@ void CGameFramework::BuildObjects()
 
 	m_pLaplacianEdgeDetectionShader = new CLaplacianEdgeShader();
 	m_pLaplacianEdgeDetectionShader->CreateShader(m_pd3dDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D32_FLOAT);
-	m_pLaplacianEdgeDetectionShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, &m_nDrawOptions);
+	//m_pLaplacianEdgeDetectionShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, &m_nDrawOptions);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::gnRtvDescriptorIncrementSize * m_nSwapChainBuffers);
