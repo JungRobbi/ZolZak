@@ -24,6 +24,24 @@ cbuffer cbGameObjectInfo : register(b2)
 
 /////////////////////////////////////////////////////////////////////////////
 
+struct VS_TEXTURED_LIGHTING_INPUT
+{
+	float3 position : POSITION;
+	float3 normal : NORMAL;
+	float2 uv : TEXCOORD;
+};
+
+struct VS_TEXTURED_LIGHTING_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float3 positionW : POSITION;
+	float3 normalW : NORMAL0;
+	float3 normalV : NORMAL1;
+	float2 uv : TEXCOORD;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+
 //정점 조명을 사용
 //#define _WITH_VERTEX_LIGHTING
 

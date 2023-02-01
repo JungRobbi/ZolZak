@@ -157,7 +157,7 @@ void Object::OnPrepareRender()
 }
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	if (IsVisible(pCamera))
+	//if (IsVisible(pCamera))
 	{
 		OnPrepareRender();
 		if (m_pMaterial)
@@ -173,7 +173,7 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 }
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
 {
-	if (IsVisible(pCamera))
+	//if (IsVisible(pCamera))
 	{
 		OnPrepareRender();
 		if (m_pMesh) m_pMesh->Render(pd3dCommandList, nInstances, d3dInstancingBufferView);

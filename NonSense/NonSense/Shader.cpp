@@ -158,7 +158,6 @@ void Shader::ReleaseShaderVariables()
 
 void Shader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	//파이프라인에 그래픽스 상태 객체를 설정한다.
 	pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
 }
 
@@ -203,6 +202,8 @@ void DiffusedShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature
 	Shader::CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 ObjectsShader::ObjectsShader()
 {
 }
@@ -212,13 +213,17 @@ ObjectsShader::~ObjectsShader()
 
 D3D12_INPUT_LAYOUT_DESC ObjectsShader::CreateInputLayout()
 {
-	UINT nInputElementDescs = 2;
+	UINT nInputElementDescs = 3;
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
 	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
 	return(d3dInputLayoutDesc);
 }
 
