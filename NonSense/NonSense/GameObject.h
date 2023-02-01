@@ -5,7 +5,7 @@
 
 enum E_LIFE_TYPE { E_LIFE_LIVE, E_LIFE_REMAIN, E_LIFE_DEAD };
 
-class GameObject
+class GameObject //: public Object
 {
 	std::list<Component*> components;
 
@@ -14,6 +14,7 @@ public:
 
 public:
 	GameObject();
+	virtual ~GameObject();
 	E_LIFE_TYPE getLifeState() const { return lifeState; }
 	void setLifeState(E_LIFE_TYPE state) { lifeState = state; }
 

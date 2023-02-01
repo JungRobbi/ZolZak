@@ -1,4 +1,5 @@
 #pragma once
+#include "stdafx.h"
 #include "Mesh.h"
 #include "Camera.h"
 #include "GameObject.h"

@@ -1,8 +1,13 @@
 #pragma once
+#include <list>
+#include <queue>
+#include <deque>
+
 #include "Scene.h"
 #include "Shader.h"
 #include "Player.h"
 #include "Camera.h"
+#include "Object.h"
 
 struct LIGHT
 {
@@ -32,9 +37,31 @@ struct MATERIALS
 
 class GameScene : public Scene
 {
+	std::queue<Object*> creationQueue;
+	std::deque<Object*> deletionQueue;
+
+	std::list<Object*> gameObjects;
+
+public:
+	static GameScene* MainScene;
+
+protected:
+	Object* CreateEmpty();
+
+public:
+	virtual void update();
+	virtual void render();
+
+	void PushDelete(Object* gameObject)
+	{
+		if (std::find(deletionQueue.begin(), deletionQueue.end(), gameObject) == deletionQueue.end());
+		deletionQueue.push_back(gameObject);
+	}
+
+	friend Object;
 public:
 	GameScene();
-	~GameScene() {};
+	virtual ~GameScene();
 	//씬의 모든 조명과 재질을 생성
 	void BuildLightsAndMaterials();
 	//씬의 모든 조명과 재질을 위한 리소스를 생성하고 갱신

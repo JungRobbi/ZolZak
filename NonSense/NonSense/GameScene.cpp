@@ -1,7 +1,51 @@
 #include "stdafx.h"
 #include "GameScene.h"
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+
+GameScene* GameScene::MainScene;
+
 GameScene::GameScene() : Scene()
+{
+	MainScene = this;
+}
+
+GameScene::~GameScene()
+{
+	for (auto object : gameObjects)
+		delete object;
+	gameObjects.clear();
+}
+
+Object* GameScene::CreateEmpty()
+{
+	return new Object();
+}
+
+void GameScene::update()
+{
+	while (!creationQueue.empty())
+	{
+		auto gameObject = creationQueue.front();
+		gameObject->start();
+		gameObjects.push_back(gameObject);
+		creationQueue.pop();
+	}
+
+	for (auto gameObject : gameObjects)
+		gameObject->update();
+
+	auto t = deletionQueue;
+	while (!deletionQueue.empty())
+	{
+		auto gameObject = deletionQueue.front();
+		gameObjects.erase(std::find(gameObjects.begin(), gameObjects.end(), gameObject));
+		deletionQueue.pop_front();
+
+		delete gameObject;
+	}
+}
+
+void GameScene::render()
 {
 }
 
