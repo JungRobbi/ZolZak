@@ -355,8 +355,8 @@ void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 				object->SetMaterial(i % MAX_MATERIALS);
 				object->SetMesh(pCubeMesh);
 				object->SetPosition(fxPitch * x, fyPitch * y, fzPitch * z);
-				(dynamic_cast<RotatingObject*>(object))->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-				(dynamic_cast<RotatingObject*>(object))->SetRotationSpeed(10.0f * (i % 10));
+				object->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
+				object->SetRotationSpeed(10.0f * ((i++) % 10));
 			}
 		}
 	}
