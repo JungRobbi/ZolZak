@@ -90,6 +90,9 @@
     <ClInclude Include="Component.h">
       <Filter>소스 파일\Components\base</Filter>
     </ClInclude>
+    <ClInclude Include="RotateComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -133,6 +136,9 @@
     </ClCompile>
     <ClCompile Include="Component.cpp">
       <Filter>소스 파일\Components\base</Filter>
+    </ClCompile>
+    <ClCompile Include="RotateComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

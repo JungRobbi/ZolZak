@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Shader.h"
 #include "GameScene.h"
+#include "RotateComponent.h"
 
 Shader::~Shader()
 {
@@ -204,9 +205,9 @@ void DiffusedShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature
 	Shader::CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 }
 
-RotatingObject* ObjectsShader::CreateEmpty()
+Object* ObjectsShader::CreateEmpty()
 {
-	return new RotatingObject();
+	return new Object();
 }
 
 ObjectsShader::ObjectsShader()
@@ -355,8 +356,9 @@ void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 				object->SetMaterial(i % MAX_MATERIALS);
 				object->SetMesh(pCubeMesh);
 				object->SetPosition(fxPitch * x, fyPitch * y, fzPitch * z);
-				object->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-				object->SetRotationSpeed(10.0f * ((i++) % 10));
+				object->AddComponent<RotateComponent>();
+				object->GetComponent<RotateComponent>()->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
+				object->GetComponent<RotateComponent>()->SetRotationSpeed(10.0f * ((i++) % 10));
 			}
 		}
 	}

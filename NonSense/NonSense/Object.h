@@ -102,20 +102,6 @@ public:
 	virtual void ReleaseShaderVariables();
 };
 
-class RotatingObject : public Object
-{
-public:
-	RotatingObject();
-	virtual ~RotatingObject();
-private:
-	XMFLOAT3 m_xmf3RotationAxis;
-	float m_fRotationSpeed;
-public:
-	void SetRotationSpeed(float fRotationSpeed) { m_fRotationSpeed = fRotationSpeed; }
-	void SetRotationAxis(XMFLOAT3 xmf3RotationAxis) { m_xmf3RotationAxis = xmf3RotationAxis; }
-	virtual void Animate(float fTimeElapsed);
-};
-
 template<typename T>
 inline T* Object::AddComponent()
 {

@@ -226,17 +226,3 @@ int Object::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& 
 	}
 	return(nIntersected);
 }
-
-RotatingObject::RotatingObject() : Object()
-{
-	m_xmf3RotationAxis = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	m_fRotationSpeed = 90.0f;
-}
-RotatingObject::~RotatingObject()
-{
-}
-
-void RotatingObject::Animate(float fTimeElapsed)
-{
-	Object::Rotate(&m_xmf3RotationAxis, m_fRotationSpeed * fTimeElapsed);
-}

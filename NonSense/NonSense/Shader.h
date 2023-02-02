@@ -64,7 +64,7 @@ class ObjectsShader : public Shader
 {
 
 public:
-	RotatingObject* CreateEmpty();
+	Object* CreateEmpty();
 public:
 	ObjectsShader();
 	virtual ~ObjectsShader();

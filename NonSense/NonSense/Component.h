@@ -4,7 +4,7 @@
 class Component
 {
 public:
-	class GameObject* gameObject;
+	class Object* gameObject;
 public:
 	virtual void start() = 0;
 	virtual void update() = 0;
