@@ -27,6 +27,8 @@
 #include <DirectXCollision.h>
 #include <DXGIDebug.h>
 
+#include <vector>
+
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 using Microsoft::WRL::ComPtr;
