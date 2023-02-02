@@ -10,8 +10,6 @@
 class GameFramework
 {
 private:
-	GameScene* m_pScene;
-
 	HINSTANCE m_hInstance;
 	HWND m_hWnd;
 	int m_nWndClientWidth;

@@ -246,23 +246,11 @@ void ObjectsShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* 
 
 void ObjectsShader::ReleaseObjects()
 {
-	if (m_ppObjects)
-	{
-		for (int j = 0; j < m_nObjects; j++)
-		{
-			if (m_ppObjects[j]) delete m_ppObjects[j];
-		}
-		delete[] m_ppObjects;
-	}
+
 }
 
 void ObjectsShader::AnimateObjects(float fTimeElapsed)
 {
-	for (int j = 0; j < m_nObjects; j++)
-	{
-//		m_ppObjects[j]->Animate(fTimeElapsed);
-	}
-
 	for (auto gameobject : GameScene::MainScene->gameObjects)
 	{
 		gameobject->Animate(fTimeElapsed);
@@ -271,11 +259,6 @@ void ObjectsShader::AnimateObjects(float fTimeElapsed)
 
 void ObjectsShader::ReleaseUploadBuffers()
 {
-	if (m_ppObjects)
-	{
-//		for (int j = 0; j < m_nObjects; j++) m_ppObjects[j]->ReleaseUploadBuffers();
-	}
-
 	for (auto gameobject : GameScene::MainScene->gameObjects)
 	{
 		gameobject->ReleaseUploadBuffers();
@@ -289,12 +272,6 @@ void ObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* p
 	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbGameObjectGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
 	UINT stencil = 1;
-	//for (int j = 0; j < m_nObjects; j++)
-	//{
-	//	pd3dCommandList->OMSetStencilRef(stencil++);
-	//	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_OBJECT, d3dcbGameObjectGpuVirtualAddress + (ncbGameObjectBytes * j));
-	//	m_ppObjects[0]->Render(pd3dCommandList, pCamera);
-	//}
 
 	int k = 0;
 	for (auto gameobject : GameScene::MainScene->gameObjects)
@@ -302,8 +279,6 @@ void ObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* p
 		pd3dCommandList->OMSetStencilRef(stencil++);
 		pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_OBJECT, d3dcbGameObjectGpuVirtualAddress + (ncbGameObjectBytes * k++));
 		gameobject->Render(pd3dCommandList, pCamera);
-		if (k == 27)
-			break;
 	}
 }
 
@@ -313,16 +288,6 @@ Object* ObjectsShader::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, X
 	*pfNearHitDistance = FLT_MAX;
 	float fHitDistance = FLT_MAX;
 	Object* pSelectedObject = NULL;
-	/*for (int j = 0; j < m_nObjects; j++)
-	{
-		nIntersected = m_ppObjects[j]->PickObjectByRayIntersection(xmf3PickPosition,
-			xmf4x4View, &fHitDistance);
-		if ((nIntersected > 0) && (fHitDistance < *pfNearHitDistance))
-		{
-			*pfNearHitDistance = fHitDistance;
-			pSelectedObject = m_ppObjects[j];
-		}
-	}*/
 
 	for (auto gameobject : GameScene::MainScene->gameObjects)
 	{
@@ -351,13 +316,6 @@ void ObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommand
 {
 	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
 	XMFLOAT4X4 xmf4x4World;
-	/*for (int j = 0; j < m_nObjects; j++)
-	{
-		XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[j]->GetWorld())));
-		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)(m_pcbMappedGameObjects + (j * ncbGameObjectBytes));
-		::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
-		pbMappedcbGameObject->m_nMaterial = m_ppObjects[j]->GetMaterial()->m_nReflection;
-	}*/
 
 	int k = 0;
 	for (auto gameobject : GameScene::MainScene->gameObjects)
@@ -397,8 +355,8 @@ void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 				object->SetMaterial(i % MAX_MATERIALS);
 				object->SetMesh(pCubeMesh);
 				object->SetPosition(fxPitch * x, fyPitch * y, fzPitch * z);
-				object->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-				object->SetRotationSpeed(10.0f * (i % 10));
+				(dynamic_cast<RotatingObject*>(object))->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
+				(dynamic_cast<RotatingObject*>(object))->SetRotationSpeed(10.0f * (i % 10));
 			}
 		}
 	}

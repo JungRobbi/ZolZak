@@ -14,6 +14,13 @@ Object::Object()
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
 	GameScene::MainScene->creationQueue.push(this);
 }
+Object::Object(bool Push_List)
+{
+	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
+	if (Push_List) {
+		GameScene::MainScene->creationQueue.push(this);
+	}
+}
 Object::~Object()
 {
 	if (m_pMesh) m_pMesh->Release();

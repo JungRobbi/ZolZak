@@ -12,7 +12,6 @@ GameFramework::GameFramework()
 	m_pd3dCommandList = NULL;
 	for (int i = 0; i < m_nSwapChainBuffers; i++) m_ppd3dRenderTargetBuffers[i] = NULL;
 	for (int i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 0;
-	m_pScene = NULL;
 	m_pd3dRtvDescriptorHeap = NULL;
 	m_nRtvDescriptorIncrementSize = 0;
 	m_pd3dDepthStencilBuffer = NULL;
@@ -265,7 +264,7 @@ void GameFramework::CreateDepthStencilView()
 void GameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
-	m_pScene = new GameScene();
+	auto m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 	m_pPlayer = new CubePlayer(m_pd3dDevice,m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
 	m_pScene->m_pPlayer = m_pPlayer;
@@ -281,8 +280,7 @@ void GameFramework::BuildObjects()
 
 void GameFramework::ReleaseObjects()
 {
-	if (m_pScene) m_pScene->ReleaseObjects();
-	if (m_pScene) delete m_pScene;
+	GameScene::MainScene->ReleaseObjects();
 }
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	LPARAM lParam)
@@ -292,7 +290,7 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 		//마우스가 눌려지면 마우스 픽킹을 하여 선택한 게임 객체를 찾는다.
-		m_pSelectedObject = m_pScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pCamera);
+		m_pSelectedObject = GameScene::MainScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pCamera);
 		//마우스 캡쳐를 하고 현재 마우스 위치를 가져온다.
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
@@ -431,7 +429,7 @@ void GameFramework::ProcessInput()
 
 void GameFramework::AnimateObjects()
 {
-	if (m_pScene) m_pScene->AnimateObjects(Timer::GetTimeElapsed());
+	GameScene::MainScene->AnimateObjects(Timer::GetTimeElapsed());
 }
 
 void GameFramework::WaitForGpuComplete()
@@ -466,14 +464,12 @@ void GameFramework::FrameAdvance()
 
 	ProcessInput();
 
-	AnimateObjects();
-
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
 	ResourceTransition(m_pd3dCommandList, m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-	m_pScene->OnPrepareRender(m_pd3dCommandList, m_pCamera);
+	GameScene::MainScene->OnPrepareRender(m_pd3dCommandList, m_pCamera);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
@@ -484,9 +480,9 @@ void GameFramework::FrameAdvance()
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
 	GameScene::MainScene->update();
+	GameScene::MainScene->AnimateObjects(Timer::GetTimeElapsed());
+	GameScene::MainScene->Render(m_pd3dCommandList, m_pCamera);
 
-	if (m_pScene) 
-		m_pScene->Render(m_pd3dCommandList, m_pCamera);
 	if (m_pPlayer) 
 		m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
 
