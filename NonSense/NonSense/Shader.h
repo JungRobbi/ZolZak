@@ -62,6 +62,9 @@ public:
 
 class ObjectsShader : public Shader
 {
+
+public:
+	RotatingObject* CreateEmpty();
 public:
 	ObjectsShader();
 	virtual ~ObjectsShader();
@@ -80,9 +83,9 @@ public:
 	virtual void ReleaseUploadBuffers();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 protected:
-	std::list<Object*> gameObjects;
+	
 
-	Object** m_ppObjects = NULL;
+	RotatingObject** m_ppObjects = NULL;
 	int m_nObjects = 0;
 	//쉐이더 객체에 포함되어 있는 모든 게임 객체들에 대한 리소스와 리소스 포인터
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;

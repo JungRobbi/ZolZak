@@ -54,6 +54,7 @@ public:
 	void PushDelete(Object* gameObject);
 
 	friend Object;
+	friend ObjectsShader;
 public:
 	GameScene();
 	virtual ~GameScene();

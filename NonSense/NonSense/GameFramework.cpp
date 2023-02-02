@@ -267,8 +267,8 @@ void GameFramework::BuildObjects()
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 	m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
-	CubePlayer* pAirplanePlayer = new CubePlayer(m_pd3dDevice,m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
-	m_pScene->m_pPlayer = m_pPlayer = pAirplanePlayer;
+	m_pPlayer = new CubePlayer(m_pd3dDevice,m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
