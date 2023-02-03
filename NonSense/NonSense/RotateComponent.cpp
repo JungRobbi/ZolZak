@@ -1,5 +1,6 @@
 #include "RotateComponent.h"
 #include "Object.h"
+#include "Timer.h"
 
 void RotateComponent::start()
 {
@@ -7,5 +8,5 @@ void RotateComponent::start()
 
 void RotateComponent::update()
 {
-	gameObject->Object::Rotate(&m_xmf3RotationAxis, m_fRotationSpeed * 0.001);
+	gameObject->Object::Rotate(&m_xmf3RotationAxis, m_fRotationSpeed * Timer::GetTimeElapsed());
 }
