@@ -5,8 +5,6 @@
 class RotateComponent :
     public Component
 {
-    class GameScene* scene;
-
     XMFLOAT3 m_xmf3RotationAxis;
     float m_fRotationSpeed;
 
