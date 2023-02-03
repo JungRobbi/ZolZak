@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClInclude Include="..\Globals.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CollideComponent.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="DataMSG.h" />
     <ClInclude Include="GameFramework.h" />
@@ -146,6 +147,7 @@
     <ClInclude Include="MSGQueue.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayerMovementComponent.h" />
     <ClInclude Include="RotateComponent.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="NonSense.h" />
@@ -156,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CollideComponent.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DataMSG.cpp" />
     <ClCompile Include="GameFramework.cpp" />
@@ -166,6 +169,7 @@
     <ClCompile Include="NonSense.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PlayerMovementComponent.cpp" />
     <ClCompile Include="RotateComponent.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="stdafx.cpp" />
