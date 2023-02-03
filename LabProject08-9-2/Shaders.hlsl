@@ -151,7 +151,6 @@ float4 PSTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID :
 struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
 {
 	float4 f4Scene : SV_TARGET0; //Swap Chain Back Buffer
-
 	float4 f4Color : SV_TARGET1;
 	float4 f4Normal : SV_TARGET2;
 	float4 f4Texture : SV_TARGET3;
@@ -171,7 +170,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTexturedLightingToMultipleRTs(VS_TEXTURED_LI
 	input.normalW = normalize(input.normalW);
 	output.f4Illumination = Lighting(input.positionW, input.normalW);
 
-	output.f4Scene = output.f4Color = output.f4Illumination * output.f4Texture;
+	output.f4Scene = output.f4Color = output.f4Illumination* output.f4Texture;
 
 	output.f4Normal = float4(input.normalW.xyz * 0.5f + 0.5f, input.position.z);
 
@@ -181,7 +180,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTexturedLightingToMultipleRTs(VS_TEXTURED_LI
 
 	output.f2ObjectIDzDepth.y = 1.0f - input.position.z;
 
-	output.f4Position = input.position;
+	//output.f4Position = input.position;
 
 	return(output);
 }
@@ -232,15 +231,15 @@ VS_SCREEN_RECT_TEXTURED_OUTPUT VSScreenRectSamplingTextured(uint nVertexID : SV_
 	return(output);
 }
 
-Texture2D gtxtInputTextures[8] : register(t1); //Color, NormalW, Texture, Illumination, ObjectID+zDepth, NormalV, Depth 
+Texture2D gtxtInputTextures[7] : register(t1); //Color, NormalW, Texture, Illumination, ObjectID+zDepth, NormalV, Depth 
 
 static float gfLaplacians[9] = { -1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f };
 static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, { 1,0 }, { -1,1 }, { 0,1 }, { 1,1 } };
 
 float4 LaplacianEdge(float4 position)
 {
-	float3 LineColor = (0, 1, 0);
-	int EdgeSize = 5;
+	float3 LineColor = float3(0, 0, 1);
+	int EdgeSize = 1;
 
 	bool Edge = false;
 	float fObjectID = gtxtInputTextures[4][int2(position.xy)].r;
@@ -251,9 +250,9 @@ float4 LaplacianEdge(float4 position)
 	}
 
 	if (Edge)
-		return(float4(1,1,1, Edge));
+		return(float4(LineColor,1));
 	else
-		return(float4(LineColor, 0.0f));
+		return(float4(0,0,0,0));
 }
 
 
@@ -265,7 +264,7 @@ float4 PSScreenRectSamplingTextured(VS_SCREEN_RECT_TEXTURED_OUTPUT input) : SV_T
 	{
 		case 84: //'T'
 		{
-			cColor = gtxtInputTextures[2].Sample(gssDefaultSamplerState, input.uv) * gtxtInputTextures[3].Sample(gssDefaultSamplerState, input.uv) + LaplacianEdge(input.position);
+			cColor = Lighting(gtxtInputTextures[2].Sample(gssDefaultSamplerState, input.uv) ,gtxtInputTextures[3].Sample(gssDefaultSamplerState, input.uv)) + LaplacianEdge(input.position);
 			break;
 		}
 		case 76: //'L'
@@ -284,13 +283,13 @@ float4 PSScreenRectSamplingTextured(VS_SCREEN_RECT_TEXTURED_OUTPUT input) : SV_T
 			cColor = float4(fDepth, fDepth, fDepth, 1.0);
 			break;
 		}
-		case 90: //'Z' 
+		case 90: //'Z   ³ë¸Öv' 
 		{
 			float fDepth = gtxtInputTextures[5].Load(uint3((uint)input.position.x, (uint)input.position.y, 0)).r;
 			cColor = float4(fDepth, fDepth, fDepth, 1.0);
 			break;
 		}
-		case 79: //'O'
+		case 79: //'O ¾ê°¡ id + z'
 		{
 			uint fObjectID = (uint)gtxtInputTextures[4].Load(uint3((uint)input.position.x, (uint)input.position.y, 0)).r;
 			cColor.rgb = 1.0f/(float)fObjectID;

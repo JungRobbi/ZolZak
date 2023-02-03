@@ -136,7 +136,7 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dDescriptorRanges[1].OffsetInDescriptorsFromTableStart = 0;
 
 	pd3dDescriptorRanges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	pd3dDescriptorRanges[2].NumDescriptors = 8;
+	pd3dDescriptorRanges[2].NumDescriptors = 7;
 	pd3dDescriptorRanges[2].BaseShaderRegister = 1; //t1: Texture2D<float4>[]
 	pd3dDescriptorRanges[2].RegisterSpace = 0;
 	pd3dDescriptorRanges[2].OffsetInDescriptorsFromTableStart = 0;
