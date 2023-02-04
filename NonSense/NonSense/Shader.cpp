@@ -160,7 +160,6 @@ void Shader::ReleaseShaderVariables()
 
 void Shader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	//파이프라인에 그래픽스 상태 객체를 설정한다.
 	pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
 }
 
@@ -210,6 +209,9 @@ Object* ObjectsShader::CreateEmpty()
 	return new Object();
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 ObjectsShader::ObjectsShader()
 {
 }
@@ -219,13 +221,17 @@ ObjectsShader::~ObjectsShader()
 
 D3D12_INPUT_LAYOUT_DESC ObjectsShader::CreateInputLayout()
 {
-	UINT nInputElementDescs = 2;
+	UINT nInputElementDescs = 3;
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
 	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
 	return(d3dInputLayoutDesc);
 }
 
@@ -307,11 +313,10 @@ Object* ObjectsShader::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, X
 void ObjectsShader::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL,
-		ncbGameObjectBytes * m_nObjects, D3D12_HEAP_TYPE_UPLOAD,
-		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL,ncbGameObjectBytes * m_nObjects, D3D12_HEAP_TYPE_UPLOAD,D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
 }
+
 //객체의 월드변환 행렬과 재질 번호를 상수 버퍼에 쓴다.
 void ObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 {
@@ -321,13 +326,16 @@ void ObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommand
 	int k = 0;
 	for (auto gameobject : GameScene::MainScene->gameObjects)
 	{
+
 		XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&gameobject->GetWorld())));
 		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)(m_pcbMappedGameObjects + (k * ncbGameObjectBytes));
 		::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
+		pbMappedcbGameObject->m_nObjectID = k;
 		pbMappedcbGameObject->m_nMaterial = gameobject->GetMaterial()->m_nReflection;
 		++k;
 	}
 }
+
 void ObjectsShader::ReleaseShaderVariables()
 {
 	if (m_pd3dcbGameObjects)

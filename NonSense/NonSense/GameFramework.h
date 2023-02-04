@@ -31,10 +31,12 @@ private:
 	//현재 스왑 체인의 후면 버퍼 인덱스이다.
 	ID3D12Resource *m_ppd3dRenderTargetBuffers[m_nSwapChainBuffers];
 	ID3D12DescriptorHeap* m_pd3dRtvDescriptorHeap;
+	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle;
 	UINT m_nRtvDescriptorIncrementSize;
 	//렌더 타겟 버퍼, 서술자 힙 인터페이스 포인터, 렌더 타겟 서술자 원소의 크기이다.
 	ID3D12Resource *m_pd3dDepthStencilBuffer;
 	ID3D12DescriptorHeap* m_pd3dDsvDescriptorHeap;
+	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle;
 	UINT m_nDsvDescriptorIncrementSize;
 	//깊이-스텐실 버퍼, 서술자 힙 인터페이스 포인터, 깊이-스텐실 서술자 원소의 크기이다.
 	ID3D12CommandQueue *m_pd3dCommandQueue;

@@ -8,7 +8,7 @@
 struct CB_GAMEOBJECT_INFO
 {
 	XMFLOAT4X4 m_xmf4x4World;
-	//객체에 적용될 재질 번호
+	UINT m_nObjectID;
 	UINT m_nMaterial;
 };
 
