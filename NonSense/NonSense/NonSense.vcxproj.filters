@@ -37,6 +37,9 @@
     <Filter Include="소스 파일\Components\base">
       <UniqueIdentifier>{487ddc59-b878-4807-a67e-1276b591e7df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\DirectX 12\TextureLoader">
+      <UniqueIdentifier>{c45f60a0-87bc-4768-bbf7-40726cd51c7e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -103,10 +106,10 @@
       <Filter>소스 파일\System</Filter>
     </ClInclude>
     <ClInclude Include="DDSTextureLoader12.h">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
     </ClInclude>
     <ClInclude Include="WICTextureLoader12.h">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -165,10 +168,10 @@
       <Filter>소스 파일\System</Filter>
     </ClCompile>
     <ClCompile Include="DDSTextureLoader12.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
     </ClCompile>
     <ClCompile Include="WICTextureLoader12.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
