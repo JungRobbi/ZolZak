@@ -89,15 +89,11 @@ void GameScene::BuildLightsAndMaterials()
 void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-
 	m_nShaders = 1;
-	m_ppShaders = new Shader*[m_nShaders];
+	m_ppShaders = new ObjectsShader*[m_nShaders];
 
-	ObjectsShader* pObjectShader = new ObjectsShader();
-	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_FLOAT };
-	pObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 7, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList);
-	m_ppShaders[0] = pObjectShader;
+	m_ppShaders[0]->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	m_ppShaders[0]->BuildObjects(pd3dDevice, pd3dCommandList);
 
 	BuildLightsAndMaterials();
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);

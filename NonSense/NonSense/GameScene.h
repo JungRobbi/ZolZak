@@ -84,7 +84,7 @@ public:
 protected:
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
 
-	Shader** m_ppShaders = NULL;
+	ObjectsShader** m_ppShaders = NULL;
 	int m_nShaders = 0;
 
 	LIGHTS* m_pLights = NULL;
