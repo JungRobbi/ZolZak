@@ -247,7 +247,8 @@ CubePlayer::CubePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	SetPosition(XMFLOAT3(0.0f, 0.0f, -50.0f));
 	//플레이어(비행기) 메쉬를 렌더링할 때 사용할 셰이더를 생성한다.
 	DiffusedShader* pShader = new DiffusedShader();
-	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
+	DXGI_FORMAT pdxgiRtvFormats[1] = { DXGI_FORMAT_R8G8B8A8_UNORM };
+	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	SetShader(pShader);
 }
