@@ -46,12 +46,12 @@ void Player::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 	if (dwDirection)
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look,fDistance);
-		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look,-fDistance);
-		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right,fDistance);
-		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right,-fDistance);
+		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
+		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
+		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
+		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 		if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
-		if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up,-fDistance);
+		if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
 		Move(xmf3Shift, bUpdateVelocity);
 	}
 }
@@ -94,7 +94,7 @@ void Player::Rotate(float x, float y, float z)
 
 		if (y != 0.0f)
 		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up),XMConvertToRadians(y));
+			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
 			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 		}
@@ -131,29 +131,33 @@ void Player::Rotate(float x, float y, float z)
 }
 void Player::Update(float fTimeElapsed)
 {
-	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity,fTimeElapsed, false));
-	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z *m_xmf3Velocity.z);
+	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity, fTimeElapsed, false));
+	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	float fMaxVelocityXZ = m_fMaxVelocityXZ * fTimeElapsed;
 	if (fLength > m_fMaxVelocityXZ)
 	{
 		m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
 		m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
 	}
-
+	/*플레이어의 속도 벡터의 y-성분의 크기를 구한다. 이것이 y-축 방향의 최대 속력보다 크면 속도 벡터의 y-방향 성분을 조정한다.*/
 	float fMaxVelocityY = m_fMaxVelocityY * fTimeElapsed;
 	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
-
+	//플레이어를 속도 벡터 만큼 실제로 이동한다(카메라도 이동될 것이다).
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 	Move(xmf3Velocity, false);
-
+	/*플레이어의 위치가 변경될 때 추가로 수행할 작업을 수행한다. 플레이어의 새로운 위치가 유효한 위치가 아닐 수도
+	있고 또는 플레이어의 충돌 검사 등을 수행할 필요가 있다. 이러한 상황에서 플레이어의 위치를 유효한 위치로 다시
+	변경할 수 있다.*/
 	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 	DWORD nCameraMode = m_pCamera->GetMode();
-
-	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position,fTimeElapsed);
+	//플레이어의 위치가 변경되었으므로 3인칭 카메라를 갱신한다.
+	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
+	//카메라의 위치가 변경될 때 추가로 수행할 작업을 수행한다.
 	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
+	//카메라가 3인칭 카메라이면 카메라가 변경된 플레이어 위치를 바라보도록 한다.
 	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
-
+	//카메라의 카메라 변환 행렬을 다시 생성한다.
 	m_pCamera->RegenerateViewMatrix();
 	fLength = Vector3::Length(m_xmf3Velocity);
 	float fDeceleration = (m_fFriction * fTimeElapsed);
@@ -164,7 +168,7 @@ void Player::Update(float fTimeElapsed)
 Camera* Player::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
 	//새로운 카메라의 모드에 따라 카메라를 새로 생성한다.
-	Camera *pNewCamera = NULL;
+	Camera* pNewCamera = NULL;
 	switch (nNewCameraMode)
 	{
 	case FIRST_PERSON_CAMERA:
@@ -189,7 +193,7 @@ Camera* Player::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 	}
 	else if ((nNewCameraMode == SPACESHIP_CAMERA) && m_pCamera)
 	{
-		
+
 		m_xmf3Right = m_pCamera->GetRightVector();
 		m_xmf3Up = m_pCamera->GetUpVector();
 		m_xmf3Look = m_pCamera->GetLookVector();
@@ -221,16 +225,31 @@ void Player::OnPrepareRender()
 }
 void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	//DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
-	//if (nCameraMode == THIRD_PERSON_CAMERA)
-	//{
-	//	if (m_pMaterial) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
-	//	Object::Render(pd3dCommandList, pCamera);
-	//}
+	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
+	//카메라 모드가 3인칭이면 플레이어 객체를 렌더링한다.
+	if (nCameraMode == THIRD_PERSON_CAMERA)
+	{
+		if (m_pMaterial) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		Object::Render(pd3dCommandList, pCamera);
+	}
 }
 
 CubePlayer::CubePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Player()
 {
+	//비행기 메쉬를 생성한다.
+	Mesh* pAirplaneMesh = new CubeMesh(pd3dDevice, pd3dCommandList);
+	SetMesh(pAirplaneMesh);
+	//플레이어의 카메라를 스페이스-쉽 카메라로 변경(생성)한다.
+	m_pCamera = ChangeCamera(SPACESHIP_CAMERA, 0.0f);
+	//플레이어를 위한 셰이더 변수를 생성한다.
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//플레이어의 위치를 설정한다.
+	SetPosition(XMFLOAT3(0.0f, 0.0f, -50.0f));
+	//플레이어(비행기) 메쉬를 렌더링할 때 사용할 셰이더를 생성한다.
+	DiffusedShader* pShader = new DiffusedShader();
+	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
+	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetShader(pShader);
 }
 CubePlayer::~CubePlayer()
 {
@@ -240,7 +259,7 @@ void CubePlayer::OnPrepareRender()
 {
 	Player::OnPrepareRender();
 	//비행기 모델을 그리기 전에 x-축으로 90도 회전한다.
-	XMMATRIX mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(90.0f), 0.0f,0.0f);
+	XMMATRIX mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(90.0f), 0.0f, 0.0f);
 	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
 }
 

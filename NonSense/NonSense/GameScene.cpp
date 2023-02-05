@@ -64,7 +64,7 @@ void GameScene::BuildLightsAndMaterials()
 	m_pLights->m_pLights[0].m_bEnable = true;
 	m_pLights->m_pLights[0].m_nType = SPOT_LIGHT;
 	m_pLights->m_pLights[0].m_fRange = 50.0f;
-	m_pLights->m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	m_pLights->m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 	m_pLights->m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
 	m_pLights->m_pLights[0].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
 	m_pLights->m_pLights[0].m_xmf3Position = XMFLOAT3(-50.0f, 20.0f, -5.0f);
@@ -73,7 +73,7 @@ void GameScene::BuildLightsAndMaterials()
 	m_pLights->m_pLights[0].m_fFalloff = 8.0f;
 	m_pLights->m_pLights[0].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
 	m_pLights->m_pLights[0].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
-
+	;
 	m_pMaterials = new MATERIALS;
 	::ZeroMemory(m_pMaterials, sizeof(MATERIALS));
 	m_pMaterials->m_pReflections[0] = { XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
@@ -90,11 +90,9 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 	m_nShaders = 1;
-	m_ppShaders = new ObjectsShader*[m_nShaders];
-
-	m_ppShaders[0]->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
-	m_ppShaders[0]->BuildObjects(pd3dDevice, pd3dCommandList);
-
+	m_pShaders = new ObjectsShader[m_nShaders];
+	m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	m_pShaders[0].BuildObjects(pd3dDevice, pd3dCommandList);
 	BuildLightsAndMaterials();
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -102,27 +100,19 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 void GameScene::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
-
-	if (m_ppShaders)
+	for (int i = 0; i < m_nShaders; i++)
 	{
-		for (int i = 0; i < m_nShaders; i++)
-		{
-			m_ppShaders[i]->ReleaseShaderVariables();
-			m_ppShaders[i]->ReleaseObjects();
-			m_ppShaders[i]->Release();
-		}
-		delete[] m_ppShaders;
+		m_pShaders[i].ReleaseShaderVariables();
+		m_pShaders[i].ReleaseObjects();
 	}
-
-	ReleaseShaderVariables();
-
+	if (m_pShaders) delete[] m_pShaders;
 	if (m_pLights) delete m_pLights;
 	if (m_pMaterials) delete m_pMaterials;
 }
 
 void GameScene::ReleaseUploadBuffers()
 {
-	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
+	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].ReleaseUploadBuffers();
 }
 
 ID3D12RootSignature* GameScene::GetGraphicsRootSignature()
@@ -190,10 +180,8 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 
 void GameScene::AnimateObjects(float fTimeElapsed)
 {
-	for (int i = 0; i < m_nShaders; i++)
-	{
-		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
-	}
+	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].AnimateObjects(fTimeElapsed);
+	//조명의 위치와 방향을 플레이어의 위치와 방향으로 변경한다.
 	if (m_pLights)
 	{
 		m_pLights->m_pLights[0].m_xmf3Position = m_pPlayer->GetPosition();
@@ -215,7 +203,6 @@ void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Came
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_MATERIAL, d3dcbMaterialsGpuVirtualAddress);
-
 }
 
 void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -223,7 +210,7 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 
 	for (int i = 0; i < m_nShaders; i++)
 	{
-		m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+		m_pShaders[i].Render(pd3dCommandList, pCamera);
 	}
 }
 
@@ -232,7 +219,6 @@ void GameScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256의 배수
 	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dcbLights->Map(0, NULL, (void**)&m_pcbMappedLights);
-
 	UINT ncbMaterialBytes = ((sizeof(MATERIALS) + 255) & ~255); //256의 배수
 	m_pd3dcbMaterials = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbMaterialBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dcbMaterials->Map(0, NULL, (void**)&m_pcbMappedMaterials);
@@ -265,17 +251,19 @@ Object* GameScene::PickObjectPointedByCursor(int xClient, int yClient, Camera* p
 	XMFLOAT4X4 xmf4x4Projection = pCamera->GetProjectionMatrix();
 	D3D12_VIEWPORT d3dViewport = pCamera->GetViewport();
 	XMFLOAT3 xmf3PickPosition;
-
+	/*화면 좌표계의 점 (xClient, yClient)를 화면 좌표 변환의 역변환과 투영 변환의 역변환을 한다. 그 결과는 카메라
+	좌표계의 점이다. 투영 평면이 카메라에서 z-축으로 거리가 1이므로 z-좌표는 1로 설정한다.*/
 	xmf3PickPosition.x = (((2.0f * xClient) / d3dViewport.Width) - 1) / xmf4x4Projection._11;
 	xmf3PickPosition.y = -(((2.0f * yClient) / d3dViewport.Height) - 1) / xmf4x4Projection._22;
 	xmf3PickPosition.z = 1.0f;
 	int nIntersected = 0;
 	float fHitDistance = FLT_MAX, fNearestHitDistance = FLT_MAX;
 	Object* pIntersectedObject = NULL, * pNearestObject = NULL;
-
+	//셰이더의 모든 게임 객체들에 대한 마우스 픽킹을 수행하여 카메라와 가장 가까운 게임 객체를 구한다.
 	for (int i = 0; i < m_nShaders; i++)
 	{
-		pIntersectedObject = m_ppShaders[i]->PickObjectByRayIntersection(xmf3PickPosition,xmf4x4View, &fHitDistance);
+		pIntersectedObject = m_pShaders[i].PickObjectByRayIntersection(xmf3PickPosition,
+			xmf4x4View, &fHitDistance);
 		if (pIntersectedObject && (fHitDistance < fNearestHitDistance))
 		{
 			fNearestHitDistance = fHitDistance;

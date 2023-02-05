@@ -75,23 +75,25 @@ public:
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void ReleaseUploadBuffers();
 	//그래픽 루트 시그너쳐를 생성한다.
-	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
+	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
 	ID3D12RootSignature* GetGraphicsRootSignature();
 	//씬의 모든 게임 객체들에 대한 마우스 픽킹을 수행한다.
-	Object* PickObjectPointedByCursor(int xClient, int yClient, Camera *pCamera);
+	Object* PickObjectPointedByCursor(int xClient, int yClient, Camera* pCamera);
 	Player* m_pPlayer = NULL;
-	
+
 protected:
+	ObjectsShader* m_pShaders = NULL;
+	int m_nShaders = 0;
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
 
-	ObjectsShader** m_ppShaders = NULL;
-	int m_nShaders = 0;
-
+	//씬의 조명
 	LIGHTS* m_pLights = NULL;
-	ID3D12Resource *m_pd3dcbLights = NULL;
+	//조명을 나타내는 리소스와 리소스에 대한 포인터이다.
+	ID3D12Resource* m_pd3dcbLights = NULL;
 	LIGHTS* m_pcbMappedLights = NULL;
-
+	//씬의 객체들에 적용되는 재질
 	MATERIALS* m_pMaterials = NULL;
-	ID3D12Resource *m_pd3dcbMaterials = NULL;
+	//재질을 나타내는 리소스와 리소스에 대한 포인터이다.
+	ID3D12Resource* m_pd3dcbMaterials = NULL;
 	MATERIAL* m_pcbMappedMaterials = NULL;
 };
