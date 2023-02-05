@@ -3,7 +3,7 @@
 #include "GameScene.h"
 #include "RotateComponent.h"
 
-Shader::~Shader()
+Shader::Shader()
 {
 	m_d3dSrvCPUDescriptorStartHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr = NULL;
 	m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr = NULL;
@@ -321,24 +321,11 @@ D3D12_SHADER_BYTECODE ObjectsShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlo
 	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSLighting", "ps_5_1", ppd3dShaderBlob));
 }
 
-void ObjectsShader::ReleaseObjects()
-{
-
-}
-
 void ObjectsShader::AnimateObjects(float fTimeElapsed)
 {
 	for (auto gameobject : GameScene::MainScene->gameObjects)
 	{
 		gameobject->Animate(fTimeElapsed);
-	}
-}
-
-void ObjectsShader::ReleaseUploadBuffers()
-{
-	for (auto gameobject : GameScene::MainScene->gameObjects)
-	{
-		gameobject->ReleaseUploadBuffers();
 	}
 }
 
@@ -368,8 +355,7 @@ Object* ObjectsShader::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, X
 
 	for (auto gameobject : GameScene::MainScene->gameObjects)
 	{
-		nIntersected = gameobject->PickObjectByRayIntersection(xmf3PickPosition,
-			xmf4x4View, &fHitDistance);
+		nIntersected = gameobject->PickObjectByRayIntersection(xmf3PickPosition,xmf4x4View, &fHitDistance);
 		if ((nIntersected > 0) && (fHitDistance < *pfNearHitDistance))
 		{
 			*pfNearHitDistance = fHitDistance;
@@ -415,12 +401,33 @@ void ObjectsShader::ReleaseShaderVariables()
 	}
 }
 
+void ObjectsShader::ReleaseObjects()
+{
+	if (m_ppObjects)
+	{
+		for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) delete m_ppObjects[j];
+		delete[] m_ppObjects;
+	}
+
+	if (m_pMaterial) m_pMaterial->Release();
+}
+
+void ObjectsShader::ReleaseUploadBuffers()
+{
+	if (m_ppObjects)
+	{
+		for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) m_ppObjects[j]->ReleaseUploadBuffers();
+	}
+
+	if (m_pMaterial) m_pMaterial->ReleaseUploadBuffers();
+}
+
 void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(pd3dDevice, pd3dCommandList, 12.0f, 12.0f, 12.0f);
 	int xObjects = 1, yObjects = 1, zObjects = 1, i = 0;
 	m_nObjects = (xObjects * 2 + 1) * (yObjects * 2 + 1) * (zObjects * 2 + 1);
-//	m_ppObjects = new RotatingObject * [m_nObjects];
+
 	float fxPitch = 12.0f * 2.5f;
 	float fyPitch = 12.0f * 2.5f;
 	float fzPitch = 12.0f * 2.5f;

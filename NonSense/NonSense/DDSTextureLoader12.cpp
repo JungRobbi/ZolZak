@@ -606,8 +606,7 @@ namespace
 
                 // No DXGI format maps to ISBITMASK(0x7c00,0x03e0,0x001f,0x0000) aka D3DFMT_X1R5G5B5
 
-                if (ISBITMASK(0x0f00,0x00f0,0x000f,
-                    00))
+                if (ISBITMASK(0x0f00,0x00f0,0x000f,0xf000))
                 {
                     return DXGI_FORMAT_B4G4R4A4_UNORM;
                 }

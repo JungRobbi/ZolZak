@@ -82,18 +82,16 @@ public:
 	Player* m_pPlayer = NULL;
 	
 protected:
-	ObjectsShader* m_pShaders = NULL;
-	int m_nShaders = 0;
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
 
-	//씬의 조명
+	Shader** m_ppShaders = NULL;
+	int m_nShaders = 0;
+
 	LIGHTS* m_pLights = NULL;
-	//조명을 나타내는 리소스와 리소스에 대한 포인터이다.
 	ID3D12Resource *m_pd3dcbLights = NULL;
 	LIGHTS* m_pcbMappedLights = NULL;
-	//씬의 객체들에 적용되는 재질
+
 	MATERIALS* m_pMaterials = NULL;
-	//재질을 나타내는 리소스와 리소스에 대한 포인터이다.
 	ID3D12Resource *m_pd3dcbMaterials = NULL;
 	MATERIAL* m_pcbMappedMaterials = NULL;
 };
