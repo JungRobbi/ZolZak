@@ -3,6 +3,43 @@
 #include "Camera.h"
 class Shader;
 class Camera;
+class Object;
+
+#define RESOURCE_TEXTURE1D			0x01
+#define RESOURCE_TEXTURE2D			0x02
+#define RESOURCE_TEXTURE2D_ARRAY	0x03
+#define RESOURCE_TEXTURE2DARRAY		0x04
+#define RESOURCE_TEXTURE_CUBE		0x05
+#define RESOURCE_BUFFER				0x06
+#define RESOURCE_STRUCTURED_BUFFER	0x07
+
+
+class Texture
+{
+public:
+	Texture(int nTextureResource, UINT nTextureType, int nRootParameters);
+	~Texture();
+
+private:
+	UINT							m_nTextureType = NULL;
+
+	_TCHAR							(*m_ppstrTextureNames)[64] = NULL;
+
+	int								m_nTextures = 0;
+	ID3D12Resource**				m_ppd3dTextures = NULL;
+	ID3D12Resource**				m_ppd3dTextureUploadBuffers;
+
+	int								m_nRootParameters = 0;
+	int*							m_pRootParameterIndices = NULL;
+	D3D12_GPU_DESCRIPTOR_HANDLE*	m_pd3dSRVGPUDescriptorHandle = NULL;
+	
+	UINT* m_pnResourceTypes = NULL;
+
+public:
+	void LoadTextureFromDDSFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, UINT nResourceType, UINT nIndex);
+	bool LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* pInFile, Shader* pShader, UINT nIndex);
+};
+
 
 struct MATERIAL
 {
@@ -33,6 +70,12 @@ public:
 	void SetShader(Shader* pShader);
 };
 
+class LoadedModelInfo
+{
+public:
+	LoadedModelInfo() {}
+	~LoadedModelInfo() {}
+};
 
 class Object
 {

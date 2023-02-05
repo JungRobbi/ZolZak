@@ -2,6 +2,106 @@
 #include "Object.h"
 #include "Shader.h"
 
+
+
+Texture::Texture(int nTextures, UINT nTextureType, int nRootParameters)
+{
+	m_nTextures = nTextures;
+	m_nTextureType = nTextureType;
+
+	if (nTextures > 0)
+	{
+		m_ppd3dTextureUploadBuffers = new ID3D12Resource * [m_nTextures];
+		m_ppd3dTextures = new ID3D12Resource * [m_nTextures];
+		for (int i = 0; i < nTextures; ++i)
+			m_ppd3dTextureUploadBuffers[i] = m_ppd3dTextures[i] = NULL;
+	}
+
+	m_nRootParameters = nRootParameters;
+	if (nRootParameters > 0) m_pRootParameterIndices = new int[nRootParameters];
+	for (int i = 0; i < m_nRootParameters; i++) m_pRootParameterIndices[i] = -1;
+}
+
+Texture::~Texture()
+{
+
+	if (m_ppd3dTextures) delete[] m_ppd3dTextures;
+	if (m_ppd3dTextureUploadBuffers) delete[] m_ppd3dTextureUploadBuffers;
+	
+	if (m_pRootParameterIndices) delete[] m_pRootParameterIndices;
+	if (m_pd3dSRVGPUDescriptorHandle) delete[] m_pd3dSRVGPUDescriptorHandle;
+
+}
+
+void Texture::LoadTextureFromDDSFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, UINT nResourceType, UINT nIndex)
+{
+	m_pnResourceTypes[nIndex] = nResourceType;
+	m_ppd3dTextures[nIndex] = ::CreateTextureResourceFromDDSFile(pd3dDevice, pd3dCommandList, pszFileName, &m_ppd3dTextureUploadBuffers[nIndex], D3D12_RESOURCE_STATE_GENERIC_READ);
+}
+
+bool Texture::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* pInFile, Shader* pShader, UINT nIndex)
+{
+	char pstrTextureName[64] = { '\0' };
+
+	BYTE nStrLength = 64;
+	UINT nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+	nReads = (UINT)::fread(pstrTextureName, sizeof(char), nStrLength, pInFile);
+	pstrTextureName[nStrLength] = '\0';
+
+	bool bDuplicated = false;
+	bool bLoaded = false;
+	if (strcmp(pstrTextureName, "null"))
+	{
+		bLoaded = true;
+		char pstrFilePath[64] = { '\0' };
+		strcpy_s(pstrFilePath, 64, "Model/Textures/");
+
+		bDuplicated = (pstrTextureName[0] == '@');
+		strcpy_s(pstrFilePath + 15, 64 - 15, (bDuplicated) ? (pstrTextureName + 1) : pstrTextureName);
+		strcpy_s(pstrFilePath + 15 + ((bDuplicated) ? (nStrLength - 1) : nStrLength), 64 - 15 - ((bDuplicated) ? (nStrLength - 1) : nStrLength), ".dds");
+
+		size_t nConverted = 0;
+		mbstowcs_s(&nConverted, m_ppstrTextureNames[nIndex], 64, pstrFilePath, _TRUNCATE);
+
+#define _WITH_DISPLAY_TEXTURE_NAME
+
+#ifdef _WITH_DISPLAY_TEXTURE_NAME
+		static int nTextures = 0, nRepeatedTextures = 0;
+		TCHAR pstrDebug[256] = { 0 };
+		_stprintf_s(pstrDebug, 256, _T("Texture Name: %d %c %s\n"), (pstrTextureName[0] == '@') ? nRepeatedTextures++ : nTextures++, (pstrTextureName[0] == '@') ? '@' : ' ', m_ppstrTextureNames[nIndex]);
+		OutputDebugString(pstrDebug);
+#endif
+		if (!bDuplicated)
+		{
+			LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, m_ppstrTextureNames[nIndex], RESOURCE_TEXTURE2D, nIndex);
+			pShader->CreateShaderResourceView(pd3dDevice, this, nIndex);
+#ifdef _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS
+			m_pnRootParameterIndices[nIndex] = PARAMETER_STANDARD_TEXTURE + nIndex;
+#endif
+		}
+		else
+		{
+			if (pParent)
+			{
+				Object* pRootGameObject = pParent;
+				while (pRootGameObject)
+				{
+					if (!pRootGameObject->m_pParent) break;
+					pRootGameObject = pRootGameObject->m_pParent;
+				}
+				D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGpuDescriptorHandle;
+				int nParameterIndex = pRootGameObject->FindReplicatedTexture(m_ppstrTextureNames[nIndex], &d3dSrvGpuDescriptorHandle);
+				if (nParameterIndex >= 0)
+				{
+					m_pd3dSRVGPUDescriptorHandle[nIndex] = d3dSrvGpuDescriptorHandle;
+					m_pRootParameterIndices[nIndex] = nParameterIndex;
+				}
+			}
+		}
+	}
+	return(bLoaded);
+}
+
 void Material::SetShader(Shader* pShader)
 {
 	if (m_pShader) m_pShader->Release();
@@ -220,3 +320,4 @@ void RotatingObject::Animate(float fTimeElapsed)
 {
 	Object::Rotate(&m_xmf3RotationAxis, m_fRotationSpeed * fTimeElapsed);
 }
+
