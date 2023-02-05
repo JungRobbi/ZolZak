@@ -231,6 +231,119 @@ void Object::ReleaseShaderVariables()
 {
 }
 
+// -------------- 모델 & 애니메이션 로드 --------------
+
+int ReadIntegerFromFile(FILE* pInFile)
+{
+	int nValue = 0;
+	UINT nReads = (UINT)::fread(&nValue, sizeof(int), 1, pInFile);
+	return(nValue);
+}
+
+float ReadFloatFromFile(FILE* pInFile)
+{
+	float fValue = 0;
+	UINT nReads = (UINT)::fread(&fValue, sizeof(float), 1, pInFile);
+	return(fValue);
+}
+
+BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
+{
+	BYTE nStrLength = 0;
+	UINT nReads = 0;
+	nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+	nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
+	pstrToken[nStrLength] = '\0';
+
+	return(nStrLength);
+}
+
+Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, Object* pParent, FILE* OpendFile, Shader* pShader, int* pnSkinnedMeshes)
+{
+	char pstrToken[64] = { '\0' };
+	UINT nReads = 0;
+
+	int nFrame = 0, nTextures = 0;
+
+	Object* pObject = new Object();
+
+	while (true)
+	{
+		::ReadStringFromFile(OpendFile, pstrToken);
+		if (!strcmp(pstrToken, "<Frame>:")) 
+		{
+			//Frame Data
+		}
+		else if (!strcmp(pstrToken, "<Transform>:"))
+		{
+
+		}
+		else if (!strcmp(pstrToken, "<TransformMatrix>:"))
+		{
+
+		}
+		else if (!strcmp(pstrToken, "<Mesh>:"))
+		{
+
+		}
+		else if (!strcmp(pstrToken, "<SkinningInfo>:"))
+		{
+
+		}
+		else if (!strcmp(pstrToken, "<Materials>:"))
+		{
+
+		}
+		else if (!strcmp(pstrToken, "<Children>:"))
+		{
+
+		}
+		else if (!strcmp(pstrToken, "</Frame>"))
+		{
+			break;
+		}
+	}
+	return pObject;
+}
+
+
+LoadedModelInfo* Object::LoadAnimationModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, Shader* pShader)
+{
+	FILE* OpenedFile = NULL;
+	::fopen_s(&OpenedFile, pstrFileName, "rb");
+	::rewind(OpenedFile);
+
+	LoadedModelInfo* pLoadedModel = new LoadedModelInfo();
+
+	char pstrToken[64] = { '\0' };
+	while (true)
+	{
+		if (::ReadStringFromFile(OpenedFile, pstrToken))
+		{
+
+			if (!strcmp(pstrToken, "<Hierarchy>:"))
+			{
+				// Hierarcy 읽기
+			}
+			else if (!strcmp(pstrToken, "<Animation>:"))
+			{
+				// Animation 읽기
+			}
+			else
+			{
+				// 문단의 끝 </Hierarcy> 같은 것
+				break;
+			}
+
+		}
+	}
+
+	return pLoadedModel;
+}
+
+
+
+
 void Object::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	XMFLOAT4X4 xmf4x4World;

@@ -75,6 +75,8 @@ class LoadedModelInfo
 public:
 	LoadedModelInfo() {}
 	~LoadedModelInfo() {}
+
+	Object* m_pRoot = NULL;
 };
 
 class Object
@@ -108,6 +110,12 @@ public:
 	int PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& xmf4x4View, float* pfHitDistance);
 
 
+
+	Object* m_pParent = NULL;
+	Object* m_pChild = NULL;
+	Object* m_pSibling = NULL;
+
+
 protected:
 	XMFLOAT4X4 m_xmf4x4World;
 	Mesh* m_pMesh = NULL;
@@ -126,6 +134,10 @@ public:
 	//상수 버퍼의 내용을 갱신한다.
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
+
+public: // 모델 & 애니메이션 로드
+	static Object* LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, Object* pParent, FILE* OpendFile, Shader* pShader, int* pnSkinnedMeshes);
+	static LoadedModelInfo* LoadAnimationModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, Shader* pShader);
 };
 
 class RotatingObject : public Object
