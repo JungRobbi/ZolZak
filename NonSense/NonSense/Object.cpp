@@ -119,6 +119,24 @@ Object::~Object()
 	if (m_pMaterial) m_pMaterial->Release();
 }
 
+void Object::SetChild(Object* pChild, bool bReferenceUpdate)
+{
+	if (pChild)
+	{
+		pChild->m_pParent = this;
+		if (bReferenceUpdate) pChild->AddRef();
+	}
+	if (m_pChild)
+	{
+		if (pChild) pChild->m_pSibling = m_pChild->m_pSibling;
+		m_pChild->m_pSibling = pChild;
+	}
+	else
+	{
+		m_pChild = pChild;
+	}
+}
+
 void Object::SetShader(Shader* pShader)
 {
 	if (!m_pMaterial)
@@ -258,7 +276,7 @@ BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 	return(nStrLength);
 }
 
-Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, Object* pParent, FILE* OpendFile, Shader* pShader, int* pnSkinnedMeshes)
+Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, Object* pParent, FILE* OpenedFile, Shader* pShader, int* pnSkinnedMeshes)
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
@@ -269,18 +287,27 @@ Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 
 	while (true)
 	{
-		::ReadStringFromFile(OpendFile, pstrToken);
+		::ReadStringFromFile(OpenedFile, pstrToken);
 		if (!strcmp(pstrToken, "<Frame>:")) 
 		{
-			//Frame Data
+			nFrame = ::ReadIntegerFromFile(OpenedFile);
+			nTextures = ::ReadIntegerFromFile(OpenedFile);
+
+			::ReadStringFromFile(OpenedFile, pObject->m_pFrameName);
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{
+			XMFLOAT3 Position, Rotation, Scale;
+			XMFLOAT4 Quat;
 
+			nReads = (UINT)::fread(&Position, sizeof(float), 3, OpenedFile);
+			nReads = (UINT)::fread(&Rotation, sizeof(float), 3, OpenedFile); //Euler Angle
+			nReads = (UINT)::fread(&Scale, sizeof(float), 3, OpenedFile);
+			nReads = (UINT)::fread(&Quat, sizeof(float), 4, OpenedFile); //Quaternion
 		}
 		else if (!strcmp(pstrToken, "<TransformMatrix>:"))
 		{
-
+			nReads = (UINT)::fread(&pObject->m_xmf4x4ToParent, sizeof(float), 16, OpenedFile);
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
@@ -296,7 +323,15 @@ Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 		}
 		else if (!strcmp(pstrToken, "<Children>:"))
 		{
-
+			int nChildren = ::ReadIntegerFromFile(OpenedFile);
+			if (nChildren > 0)
+			{
+				for (int i = 0; i < nChildren; i++)
+				{
+					Object* pChild = Object::LoadHierarchy(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pObject, OpenedFile, pShader, pnSkinnedMeshes);
+					if (pChild) pObject->SetChild(pChild);
+				}
+			}
 		}
 		else if (!strcmp(pstrToken, "</Frame>"))
 		{

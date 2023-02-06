@@ -97,6 +97,8 @@ public:
 	XMFLOAT3 GetRight();
 	XMFLOAT4X4 GetWorld() { return m_xmf4x4World; }
 	Material* GetMaterial() { return m_pMaterial; }
+
+	void SetChild(Object* pChild, bool bReferenceUpdate = false);
 	void SetMaterial(Material* pMaterial);
 	void SetMaterial(UINT nReflection);
 	void SetPosition(float x, float y, float z);
@@ -115,8 +117,10 @@ public:
 	Object* m_pChild = NULL;
 	Object* m_pSibling = NULL;
 
+	char							m_pFrameName[64];
 
 protected:
+	XMFLOAT4X4 m_xmf4x4ToParent;
 	XMFLOAT4X4 m_xmf4x4World;
 	Mesh* m_pMesh = NULL;
 	Material* m_pMaterial = NULL;
