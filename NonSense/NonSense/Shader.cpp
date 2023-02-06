@@ -304,7 +304,7 @@ D3D12_SHADER_BYTECODE ObjectsShader::CreateVertexShader(ID3DBlob** ppd3dShaderBl
 }
 D3D12_SHADER_BYTECODE ObjectsShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSLighting", "ps_5_1", ppd3dShaderBlob));
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSObject", "ps_5_1", ppd3dShaderBlob));
 }
 
 void ObjectsShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)

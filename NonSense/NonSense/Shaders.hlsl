@@ -19,6 +19,8 @@ cbuffer cbGameObjectInfo : register(b2)
 	uint objectID : packoffset(c4.x);
 	uint gnMaterial : packoffset(c4.y);
 };
+Texture2DArray gtxtTextureArray : register(t0);
+SamplerState gssDefaultSamplerState : register(s0);
 
 #include "Light.hlsl"
 
@@ -50,12 +52,11 @@ VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
 	return(output);
 }
 
-//ÇÈ¼¿ ½¦ÀÌ´õ ÇÔ¼ö
 float4 PSLighting(VS_LIGHTING_OUTPUT input) : SV_TARGET
 {
 	float3 normalW = normalize(input.normalW);
 	float4 color = Lighting(input.positionW, normalW);
-	color = float4(input.uv, 1.0f, 1.0f);
+	//color = float4(input.positionW, 1.0f);
 	return(color);
 }
 
@@ -63,24 +64,21 @@ float4 PSLighting(VS_LIGHTING_OUTPUT input) : SV_TARGET
 
 struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
 {
-	float3 Position : SV_TARGET0;
-	float4 Normal : SV_TARGET1;
+	float4 Normal : SV_TARGET0;
+	float4 Position : SV_TARGET1;
 	float4 Texture : SV_TARGET2;
-	float2 ObjectIDzDepth : SV_TARGET3;
 };
 
 PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSObject(VS_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID)
 {
 	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
 
-	output.Position = input.positionW;
+	output.Position = float4(input.positionW,1.0f);
 	input.normalW = normalize(input.normalW);
-	output.Normal = float4(input.normalW.xyz * 0.5f + 0.5f, input.position.z);
+	output.Normal = float4(input.normalW.xyz, (float)objectID);
 	//float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	//output.Texture = gtxtTextureArray.Sample(gssDefaultSamplerState, uvw);
 	output.Texture = float4(1.0f, 1.0f, 1.0f, 1.0f);
-	output.ObjectIDzDepth.x = (float)objectID;
-	output.ObjectIDzDepth.y = 1.0f - input.position.z;
 
 	return(output);
 }
