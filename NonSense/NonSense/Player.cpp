@@ -236,16 +236,15 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 
 CubePlayer::CubePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Player()
 {
-	//비행기 메쉬를 생성한다.
 	Mesh* pAirplaneMesh = new CubeMesh(pd3dDevice, pd3dCommandList);
 	SetMesh(pAirplaneMesh);
-	//플레이어의 카메라를 스페이스-쉽 카메라로 변경(생성)한다.
+
 	m_pCamera = ChangeCamera(SPACESHIP_CAMERA, 0.0f);
-	//플레이어를 위한 셰이더 변수를 생성한다.
+
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	//플레이어의 위치를 설정한다.
+
 	SetPosition(XMFLOAT3(0.0f, 0.0f, -50.0f));
-	//플레이어(비행기) 메쉬를 렌더링할 때 사용할 셰이더를 생성한다.
+
 	DiffusedShader* pShader = new DiffusedShader();
 	DXGI_FORMAT pdxgiRtvFormats[1] = { DXGI_FORMAT_R8G8B8A8_UNORM };
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);

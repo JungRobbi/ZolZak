@@ -35,6 +35,11 @@ public:
 	D3D12_SHADER_BYTECODE CompileShaderFromFile(WCHAR* pszFileName, LPCSTR pszShaderName, LPCSTR pszShaderProfile, ID3DBlob** ppd3dShaderBlob);
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat);
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+
+	void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
+	void CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex);
+	void CreateShaderResourceViews(ID3D12Device* pd3dDevice, int nResources, ID3D12Resource** ppd3dResources, DXGI_FORMAT* pdxgiSrvFormats);
+
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 	void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, MATERIAL* pMaterial) {};
@@ -51,7 +56,7 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorStartHandle() { return(m_d3dSrvGPUDescriptorStartHandle); }
 
 protected:
-	ID3D12PipelineState* m_pd3dPipelineState = NULL;
+	ID3D12PipelineState* m_pPipelineState = NULL;
 
 	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
@@ -108,34 +113,37 @@ protected:
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
 	UINT8* m_pcbMappedGameObjects = NULL;
 };
-//
-//class ScreenShader : public Shader
-//{
-//public:
-//	ScreenShader();
-//	virtual ~ScreenShader();
-//
-//	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-//	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
-//
-//	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
-//	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
-//
-//	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat);
-//	virtual void CreateResourcesAndRtvsSrvs(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nRenderTargets, DXGI_FORMAT* pdxgiFormats, UINT nWidth, UINT nHeight, D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle, UINT nShaderResources);
-//
-//	virtual void OnPrepareRenderTarget(ID3D12GraphicsCommandList* pd3dCommandList, int nRenderTargets, D3D12_CPU_DESCRIPTOR_HANDLE* pd3dRtvCPUHandles, D3D12_CPU_DESCRIPTOR_HANDLE d3dDepthStencilBufferDSVCPUHandle);
-//	virtual void OnPostRenderTarget(ID3D12GraphicsCommandList* pd3dCommandList);
-//
-//	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, void* pContext);
-//
-//protected:
-//	CTexture* m_pTexture = NULL;
-//	D3D12_CPU_DESCRIPTOR_HANDLE* m_pd3dRtvCPUDescriptorHandles = NULL;
-//
-//public:
-//	CTexture* GetTexture() { return(m_pTexture); }
-//	ID3D12Resource* GetTextureResource(UINT nIndex) { return(m_pTexture->GetResource(nIndex)); }
-//
-//	D3D12_CPU_DESCRIPTOR_HANDLE GetRtvCPUDescriptorHandle(UINT nIndex) { return(m_pd3dRtvCPUDescriptorHandles[nIndex]); }
-//};
+
+class ScreenShader : public Shader
+{
+public:
+	ScreenShader();
+	virtual ~ScreenShader();
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
+
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void ReleaseShaderVariables();
+	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat);
+	virtual void CreateResourcesAndViews(ID3D12Device* pd3dDevice, UINT nResources, DXGI_FORMAT* pdxgiFormats, UINT nWidth, UINT nHeight, D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorHandle, UINT nShaderResources);
+
+	virtual void OnPrepareRenderTarget(ID3D12GraphicsCommandList* pd3dCommandList, int nRenderTargets, D3D12_CPU_DESCRIPTOR_HANDLE* pd3dRtvCPUHandles, D3D12_CPU_DESCRIPTOR_HANDLE d3dDepthStencilBufferDSVCPUHandle);
+	virtual void OnPostRenderTarget(ID3D12GraphicsCommandList* pd3dCommandList);
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+
+protected:
+	CTexture* m_pTexture = NULL;
+	D3D12_CPU_DESCRIPTOR_HANDLE* m_pm_RTVDescriptorHandles = NULL;
+
+public:
+	CTexture* GetTexture() { return(m_pTexture); }
+	ID3D12Resource* GetTextureResource(UINT nIndex) { return(m_pTexture->GetResource(nIndex)); }
+
+	D3D12_CPU_DESCRIPTOR_HANDLE GetRtvCPUDescriptorHandle(UINT nIndex) { return(m_pm_RTVDescriptorHandles[nIndex]); }
+};
