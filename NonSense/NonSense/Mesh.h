@@ -34,15 +34,16 @@ class IlluminatedVertex : public Vertex
 {
 protected:
 	XMFLOAT3 m_xmf3Normal;
+	XMFLOAT2 m_xmf2TexCoord;
 public:
 	IlluminatedVertex() {
-		m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf3Normal = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf3Normal = XMFLOAT3(0.0f, 0.0f, 0.0f), m_xmf2TexCoord = XMFLOAT2(0.0f,0.0f) ;
 	}
 	IlluminatedVertex(float x, float y, float z, XMFLOAT3 xmf3Normal = XMFLOAT3(0.0f,0.0f, 0.0f)) {
 		m_xmf3Position = XMFLOAT3(x, y, z); m_xmf3Normal = xmf3Normal;
 	}
-	IlluminatedVertex(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3Normal = XMFLOAT3(0.0f, 0.0f,0.0f)) {
-		m_xmf3Position = xmf3Position; m_xmf3Normal = xmf3Normal;
+	IlluminatedVertex(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3Normal = XMFLOAT3(0.0f, 0.0f,0.0f), XMFLOAT2 xmf2TexCoord = XMFLOAT2(0.0f, 0.0f)) {
+		m_xmf3Position = xmf3Position; m_xmf3Normal = xmf3Normal; m_xmf2TexCoord = xmf2TexCoord;
 	}
 	~IlluminatedVertex() { }
 };

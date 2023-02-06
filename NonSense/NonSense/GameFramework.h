@@ -31,7 +31,7 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorHandle;
 	UINT m_RTVDescriptorSize;
 
-	ID3D12Resource *m_DepthStencilBuffer;
+	ID3D12Resource *m_pDepthStencilBuffer;
 	ID3D12DescriptorHeap* m_DSVDescriptorHeap;
 	D3D12_CPU_DESCRIPTOR_HANDLE m_DSVDescriptorHandle;
 	UINT m_DSVDescriptorSize;
@@ -48,6 +48,7 @@ private:
 public:
 	Camera* m_pCamera = NULL;
 	Player* m_pPlayer = NULL;
+	ScreenShader* m_pScreen = NULL;
 	Object* m_pSelectedObject = NULL;
 	POINT m_ptOldCursorPos;
 

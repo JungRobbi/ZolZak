@@ -14,7 +14,7 @@ GameFramework::GameFramework()
 	for (int i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 0;
 	m_RTVDescriptorHeap = NULL;
 	m_RTVDescriptorSize = 0;
-	m_DepthStencilBuffer = NULL;
+	m_pDepthStencilBuffer = NULL;
 	m_DSVDescriptorHeap = NULL;
 	m_DSVDescriptorSize = 0;
 	m_nSwapChainBufferIndex = 0;
@@ -51,12 +51,14 @@ bool GameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 void GameFramework::OnDestroy()
 {
 	WaitForGpuComplete();
+
 	ReleaseObjects();
+
 	::CloseHandle(m_FenceEventHandle);
-	for (int i = 0; i < m_nSwapChainBuffers; i++) if (m_ppRenderTargetBuffers[i])
-		m_ppRenderTargetBuffers[i]->Release();
+
+	for (int i = 0; i < m_nSwapChainBuffers; i++) if (m_ppRenderTargetBuffers[i]) m_ppRenderTargetBuffers[i]->Release();
 	if (m_RTVDescriptorHeap) m_RTVDescriptorHeap->Release();
-	if (m_DepthStencilBuffer) m_DepthStencilBuffer->Release();
+	if (m_pDepthStencilBuffer) m_pDepthStencilBuffer->Release();
 	if (m_DSVDescriptorHeap) m_DSVDescriptorHeap->Release();
 	if (m_pCommandAllocator) m_pCommandAllocator->Release();
 	if (m_pCommandQueue) m_pCommandQueue->Release();
@@ -82,6 +84,7 @@ void GameFramework::CreateSwapChain()
 	::GetClientRect(m_hWnd, &rcClient);
 	m_nWndClientWidth = rcClient.right - rcClient.left;
 	m_nWndClientHeight = rcClient.bottom - rcClient.top;
+
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(dxgiSwapChainDesc));
 	dxgiSwapChainDesc.BufferCount = m_nSwapChainBuffers;
@@ -97,12 +100,11 @@ void GameFramework::CreateSwapChain()
 	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
 	dxgiSwapChainDesc.Windowed = TRUE;
 	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
 	HRESULT hResult = m_pFactory->CreateSwapChain(m_pCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain**)&m_pSwapChain);
-	m_nSwapChainBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+	
 	hResult = m_pFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
-#ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
-	CreateRenderTargetViews();
-#endif
+	m_nSwapChainBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 }
 
 void GameFramework::ChangeSwapChainState()
@@ -254,6 +256,7 @@ void GameFramework::CreateDepthStencilView()
 	d3dResourceDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
 	d3dResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	d3dResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
 	D3D12_HEAP_PROPERTIES d3dHeapProperties;
 	::ZeroMemory(&d3dHeapProperties, sizeof(D3D12_HEAP_PROPERTIES));
 	d3dHeapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
@@ -261,16 +264,16 @@ void GameFramework::CreateDepthStencilView()
 	d3dHeapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 	d3dHeapProperties.CreationNodeMask = 1;
 	d3dHeapProperties.VisibleNodeMask = 1;
+
 	D3D12_CLEAR_VALUE d3dClearValue;
 	d3dClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	d3dClearValue.DepthStencil.Depth = 1.0f;
 	d3dClearValue.DepthStencil.Stencil = 0;
-	m_pDevice->CreateCommittedResource(&d3dHeapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, __uuidof(ID3D12Resource), (void**)&m_DepthStencilBuffer);
-	//±íÀÌ-½ºÅÙ½Ç ¹öÆÛ¸¦ »ý¼ºÇÑ´Ù.
-	m_DSVDescriptorHandle = m_DSVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-	m_pDevice->CreateDepthStencilView(m_DepthStencilBuffer, NULL,m_DSVDescriptorHandle);
-	//±íÀÌ-½ºÅÙ½Ç ¹öÆÛ ºä¸¦ »ý¼ºÇÑ´Ù.
+	m_pDevice->CreateCommittedResource(&d3dHeapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, __uuidof(ID3D12Resource), (void**)&m_pDepthStencilBuffer);
+	
+	m_DSVDescriptorHandle = m_DSVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer, NULL,m_DSVDescriptorHandle);
 }
 
 void GameFramework::BuildObjects()
@@ -284,11 +287,24 @@ void GameFramework::BuildObjects()
 	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
+	//m_pScreen = new ScreenShader();
+	//m_pScreen->CreateShader(m_pDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D32_FLOAT);
+
+	//D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	//d3dRtvCPUDescriptorHandle.ptr += (::gnRtvDescriptorIncrementSize * m_nSwapChainBuffers);
+
+	//DXGI_FORMAT pdxgiResourceFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R32_FLOAT};
+	//m_pScreen->CreateResourcesAndViews(m_pDevice, MRT, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT + 1); //SRV to (Render Targets) + (Depth Buffer)
+
+	//DXGI_FORMAT pdxgiDepthSrvFormats[1] = { DXGI_FORMAT_R32_FLOAT };
+	//m_pScreen->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
 
 	m_pCommandList->Close();
+
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
+
 	if (m_pScene) m_pScene->ReleaseUploadBuffers();
 	if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
 	Timer::Reset();

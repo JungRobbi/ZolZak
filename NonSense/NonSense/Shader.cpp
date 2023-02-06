@@ -284,13 +284,17 @@ ObjectsShader::~ObjectsShader()
 
 D3D12_INPUT_LAYOUT_DESC ObjectsShader::CreateInputLayout()
 {
-	UINT nInputElementDescs = 2;
+	UINT nInputElementDescs = 3;
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
 	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
 	return(d3dInputLayoutDesc);
 }
 
@@ -470,17 +474,16 @@ D3D12_DEPTH_STENCIL_DESC ScreenShader::CreateDepthStencilState()
 
 D3D12_SHADER_BYTECODE ScreenShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSScreenRectSamplingTextured", "vs_5_1", ppd3dShaderBlob));
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSScreen", "vs_5_1", ppd3dShaderBlob));
 }
 
 D3D12_SHADER_BYTECODE ScreenShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSScreenRectSamplingTextured", "ps_5_1", ppd3dShaderBlob));
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSScreen", "ps_5_1", ppd3dShaderBlob));
 }
 
 void ScreenShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
 {
-
 	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
 	m_pd3dGraphicsRootSignature->AddRef();
 
