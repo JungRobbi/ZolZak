@@ -206,15 +206,26 @@ void Shader::CreateShaderResourceViews(ID3D12Device* pd3dDevice, int nResources,
 		}
 	}
 }
-
+void Shader::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride)
+{
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = pd3dConstantBuffers->GetGPUVirtualAddress();
+	D3D12_CONSTANT_BUFFER_VIEW_DESC d3dCBVDesc;
+	d3dCBVDesc.SizeInBytes = nStride;
+	for (int j = 0; j < nConstantBufferViews; j++)
+	{
+		d3dCBVDesc.BufferLocation = d3dGpuVirtualAddress + (nStride * j);
+		D3D12_CPU_DESCRIPTOR_HANDLE d3dCbvCPUDescriptorHandle;
+		d3dCbvCPUDescriptorHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * j);
+		pd3dDevice->CreateConstantBufferView(&d3dCBVDesc, d3dCbvCPUDescriptorHandle);
+	}
+}
 void Shader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 }
 void Shader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 }
-void Shader::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4
-	* pxmf4x4World)
+void Shader::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
 {
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
@@ -226,8 +237,8 @@ void Shader::ReleaseShaderVariables()
 
 void Shader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-
-	pd3dCommandList->SetPipelineState(m_pPipelineState);
+	if (m_pPipelineState) pd3dCommandList->SetPipelineState(m_pPipelineState);
+	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 }
 
 void Shader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -342,6 +353,7 @@ void ObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* p
 	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbGameObjectGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
 
+	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
 	int k = 0;
 	for (auto gameobject : GameScene::MainScene->gameObjects)
 	{
@@ -390,8 +402,7 @@ void ObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommand
 		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)(m_pcbMappedGameObjects + (k * ncbGameObjectBytes));
 		::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
 		pbMappedcbGameObject->m_nMaterial = gameobject->GetMaterial()->m_nReflection;
-		pbMappedcbGameObject->m_nObjectID = k;
-		++k;
+		pbMappedcbGameObject->m_nObjectID = k++;
 	}
 }
 void ObjectsShader::ReleaseShaderVariables()
@@ -408,7 +419,21 @@ void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(pd3dDevice, pd3dCommandList, 12.0f, 12.0f, 12.0f);
 	int xObjects = 1, yObjects = 1, zObjects = 1, i = 0;
 	m_nObjects = (xObjects * 2 + 1) * (yObjects * 2 + 1) * (zObjects * 2 + 1);
-	//	m_ppObjects = new RotatingObject * [m_nObjects];
+	
+	CTexture* pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0, 1);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"StonesArray.dds", RESOURCE_TEXTURE2DARRAY, 0);
+
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
+
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 1);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
+	CreateShaderResourceViews(pd3dDevice, pTexture, 0, 5);
+
+	m_pMaterial = new Material();
+	m_pMaterial->SetTexture(pTexture);
+	m_pMaterial->SetReflection(1);
+
 	float fxPitch = 12.0f * 2.5f;
 	float fyPitch = 12.0f * 2.5f;
 	float fzPitch = 12.0f * 2.5f;
@@ -428,7 +453,6 @@ void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 			}
 		}
 	}
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 }
 

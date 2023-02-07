@@ -66,12 +66,9 @@ void CTexture::SetSampler(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSamplerGpuD
 
 void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	if (m_nRootParameters == m_nTextures)
+	if ( 1 == m_nTextures)
 	{
-		for (int i = 0; i < m_nRootParameters; i++)
-		{
-			pd3dCommandList->SetGraphicsRootDescriptorTable(5, m_pd3dSrvGpuDescriptorHandles[i]);
-		}
+		pd3dCommandList->SetGraphicsRootDescriptorTable(5, m_pd3dSrvGpuDescriptorHandles[0]);
 	}
 	else
 	{
@@ -174,6 +171,16 @@ void Material::SetShader(Shader* pShader)
 	if (m_pShader) m_pShader->Release();
 	m_pShader = pShader;
 	if (m_pShader) m_pShader->AddRef();
+}
+void Material::SetTexture(CTexture* pTexture)
+{
+	if (m_pTexture) m_pTexture->Release();
+	m_pTexture = pTexture;
+	if (m_pTexture) m_pTexture->AddRef();
+}
+void Material::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 }
 
 Object::Object()

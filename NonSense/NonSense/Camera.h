@@ -9,8 +9,11 @@ class Player;
 
 struct VS_CB_CAMERA_INFO
 {
-	XMFLOAT4X4 m_xmf4x4View;
-	XMFLOAT4X4 m_xmf4x4Projection;
+	XMFLOAT4X4						m_xmf4x4View;
+	XMFLOAT4X4						m_xmf4x4Projection;
+	XMFLOAT4X4						m_xmf4x4InverseProjection;
+	XMFLOAT3						m_xmf3Position;
+	XMFLOAT3						m_xmf3Direction;
 };
 
 class Camera
