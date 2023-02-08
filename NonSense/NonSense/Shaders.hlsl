@@ -44,7 +44,7 @@ struct VS_LIGHTING_OUTPUT
 	float2 uv : TEXCOORD;
 };
 
-VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
+VS_LIGHTING_OUTPUT VSObject(VS_LIGHTING_INPUT input)
 {
 	VS_LIGHTING_OUTPUT output;
 	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
@@ -60,7 +60,7 @@ struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
 {
 	float4 Texture : SV_TARGET0;
 	float4 Position : SV_TARGET1;
-	float4 Normal: SV_TARGET2;
+	float4 Normal : SV_TARGET2;
 };
 
 PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSObject(VS_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID)
@@ -69,9 +69,9 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSObject(VS_LIGHTING_OUTPUT input, uint nPrimi
 
 	output.Position = float4(input.positionW,1.0f);
 	output.Normal = float4(input.normalW.xyz, (float)objectID);
-	float3 uvw = float3(input.uv, nPrimitiveID / 2);
-	output.Texture = gtxtTextureArray.Sample(gssDefaultSamplerState, uvw);
-	//output.Texture = float4(0.0f, 1.0f, 1.0f, 1.0f);
+	//float3 uvw = float3(input.uv, nPrimitiveID / 2);
+	//output.Texture = gtxtTextureArray.Sample(gssDefaultSamplerState, uvw);
+	output.Texture = float4(0.0f, 1.0f, 1.0f, 1.0f);
 
 	return(output);
 }
@@ -103,7 +103,7 @@ float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-Texture2D gtxtInputTextures[5] : register(t1); //Position, Normal, Texture, ObjectID + zDepth, Depth
+Texture2D gtxtInputTextures[5] : register(t1); //Position, Normal+ObjectID, Texture, Depth
 
 struct VS_SCREEN_OUTPUT
 {

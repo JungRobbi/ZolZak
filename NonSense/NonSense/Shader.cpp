@@ -5,15 +5,15 @@
 
 Shader::Shader()
 {
-	m_d3dSrvCPUDescriptorStartHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr = NULL;
-	m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr = NULL;
+	m_SRVCPUDescriptorStartHandle.ptr = m_CBVCPUDescriptorStartHandle.ptr = NULL;
+	m_SRVGPUDescriptorStartHandle.ptr = m_CBVGPUDescriptorStartHandle.ptr = NULL;
 }
 
 Shader::~Shader()
 {
 	if (m_pPipelineState) m_pPipelineState->Release();
-	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
-	if (m_pd3dCbvSrvDescriptorHeap) m_pd3dCbvSrvDescriptorHeap->Release();
+	if (m_pGraphicsRootSignature) m_pGraphicsRootSignature->Release();
+	if (m_CBVSRVDescriptorHeap) m_CBVSRVDescriptorHeap->Release();
 }
 
 //래스터라이저 상태를 설정하기 위한 구조체를 반환한다.
@@ -152,21 +152,21 @@ void Shader::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstant
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	d3dDescriptorHeapDesc.NodeMask = 0;
-	HRESULT hResult = pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pd3dCbvSrvDescriptorHeap);
+	HRESULT hResult = pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_CBVSRVDescriptorHeap);
 
-	m_d3dCbvCPUDescriptorStartHandle = m_pd3dCbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	m_d3dCbvGPUDescriptorStartHandle = m_pd3dCbvSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-	m_d3dSrvCPUDescriptorStartHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
-	m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
+	m_CBVCPUDescriptorStartHandle = m_CBVSRVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	m_CBVGPUDescriptorStartHandle = m_CBVSRVDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	m_SRVCPUDescriptorStartHandle.ptr = m_CBVCPUDescriptorStartHandle.ptr + (::CBVSRVDescriptorSize * nConstantBufferViews);
+	m_SRVGPUDescriptorStartHandle.ptr = m_CBVGPUDescriptorStartHandle.ptr + (::CBVSRVDescriptorSize * nConstantBufferViews);
 
-	m_d3dSrvCPUDescriptorNextHandle = m_d3dSrvCPUDescriptorStartHandle;
-	m_d3dSrvGPUDescriptorNextHandle = m_d3dSrvGPUDescriptorStartHandle;
+	m_SRVCPUDescriptorNextHandle = m_SRVCPUDescriptorStartHandle;
+	m_SRVGPUDescriptorNextHandle = m_SRVGPUDescriptorStartHandle;
 }
 
 void Shader::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex)
 {
-	m_d3dSrvCPUDescriptorNextHandle.ptr += (::gnCbvSrvDescriptorIncrementSize * nDescriptorHeapIndex);
-	m_d3dSrvGPUDescriptorNextHandle.ptr += (::gnCbvSrvDescriptorIncrementSize * nDescriptorHeapIndex);
+	m_SRVCPUDescriptorNextHandle.ptr += (::CBVSRVDescriptorSize * nDescriptorHeapIndex);
+	m_SRVGPUDescriptorNextHandle.ptr += (::CBVSRVDescriptorSize * nDescriptorHeapIndex);
 
 	int nTextures = pTexture->GetTextures();
 	UINT nTextureType = pTexture->GetTextureType();
@@ -176,10 +176,10 @@ void Shader::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pText
 		if (pShaderResource)
 		{
 			D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = pTexture->GetShaderResourceViewDesc(i);
-			pd3dDevice->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorNextHandle);
-			m_d3dSrvCPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
-			pTexture->SetGpuDescriptorHandle(i, m_d3dSrvGPUDescriptorNextHandle);
-			m_d3dSrvGPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+			pd3dDevice->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_SRVCPUDescriptorNextHandle);
+			m_SRVCPUDescriptorNextHandle.ptr += ::CBVSRVDescriptorSize;
+			pTexture->SetGpuDescriptorHandle(i, m_SRVGPUDescriptorNextHandle);
+			m_SRVGPUDescriptorNextHandle.ptr += ::CBVSRVDescriptorSize;
 		}
 	}
 	int nRootParameters = pTexture->GetRootParameters();
@@ -200,9 +200,9 @@ void Shader::CreateShaderResourceViews(ID3D12Device* pd3dDevice, int nResources,
 			d3dShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 			d3dShaderResourceViewDesc.Texture2D.PlaneSlice = 0;
 			d3dShaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-			pd3dDevice->CreateShaderResourceView(ppd3dResources[i], &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorNextHandle);
-			m_d3dSrvCPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
-			m_d3dSrvGPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+			pd3dDevice->CreateShaderResourceView(ppd3dResources[i], &d3dShaderResourceViewDesc, m_SRVCPUDescriptorNextHandle);
+			m_SRVCPUDescriptorNextHandle.ptr += ::CBVSRVDescriptorSize;
+			m_SRVGPUDescriptorNextHandle.ptr += ::CBVSRVDescriptorSize;
 		}
 	}
 }
@@ -215,7 +215,7 @@ void Shader::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBu
 	{
 		d3dCBVDesc.BufferLocation = d3dGpuVirtualAddress + (nStride * j);
 		D3D12_CPU_DESCRIPTOR_HANDLE d3dCbvCPUDescriptorHandle;
-		d3dCbvCPUDescriptorHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * j);
+		d3dCbvCPUDescriptorHandle.ptr = m_CBVCPUDescriptorStartHandle.ptr + (::CBVSRVDescriptorSize * j);
 		pd3dDevice->CreateConstantBufferView(&d3dCBVDesc, d3dCbvCPUDescriptorHandle);
 	}
 }
@@ -238,7 +238,7 @@ void Shader::ReleaseShaderVariables()
 void Shader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_pPipelineState) pd3dCommandList->SetPipelineState(m_pPipelineState);
-	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	pd3dCommandList->SetDescriptorHeaps(1, &m_CBVSRVDescriptorHeap);
 }
 
 void Shader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -276,9 +276,9 @@ D3D12_SHADER_BYTECODE DiffusedShader::CreatePixelShader(ID3DBlob** ppd3dShaderBl
 
 void DiffusedShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
 {
-	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
-	m_pd3dGraphicsRootSignature->AddRef();
-	Shader::CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
+	m_pGraphicsRootSignature = pd3dGraphicsRootSignature;
+	m_pGraphicsRootSignature->AddRef();
+	Shader::CreateShader(pd3dDevice, m_pGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
 }
 
 Object* ObjectsShader::CreateEmpty()
@@ -311,7 +311,7 @@ D3D12_INPUT_LAYOUT_DESC ObjectsShader::CreateInputLayout()
 
 D3D12_SHADER_BYTECODE ObjectsShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSLighting", "vs_5_1", ppd3dShaderBlob));
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSObject", "vs_5_1", ppd3dShaderBlob));
 }
 D3D12_SHADER_BYTECODE ObjectsShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 {
@@ -320,9 +320,9 @@ D3D12_SHADER_BYTECODE ObjectsShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlo
 
 void ObjectsShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
 {
-	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
-	m_pd3dGraphicsRootSignature->AddRef();
-	Shader::CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
+	m_pGraphicsRootSignature = pd3dGraphicsRootSignature;
+	m_pGraphicsRootSignature->AddRef();
+	Shader::CreateShader(pd3dDevice, m_pGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
 }
 
 void ObjectsShader::ReleaseObjects()
@@ -348,7 +348,7 @@ void ObjectsShader::ReleaseUploadBuffers()
 
 void ObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	Shader::Render(pd3dCommandList, pCamera);
+	Shader::OnPrepareRender(pd3dCommandList);
 	UpdateShaderVariables(pd3dCommandList);
 	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbGameObjectGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
@@ -371,8 +371,7 @@ Object* ObjectsShader::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, X
 
 	for (auto gameobject : GameScene::MainScene->gameObjects)
 	{
-		nIntersected = gameobject->PickObjectByRayIntersection(xmf3PickPosition,
-			xmf4x4View, &fHitDistance);
+		nIntersected = gameobject->PickObjectByRayIntersection(xmf3PickPosition, xmf4x4View, &fHitDistance);
 		if ((nIntersected > 0) && (fHitDistance < *pfNearHitDistance))
 		{
 			*pfNearHitDistance = fHitDistance;
@@ -386,7 +385,7 @@ Object* ObjectsShader::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, X
 void ObjectsShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL,ncbGameObjectBytes * m_nObjects, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbGameObjectBytes * m_nObjects, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
 }
 //객체의 월드변환 행렬과 재질 번호를 상수 버퍼에 쓴다.
@@ -419,7 +418,7 @@ void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(pd3dDevice, pd3dCommandList, 12.0f, 12.0f, 12.0f);
 	int xObjects = 1, yObjects = 1, zObjects = 1, i = 0;
 	m_nObjects = (xObjects * 2 + 1) * (yObjects * 2 + 1) * (zObjects * 2 + 1);
-	
+
 	CTexture* pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0, 1);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"StonesArray.dds", RESOURCE_TEXTURE2DARRAY, 0);
 
@@ -450,6 +449,7 @@ void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 				object->AddComponent<RotateComponent>();
 				object->GetComponent<RotateComponent>()->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
 				object->GetComponent<RotateComponent>()->SetRotationSpeed(10.0f * ((i++) % 10));
+				//object->SetCbvGPUDescriptorHandlePtr(m_CBVGPUDescriptorStartHandle.ptr + (::CBVSRVDescriptorSize * i));
 			}
 		}
 	}
@@ -508,10 +508,10 @@ D3D12_SHADER_BYTECODE ScreenShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob
 
 void ScreenShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
 {
-	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
-	m_pd3dGraphicsRootSignature->AddRef();
+	m_pGraphicsRootSignature = pd3dGraphicsRootSignature;
+	m_pGraphicsRootSignature->AddRef();
 
-	Shader::CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
+	Shader::CreateShader(pd3dDevice, m_pGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
 }
 
 void ScreenShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -554,7 +554,7 @@ void ScreenShader::CreateResourcesAndViews(ID3D12Device* pd3dDevice, UINT nResou
 		ID3D12Resource* pd3dTextureResource = m_pTexture->GetResource(i);
 		pd3dDevice->CreateRenderTargetView(pd3dTextureResource, &d3dRenderTargetViewDesc, m_RTVDescriptorHandle);
 		m_pm_RTVDescriptorHandles[i] = m_RTVDescriptorHandle;
-		m_RTVDescriptorHandle.ptr += ::gnRtvDescriptorIncrementSize;
+		m_RTVDescriptorHandle.ptr += ::RTVDescriptorSize;
 	}
 }
 

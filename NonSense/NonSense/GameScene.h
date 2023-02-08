@@ -85,7 +85,7 @@ public:
 protected:
 	ObjectsShader* m_pShaders = NULL;
 	int m_nShaders = 0;
-	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
+	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
 
 	//æ¿¿« ¡∂∏Ì
 	LIGHTS* m_pLights = NULL;

@@ -66,7 +66,7 @@ void CTexture::SetSampler(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSamplerGpuD
 
 void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	if ( 1 == m_nTextures)
+	if (1 == m_nTextures)
 	{
 		pd3dCommandList->SetGraphicsRootDescriptorTable(5, m_pd3dSrvGpuDescriptorHandles[0]);
 	}
@@ -351,7 +351,7 @@ void Object::OnPrepareRender()
 }
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	if (IsVisible(pCamera))
+	//if (IsVisible(pCamera))
 	{
 		OnPrepareRender();
 		if (m_pMaterial)

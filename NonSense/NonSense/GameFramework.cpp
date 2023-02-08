@@ -102,7 +102,7 @@ void GameFramework::CreateSwapChain()
 	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	HRESULT hResult = m_pFactory->CreateSwapChain(m_pCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain**)&m_pSwapChain);
-	
+
 	hResult = m_pFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 	m_nSwapChainBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 }
@@ -128,7 +128,7 @@ void GameFramework::ChangeSwapChainState()
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	m_pSwapChain->GetDesc(&dxgiSwapChainDesc);
 	m_pSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
-	
+
 	m_nSwapChainBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 
 	CreateRenderTargetViews();
@@ -187,8 +187,8 @@ void GameFramework::CreateDirect3DDevice()
 	for (UINT i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 1;
 	m_FenceEventHandle = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 
-	::gnRtvDescriptorIncrementSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	::gnCbvSrvDescriptorIncrementSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	::RTVDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	::CBVSRVDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	if (pd3dAdapter) pd3dAdapter->Release();
 }
@@ -199,7 +199,7 @@ void GameFramework::CreateCommandQueueAndList()
 	::ZeroMemory(&d3dCommandQueueDesc, sizeof(D3D12_COMMAND_QUEUE_DESC));
 	d3dCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	d3dCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-	HRESULT hResult = m_pDevice->CreateCommandQueue(&d3dCommandQueueDesc,_uuidof(ID3D12CommandQueue), (void**)&m_pCommandQueue);
+	HRESULT hResult = m_pDevice->CreateCommandQueue(&d3dCommandQueueDesc, _uuidof(ID3D12CommandQueue), (void**)&m_pCommandQueue);
 
 	hResult = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void**)&m_pCommandAllocator);
 	hResult = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pCommandAllocator, NULL, __uuidof(ID3D12GraphicsCommandList), (void**)&m_pCommandList);
@@ -215,7 +215,7 @@ void GameFramework::CreateRtvAndDsvDescriptorHeaps()
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV; // Render Target View狼 Descriptor 积己
 	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	d3dDescriptorHeapDesc.NodeMask = 0;
-	HRESULT hResult = m_pDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc,__uuidof(ID3D12DescriptorHeap), (void**)&m_RTVDescriptorHeap); // Render Target Descriptor Heap 积己
+	HRESULT hResult = m_pDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_RTVDescriptorHeap); // Render Target Descriptor Heap 积己
 	m_RTVDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV); //Render Target Descriptor Heap狼 茄 盔家狼 农扁甫 历厘茄促.
 
 	// Depth/Stencil Descriptor Heap 积己
@@ -271,9 +271,9 @@ void GameFramework::CreateDepthStencilView()
 	d3dClearValue.DepthStencil.Stencil = 0;
 
 	m_pDevice->CreateCommittedResource(&d3dHeapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, __uuidof(ID3D12Resource), (void**)&m_pDepthStencilBuffer);
-	
+
 	m_DSVDescriptorHandle = m_DSVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer, NULL,m_DSVDescriptorHandle);
+	m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer, NULL, m_DSVDescriptorHandle);
 }
 
 void GameFramework::BuildObjects()
@@ -283,7 +283,7 @@ void GameFramework::BuildObjects()
 	auto m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
 
-	m_pPlayer = new CubePlayer(m_pDevice,m_pCommandList, m_pScene->GetGraphicsRootSignature());
+	m_pPlayer = new CubePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
 	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
@@ -291,7 +291,7 @@ void GameFramework::BuildObjects()
 	//m_pScreen->CreateShader(m_pDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D32_FLOAT);
 
 	//D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	//d3dRtvCPUDescriptorHandle.ptr += (::gnRtvDescriptorIncrementSize * m_nSwapChainBuffers);
+	//d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
 	//DXGI_FORMAT pdxgiResourceFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R32_FLOAT};
 	//m_pScreen->CreateResourcesAndViews(m_pDevice, MRT, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT + 1); //SRV to (Render Targets) + (Depth Buffer)

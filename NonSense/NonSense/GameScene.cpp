@@ -88,11 +88,11 @@ void GameScene::BuildLightsAndMaterials()
 
 void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
+	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 	m_nShaders = 1;
 	m_pShaders = new ObjectsShader[m_nShaders];
 	DXGI_FORMAT pdxgiRtvFormats[1] = { DXGI_FORMAT_R8G8B8A8_UNORM };
-	m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 1, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pShaders[0].CreateShader(pd3dDevice, m_pGraphicsRootSignature, 1, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
 	m_pShaders[0].BuildObjects(pd3dDevice, pd3dCommandList);
 	BuildLightsAndMaterials();
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -100,7 +100,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 void GameScene::ReleaseObjects()
 {
-	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
+	if (m_pGraphicsRootSignature) m_pGraphicsRootSignature->Release();
 	for (int i = 0; i < m_nShaders; i++)
 	{
 		m_pShaders[i].ReleaseShaderVariables();
@@ -118,7 +118,7 @@ void GameScene::ReleaseUploadBuffers()
 
 ID3D12RootSignature* GameScene::GetGraphicsRootSignature()
 {
-	return(m_pd3dGraphicsRootSignature);
+	return(m_pGraphicsRootSignature);
 }
 
 ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
@@ -228,7 +228,7 @@ void GameScene::AnimateObjects(float fTimeElapsed)
 
 void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	pd3dCommandList->SetGraphicsRootSignature(m_pGraphicsRootSignature);
 
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	pCamera->UpdateShaderVariables(pd3dCommandList);

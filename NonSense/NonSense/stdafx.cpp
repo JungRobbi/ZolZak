@@ -3,8 +3,8 @@
 #include "DDSTextureLoader12.h"
 #include "WICTextureLoader12.h"
 
-UINT gnCbvSrvDescriptorIncrementSize = 0;
-UINT gnRtvDescriptorIncrementSize = 0;
+UINT CBVSRVDescriptorSize = 0;
+UINT RTVDescriptorSize = 0;
 
 ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType,
