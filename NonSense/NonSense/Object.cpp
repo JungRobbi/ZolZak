@@ -2,7 +2,12 @@
 #include "Object.h"
 #include "Shader.h"
 
-
+void Material::SetTexture(Texture* pTexture)
+{
+	if (m_pTexture) m_pTexture->Release();
+	m_pTexture = pTexture;
+	if (m_pTexture) m_pTexture->AddRef();
+}
 
 Texture::Texture(int nTextures, UINT nTextureType, int nRootParameters)
 {
@@ -52,6 +57,8 @@ bool Texture::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	bool bLoaded = false;
 	if (strcmp(pstrTextureName, "null"))
 	{
+		
+
 		bLoaded = true;
 		char pstrFilePath[64] = { '\0' };
 		strcpy_s(pstrFilePath, 64, "Model/Textures/");
@@ -145,6 +152,13 @@ void Object::SetShader(Shader* pShader)
 		m_pMaterial->AddRef();
 	}
 	if (m_pMaterial) m_pMaterial->SetShader(pShader);
+}
+
+void Object::SetMaterials(int nMaterial, Material* pMaterial)
+{
+	if (m_ppMaterials[nMaterial]) m_ppMaterials[nMaterial]->Release();
+	m_ppMaterials[nMaterial] = pMaterial;
+	if (m_ppMaterials[nMaterial]) m_ppMaterials[nMaterial]->AddRef();
 }
 
 void Object::SetMaterial(Material* pMaterial)
@@ -276,6 +290,101 @@ BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 	return(nStrLength);
 }
 
+void Object::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* OpenedFile, Shader* pShader)
+{
+	char pstrToken[64] = { '\0' };
+	int nMaterial = 0;
+	UINT nReads = 0;
+
+	m_nMaterials = ::ReadIntegerFromFile(OpenedFile);
+	m_ppMaterials = new Material*[m_nMaterials];
+	for (int i = 0; i < m_nMaterials; ++i) m_ppMaterials[i] = NULL;
+
+	Material* pMaterial = NULL;
+	Texture* pTexture = NULL;
+
+	while (true)
+	{
+		::ReadStringFromFile(OpenedFile, pstrToken);
+		if (!strcmp(pstrToken, "<Material>:"))
+		{
+			nMaterial = ReadIntegerFromFile(OpenedFile);
+
+			pMaterial = new Material;
+			pTexture = new Texture(7, RESOURCE_TEXTURE2D, 7);
+
+			pMaterial->SetTexture(pTexture);
+			SetMaterials(nMaterial, pMaterial);
+		}
+		else if (!strcmp(pstrToken, "<AlbedoColor>:"))
+		{
+			nReads = ::fread(&(pMaterial->m_xmf4Albedo), sizeof(float), 4, OpenedFile);
+		}
+		else if (!strcmp(pstrToken, "<EmissiveColor>:"))
+		{
+			nReads = ::fread(&(pMaterial->m_xmf4Emissive), sizeof(float), 4, OpenedFile);
+		}
+		else if (!strcmp(pstrToken, "<SpecularColor>:"))
+		{
+			nReads = ::fread(&(pMaterial->m_xmf4Specular), sizeof(float), 4, OpenedFile);
+		}
+		else if (!strcmp(pstrToken, "<Glossiness>:"))
+		{
+			nReads = ::fread(&(pMaterial->m_fGlossiness), sizeof(float), 1, OpenedFile);
+		}
+		else if (!strcmp(pstrToken, "<Smoothness>:"))
+		{
+			nReads = ::fread(&(pMaterial->m_fSmoothness), sizeof(float), 1, OpenedFile);
+		}
+		else if (!strcmp(pstrToken, "<Metallic>:"))
+		{
+			nReads = ::fread(&(pMaterial->m_fMetallic), sizeof(float), 1, OpenedFile);
+		}
+		else if (!strcmp(pstrToken, "<SpecularHighlight>:"))
+		{
+			nReads = ::fread(&(pMaterial->m_fSpecularHighlight), sizeof(float), 1, OpenedFile);
+		}
+		else if (!strcmp(pstrToken, "<GlossyReflection>:"))
+		{
+			nReads = ::fread(&(pMaterial->m_fGlossyReflection), sizeof(float), 1, OpenedFile);
+		}
+		else if (!strcmp(pstrToken, "<AlbedoMap>:"))
+		{
+			if (pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pParent, OpenedFile, pShader, 0)) pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+		}
+		else if (!strcmp(pstrToken, "<SpecularMap>:"))
+		{
+			if (pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pParent, OpenedFile, pShader, 1)) pMaterial->SetMaterialType(MATERIAL_SPECULAR_MAP);
+		}
+		else if (!strcmp(pstrToken, "<NormalMap>:"))
+		{
+			if (pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pParent, OpenedFile, pShader, 2)) pMaterial->SetMaterialType(MATERIAL_NORMAL_MAP);
+		}
+		else if (!strcmp(pstrToken, "<MetallicMap>:"))
+		{
+			if (pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pParent, OpenedFile, pShader, 3)) pMaterial->SetMaterialType(MATERIAL_METALLIC_MAP);
+		}
+		else if (!strcmp(pstrToken, "<EmissionMap>:"))
+		{
+			if (pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pParent, OpenedFile, pShader, 4)) pMaterial->SetMaterialType(MATERIAL_EMISSION_MAP);
+		}
+		else if (!strcmp(pstrToken, "<DetailAlbedoMap>:"))
+		{
+			if (pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pParent, OpenedFile, pShader, 5)) pMaterial->SetMaterialType(MATERIAL_DETAIL_ALBEDO_MAP);
+		}
+		else if (!strcmp(pstrToken, "<DetailNormalMap>:"))
+		{
+			if (pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pParent, OpenedFile, pShader, 6)) pMaterial->SetMaterialType(MATERIAL_DETAIL_NORMAL_MAP);
+		}
+		else if (!strcmp(pstrToken, "</Materials>"))
+		{
+			break;
+		}
+	}
+
+
+}
+
 Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, Object* pParent, FILE* OpenedFile, Shader* pShader, int* pnSkinnedMeshes)
 {
 	char pstrToken[64] = { '\0' };
@@ -319,7 +428,7 @@ Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
-
+			pObject->LoadMaterialsFromFile(pd3dDevice, pd3dCommandList, pParent, OpenedFile, pShader);
 		}
 		else if (!strcmp(pstrToken, "<Children>:"))
 		{

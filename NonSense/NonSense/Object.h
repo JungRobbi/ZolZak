@@ -21,6 +21,8 @@ public:
 	~Texture();
 
 private:
+	int								m_nReferences = 0;
+
 	UINT							m_nTextureType = NULL;
 
 	_TCHAR							(*m_ppstrTextureNames)[64] = NULL;
@@ -36,10 +38,20 @@ private:
 	UINT* m_pnResourceTypes = NULL;
 
 public:
+	void AddRef() { m_nReferences++; }
+	void Release() { if (--m_nReferences <= 0) delete this; }
+
 	void LoadTextureFromDDSFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, UINT nResourceType, UINT nIndex);
-	bool LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* pInFile, Shader* pShader, UINT nIndex);
+	bool LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* OpenedFile, Shader* pShader, UINT nIndex);
 };
 
+#define MATERIAL_ALBEDO_MAP				0x01
+#define MATERIAL_SPECULAR_MAP			0x02
+#define MATERIAL_NORMAL_MAP				0x04
+#define MATERIAL_METALLIC_MAP			0x08
+#define MATERIAL_EMISSION_MAP			0x10
+#define MATERIAL_DETAIL_ALBEDO_MAP		0x20
+#define MATERIAL_DETAIL_NORMAL_MAP		0x40
 
 struct MATERIAL
 {
@@ -59,8 +71,27 @@ private:
 public:
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
+
+	UINT							m_nType = 0x00;
+
+	Texture* m_pTexture = NULL;
+
 	//재질의 기본 색상
 	XMFLOAT4 m_xmf4Albedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	XMFLOAT4 m_xmf4Emissive = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	XMFLOAT4 m_xmf4Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	XMFLOAT4 m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	float							m_fGlossiness = 0.0f;
+	float							m_fSmoothness = 0.0f;
+	float							m_fSpecularHighlight = 0.0f;
+	float							m_fMetallic = 0.0f;
+	float							m_fGlossyReflection = 0.0f;
+
+	int 							m_nTextures = 0;
+	_TCHAR(*m_ppstrTextureNames)[64] = NULL;
+	Texture** m_ppTextures = NULL;
+
 	//재질의 번호
 	UINT m_nReflection = 0;
 	//재질을 적용하여 렌더링을 하기 위한 쉐이더
@@ -68,6 +99,10 @@ public:
 	void SetAlbedo(XMFLOAT4& xmf4Albedo) { m_xmf4Albedo = xmf4Albedo; }
 	void SetReflection(UINT nReflection) { m_nReflection = nReflection; }
 	void SetShader(Shader* pShader);
+	void SetMaterialType(UINT nType) { m_nType |= nType; }
+	void SetTexture(Texture* pTexture);
+	
+
 };
 
 class LoadedModelInfo
@@ -100,6 +135,7 @@ public:
 
 	void SetChild(Object* pChild, bool bReferenceUpdate = false);
 	void SetMaterial(Material* pMaterial);
+	void SetMaterials(int nMaterial,Material* pMaterial);
 	void SetMaterial(UINT nReflection);
 	void SetPosition(float x, float y, float z);
 	void SetPosition(XMFLOAT3 xmf3Position);
@@ -118,6 +154,9 @@ public:
 	Object* m_pSibling = NULL;
 
 	char							m_pFrameName[64];
+
+	int m_nMaterials = 0;
+	Material** m_ppMaterials = NULL;
 
 protected:
 	XMFLOAT4X4 m_xmf4x4ToParent;
@@ -142,6 +181,7 @@ public:
 public: // 모델 & 애니메이션 로드
 	static Object* LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, Object* pParent, FILE* OpendFile, Shader* pShader, int* pnSkinnedMeshes);
 	static LoadedModelInfo* LoadAnimationModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, Shader* pShader);
+	void LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* OpenedFile, Shader* pShader);
 };
 
 class RotatingObject : public Object
