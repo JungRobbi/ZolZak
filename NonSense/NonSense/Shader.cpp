@@ -449,7 +449,7 @@ void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 				object->AddComponent<RotateComponent>();
 				object->GetComponent<RotateComponent>()->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
 				object->GetComponent<RotateComponent>()->SetRotationSpeed(10.0f * ((i++) % 10));
-				//object->SetCbvGPUDescriptorHandlePtr(m_CBVGPUDescriptorStartHandle.ptr + (::CBVSRVDescriptorSize * i));
+				object->SetCbvGPUDescriptorHandlePtr(m_CBVGPUDescriptorStartHandle.ptr + (::CBVSRVDescriptorSize * i));
 			}
 		}
 	}
