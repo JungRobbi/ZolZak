@@ -30,7 +30,6 @@ void Mesh::Render(ID3D12GraphicsCommandList* pd3dCommandList)
 	{
 		pd3dCommandList->IASetIndexBuffer(&m_d3dIndexBufferView);
 		pd3dCommandList->DrawIndexedInstanced(m_nIndices, 1, 0, 0, 0);
-		//인덱스 버퍼가 있으면 인덱스 버퍼를 파이프라인(IA: 입력 조립기)에 연결하고 인덱스를 사용하여 렌더링한다.
 	}
 	else
 	{

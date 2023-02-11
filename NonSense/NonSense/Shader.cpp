@@ -244,6 +244,7 @@ void Shader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 void Shader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	OnPrepareRender(pd3dCommandList);
+	UpdateShaderVariables(pd3dCommandList);
 }
 
 DiffusedShader::DiffusedShader()
@@ -348,12 +349,11 @@ void ObjectsShader::ReleaseUploadBuffers()
 
 void ObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	Shader::OnPrepareRender(pd3dCommandList);
-	UpdateShaderVariables(pd3dCommandList);
 	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbGameObjectGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
 
-	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
+	Shader::Render(pd3dCommandList, pCamera);
+	
 	int k = 0;
 	for (auto gameobject : GameScene::MainScene->gameObjects)
 	{
@@ -403,6 +403,7 @@ void ObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommand
 		pbMappedcbGameObject->m_nMaterial = gameobject->GetMaterial()->m_nReflection;
 		pbMappedcbGameObject->m_nObjectID = k++;
 	}
+	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
 }
 void ObjectsShader::ReleaseShaderVariables()
 {

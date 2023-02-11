@@ -467,12 +467,9 @@ void GameFramework::AnimateObjects()
 void GameFramework::WaitForGpuComplete()
 {
 	UINT64 nFenceValue = ++m_nFenceValues[m_nSwapChainBufferIndex];
-	//CPU 펜스의 값을 증가한다.
 	HRESULT hResult = m_pCommandQueue->Signal(m_pFence, nFenceValue);
-	//GPU가 펜스의 값을 설정하는 명령을 명령 큐에 추가한다.
 	if (m_pFence->GetCompletedValue() < nFenceValue)
 	{
-		//펜스의 현재 값이 설정한 값보다 작으면 펜스의 현재 값이 설정한 값이 될 때까지 기다린다.
 		hResult = m_pFence->SetEventOnCompletion(nFenceValue, m_FenceEventHandle);
 		::WaitForSingleObject(m_FenceEventHandle, INFINITE);
 	}
@@ -503,7 +500,7 @@ void GameFramework::FrameAdvance()
 	m_RTVDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_RTVDescriptorSize);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-	m_pCommandList->ClearRenderTargetView(m_RTVDescriptorHandle, Colors::Black, 0, NULL);
+	m_pCommandList->ClearRenderTargetView(m_RTVDescriptorHandle, Colors::Wheat, 0, NULL);
 	m_pCommandList->ClearDepthStencilView(m_DSVDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 	m_pCommandList->OMSetRenderTargets(1, &m_RTVDescriptorHandle, TRUE, &m_DSVDescriptorHandle);
 

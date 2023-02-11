@@ -92,7 +92,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_nShaders = 1;
 	m_pShaders = new ObjectsShader[m_nShaders];
 	DXGI_FORMAT pdxgiRtvFormats[1] = { DXGI_FORMAT_R8G8B8A8_UNORM };
-	m_pShaders[0].CreateShader(pd3dDevice, m_pGraphicsRootSignature, 1, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pShaders[0].CreateShader(pd3dDevice, m_pGraphicsRootSignature, 1, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 	m_pShaders[0].BuildObjects(pd3dDevice, pd3dCommandList);
 	BuildLightsAndMaterials();
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -167,7 +167,7 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[5].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[5].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[0]; //Texture2DArray
-	pd3dRootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	pd3dRootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[6].DescriptorTable.NumDescriptorRanges = 1;
