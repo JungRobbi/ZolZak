@@ -40,7 +40,7 @@ Socket::Socket(SocketType socketType)
 	}
 
 #ifdef _WIN32
-	ZeroMemory(&m_readOverlappedStruct, sizeof(m_readOverlappedStruct));
+	ZeroMemory(&m_recvOverlapped, sizeof(m_recvOverlapped));
 #endif
 }
 
@@ -51,7 +51,7 @@ Socket::Socket(SOCKET fd)
 	m_fd = fd;
 
 #ifdef _WIN32
-	ZeroMemory(&m_readOverlappedStruct, sizeof(m_readOverlappedStruct));
+	ZeroMemory(&m_recvOverlapped, sizeof(m_recvOverlapped));
 #endif
 }
 
@@ -65,7 +65,7 @@ Socket::Socket()
 	m_fd = -1;
 
 #ifdef _WIN32
-	ZeroMemory(&m_readOverlappedStruct, sizeof(m_readOverlappedStruct));
+	ZeroMemory(&m_recvOverlapped, sizeof(m_recvOverlapped));
 #endif
 }
 
@@ -172,7 +172,7 @@ bool Socket::AcceptOverlapped(Socket& acceptCandidateSocket, string& errorText)
 		50,
 		50,
 		&ignored2,
-		&m_readOverlappedStruct
+		(WSAOVERLAPPED*)&m_recvOverlapped
 	) == TRUE;
 	
 	return ret;
@@ -229,7 +229,7 @@ Endpoint Socket::GetPeerAddr()
 // 리턴값: recv 리턴값 그대로입니다.
 int Socket::Receive()
 {
-	return (int)recv(m_fd, m_receiveBuffer, MaxReceiveLength, 0);
+	return (int)recv(m_fd, m_recvOverlapped.m_dataBuffer, MAX_SOCKBUF, 0);
 }
 
 #ifdef _WIN32
@@ -239,14 +239,24 @@ int Socket::Receive()
 // 리턴값: WSARecv의 리턴값 그대로입니다.
 int Socket::ReceiveOverlapped()
 {
-	WSABUF b;
-	b.buf = m_receiveBuffer;
-	b.len = MaxReceiveLength;
-
+	m_recvOverlapped.m_wsaBuf.buf = m_recvOverlapped.m_dataBuffer;
+	m_recvOverlapped.m_wsaBuf.len = MAX_SOCKBUF;
+	m_recvOverlapped.m_ioType = IO_TYPE::IO_RECV;
 	// overlapped I/O가 진행되는 동안 여기 값이 채워집니다.
 	m_readFlags = 0;
 
-	return WSARecv(m_fd, &b, 1, NULL, &m_readFlags, &m_readOverlappedStruct, NULL);
+	return WSARecv(m_fd, &m_recvOverlapped.m_wsaBuf, 1, NULL, &m_readFlags, (WSAOVERLAPPED*)&m_recvOverlapped, NULL);
+}
+
+int Socket::SendOverlapped(const char* data, int length)
+{
+	memcpy(m_sendOverlapped.m_dataBuffer, data, length);
+	m_sendOverlapped.m_wsaBuf.buf = m_sendOverlapped.m_dataBuffer;
+	m_sendOverlapped.m_wsaBuf.len = length;
+	m_sendOverlapped.m_ioType = IO_TYPE::IO_SEND;
+	// overlapped I/O가 진행되는 동안 여기 값이 채워집니다.
+
+	return WSASend(m_fd, &m_sendOverlapped.m_wsaBuf, 1, NULL, 0, (LPWSAOVERLAPPED)&m_sendOverlapped, NULL);
 }
 
 #endif
