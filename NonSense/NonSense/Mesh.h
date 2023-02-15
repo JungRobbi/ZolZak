@@ -66,6 +66,24 @@ public:
 protected:
 	//정점을 픽킹을 위하여 저장한다(정점 버퍼를 Map()하여 읽지 않아도 되도록).
 	DiffusedVertex* m_pVertices = NULL;
+
+	// 파일에서 읽는 위치를 받기위해 만듬 위에 Vertex랑 겹치는데 의논을 좀 해봐야 할듯
+	XMFLOAT3* m_pxmf3Positions = NULL; 
+	ID3D12Resource* m_pd3dPositionBuffer = NULL;
+	ID3D12Resource* m_pd3dPositionUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dPositionBufferView;
+
+
+	// 서브매쉬
+	int								m_nSubMeshes = 0;
+	int* m_pnSubSetIndices = NULL;
+	UINT** m_ppnSubSetIndices = NULL;
+
+	ID3D12Resource** m_ppd3dSubSetIndexBuffers = NULL;
+	ID3D12Resource** m_ppd3dSubSetIndexUploadBuffers = NULL;
+	D3D12_INDEX_BUFFER_VIEW* m_pd3dSubSetIndexBufferViews = NULL;
+
+
 	//메쉬의 인덱스를 저장한다(인덱스 버퍼를 Map()하여 읽지 않아도 되도록).
 	UINT* m_pnIndices = NULL;
 	BoundingOrientedBox m_xmBoundingBox;
@@ -88,6 +106,7 @@ protected:
 	//인덱스 버퍼에서 메쉬를 그리기 위해 사용되는 시작 인덱스이다.
 	int m_nBaseVertex = 0;
 	//인덱스 버퍼의 인덱스에 더해질 인덱스이다.
+	char							m_pstrMeshName[64] = { 0 };
 
 public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);

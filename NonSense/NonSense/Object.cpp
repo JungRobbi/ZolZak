@@ -420,7 +420,9 @@ Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
-
+			LoadMesh* pMesh = new LoadMesh(pd3dDevice, pd3dCommandList);
+			pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, OpenedFile);
+			pObject->SetMesh(pMesh);
 		}
 		else if (!strcmp(pstrToken, "<SkinningInfo>:"))
 		{
