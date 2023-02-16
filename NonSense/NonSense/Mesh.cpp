@@ -579,3 +579,122 @@ void LoadMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 		}
 	}
 }
+
+
+
+// SkinMesh
+SkinnedMesh::SkinnedMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) : LoadMesh(pd3dDevice, pd3dCommandList)
+{
+
+}
+
+SkinnedMesh::~SkinnedMesh()
+{
+	if (m_pBoneIndices) delete[] m_pBoneIndices;
+	if (m_pBoneWeight) delete[] m_pBoneWeight;
+
+	if (m_ppSkinningBoneFrameCaches) delete[] m_ppSkinningBoneFrameCaches;
+	if (m_ppstrSkinningBoneNames) delete[] m_ppstrSkinningBoneNames;
+
+	if (m_pBindPoseBoneOffsets) delete[] m_pBindPoseBoneOffsets;
+	if (m_pd3dcbBindPoseBoneOffsets) m_pd3dcbBindPoseBoneOffsets->Release();
+
+	if (m_pd3dBoneIndexBuffer) m_pd3dBoneIndexBuffer->Release();
+	if (m_pd3dBoneWeightBuffer) m_pd3dBoneWeightBuffer->Release();
+
+	//ReleaseShaderVariables();
+}
+
+void SkinnedMesh::LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FILE* OpenedFile)
+{
+	char pstrToken[64] = { '\0' };
+	UINT nReads = 0;
+
+	::ReadStringFromFile(OpenedFile, m_pstrMeshName);
+
+
+	while (true)
+	{
+		::ReadStringFromFile(OpenedFile, pstrToken);
+		if (!strcmp(pstrToken, "<BonesPerVertex>:"))
+		{
+			m_nBonesPerVertex = ::ReadIntegerFromFile(OpenedFile);
+		}
+		else if (!strcmp(pstrToken, "<Bounds>:"))
+		{
+			nReads = (UINT)::fread(&m_xmBoundingBox.Center, sizeof(XMFLOAT3), 1, OpenedFile);
+			nReads = (UINT)::fread(&m_xmBoundingBox.Extents, sizeof(XMFLOAT3), 1, OpenedFile);
+		}
+		else if (!strcmp(pstrToken, "<BoneNames>:"))
+		{
+			m_nSkinningBones = ::ReadIntegerFromFile(OpenedFile);
+			if (m_nSkinningBones > 0)
+			{
+				m_ppstrSkinningBoneNames = new char[m_nSkinningBones][64];
+				m_ppSkinningBoneFrameCaches = new Object * [m_nSkinningBones];
+				for (int i = 0; i < m_nSkinningBones; i++)
+				{
+					::ReadStringFromFile(OpenedFile, m_ppstrSkinningBoneNames[i]);
+					m_ppSkinningBoneFrameCaches[i] = NULL;
+				}
+			}
+		}
+		else if (!strcmp(pstrToken, "<BoneOffsets>:"))
+		{
+			m_nSkinningBones = ::ReadIntegerFromFile(OpenedFile);
+			if (m_nSkinningBones > 0)
+			{
+				m_pBindPoseBoneOffsets = new XMFLOAT4X4[m_nSkinningBones];
+				nReads = (UINT)::fread(m_pBindPoseBoneOffsets, sizeof(XMFLOAT4X4), m_nSkinningBones, OpenedFile);
+
+				UINT ncbElementBytes = (((sizeof(XMFLOAT4X4) * SKINNED_ANIMATION_BONES) + 255) & ~255); //256의 배수
+				m_pd3dcbBindPoseBoneOffsets = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+				m_pd3dcbBindPoseBoneOffsets->Map(0, NULL, (void**)&m_pcbxmf4x4MappedBindPoseBoneOffsets);
+
+				for (int i = 0; i < m_nSkinningBones; i++)
+				{
+					XMStoreFloat4x4(&m_pcbxmf4x4MappedBindPoseBoneOffsets[i], XMMatrixTranspose(XMLoadFloat4x4(&m_pBindPoseBoneOffsets[i])));
+				}
+			}
+		}
+		else if (!strcmp(pstrToken, "<BoneIndices>:"))
+		{
+			m_nVertices = ::ReadIntegerFromFile(OpenedFile);
+			if (m_nVertices > 0)
+			{
+				m_pBoneIndices = new XMINT4[m_nVertices];
+
+				nReads = (UINT)::fread(m_pBoneIndices, sizeof(XMINT4), m_nVertices, OpenedFile);
+				m_pd3dBoneIndexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pBoneIndices, sizeof(XMINT4) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dBoneIndexUploadBuffer);
+
+				m_d3dBoneIndexBufferView.BufferLocation = m_pd3dBoneIndexBuffer->GetGPUVirtualAddress();
+				m_d3dBoneIndexBufferView.StrideInBytes = sizeof(XMINT4);
+				m_d3dBoneIndexBufferView.SizeInBytes = sizeof(XMINT4) * m_nVertices;
+			}
+		}
+		else if (!strcmp(pstrToken, "<BoneWeights>:"))
+		{
+			m_nVertices = ::ReadIntegerFromFile(OpenedFile);
+			if (m_nVertices > 0)
+			{
+				m_pBoneWeight = new XMFLOAT4[m_nVertices];
+
+				nReads = (UINT)::fread(m_pBoneWeight, sizeof(XMFLOAT4), m_nVertices, OpenedFile);
+				m_pd3dBoneWeightBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pBoneWeight, sizeof(XMFLOAT4) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dBoneWeightUploadBuffer);
+
+				m_d3dBoneWeightBufferView.BufferLocation = m_pd3dBoneWeightBuffer->GetGPUVirtualAddress();
+				m_d3dBoneWeightBufferView.StrideInBytes = sizeof(XMFLOAT4);
+				m_d3dBoneWeightBufferView.SizeInBytes = sizeof(XMFLOAT4) * m_nVertices;
+			}
+		}
+		else if (!strcmp(pstrToken, "</SkinningInfo>"))
+		{
+			break;
+		}
+
+
+
+
+
+	}
+}

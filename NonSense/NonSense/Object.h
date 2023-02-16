@@ -111,6 +111,10 @@ public:
 	LoadedModelInfo() {}
 	~LoadedModelInfo() {}
 
+	int m_nSkinnedMeshes = 0;
+	SkinnedMesh** m_ppSkinnedMeshes = NULL;
+
+
 	Object* m_pRoot = NULL;
 };
 

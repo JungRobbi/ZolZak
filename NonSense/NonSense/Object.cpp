@@ -426,6 +426,16 @@ Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 		}
 		else if (!strcmp(pstrToken, "<SkinningInfo>:"))
 		{
+			if (pnSkinnedMeshes) (*pnSkinnedMeshes)++;
+
+			SkinnedMesh* pSkinnedMesh = new SkinnedMesh(pd3dDevice, pd3dCommandList);
+			pSkinnedMesh->LoadSkinInfoFromFile(pd3dDevice, pd3dCommandList, OpenedFile);
+			
+
+			::ReadStringFromFile(OpenedFile, pstrToken); //<Mesh>:
+			if (!strcmp(pstrToken, "<Mesh>:")) pSkinnedMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, OpenedFile);
+
+			pObject->SetMesh(pSkinnedMesh);
 
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
@@ -469,7 +479,9 @@ LoadedModelInfo* Object::LoadAnimationModel(ID3D12Device* pd3dDevice, ID3D12Grap
 
 			if (!strcmp(pstrToken, "<Hierarchy>:"))
 			{
-				// Hierarcy ÀÐ±â
+				pLoadedModel->m_pRoot = Object::LoadHierarchy(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, OpenedFile, pShader, &pLoadedModel->m_nSkinnedMeshes);
+				::ReadStringFromFile(OpenedFile, pstrToken);
+
 			}
 			else if (!strcmp(pstrToken, "<Animation>:"))
 			{
