@@ -13,10 +13,8 @@ GameFramework::GameFramework()
 	for (int i = 0; i < m_nSwapChainBuffers; i++) m_ppRenderTargetBuffers[i] = NULL;
 	for (int i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 0;
 	m_RTVDescriptorHeap = NULL;
-	m_RTVDescriptorSize = 0;
 	m_pDepthStencilBuffer = NULL;
 	m_DSVDescriptorHeap = NULL;
-	m_DSVDescriptorSize = 0;
 	m_nSwapChainBufferIndex = 0;
 	m_FenceEventHandle = NULL;
 	m_pFence = NULL;
@@ -211,18 +209,16 @@ void GameFramework::CreateRtvAndDsvDescriptorHeaps()
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;	// Descriptor Heap을 만들어 준다.
 	::ZeroMemory(&d3dDescriptorHeapDesc, sizeof(D3D12_DESCRIPTOR_HEAP_DESC)); // 만들어준 Descriptor Heap을 0으로 초기화 시켜준다.
 	// Render Target Descriptor Heap 생성
-	d3dDescriptorHeapDesc.NumDescriptors = m_nSwapChainBuffers; // Descriptor의 개수는 m_nSwapChainBuffers (2개)
+	d3dDescriptorHeapDesc.NumDescriptors = m_nSwapChainBuffers + MRT; // Descriptor의 개수는 m_nSwapChainBuffers (2개)
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV; // Render Target View의 Descriptor 생성
 	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	d3dDescriptorHeapDesc.NodeMask = 0;
 	HRESULT hResult = m_pDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_RTVDescriptorHeap); // Render Target Descriptor Heap 생성
-	m_RTVDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV); //Render Target Descriptor Heap의 한 원소의 크기를 저장한다.
 
 	// Depth/Stencil Descriptor Heap 생성
 	d3dDescriptorHeapDesc.NumDescriptors = 1; // Descriptor의 개수는 1개
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV; // Depth/Stencil View의 Descriptor 생성
 	hResult = m_pDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_DSVDescriptorHeap); // Depth/Stencil Descriptor Heap 생성
-	m_DSVDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);//Depth/Stencil Descriptor Heap의 한 원소의 크기를 저장한다.
 }
 
 void GameFramework::CreateRenderTargetViews()
@@ -233,12 +229,13 @@ void GameFramework::CreateRenderTargetViews()
 	d3dRenderTargetViewDesc.Texture2D.MipSlice = 0;
 	d3dRenderTargetViewDesc.Texture2D.PlaneSlice = 0;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorCPUHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
 	{
 		m_pSwapChain->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_ppRenderTargetBuffers[i]);
-		m_pDevice->CreateRenderTargetView(m_ppRenderTargetBuffers[i], NULL, m_RTVDescriptorHandle);
-		m_RTVDescriptorHandle.ptr += m_RTVDescriptorSize;
+		m_pDevice->CreateRenderTargetView(m_ppRenderTargetBuffers[i], NULL, m_RTVDescriptorCPUHandle);
+		m_pSwapChainBackBufferRTVCPUHandles[i] = m_RTVDescriptorCPUHandle;
+		m_RTVDescriptorCPUHandle.ptr += RTVDescriptorSize;
 	}
 }
 
@@ -272,8 +269,8 @@ void GameFramework::CreateDepthStencilView()
 
 	m_pDevice->CreateCommittedResource(&d3dHeapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, __uuidof(ID3D12Resource), (void**)&m_pDepthStencilBuffer);
 
-	m_DSVDescriptorHandle = m_DSVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer, NULL, m_DSVDescriptorHandle);
+	m_DSVDescriptorCPUHandle = m_DSVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer, NULL, m_DSVDescriptorCPUHandle);
 }
 
 void GameFramework::BuildObjects()
@@ -287,17 +284,17 @@ void GameFramework::BuildObjects()
 	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
-	//m_pScreen = new ScreenShader();
-	//m_pScreen->CreateShader(m_pDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D32_FLOAT);
+	m_pScreen = new ScreenShader();
+    m_pScreen->CreateShader(m_pDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-	//D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	//d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
+	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
-	//DXGI_FORMAT pdxgiResourceFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R32_FLOAT};
-	//m_pScreen->CreateResourcesAndViews(m_pDevice, MRT, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT + 1); //SRV to (Render Targets) + (Depth Buffer)
+	DXGI_FORMAT pdxgiResourceFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM};
+	m_pScreen->CreateResourcesAndViews(m_pDevice, MRT, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT + 1); //SRV to (Render Targets) + (Depth Buffer)
 
-	//DXGI_FORMAT pdxgiDepthSrvFormats[1] = { DXGI_FORMAT_R32_FLOAT };
-	//m_pScreen->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
+	DXGI_FORMAT pdxgiDepthSrvFormats[1] = { DXGI_FORMAT_R24_UNORM_X8_TYPELESS };
+	m_pScreen->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
 
 	m_pCommandList->Close();
 
@@ -492,24 +489,25 @@ void GameFramework::FrameAdvance()
 	Timer::Tick(0.0f);
 
 	ProcessInput();
+	GameScene::MainScene->AnimateObjects(Timer::GetTimeElapsed());
 
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	m_RTVDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_RTVDescriptorSize);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-	m_pCommandList->ClearRenderTargetView(m_RTVDescriptorHandle, Colors::Wheat, 0, NULL);
-	m_pCommandList->ClearDepthStencilView(m_DSVDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-	m_pCommandList->OMSetRenderTargets(1, &m_RTVDescriptorHandle, TRUE, &m_DSVDescriptorHandle);
-
-	GameScene::MainScene->update();
-	GameScene::MainScene->AnimateObjects(Timer::GetTimeElapsed());
 	GameScene::MainScene->OnPrepareRender(m_pCommandList, m_pCamera);
-	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 
+	m_pCommandList->ClearDepthStencilView(m_DSVDescriptorCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+
+	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
+	GameScene::MainScene->update();
+	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
+	m_pScreen->OnPostRenderTarget(m_pCommandList);
+
+	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
+	m_pScreen->Render(m_pCommandList, m_pCamera);
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

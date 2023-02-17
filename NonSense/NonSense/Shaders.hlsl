@@ -22,6 +22,7 @@ cbuffer cbGameObjectInfo : register(b2)
 	uint gnMaterial : packoffset(c4.y);
 };
 Texture2DArray gtxtTextureArray : register(t0);
+Texture2D gtxtInputTextures[4] : register(t1); //Position, Normal+ObjectID, Texture, Depth
 SamplerState gssDefaultSamplerState : register(s0);
 
 #include "Light.hlsl"
@@ -58,8 +59,8 @@ VS_LIGHTING_OUTPUT VSObject(VS_LIGHTING_INPUT input)
 
 struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
 {
-	float4 Normal : SV_TARGET0;
-	float4 Position : SV_TARGET1;
+	float4 Position : SV_TARGET0;
+	float4 Normal : SV_TARGET1;
 	float4 Texture : SV_TARGET2;
 };
 
@@ -71,7 +72,6 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSObject(VS_LIGHTING_OUTPUT input, uint nPrimi
 	output.Normal = float4(input.normalW.xyz, (float)objectID);
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	output.Texture = gtxtTextureArray.Sample(gssDefaultSamplerState, uvw);
-	//output.Texture = float4(0.0f, 1.0f, 1.0f, 1.0f);
 
 	return(output);
 }
@@ -103,7 +103,7 @@ float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-Texture2D gtxtInputTextures[5] : register(t1); //Position, Normal+ObjectID, Texture, Depth
+
 
 struct VS_SCREEN_OUTPUT
 {
@@ -131,15 +131,15 @@ static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, {
 
 float4 Edge(float4 position)
 {
-	float3 EdgeColor = float3(0, 0, 1);
-	int EdgeSize = 1;
+	float3 EdgeColor = float3(1, 0, 0);
+	int EdgeSize = 9;
 
 	int Edge = false;
-	float fObjectID = gtxtInputTextures[4][int2(position.xy)].r;
+	float fObjectID = gtxtInputTextures[0][int2(position.xy)].r;
 
 	for (int i = 0; i < EdgeSize; i++)
 	{
-		if (fObjectID != gtxtInputTextures[4][int2(position.xy) + gnOffsets[i]].r) Edge = true; // 오브젝트 별 테두리
+		if (fObjectID != gtxtInputTextures[0][int2(position.xy) + gnOffsets[i]].r) Edge = true; // 오브젝트 별 테두리
 	}
 
 	if (Edge)
@@ -148,13 +148,11 @@ float4 Edge(float4 position)
 		return(float4(0, 0, 0, 0));
 }
 
-
-
 float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 {
-	float4 cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-	cColor = gtxtInputTextures[2].Sample(gssDefaultSamplerState, input.uv) *
-				Lighting(gtxtInputTextures[0].Sample(gssDefaultSamplerState, input.uv) ,gtxtInputTextures[1].Sample(gssDefaultSamplerState, input.uv)) +
-				Edge(input.position);
+	float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f) + Edge(input.position);
+	cColor = gtxtInputTextures[0].Sample(gssDefaultSamplerState, input.uv);
+	//float fDepth = gtxtInputTextures[3].Load(uint3((uint)input.position.x, (uint)input.position.y, 0)).r;
+	//cColor = float4(fDepth, fDepth, fDepth, 1.0) + Edge(input.position);
 	return(cColor);
 }

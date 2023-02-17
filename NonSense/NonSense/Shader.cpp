@@ -154,10 +154,11 @@ void Shader::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstant
 	d3dDescriptorHeapDesc.NodeMask = 0;
 	HRESULT hResult = pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_CBVSRVDescriptorHeap);
 
-	m_CBVCPUDescriptorStartHandle = m_CBVSRVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	m_CBVGPUDescriptorStartHandle = m_CBVSRVDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	m_CBVCPUDescriptorStartHandle = m_CBVSRVDescriptorHeap->GetCPUDescriptorHandleForHeapStart(); // Constant Buffer View 와 Shader Resource View 서술자 힙의 CPU 시작주소
+	m_CBVGPUDescriptorStartHandle = m_CBVSRVDescriptorHeap->GetGPUDescriptorHandleForHeapStart(); // Constant Buffer View 와 Shader Resource View 서술자 힙의 GPU 시작주소
 	m_SRVCPUDescriptorStartHandle.ptr = m_CBVCPUDescriptorStartHandle.ptr + (::CBVSRVDescriptorSize * nConstantBufferViews);
 	m_SRVGPUDescriptorStartHandle.ptr = m_CBVGPUDescriptorStartHandle.ptr + (::CBVSRVDescriptorSize * nConstantBufferViews);
+	// Shader Resource View 는 Constant Buffer View 의 뒤에있다.
 
 	m_SRVCPUDescriptorNextHandle = m_SRVCPUDescriptorStartHandle;
 	m_SRVGPUDescriptorNextHandle = m_SRVGPUDescriptorStartHandle;
@@ -165,11 +166,9 @@ void Shader::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstant
 
 void Shader::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex)
 {
-	m_SRVCPUDescriptorNextHandle.ptr += (::CBVSRVDescriptorSize * nDescriptorHeapIndex);
-	m_SRVGPUDescriptorNextHandle.ptr += (::CBVSRVDescriptorSize * nDescriptorHeapIndex);
-
 	int nTextures = pTexture->GetTextures();
 	UINT nTextureType = pTexture->GetTextureType();
+
 	for (int i = 0; i < nTextures; i++)
 	{
 		ID3D12Resource* pShaderResource = pTexture->GetResource(i);
@@ -182,6 +181,7 @@ void Shader::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pText
 			m_SRVGPUDescriptorNextHandle.ptr += ::CBVSRVDescriptorSize;
 		}
 	}
+
 	int nRootParameters = pTexture->GetRootParameters();
 	for (int i = 0; i < nRootParameters; i++) pTexture->SetRootParameterIndex(i, nRootParameterStartIndex + i);
 }
@@ -527,7 +527,7 @@ void ScreenShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandL
 {
 }
 
-void ScreenShader::CreateResourcesAndViews(ID3D12Device* pd3dDevice, UINT nResources, DXGI_FORMAT* pdxgiFormats, UINT nWidth, UINT nHeight, D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorHandle, UINT nShaderResources)
+void ScreenShader::CreateResourcesAndViews(ID3D12Device* pd3dDevice, UINT nResources, DXGI_FORMAT* pdxgiFormats, UINT nWidth, UINT nHeight, D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorCPUHandle, UINT nShaderResources)
 {
 	m_pTexture = new CTexture(nResources, RESOURCE_TEXTURE2D, 0, 1);
 
@@ -547,15 +547,15 @@ void ScreenShader::CreateResourcesAndViews(ID3D12Device* pd3dDevice, UINT nResou
 	d3dRenderTargetViewDesc.Texture2D.MipSlice = 0;
 	d3dRenderTargetViewDesc.Texture2D.PlaneSlice = 0;
 
-	m_pm_RTVDescriptorHandles = new D3D12_CPU_DESCRIPTOR_HANDLE[nResources];
+	m_pRTVDescriptorHandles = new D3D12_CPU_DESCRIPTOR_HANDLE[nResources];
 
 	for (UINT i = 0; i < nResources; i++)
 	{
 		d3dRenderTargetViewDesc.Format = pdxgiFormats[i];
 		ID3D12Resource* pd3dTextureResource = m_pTexture->GetResource(i);
-		pd3dDevice->CreateRenderTargetView(pd3dTextureResource, &d3dRenderTargetViewDesc, m_RTVDescriptorHandle);
-		m_pm_RTVDescriptorHandles[i] = m_RTVDescriptorHandle;
-		m_RTVDescriptorHandle.ptr += ::RTVDescriptorSize;
+		pd3dDevice->CreateRenderTargetView(pd3dTextureResource, &d3dRenderTargetViewDesc, m_RTVDescriptorCPUHandle);
+		m_pRTVDescriptorHandles[i] = m_RTVDescriptorCPUHandle;
+		m_RTVDescriptorCPUHandle.ptr += ::RTVDescriptorSize;
 	}
 }
 
@@ -573,11 +573,12 @@ void ScreenShader::OnPrepareRenderTarget(ID3D12GraphicsCommandList* pd3dCommandL
 	for (int i = 0; i < nResources; i++)
 	{
 		::ResourceTransition(pd3dCommandList, GetTextureResource(i), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-		D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorHandle = GetRtvCPUDescriptorHandle(i);
-		pd3dCommandList->ClearRenderTargetView(m_RTVDescriptorHandle, Colors::LightSkyBlue, 0, NULL);
-		pd3dAllRtvCPUHandles[nRenderTargets + i] = m_RTVDescriptorHandle;
+		D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorCPUHandle = GetRtvCPUDescriptorHandle(i);
+		FLOAT pfClearColor[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
+		pd3dCommandList->ClearRenderTargetView(m_RTVDescriptorCPUHandle, pfClearColor, 0, NULL);
+		pd3dAllRtvCPUHandles[nRenderTargets + i] = m_RTVDescriptorCPUHandle;
 	}
+
 	pd3dCommandList->OMSetRenderTargets(nRenderTargets + nResources, pd3dAllRtvCPUHandles, FALSE, &d3dDepthStencilBufferDSVCPUHandle);
 
 	if (pd3dAllRtvCPUHandles) delete[] pd3dAllRtvCPUHandles;

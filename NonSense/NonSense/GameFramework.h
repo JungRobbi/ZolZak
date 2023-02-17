@@ -28,13 +28,12 @@ private:
 
 	ID3D12Resource *m_ppRenderTargetBuffers[m_nSwapChainBuffers];
 	ID3D12DescriptorHeap* m_RTVDescriptorHeap;
-	D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorHandle;
-	UINT m_RTVDescriptorSize;
+	D3D12_CPU_DESCRIPTOR_HANDLE	m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBuffers];
+	D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorCPUHandle;
 
 	ID3D12Resource *m_pDepthStencilBuffer;
 	ID3D12DescriptorHeap* m_DSVDescriptorHeap;
-	D3D12_CPU_DESCRIPTOR_HANDLE m_DSVDescriptorHandle;
-	UINT m_DSVDescriptorSize;
+	D3D12_CPU_DESCRIPTOR_HANDLE m_DSVDescriptorCPUHandle;
 
 	ID3D12CommandQueue *m_pCommandQueue;
 	ID3D12CommandAllocator* m_pCommandAllocator;

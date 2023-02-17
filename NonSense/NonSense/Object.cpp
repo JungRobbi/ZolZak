@@ -66,14 +66,7 @@ void CTexture::SetSampler(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSamplerGpuD
 
 void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	if (1 == m_nTextures)
-	{
-		pd3dCommandList->SetGraphicsRootDescriptorTable(5, m_pd3dSrvGpuDescriptorHandles[0]);
-	}
-	else
-	{
-		pd3dCommandList->SetGraphicsRootDescriptorTable(6, m_pd3dSrvGpuDescriptorHandles[0]);
-	}
+	pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[0], m_pd3dSrvGpuDescriptorHandles[0]);
 }
 
 void CTexture::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, int nParameterIndex, int nTextureIndex)
