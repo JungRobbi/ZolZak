@@ -116,6 +116,30 @@ void Material::SetShader(Shader* pShader)
 	if (m_pShader) m_pShader->AddRef();
 }
 
+AnimationSet::AnimationSet(float fLength, int nFramesPerSecond, int nKeyFrames, int nAnimatedBones, char* pstrName)
+{
+	m_Length = fLength;
+	m_FramePerSecond = nFramesPerSecond;
+	m_KeyFrames = nKeyFrames;
+
+	strcpy_s(m_AnimationSetName, 64, pstrName);
+
+	m_pKeyFrameTimes = new float[nKeyFrames];
+	m_ppKeyFrameTransforms = new XMFLOAT4X4 * [nKeyFrames];
+	for (int i = 0; i < nKeyFrames; i++) m_ppKeyFrameTransforms[i] = new XMFLOAT4X4[nAnimatedBones];
+}
+
+AnimationSet::~AnimationSet()
+{
+	if (m_pKeyFrameTimes) delete[] m_pKeyFrameTimes;
+	for (int j = 0; j < m_KeyFrames; j++) if (m_ppKeyFrameTransforms[j]) delete[] m_ppKeyFrameTransforms[j];
+	if (m_ppKeyFrameTransforms) delete[] m_ppKeyFrameTransforms;
+}
+
+
+
+
+
 Object::Object()
 {
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());

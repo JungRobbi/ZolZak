@@ -104,6 +104,36 @@ public:
 	
 
 };
+// Animation
+//struct CALLBACKKEY
+//{
+//	float  							m_fTime = 0.0f;
+//	void* m_pCallbackData = NULL;
+//};
+
+class AnimationSet
+{
+public:
+	AnimationSet(float Length, int FramesPerSecond, int KeyFrameTransforms, int SkinningBones, char* Name);
+	~AnimationSet();
+
+public:
+	char			m_AnimationSetName[64];
+	float			m_Length = 0.0f;
+	int				m_FramePerSecond =0;
+
+	int				m_KeyFrames = 0;
+	float*			m_pKeyFrameTimes = NULL;
+	XMFLOAT4X4**	m_ppKeyFrameTransforms = NULL;
+
+
+	float			m_Postion = 0.0f;
+
+	int 			m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
+};
+
+
+
 
 class LoadedModelInfo
 {

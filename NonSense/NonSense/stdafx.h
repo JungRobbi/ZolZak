@@ -48,6 +48,11 @@ using Microsoft::WRL::ComPtr;
 #define SPOT_LIGHT 2
 #define DIRECTIONAL_LIGHT 3
 
+#define ANIMATION_TYPE_ONCE				0
+#define ANIMATION_TYPE_LOOP				1
+#define ANIMATION_TYPE_PINGPONG			2
+
+
 #define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE // 전체화면 default
