@@ -38,6 +38,60 @@ Texture::~Texture()
 
 }
 
+D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc(int nIndex)
+{
+	ID3D12Resource* pShaderResource = GetResource(nIndex);
+	D3D12_RESOURCE_DESC d3dResourceDesc = pShaderResource->GetDesc();
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc;
+	d3dShaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+	int nTextureType = GetTextureType(nIndex);
+	switch (nTextureType)
+	{
+	case RESOURCE_TEXTURE2D: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 1)
+	case RESOURCE_TEXTURE2D_ARRAY: //[]
+		d3dShaderResourceViewDesc.Format = d3dResourceDesc.Format;
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		d3dShaderResourceViewDesc.Texture2D.MipLevels = -1;
+		d3dShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+		d3dShaderResourceViewDesc.Texture2D.PlaneSlice = 0;
+		d3dShaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+		break;
+	case RESOURCE_TEXTURE2DARRAY: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize != 1)
+		d3dShaderResourceViewDesc.Format = d3dResourceDesc.Format;
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+		d3dShaderResourceViewDesc.Texture2DArray.MipLevels = -1;
+		d3dShaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
+		d3dShaderResourceViewDesc.Texture2DArray.PlaneSlice = 0;
+		d3dShaderResourceViewDesc.Texture2DArray.ResourceMinLODClamp = 0.0f;
+		d3dShaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
+		d3dShaderResourceViewDesc.Texture2DArray.ArraySize = d3dResourceDesc.DepthOrArraySize;
+		break;
+	case RESOURCE_TEXTURE_CUBE: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 6)
+		d3dShaderResourceViewDesc.Format = d3dResourceDesc.Format;
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		d3dShaderResourceViewDesc.TextureCube.MipLevels = 1;
+		d3dShaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
+		d3dShaderResourceViewDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+		break;
+	case RESOURCE_BUFFER: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+		d3dShaderResourceViewDesc.Format = m_pdxgiBufferFormats[nIndex];
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		d3dShaderResourceViewDesc.Buffer.FirstElement = 0;
+		d3dShaderResourceViewDesc.Buffer.NumElements = m_pnBufferElements[nIndex];
+		d3dShaderResourceViewDesc.Buffer.StructureByteStride = 0;
+		d3dShaderResourceViewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		break;
+	}
+	return(d3dShaderResourceViewDesc);
+}
+
+void Texture::SetGpuDescriptorHandle(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGpuDescriptorHandle)
+{
+	m_pd3dSRVGPUDescriptorHandle[nIndex] = d3dSrvGpuDescriptorHandle;
+}
+
 void Texture::LoadTextureFromDDSFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, UINT nResourceType, UINT nIndex)
 {
 	m_pnResourceTypes[nIndex] = nResourceType;
@@ -136,7 +190,29 @@ AnimationSet::~AnimationSet()
 	if (m_ppKeyFrameTransforms) delete[] m_ppKeyFrameTransforms;
 }
 
+AnimationSets::AnimationSets(int nAnimationSets)
+{
+	m_nAnimationSets = nAnimationSets;
+	m_pAnimationSets = new AnimationSet * [nAnimationSets];
+}
 
+AnimationSets::~AnimationSets()
+{
+	for (int i = 0; i < m_nAnimationSets; i++) if (m_pAnimationSets[i]) delete m_pAnimationSets[i];
+	if (m_pAnimationSets) delete[] m_pAnimationSets;
+
+	if (m_ppAnimatedBoneFrameCaches) delete[] m_ppAnimatedBoneFrameCaches;
+}
+
+
+void LoadedModelInfo::PrepareSkinning()
+{
+	int nSkinnedMesh = 0;
+	m_ppSkinnedMeshes = new SkinnedMesh * [m_nSkinnedMeshes];
+	m_pRoot->FindAndSetSkinnedMesh(m_ppSkinnedMeshes, &nSkinnedMesh);
+
+	for (int i = 0; i < m_nSkinnedMeshes; i++) m_ppSkinnedMeshes[i]->PrepareSkinning(m_pRoot);
+}
 
 
 
@@ -285,6 +361,54 @@ void Object::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 void Object::ReleaseShaderVariables()
 {
+}
+
+void Object::FindAndSetSkinnedMesh(SkinnedMesh** ppSkinnedMeshes, int* pnSkinnedMesh)
+{
+	if (m_pMesh) ppSkinnedMeshes[(*pnSkinnedMesh)++] = (SkinnedMesh*)m_pMesh;
+
+	if (m_pSibling) m_pSibling->FindAndSetSkinnedMesh(ppSkinnedMeshes, pnSkinnedMesh);
+	if (m_pChild) m_pChild->FindAndSetSkinnedMesh(ppSkinnedMeshes, pnSkinnedMesh);
+}
+
+Object* Object::FindFrame(char* pstrFrameName)
+{
+	Object* pObject = NULL;
+	if (!strncmp(m_pFrameName, pstrFrameName, strlen(pstrFrameName))) return(this);
+	if (m_pSibling)
+		if (pObject = m_pSibling->FindFrame(pstrFrameName))
+			return (pObject);
+	if (m_pChild)
+		if (pObject = m_pChild->FindFrame(pstrFrameName))
+			return (pObject);
+
+	return(NULL);
+}
+
+int Object::FindReplicatedTexture(_TCHAR* pstrTextureName, D3D12_GPU_DESCRIPTOR_HANDLE* pd3dSrvGpuDescriptorHandle)
+{
+	int nParameterIndex = -1;
+
+	for (int i = 0; i < m_nMaterials; i++)
+	{
+		if (m_ppMaterials[i] && m_ppMaterials[i]->m_pTexture)
+		{
+			int nTextures = m_ppMaterials[i]->m_pTexture->GetTextures();
+			for (int j = 0; j < nTextures; j++)
+			{
+				if (!_tcsncmp(m_ppMaterials[i]->m_pTexture->GetTextureName(j), pstrTextureName, _tcslen(pstrTextureName)))
+				{
+					*pd3dSrvGpuDescriptorHandle = m_ppMaterials[i]->m_pTexture->GetGpuDescriptorHandle(j);
+					nParameterIndex = m_ppMaterials[i]->m_pTexture->GetRootParameter(j);
+					return(nParameterIndex);
+				}
+			}
+		}
+	}
+	if (m_pSibling) if ((nParameterIndex = m_pSibling->FindReplicatedTexture(pstrTextureName, pd3dSrvGpuDescriptorHandle)) > 0) return(nParameterIndex);
+	if (m_pChild) if ((nParameterIndex = m_pChild->FindReplicatedTexture(pstrTextureName, pd3dSrvGpuDescriptorHandle)) > 0) return(nParameterIndex);
+
+	return(nParameterIndex);
 }
 
 // -------------- 모델 & 애니메이션 로드 --------------
@@ -486,6 +610,63 @@ Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 	return pObject;
 }
 
+void Object::LoadAnimationFromFile(FILE* OpenedFile, LoadedModelInfo* pLoadModel)
+{
+	char pstrToken[64] = { '\0' };
+	UINT nReads = 0;
+
+	int nAnimationSets = 0;
+	while (true)
+	{
+		::ReadStringFromFile(OpenedFile, pstrToken);
+		if (!strcmp(pstrToken, "<AnimationSets>:"))
+		{
+			nAnimationSets = ::ReadIntegerFromFile(OpenedFile);
+			pLoadModel->m_pAnimationSets = new AnimationSets(nAnimationSets);
+		}
+		else if (!strcmp(pstrToken, "<FrameNames>:"))
+		{
+			pLoadModel->m_pAnimationSets->m_nAnimatedBoneFrames = ::ReadIntegerFromFile(OpenedFile);
+			pLoadModel->m_pAnimationSets->m_ppAnimatedBoneFrameCaches = new Object * [pLoadModel->m_pAnimationSets->m_nAnimatedBoneFrames];
+			for (int i = 0; i < pLoadModel->m_pAnimationSets->m_nAnimatedBoneFrames; ++i)
+			{
+				::ReadStringFromFile(OpenedFile, pstrToken);
+				pLoadModel->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[i] = pLoadModel->m_pRoot->FindFrame(pstrToken);
+
+			}
+		}
+		else if (!strcmp(pstrToken, "<AnimationSet>:"))
+		{
+			int nAnimationSet = ::ReadIntegerFromFile(OpenedFile);
+
+			::ReadStringFromFile(OpenedFile, pstrToken); //Animation Set Name
+
+			float fLength = ::ReadFloatFromFile(OpenedFile);
+			int nFramesPerSecond = ::ReadIntegerFromFile(OpenedFile);
+			int nKeyFrames = ::ReadIntegerFromFile(OpenedFile);
+
+			pLoadModel->m_pAnimationSets->m_pAnimationSets[nAnimationSet] = new AnimationSet(fLength, nFramesPerSecond, nKeyFrames, pLoadModel->m_pAnimationSets->m_nAnimatedBoneFrames, pstrToken);
+
+			for (int i = 0; i < nKeyFrames; i++)
+			{
+				::ReadStringFromFile(OpenedFile, pstrToken);
+				if (!strcmp(pstrToken, "<Transforms>:"))
+				{
+					int nKey = ::ReadIntegerFromFile(OpenedFile); //i
+					float fKeyTime = ::ReadFloatFromFile(OpenedFile);
+
+					AnimationSet* pAnimationSet = pLoadModel->m_pAnimationSets->m_pAnimationSets[nAnimationSet];
+					pAnimationSet->m_pKeyFrameTimes[i] = fKeyTime;
+					nReads = (UINT)::fread(pAnimationSet->m_ppKeyFrameTransforms[i], sizeof(XMFLOAT4X4), pLoadModel->m_pAnimationSets->m_nAnimatedBoneFrames, OpenedFile);
+				}
+			}
+
+
+		}
+	}
+}
+
+
 
 LoadedModelInfo* Object::LoadAnimationModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, Shader* pShader)
 {
@@ -509,14 +690,17 @@ LoadedModelInfo* Object::LoadAnimationModel(ID3D12Device* pd3dDevice, ID3D12Grap
 			}
 			else if (!strcmp(pstrToken, "<Animation>:"))
 			{
-				// Animation 읽기
+				Object::LoadAnimationFromFile(OpenedFile, pLoadedModel);
+				pLoadedModel->PrepareSkinning();
 			}
-			else
+			else if (!strcmp(pstrToken, "</Animation>:"))
 			{
-				// 문단의 끝 </Hierarcy> 같은 것
 				break;
 			}
-
+		}
+		else 
+		{
+			break;
 		}
 	}
 

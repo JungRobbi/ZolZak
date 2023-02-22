@@ -605,6 +605,14 @@ SkinnedMesh::~SkinnedMesh()
 	//ReleaseShaderVariables();
 }
 
+void SkinnedMesh::PrepareSkinning(Object* pRoot)
+{
+	for (int j = 0; j < m_nSkinningBones; j++)
+	{
+		m_ppSkinningBoneFrameCaches[j] = pRoot->FindFrame(m_ppstrSkinningBoneNames[j]);
+	}
+}
+
 void SkinnedMesh::LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FILE* OpenedFile)
 {
 	char pstrToken[64] = { '\0' };
@@ -698,3 +706,4 @@ void SkinnedMesh::LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 
 	}
 }
+

@@ -1,5 +1,7 @@
 #pragma once
 
+class Object;
+
 //정점을 표현하기 위한 클래스를 선언한다.
 class Vertex
 {
@@ -217,17 +219,19 @@ protected:
 public:
 	int								m_nSkinningBones = 0;
 
-	char(*m_ppstrSkinningBoneNames)[64];
-	Object** m_ppSkinningBoneFrameCaches = NULL; 
+	char							(*m_ppstrSkinningBoneNames)[64];
+	Object**						m_ppSkinningBoneFrameCaches = NULL;
 
-	XMFLOAT4X4* m_pBindPoseBoneOffsets = NULL; 
+	XMFLOAT4X4*						m_pBindPoseBoneOffsets = NULL; 
 
-	ID3D12Resource* m_pd3dcbBindPoseBoneOffsets = NULL;
-	XMFLOAT4X4* m_pcbxmf4x4MappedBindPoseBoneOffsets = NULL;
+	ID3D12Resource*					m_pd3dcbBindPoseBoneOffsets = NULL;
+	XMFLOAT4X4*						m_pcbxmf4x4MappedBindPoseBoneOffsets = NULL;
 
-	ID3D12Resource* m_pd3dcbSkinningBoneTransforms = NULL;
-	XMFLOAT4X4* m_pMappedSkinningBoneTransforms = NULL;
+	ID3D12Resource*					m_pd3dcbSkinningBoneTransforms = NULL;
+	XMFLOAT4X4*						m_pMappedSkinningBoneTransforms = NULL;
 
 public:
+	void PrepareSkinning(Object* pRoot);
+
 	void LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FILE* OpenedFile);
 };

@@ -35,14 +35,35 @@ private:
 	int*							m_pRootParameterIndices = NULL;
 	D3D12_GPU_DESCRIPTOR_HANDLE*	m_pd3dSRVGPUDescriptorHandle = NULL;
 	
+	DXGI_FORMAT* m_pdxgiBufferFormats = NULL;
+	int* m_pnBufferElements = NULL;
+
+
 	UINT* m_pnResourceTypes = NULL;
 
 public:
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
 
+
+	int GetRootParameters() { return(m_nRootParameters); }
+	int GetTextures() { return(m_nTextures); }
+	ID3D12Resource* GetResource(int nIndex) { return(m_ppd3dTextures[nIndex]); }
+	_TCHAR* GetTextureName(int nIndex) { return(m_ppstrTextureNames[nIndex]); }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuDescriptorHandle(int nIndex) { return(m_pd3dSRVGPUDescriptorHandle[nIndex]); }
+	int GetRootParameter(int nIndex) { return(m_pRootParameterIndices[nIndex]); }
+	UINT GetTextureType() { return(m_nTextureType); }
+	UINT GetTextureType(int nIndex) { return(m_pnResourceTypes[nIndex]); }
+	DXGI_FORMAT GetBufferFormat(int nIndex) { return(m_pdxgiBufferFormats[nIndex]); }
+	int GetBufferElements(int nIndex) { return(m_pnBufferElements[nIndex]); }
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(int nIndex);
+
+
+	void SetGpuDescriptorHandle(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGpuDescriptorHandle);
+
 	void LoadTextureFromDDSFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, UINT nResourceType, UINT nIndex);
-	bool LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* OpenedFile, Shader* pShader, UINT nIndex);
+	bool LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* pInFile, Shader* pShader, UINT nIndex);
 };
 
 #define MATERIAL_ALBEDO_MAP				0x01
@@ -101,7 +122,6 @@ public:
 	void SetShader(Shader* pShader);
 	void SetMaterialType(UINT nType) { m_nType |= nType; }
 	void SetTexture(Texture* pTexture);
-	
 
 };
 // Animation
@@ -132,7 +152,26 @@ public:
 	int 			m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
 };
 
+class AnimationSets
+{
+private:
+	int								m_nReferences = 0;
 
+public:
+	void AddRef() { m_nReferences++; }
+	void Release() { if (--m_nReferences <= 0) delete this; }
+
+public:
+	AnimationSets(int nAnimationSets);
+	~AnimationSets();
+
+public:
+	int								m_nAnimationSets = 0;
+	AnimationSet**					m_pAnimationSets = NULL;
+
+	int								m_nAnimatedBoneFrames = 0;
+	Object**						m_ppAnimatedBoneFrameCaches = NULL; //[m_nAnimatedBoneFrames]
+};
 
 
 class LoadedModelInfo
@@ -144,8 +183,11 @@ public:
 	int m_nSkinnedMeshes = 0;
 	SkinnedMesh** m_ppSkinnedMeshes = NULL;
 
+	AnimationSets* m_pAnimationSets = NULL;
 
 	Object* m_pRoot = NULL;
+public:
+	void PrepareSkinning();
 };
 
 class Object
@@ -181,6 +223,7 @@ public:
 	//카메라 좌표계의 한 점에 대한 모델 좌표계의 픽킹 광선을 생성하고 객체와의 교차를 검사한다.
 	int PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& xmf4x4View, float* pfHitDistance);
 
+	int FindReplicatedTexture(_TCHAR* pstrTextureName, D3D12_GPU_DESCRIPTOR_HANDLE* pd3dSrvGpuDescriptorHandle);
 
 
 	Object* m_pParent = NULL;
@@ -212,9 +255,14 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
+
+	Object* FindFrame(char* pstrFrameName);
+	void FindAndSetSkinnedMesh(SkinnedMesh** ppSkinnedMeshes, int* pnSkinnedMesh);
+
 public: // 모델 & 애니메이션 로드
 	static Object* LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, Object* pParent, FILE* OpendFile, Shader* pShader, int* pnSkinnedMeshes);
 	static LoadedModelInfo* LoadAnimationModel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, Shader* pShader);
+	static void LoadAnimationFromFile(FILE* OpenedFile, LoadedModelInfo* pLoadModel);
 	void LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* OpenedFile, Shader* pShader);
 };
 

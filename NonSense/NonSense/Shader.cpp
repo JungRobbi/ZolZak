@@ -167,6 +167,22 @@ void Shader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 	OnPrepareRender(pd3dCommandList);
 }
 
+void Shader::CreateShaderResourceView(ID3D12Device* pd3dDevice, Texture* pTexture, int nIndex)
+{
+	ID3D12Resource* pShaderResource = pTexture->GetResource(nIndex);
+	D3D12_GPU_DESCRIPTOR_HANDLE d3dGpuDescriptorHandle = pTexture->GetGpuDescriptorHandle(nIndex);
+	if (pShaderResource && !d3dGpuDescriptorHandle.ptr)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = pTexture->GetShaderResourceViewDesc(nIndex);
+		pd3dDevice->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorNextHandle);
+		m_d3dSrvCPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+	
+		pTexture->SetGpuDescriptorHandle(nIndex, m_d3dSrvGPUDescriptorNextHandle);
+		m_d3dSrvGPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+	}
+}
+
+
 DiffusedShader::DiffusedShader()
 {
 }
