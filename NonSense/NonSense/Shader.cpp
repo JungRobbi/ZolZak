@@ -581,14 +581,14 @@ void ScreenShader::OnPrepareRenderTarget(ID3D12GraphicsCommandList* pd3dCommandL
 	for (int i = 0; i < nRenderTargets; i++)
 	{
 		pd3dAllRtvCPUHandles[i] = pd3dRtvCPUHandles[i];
-		pd3dCommandList->ClearRenderTargetView(pd3dRtvCPUHandles[i], Colors::Yellow, 0, NULL);
+		pd3dCommandList->ClearRenderTargetView(pd3dRtvCPUHandles[i], Colors::White, 0, NULL);
 	}
 
 	for (int i = 0; i < nResources; i++)
 	{
 		::ResourceTransition(pd3dCommandList, GetTextureResource(i), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorCPUHandle = GetRtvCPUDescriptorHandle(i);
-		FLOAT pfClearColor[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
+		FLOAT pfClearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		pd3dCommandList->ClearRenderTargetView(m_RTVDescriptorCPUHandle, pfClearColor, 0, NULL);
 		pd3dAllRtvCPUHandles[nRenderTargets + i] = m_RTVDescriptorCPUHandle;
 	}
@@ -609,6 +609,7 @@ void ScreenShader::OnPostRenderTarget(ID3D12GraphicsCommandList* pd3dCommandList
 
 void ScreenShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
+	//pCamera->SetViewport(0, 0, 500, 500);
 	Shader::Render(pd3dCommandList, pCamera);
 
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);

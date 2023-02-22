@@ -77,10 +77,10 @@ struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
 PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSObject(VS_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID)
 {
 	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+	output.Scene = float4(0, 1, 0, 0);
 
-	output.Scene = float4(0, 0, 0, 0);
-	output.Position = float4(input.positionW,1.0f);
-	output.Normal = float4(input.normalW.xyz, objectID);
+	output.Position = float4(input.positionW, 1.0f);
+	output.Normal = float4(input.normalW.xyz, 1/((float)objectID+2));
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	output.Texture = gtxtTextureArray.Sample(gssDefaultSamplerState, uvw);
 
@@ -103,7 +103,7 @@ struct VS_OUTPUT
 VS_OUTPUT VSDiffused(VS_INPUT input)
 {
 	VS_OUTPUT output;
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxPlayerWorld), gmtxView),gmtxProjection);
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxPlayerWorld), gmtxView), gmtxProjection);
 	output.color = input.color;
 	return(output);
 }
@@ -140,26 +140,20 @@ VS_SCREEN_OUTPUT VSScreen(uint nVertexID : SV_VertexID)
 static float gfLaplacians[9] = { -1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f };
 static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, { 1,0 }, { -1,1 }, { 0,1 }, { 1,1 } };
 
-float4 Edge(float4 position)
-{
-
-	int Edge = false;
-	float fObjectID = gtxtInputTextures[1][int2(position.xy)].a;
-
-	for (int i = 0; i < LineSize; i++)
-	{
-		if (fObjectID != gtxtInputTextures[1][int2(position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
-	}
-
-	if (Edge)
-		return(float4(LineColor));
-	else
-		return(float4(0, 0, 0, 0));
-}
 
 float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 {
-	float4 cColor = gtxtInputTextures[1].Sample(gssDefaultSamplerState, input.uv) + Edge(input.position);
-	//cColor = float4(gtxtInputTextures[0][int2(input.position.xy)].a,0,0,1);
-	return(cColor);
+	float4 cColor = gtxtInputTextures[2].Sample(gssDefaultSamplerState, input.uv);
+	int Edge = false;
+	float fObjectID = gtxtInputTextures[1][int2(input.position.xy)].a;
+
+	for (int i = 0; i < LineSize; i++)
+	{
+		if (fObjectID != gtxtInputTextures[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
+	}
+
+	if (Edge && input.position.x > 1 && input.position.x<999 && input.position.y > 1 && input.position.y < 799)
+		return(float4(LineColor));
+	else
+		return(float4(cColor));
 }
