@@ -38,9 +38,9 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
 
-#define MRT 3 // Multie Render Target의 수
+#define MRT 4 // Multie Render Target의 수
 
-#define FRAME_BUFFER_WIDTH 1400
+#define FRAME_BUFFER_WIDTH 1000
 #define FRAME_BUFFER_HEIGHT 800
 
 #define MAX_LIGHTS 8

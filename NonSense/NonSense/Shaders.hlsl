@@ -68,15 +68,17 @@ VS_LIGHTING_OUTPUT VSObject(VS_LIGHTING_INPUT input)
 
 struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
 {
-	float4 Position : SV_TARGET0;
-	float4 Normal : SV_TARGET1;
-	float4 Texture : SV_TARGET2;
+	float4 Scene : SV_TARGET0;
+	float4 Position : SV_TARGET1;
+	float4 Normal : SV_TARGET2;
+	float4 Texture : SV_TARGET3;
 };
 
 PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSObject(VS_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID)
 {
 	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
 
+	output.Scene = float4(0, 0, 0, 0);
 	output.Position = float4(input.positionW,1.0f);
 	output.Normal = float4(input.normalW.xyz, objectID);
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
@@ -142,11 +144,11 @@ float4 Edge(float4 position)
 {
 
 	int Edge = false;
-	float fObjectID = gtxtInputTextures[0][int2(position.xy)].a;
+	float fObjectID = gtxtInputTextures[1][int2(position.xy)].a;
 
 	for (int i = 0; i < LineSize; i++)
 	{
-		if (fObjectID != gtxtInputTextures[0][int2(position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
+		if (fObjectID != gtxtInputTextures[1][int2(position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
 	}
 
 	if (Edge)
