@@ -11,6 +11,14 @@ struct CB_GAMEOBJECT_INFO
 	UINT m_nMaterial;
 };
 
+struct CB_SCREEN_INFO
+{
+	XMFLOAT4 LineColor;
+	UINT DrawOptions;
+	UINT LineSize;
+	UINT ToonShading;
+};
+
 struct CB_PLAYER_INFO
 {
 	XMFLOAT4X4 m_xmf4x4World;
@@ -114,7 +122,7 @@ protected:
 	int m_nObjects = 0;
 
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
-	UINT8* m_pcbMappedGameObjects = NULL;
+	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 };
 
 class ScreenShader : public Shader
@@ -143,10 +151,11 @@ public:
 protected:
 	CTexture* m_pTexture = NULL;
 	D3D12_CPU_DESCRIPTOR_HANDLE* m_pRTVDescriptorHandles = NULL;
+	ID3D12Resource* m_pScreenOptions = NULL;
+	CB_SCREEN_INFO* m_pMappedScreenOptions = NULL;
 
 public:
 	CTexture* GetTexture() { return(m_pTexture); }
 	ID3D12Resource* GetTextureResource(UINT nIndex) { return(m_pTexture->GetResource(nIndex)); }
-
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRtvCPUDescriptorHandle(UINT nIndex) { return(m_pRTVDescriptorHandles[nIndex]); }
 };

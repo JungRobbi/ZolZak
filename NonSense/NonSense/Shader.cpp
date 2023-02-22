@@ -166,6 +166,9 @@ void Shader::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstant
 
 void Shader::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex)
 {
+	m_SRVCPUDescriptorNextHandle.ptr += (::CBVSRVDescriptorSize * nDescriptorHeapIndex);
+	m_SRVGPUDescriptorNextHandle.ptr += (::CBVSRVDescriptorSize * nDescriptorHeapIndex);
+
 	int nTextures = pTexture->GetTextures();
 	UINT nTextureType = pTexture->GetTextureType();
 
@@ -393,12 +396,12 @@ void ObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommand
 {
 	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
 	XMFLOAT4X4 xmf4x4World;
-
+	
 	int k = 0;
 	for (auto gameobject : GameScene::MainScene->gameObjects)
 	{
 		XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&gameobject->GetWorld())));
-		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)(m_pcbMappedGameObjects + (k * ncbGameObjectBytes));
+		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects + (k * ncbGameObjectBytes));
 		::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
 		pbMappedcbGameObject->m_nMaterial = gameobject->GetMaterial()->m_nReflection;
 		pbMappedcbGameObject->m_nObjectID = k++;
@@ -449,7 +452,7 @@ void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 				object->SetPosition(fxPitch * x, fyPitch * y, fzPitch * z);
 				object->AddComponent<RotateComponent>();
 				object->GetComponent<RotateComponent>()->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-				object->GetComponent<RotateComponent>()->SetRotationSpeed(10.0f * ((i++) % 10));
+				object->GetComponent<RotateComponent>()->SetRotationSpeed(10.0f * ((i++) % 10+1));
 				object->SetCbvGPUDescriptorHandlePtr(m_CBVGPUDescriptorStartHandle.ptr + (::CBVSRVDescriptorSize * i));
 			}
 		}
@@ -517,14 +520,25 @@ void ScreenShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* p
 
 void ScreenShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	UINT ncbElementBytes = ((sizeof(CB_SCREEN_INFO) + 255) & ~255); //256의 배수
+	m_pScreenOptions = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pScreenOptions->Map(0, NULL, (void**)&m_pMappedScreenOptions);
 }
 
 void ScreenShader::ReleaseShaderVariables()
 {
+	if (m_pScreenOptions) m_pScreenOptions->Release();
 }
 
 void ScreenShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	m_pMappedScreenOptions->DrawOptions = 1;
+	m_pMappedScreenOptions->LineColor = XMFLOAT4(1.0f,0.0f,1.0f,1.0f);
+	m_pMappedScreenOptions->LineSize = 9;
+	m_pMappedScreenOptions->ToonShading = 5;
+
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pScreenOptions->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(7, d3dGpuVirtualAddress);
 }
 
 void ScreenShader::CreateResourcesAndViews(ID3D12Device* pd3dDevice, UINT nResources, DXGI_FORMAT* pdxgiFormats, UINT nWidth, UINT nHeight, D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorCPUHandle, UINT nShaderResources)

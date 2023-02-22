@@ -21,6 +21,15 @@ cbuffer cbGameObjectInfo : register(b2)
 	uint objectID : packoffset(c4.x);
 	uint gnMaterial : packoffset(c4.y);
 };
+
+cbuffer cbDrawOptions : register(b5)
+{
+	float4 LineColor : packoffset(c0);
+	uint DrawOption : packoffset(c1.x);
+	uint LineSize : packoffset(c1.y);
+	uint ToonShading : packoffset(c1.z);
+};
+
 Texture2DArray gtxtTextureArray : register(t0);
 Texture2D gtxtInputTextures[4] : register(t1); //Position, Normal+ObjectID, Texture, Depth
 SamplerState gssDefaultSamplerState : register(s0);
@@ -69,7 +78,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSObject(VS_LIGHTING_OUTPUT input, uint nPrimi
 	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
 
 	output.Position = float4(input.positionW,1.0f);
-	output.Normal = float4(input.normalW.xyz, (float)objectID);
+	output.Normal = float4(input.normalW.xyz, objectID);
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	output.Texture = gtxtTextureArray.Sample(gssDefaultSamplerState, uvw);
 
@@ -131,28 +140,24 @@ static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, {
 
 float4 Edge(float4 position)
 {
-	float3 EdgeColor = float3(1, 0, 0);
-	int EdgeSize = 9;
 
 	int Edge = false;
-	float fObjectID = gtxtInputTextures[0][int2(position.xy)].r;
+	float fObjectID = gtxtInputTextures[0][int2(position.xy)].a;
 
-	for (int i = 0; i < EdgeSize; i++)
+	for (int i = 0; i < LineSize; i++)
 	{
-		if (fObjectID != gtxtInputTextures[0][int2(position.xy) + gnOffsets[i]].r) Edge = true; // 오브젝트 별 테두리
+		if (fObjectID != gtxtInputTextures[0][int2(position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
 	}
 
 	if (Edge)
-		return(float4(EdgeColor, 1));
+		return(float4(LineColor));
 	else
 		return(float4(0, 0, 0, 0));
 }
 
 float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 {
-	float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f) + Edge(input.position);
-	cColor = gtxtInputTextures[0].Sample(gssDefaultSamplerState, input.uv);
-	//float fDepth = gtxtInputTextures[3].Load(uint3((uint)input.position.x, (uint)input.position.y, 0)).r;
-	//cColor = float4(fDepth, fDepth, fDepth, 1.0) + Edge(input.position);
+	float4 cColor = gtxtInputTextures[1].Sample(gssDefaultSamplerState, input.uv) + Edge(input.position);
+	//cColor = float4(gtxtInputTextures[0][int2(input.position.xy)].a,0,0,1);
 	return(cColor);
 }

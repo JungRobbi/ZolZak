@@ -40,7 +40,7 @@ using Microsoft::WRL::ComPtr;
 
 #define MRT 3 // Multie Render Target의 수
 
-#define FRAME_BUFFER_WIDTH 1000
+#define FRAME_BUFFER_WIDTH 1400
 #define FRAME_BUFFER_HEIGHT 800
 
 #define MAX_LIGHTS 8
