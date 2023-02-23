@@ -158,3 +158,33 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 	else
 		return(float4(cColor));
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+struct VS_DEBUG_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD0;
+};
+
+VS_DEBUG_OUTPUT VSDebug(uint nVertexID : SV_VertexID)
+{
+	VS_SCREEN_OUTPUT output = (VS_SCREEN_OUTPUT)0;
+
+	if (nVertexID == 0) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 1) { output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
+	else if (nVertexID == 2) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+
+	else if (nVertexID == 3) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 4) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+	else if (nVertexID == 5) { output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
+
+	return(output);
+}
+
+float4 PSDebug(VS_DEBUG_OUTPUT input) : SV_Target
+{
+	float4 cColor = gtxtInputTextures[2].Sample(gssDefaultSamplerState, input.uv);
+	return(cColor);
+}

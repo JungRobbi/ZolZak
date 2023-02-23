@@ -609,7 +609,7 @@ void ScreenShader::OnPostRenderTarget(ID3D12GraphicsCommandList* pd3dCommandList
 
 void ScreenShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	pCamera->SetViewport(0, 0, 500, 300);
+
 	Shader::Render(pd3dCommandList, pCamera);
 
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
