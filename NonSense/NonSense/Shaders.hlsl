@@ -149,6 +149,7 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 
 	for (int i = 0; i < LineSize; i++)
 	{
+		if(int2(input.position.xy) + gnOffsets[i].x)
 		if (fObjectID != gtxtInputTextures[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
 	}
 
