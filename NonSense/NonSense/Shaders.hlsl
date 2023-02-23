@@ -149,11 +149,11 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 
 	for (int i = 0; i < LineSize; i++)
 	{
-		if(int2(input.position.xy) + gnOffsets[i].x)
+		if(gtxtInputTextures[1][int2(input.position.xy) + gnOffsets[i]].a != 0 && fObjectID!=0)
 		if (fObjectID != gtxtInputTextures[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
 	}
 
-	if (Edge && input.position.x > 1 && input.position.x<999 && input.position.y > 1 && input.position.y < 799)
+	if (Edge)
 		return(float4(LineColor));
 	else
 		return(float4(cColor));

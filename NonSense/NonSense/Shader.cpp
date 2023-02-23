@@ -533,8 +533,8 @@ void ScreenShader::ReleaseShaderVariables()
 void ScreenShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	m_pMappedScreenOptions->DrawOptions = 1;
-	m_pMappedScreenOptions->LineColor = XMFLOAT4(1.0f,0.0f,1.0f,1.0f);
-	m_pMappedScreenOptions->LineSize = 9;
+	m_pMappedScreenOptions->LineColor = XMFLOAT4(0.0f,1.0f,0.0f,1.0f);
+	m_pMappedScreenOptions->LineSize = 1;
 	m_pMappedScreenOptions->ToonShading = 5;
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pScreenOptions->GetGPUVirtualAddress();
@@ -609,7 +609,7 @@ void ScreenShader::OnPostRenderTarget(ID3D12GraphicsCommandList* pd3dCommandList
 
 void ScreenShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	//pCamera->SetViewport(0, 0, 500, 500);
+	pCamera->SetViewport(0, 0, 500, 300);
 	Shader::Render(pd3dCommandList, pCamera);
 
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
