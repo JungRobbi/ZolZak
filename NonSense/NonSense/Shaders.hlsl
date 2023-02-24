@@ -1,104 +1,158 @@
 ////////////////////////////////////////////////////////////////////////////
 
-//플레이어 객체의 데이터를 위한 상수 버퍼
+
 cbuffer cbPlayerInfo : register(b0)
 {
 	matrix gmtxPlayerWorld : packoffset(c0);
 };
-//카메라의 정보를 위한 상수 버퍼를 선언한다.
+
 cbuffer cbCameraInfo : register(b1)
 {
 	matrix gmtxView : packoffset(c0);
 	matrix gmtxProjection : packoffset(c4);
-	float3 gvCameraPosition : packoffset(c8);
+	matrix gmtxInverseProjection : packoffset(c8);
+	float3 gf3CameraPosition : packoffset(c12);
+	float3 gf3CameraDirection : packoffset(c13);
 };
-//게임 객체의 데이터를 위한 상수 버퍼(게임 객체에 대한 재질 번호를 추가)
+
 cbuffer cbGameObjectInfo : register(b2)
 {
 	matrix gmtxGameObject : packoffset(c0);
-	uint gnMaterial : packoffset(c4);
+	uint objectID : packoffset(c4.x);
+	uint gnMaterial : packoffset(c4.y);
 };
+Texture2DArray gtxtTextureArray : register(t0);
+Texture2D gtxtInputTextures[4] : register(t1); //Position, Normal+ObjectID, Texture, Depth
+SamplerState gssDefaultSamplerState : register(s0);
 
 #include "Light.hlsl"
 
+
 /////////////////////////////////////////////////////////////////////////////
 
-//정점 조명을 사용
-//#define _WITH_VERTEX_LIGHTING
-
-
-//정점 쉐이더의 입력 정점 구조
 struct VS_LIGHTING_INPUT
 {
 	float3 position : POSITION;
 	float3 normal : NORMAL;
+	float2 uv : TEXCOORD;
 };
 
-//정점 쉐이더의 출력 정점 구조
 struct VS_LIGHTING_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float3 positionW : POSITION;
-#ifdef _WITH_VERTEX_LIGHTING
-	float4 color : COLOR;
-#else
 	float3 normalW : NORMAL;
-#endif
+	float2 uv : TEXCOORD;
 };
 
-//정점 쉐이더 함수
-VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
+VS_LIGHTING_OUTPUT VSObject(VS_LIGHTING_INPUT input)
 {
 	VS_LIGHTING_OUTPUT output;
 	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-	float3 normalW = mul(input.normal, (float3x3)gmtxGameObject);
-#ifdef _WITH_VERTEX_LIGHTING
-	output.color = Lighting(output.positionW, normalize(normalW));
-#else
-	output.normalW = normalW;
-#endif
+	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
+	output.uv = input.uv;
 	return(output);
-}
-
-//픽셀 쉐이더 함수
-float4 PSLighting(VS_LIGHTING_OUTPUT input) : SV_TARGET
-{
-#ifdef _WITH_VERTEX_LIGHTING
-	return(input.color);
-#else
-	float3 normalW = normalize(input.normalW);
-	float4 color = Lighting(input.positionW, normalW);
-	return(color);
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-//정점 셰이더의 입력을 위한 구조체를 선언한다.
+struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
+{
+	float4 Position : SV_TARGET0;
+	float4 Normal : SV_TARGET1;
+	float4 Texture : SV_TARGET2;
+};
+
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSObject(VS_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID)
+{
+	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+
+	output.Position = float4(input.positionW,1.0f);
+	output.Normal = float4(input.normalW.xyz, (float)objectID);
+	float3 uvw = float3(input.uv, nPrimitiveID / 2);
+	output.Texture = gtxtTextureArray.Sample(gssDefaultSamplerState, uvw);
+
+	return(output);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
 struct VS_INPUT
 {
 	float3 position : POSITION;
 	float4 color : COLOR;
 };
 
-//정점 셰이더의 출력(픽셀 셰이더의 입력)을 위한 구조체를 선언한다.
 struct VS_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float4 color : COLOR;
 };
-//정점 셰이더를 정의한다.
+
 VS_OUTPUT VSDiffused(VS_INPUT input)
 {
 	VS_OUTPUT output;
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxPlayerWorld), gmtxView),
-		gmtxProjection);
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxPlayerWorld), gmtxView),gmtxProjection);
 	output.color = input.color;
 	return(output);
 }
-//픽셀 셰이더를 정의한다.
+
 float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
 {
 	return(input.color);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+struct VS_SCREEN_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD0;
+};
+
+VS_SCREEN_OUTPUT VSScreen(uint nVertexID : SV_VertexID)
+{
+	VS_SCREEN_OUTPUT output = (VS_SCREEN_OUTPUT)0;
+
+	if (nVertexID == 0) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 1) { output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
+	else if (nVertexID == 2) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+
+	else if (nVertexID == 3) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 4) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+	else if (nVertexID == 5) { output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
+
+	return(output);
+}
+
+static float gfLaplacians[9] = { -1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f };
+static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, { 1,0 }, { -1,1 }, { 0,1 }, { 1,1 } };
+
+float4 Edge(float4 position)
+{
+	float3 EdgeColor = float3(1, 0, 0);
+	int EdgeSize = 9;
+
+	int Edge = false;
+	float fObjectID = gtxtInputTextures[0][int2(position.xy)].r;
+
+	for (int i = 0; i < EdgeSize; i++)
+	{
+		if (fObjectID != gtxtInputTextures[0][int2(position.xy) + gnOffsets[i]].r) Edge = true; // 오브젝트 별 테두리
+	}
+
+	if (Edge)
+		return(float4(EdgeColor, 1));
+	else
+		return(float4(0, 0, 0, 0));
+}
+
+float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
+{
+	float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f) + Edge(input.position);
+	//cColor = gtxtInputTextures[0].Sample(gssDefaultSamplerState, input.uv);
+	//float fDepth = gtxtInputTextures[3].Load(uint3((uint)input.position.x, (uint)input.position.y, 0)).r;
+	//cColor = float4(fDepth, fDepth, fDepth, 1.0) + Edge(input.position);
+	return(cColor);
 }

@@ -25,7 +25,7 @@ void Iocp::Add(Socket& socket, void* userPtr)
 
 void Iocp::Wait(IocpEvents &output, int timeoutMs)
 {
-	 BOOL r = GetQueuedCompletionStatusEx(m_hIocp, output.m_events, MaxEventCount, (ULONG*)&output.m_eventCount, timeoutMs, FALSE);
+	 BOOL r = GetQueuedCompletionStatusEx(m_hIocp, (LPOVERLAPPED_ENTRY)output.m_events, MaxEventCount, (ULONG*)&output.m_eventCount, timeoutMs, FALSE);
 	 if (!r)
 	 {
 		 output.m_eventCount = 0;
