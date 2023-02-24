@@ -102,3 +102,25 @@ protected:
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
 	UINT8* m_pcbMappedGameObjects = NULL;
 };
+
+class StandardShader : public Shader
+{
+public:
+	StandardShader() {}
+	virtual ~StandardShader() {}
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
+
+};
+class SkinnedModelShader : public StandardShader
+{
+	SkinnedModelShader() {}
+	virtual ~SkinnedModelShader() {}
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+};
