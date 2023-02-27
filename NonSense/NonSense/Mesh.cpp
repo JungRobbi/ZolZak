@@ -469,116 +469,116 @@ void LoadMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 				m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
 
 			}
-
-			else if (!strcmp(pstrToken, "<TextureCoords1>:"))
+		}
+		else if (!strcmp(pstrToken, "<TextureCoords1>:"))
+		{
+			nReads = (UINT)::fread(&nTextureCoords, sizeof(int), 1, OpenedFile);
+			if (nTextureCoords > 0)
 			{
-				nReads = (UINT)::fread(&nTextureCoords, sizeof(int), 1, OpenedFile);
-				if (nTextureCoords > 0)
-				{
-					m_pxmf2TextureCoords0 = new XMFLOAT2[nTextureCoords];
-					nReads = (UINT)::fread(m_pxmf2TextureCoords0, sizeof(XMFLOAT2), nTextureCoords, OpenedFile);
+				m_pxmf2TextureCoords0 = new XMFLOAT2[nTextureCoords];
+				nReads = (UINT)::fread(m_pxmf2TextureCoords0, sizeof(XMFLOAT2), nTextureCoords, OpenedFile);
 
-					m_pd3dTextureCoord0Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
+				m_pd3dTextureCoord0Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
 
-					m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTextureCoord0Buffer->GetGPUVirtualAddress();
-					m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);
-					m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
+				m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTextureCoord0Buffer->GetGPUVirtualAddress();
+				m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);
+				m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
 
-				}
 			}
+		}
 
-			else if (!strcmp(pstrToken, "<Normals>:"))
+		else if (!strcmp(pstrToken, "<Normals>:"))
+		{
+			nReads = (UINT)::fread(&nNormals, sizeof(int), 1, OpenedFile);
+			if (nNormals > 0)
 			{
-				nReads = (UINT)::fread(&nNormals, sizeof(int), 1, OpenedFile);
-				if (nNormals > 0)
-				{
-					m_pxmf3Normals = new XMFLOAT3[nNormals];
-					nReads = (UINT)::fread(m_pxmf3Normals, sizeof(XMFLOAT3), nNormals, OpenedFile);
+				m_pxmf3Normals = new XMFLOAT3[nNormals];
+				nReads = (UINT)::fread(m_pxmf3Normals, sizeof(XMFLOAT3), nNormals, OpenedFile);
 
-					m_pd3dNormalBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Normals, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dNormalUploadBuffer);
+				m_pd3dNormalBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Normals, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dNormalUploadBuffer);
 
-					m_d3dNormalBufferView.BufferLocation = m_pd3dNormalBuffer->GetGPUVirtualAddress();
-					m_d3dNormalBufferView.StrideInBytes = sizeof(XMFLOAT3);
-					m_d3dNormalBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
-				}
+				m_d3dNormalBufferView.BufferLocation = m_pd3dNormalBuffer->GetGPUVirtualAddress();
+				m_d3dNormalBufferView.StrideInBytes = sizeof(XMFLOAT3);
+				m_d3dNormalBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
 			}
-			else if (!strcmp(pstrToken, "<Tangents>:"))
+		}
+		else if (!strcmp(pstrToken, "<Tangents>:"))
+		{
+			nReads = (UINT)::fread(&nTangents, sizeof(int), 1, OpenedFile);
+			if (nTangents > 0)
 			{
-				nReads = (UINT)::fread(&nTangents, sizeof(int), 1, OpenedFile);
-				if (nTangents > 0)
-				{
-					m_pxmf3Tangents = new XMFLOAT3[nTangents];
-					nReads = (UINT)::fread(m_pxmf3Tangents, sizeof(XMFLOAT3), nTangents, OpenedFile);
+				m_pxmf3Tangents = new XMFLOAT3[nTangents];
+				nReads = (UINT)::fread(m_pxmf3Tangents, sizeof(XMFLOAT3), nTangents, OpenedFile);
 
-					m_pd3dTangentBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Tangents, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTangentUploadBuffer);
+				m_pd3dTangentBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Tangents, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTangentUploadBuffer);
 
-					m_d3dTangentBufferView.BufferLocation = m_pd3dTangentBuffer->GetGPUVirtualAddress();
-					m_d3dTangentBufferView.StrideInBytes = sizeof(XMFLOAT3);
-					m_d3dTangentBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
-				}
+				m_d3dTangentBufferView.BufferLocation = m_pd3dTangentBuffer->GetGPUVirtualAddress();
+				m_d3dTangentBufferView.StrideInBytes = sizeof(XMFLOAT3);
+				m_d3dTangentBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
 			}
-			else if (!strcmp(pstrToken, "<BiTangents>:"))
+		}
+		else if (!strcmp(pstrToken, "<BiTangents>:"))
+		{
+			nReads = (UINT)::fread(&nBiTangents, sizeof(int), 1, OpenedFile);
+			if (nBiTangents > 0)
 			{
-				nReads = (UINT)::fread(&nBiTangents, sizeof(int), 1, OpenedFile);
-				if (nBiTangents > 0)
-				{
-					m_pxmf3BiTangents = new XMFLOAT3[nBiTangents];
-					nReads = (UINT)::fread(m_pxmf3BiTangents, sizeof(XMFLOAT3), nBiTangents, OpenedFile);
+				m_pxmf3BiTangents = new XMFLOAT3[nBiTangents];
+				nReads = (UINT)::fread(m_pxmf3BiTangents, sizeof(XMFLOAT3), nBiTangents, OpenedFile);
 
-					m_pd3dBiTangentBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3BiTangents, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dBiTangentUploadBuffer);
+				m_pd3dBiTangentBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3BiTangents, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dBiTangentUploadBuffer);
 
-					m_d3dBiTangentBufferView.BufferLocation = m_pd3dBiTangentBuffer->GetGPUVirtualAddress();
-					m_d3dBiTangentBufferView.StrideInBytes = sizeof(XMFLOAT3);
-					m_d3dBiTangentBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
-				}
+				m_d3dBiTangentBufferView.BufferLocation = m_pd3dBiTangentBuffer->GetGPUVirtualAddress();
+				m_d3dBiTangentBufferView.StrideInBytes = sizeof(XMFLOAT3);
+				m_d3dBiTangentBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
 			}
-			else if (!strcmp(pstrToken, "<SubMeshes>:"))
+		}
+		else if (!strcmp(pstrToken, "<SubMeshes>:"))
+		{
+			nReads = (UINT)::fread(&(m_nSubMeshes), sizeof(int), 1, OpenedFile);
+			if (m_nSubMeshes > 0)
 			{
-				nReads = (UINT)::fread(&(m_nSubMeshes), sizeof(int), 1, OpenedFile);
-				if (m_nSubMeshes > 0)
+				m_pnSubSetIndices = new int[m_nSubMeshes];
+				m_ppnSubSetIndices = new UINT * [m_nSubMeshes];
+
+				m_ppd3dSubSetIndexBuffers = new ID3D12Resource * [m_nSubMeshes];
+				m_ppd3dSubSetIndexUploadBuffers = new ID3D12Resource * [m_nSubMeshes];
+				m_pd3dSubSetIndexBufferViews = new D3D12_INDEX_BUFFER_VIEW[m_nSubMeshes];
+
+				for (int i = 0; i < m_nSubMeshes; i++)
 				{
-					m_pnSubSetIndices = new int[m_nSubMeshes];
-					m_ppnSubSetIndices = new UINT * [m_nSubMeshes];
-
-					m_ppd3dSubSetIndexBuffers = new ID3D12Resource * [m_nSubMeshes];
-					m_ppd3dSubSetIndexUploadBuffers = new ID3D12Resource * [m_nSubMeshes];
-					m_pd3dSubSetIndexBufferViews = new D3D12_INDEX_BUFFER_VIEW[m_nSubMeshes];
-
-					for (int i = 0; i < m_nSubMeshes; i++)
+					::ReadStringFromFile(OpenedFile, pstrToken);
+					if (!strcmp(pstrToken, "<SubMesh>:"))
 					{
-						::ReadStringFromFile(OpenedFile, pstrToken);
-						if (!strcmp(pstrToken, "<SubMesh>:"))
+						int nIndex = 0;
+						nReads = (UINT)::fread(&nIndex, sizeof(int), 1, OpenedFile); //i
+						nReads = (UINT)::fread(&(m_pnSubSetIndices[i]), sizeof(int), 1, OpenedFile);
+						if (m_pnSubSetIndices[i] > 0)
 						{
-							int nIndex = 0;
-							nReads = (UINT)::fread(&nIndex, sizeof(int), 1, OpenedFile); //i
-							nReads = (UINT)::fread(&(m_pnSubSetIndices[i]), sizeof(int), 1, OpenedFile);
-							if (m_pnSubSetIndices[i] > 0)
-							{
-								m_ppnSubSetIndices[i] = new UINT[m_pnSubSetIndices[i]];
-								nReads = (UINT)::fread(m_ppnSubSetIndices[i], sizeof(UINT), m_pnSubSetIndices[i], OpenedFile);
+							m_ppnSubSetIndices[i] = new UINT[m_pnSubSetIndices[i]];
+							nReads = (UINT)::fread(m_ppnSubSetIndices[i], sizeof(UINT), m_pnSubSetIndices[i], OpenedFile);
 
-								m_ppd3dSubSetIndexBuffers[i] = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_ppnSubSetIndices[i], sizeof(UINT) * m_pnSubSetIndices[i], D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_ppd3dSubSetIndexUploadBuffers[i]);
+							m_ppd3dSubSetIndexBuffers[i] = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_ppnSubSetIndices[i], sizeof(UINT) * m_pnSubSetIndices[i], D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_ppd3dSubSetIndexUploadBuffers[i]);
 
-								m_pd3dSubSetIndexBufferViews[i].BufferLocation = m_ppd3dSubSetIndexBuffers[i]->GetGPUVirtualAddress();
-								m_pd3dSubSetIndexBufferViews[i].Format = DXGI_FORMAT_R32_UINT;
-								m_pd3dSubSetIndexBufferViews[i].SizeInBytes = sizeof(UINT) * m_pnSubSetIndices[i];
-							}
+							m_pd3dSubSetIndexBufferViews[i].BufferLocation = m_ppd3dSubSetIndexBuffers[i]->GetGPUVirtualAddress();
+							m_pd3dSubSetIndexBufferViews[i].Format = DXGI_FORMAT_R32_UINT;
+							m_pd3dSubSetIndexBufferViews[i].SizeInBytes = sizeof(UINT) * m_pnSubSetIndices[i];
 						}
 					}
 				}
-
 			}
-
-			else if (!strcmp(pstrToken, "<Mesh>:"))
-			{
-				break;
-			}
-
-
 
 		}
+
+		else if (!strcmp(pstrToken, "</Mesh>"))
+		{
+			break;
+		}
+
+
+
 	}
 }
+
 
 
 

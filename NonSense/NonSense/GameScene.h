@@ -56,11 +56,16 @@ public:
 	//씬의 모든 게임 객체들에 대한 마우스 픽킹을 수행한다.
 	Object* PickObjectPointedByCursor(int xClient, int yClient, Camera *pCamera);
 	Player* m_pPlayer = NULL;
-	
+
 protected:
 	ObjectsShader* m_pShaders = NULL;
+	SkinnedModelShader* m_pSkinnedShader = NULL;
 	int m_nShaders = 0;
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
+
+	int m_nObjects = 0;
+	Object** m_GameObjects = NULL;
+
 
 	//씬의 조명
 	LIGHTS* m_pLights = NULL;
@@ -72,4 +77,6 @@ protected:
 	//재질을 나타내는 리소스와 리소스에 대한 포인터이다.
 	ID3D12Resource *m_pd3dcbMaterials = NULL;
 	MATERIAL* m_pcbMappedMaterials = NULL;
+
+
 };

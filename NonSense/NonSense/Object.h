@@ -147,9 +147,12 @@ public:
 	XMFLOAT4X4**	m_ppKeyFrameTransforms = NULL;
 
 
-	float			m_Postion = 0.0f;
+	float			m_Position = 0.0f;
 
 	int 			m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
+public:
+	void SetPosition(float fTrackPosition);
+	XMFLOAT4X4 GetSRT(int nBone);
 };
 
 class AnimationSets
@@ -174,6 +177,28 @@ public:
 };
 
 
+class AnimationTrack
+{
+public:
+	AnimationTrack() { }
+	~AnimationTrack() { }
+
+public:
+	BOOL 							m_bEnable = true;
+	float 							m_fSpeed = 1.0f;
+	float 							m_fPosition = 0.0f;
+	float 							m_fWeight = 1.0f;
+
+	int 							m_nAnimationSet = 0;
+
+public:
+	void SetAnimationSet(int nAnimationSet) { m_nAnimationSet = nAnimationSet; }
+
+	void SetEnable(bool bEnable) { m_bEnable = bEnable; }
+	void SetSpeed(float fSpeed) { m_fSpeed = fSpeed; }
+	void SetWeight(float fWeight) { m_fWeight = fWeight; }
+	void SetPosition(float fPosition) { m_fPosition = fPosition; }
+};
 class LoadedModelInfo
 {
 public:
@@ -189,6 +214,41 @@ public:
 public:
 	void PrepareSkinning();
 };
+class AnimationController
+{
+public:
+	AnimationController(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int nAnimationTracks, LoadedModelInfo* pModel);
+	~AnimationController();
+
+public:
+	float 							m_fTime = 0.0f;
+
+	int 							m_nAnimationTracks = 0;
+	AnimationTrack*					m_pAnimationTracks = NULL;
+
+	AnimationSets*					m_pAnimationSets = NULL;
+
+	int 							m_nSkinnedMeshes = 0;
+	SkinnedMesh**					m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
+
+	ID3D12Resource**				m_ppd3dcbSkinningBoneTransforms = NULL; //[SkinnedMeshes]
+	XMFLOAT4X4**					m_ppcbxmf4x4MappedSkinningBoneTransforms = NULL; //[SkinnedMeshes]
+
+public:
+	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+
+	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
+
+	void SetTrackEnable(int nAnimationTrack, bool bEnable);
+	void SetTrackPosition(int nAnimationTrack, float fPosition);
+	void SetTrackSpeed(int nAnimationTrack, float fSpeed);
+	void SetTrackWeight(int nAnimationTrack, float fWeight);
+
+	void AdvanceTime(float fElapsedTime, Object* pRootGameObject);
+};
+
+
+
 
 class Object
 {
@@ -235,9 +295,15 @@ public:
 	int m_nMaterials = 0;
 	Material** m_ppMaterials = NULL;
 
-protected:
 	XMFLOAT4X4 m_xmf4x4ToParent;
 	XMFLOAT4X4 m_xmf4x4World;
+
+	AnimationController*			m_pSkinnedAnimationController = NULL;
+
+
+
+protected:
+
 	Mesh* m_pMesh = NULL;
 	Material* m_pMaterial = NULL;
 public:
@@ -254,6 +320,8 @@ public:
 	//상수 버퍼의 내용을 갱신한다.
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
+
+	void UpdateTransform(XMFLOAT4X4* pxmf4x4Parent = NULL);
 
 
 	Object* FindFrame(char* pstrFrameName);
@@ -278,4 +346,11 @@ public:
 	void SetRotationSpeed(float fRotationSpeed) { m_fRotationSpeed = fRotationSpeed; }
 	void SetRotationAxis(XMFLOAT3 xmf3RotationAxis) { m_xmf3RotationAxis = xmf3RotationAxis; }
 	virtual void Animate(float fTimeElapsed);
+};
+
+class TestModelObject : public Object
+{
+public:
+	TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, int nAnimationTracks);
+	virtual ~TestModelObject() {};
 };

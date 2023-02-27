@@ -49,9 +49,11 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 
 	void CreateShaderResourceView(ID3D12Device* pd3dDevice, Texture* pTexture, int nIndex);
-
+	void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
 
 protected:
+	ID3D12DescriptorHeap*				m_pd3dCbvSrvDescriptorHeap = NULL;
+
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_d3dCbvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE			m_d3dCbvGPUDescriptorStartHandle;
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_d3dSrvCPUDescriptorStartHandle;
@@ -117,6 +119,7 @@ public:
 };
 class SkinnedModelShader : public StandardShader
 {
+public:
 	SkinnedModelShader() {}
 	virtual ~SkinnedModelShader() {}
 
