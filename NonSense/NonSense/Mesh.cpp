@@ -412,6 +412,7 @@ void LoadMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 {
 	char pstrToken[64] = { '\0' };
 	int nPositions = 0, nColors = 0, nNormals = 0, nTangents = 0, nBiTangents = 0, nTextureCoords = 0, nIndices = 0, nSubMeshes = 0, nSubIndices = 0;
+	XMFLOAT3 BBCenter = { 0.0f,0.0f,0.0f }, BBExtents = { 0.0f,0.0f,0.0f };
 
 	UINT nReads = (UINT)::fread(&m_nVertices, sizeof(int), 1, OpenedFile);
 
@@ -422,8 +423,9 @@ void LoadMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 		::ReadStringFromFile(OpenedFile, pstrToken);
 		if (!strcmp(pstrToken, "<Bounds>:"))
 		{
-			nReads = (UINT)::fread(&m_xmBoundingBox.Center, sizeof(XMFLOAT3), 1, OpenedFile);
-			nReads = (UINT)::fread(&m_xmBoundingBox.Extents, sizeof(XMFLOAT3), 1, OpenedFile);
+			nReads = (UINT)::fread(&BBCenter, sizeof(XMFLOAT3), 1, OpenedFile);
+			nReads = (UINT)::fread(&BBExtents, sizeof(XMFLOAT3), 1, OpenedFile);
+			m_xmBoundingBox = BoundingOrientedBox(BBCenter, BBExtents, XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 
 		}
 		else if (!strcmp(pstrToken, "<Positions>:"))

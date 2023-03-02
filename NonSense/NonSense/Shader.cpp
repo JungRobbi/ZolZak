@@ -131,7 +131,7 @@ void Shader::CreateShader(ID3D12Device *pd3dDevice, ID3D12RootSignature* pd3dGra
 	d3dPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	d3dPipelineStateDesc.SampleDesc.Count = 1;
 	d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-	pd3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)&m_ppd3dPipelineStates[0]);
+	HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)&m_ppd3dPipelineStates[0]);
 	if (pd3dVertexShaderBlob) pd3dVertexShaderBlob->Release();
 	if (pd3dPixelShaderBlob) pd3dPixelShaderBlob->Release();
 	if (d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[]
@@ -145,8 +145,7 @@ void Shader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 void Shader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 }
-void Shader::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4
-	* pxmf4x4World)
+void Shader::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
 {
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
@@ -182,7 +181,7 @@ void Shader::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstant
 	m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
 
 	m_d3dSrvCPUDescriptorNextHandle = m_d3dSrvCPUDescriptorStartHandle;
-	m_d3dSrvGPUDescriptorNextHandle = m_d3dSrvGPUDDescriptorStartHandle;
+	m_d3dSrvGPUDescriptorNextHandle = m_d3dSrvGPUDescriptorStartHandle;
 }
 
 void Shader::CreateShaderResourceView(ID3D12Device* pd3dDevice, Texture* pTexture, int nIndex)
@@ -451,4 +450,11 @@ D3D12_INPUT_LAYOUT_DESC SkinnedModelShader::CreateInputLayout()
 D3D12_SHADER_BYTECODE SkinnedModelShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
 	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSSkinnedAnimationStandard", "vs_5_1", ppd3dShaderBlob));
+}
+
+void SkinnedModelShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_nPipelineStates = 1;
+	m_ppd3dPipelineStates = new ID3D12PipelineState * [m_nPipelineStates];
+	Shader::CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 }

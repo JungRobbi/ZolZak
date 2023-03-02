@@ -58,6 +58,8 @@ public:
 	Player* m_pPlayer = NULL;
 
 protected:
+	float m_ElapsedTime = 0.0f;
+
 	ObjectsShader* m_pShaders = NULL;
 	SkinnedModelShader* m_pSkinnedShader = NULL;
 	int m_nShaders = 0;

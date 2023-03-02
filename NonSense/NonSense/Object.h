@@ -64,6 +64,10 @@ public:
 
 	void LoadTextureFromDDSFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, UINT nResourceType, UINT nIndex);
 	bool LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* pInFile, Shader* pShader, UINT nIndex);
+
+	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, int nIndex);
+
 };
 
 #define MATERIAL_ALBEDO_MAP				0x01
@@ -123,6 +127,7 @@ public:
 	void SetMaterialType(UINT nType) { m_nType |= nType; }
 	void SetTexture(Texture* pTexture);
 
+	void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList);
 };
 // Animation
 //struct CALLBACKKEY
@@ -248,8 +253,6 @@ public:
 };
 
 
-
-
 class Object
 {
 public:
@@ -299,8 +302,6 @@ public:
 	XMFLOAT4X4 m_xmf4x4World;
 
 	AnimationController*			m_pSkinnedAnimationController = NULL;
-
-
 
 protected:
 

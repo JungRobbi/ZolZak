@@ -8,6 +8,21 @@ void Material::SetTexture(Texture* pTexture)
 	m_pTexture = pTexture;
 	if (m_pTexture) m_pTexture->AddRef();
 }
+void Material::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(3, 4, &m_xmf4Ambient, 0);
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(3, 4, &m_xmf4Albedo, 4);
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(3, 4, &m_xmf4Specular, 8);
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(3, 4, &m_xmf4Emissive, 16);
+	
+
+	pd3dCommandList->SetGraphicsRoot32BitConstants(2, 1, &m_nType, 17);
+
+	for (int i = 0; i < m_nTextures; ++i)
+	{
+		if (m_ppTextures[i]) m_ppTextures[i]->UpdateShaderVariable(pd3dCommandList, 0);
+	}
+}
 
 Texture::Texture(int nTextures, UINT nTextureType, int nRootParameters)
 {
@@ -45,6 +60,26 @@ Texture::~Texture()
 	if (m_pRootParameterIndices) delete[] m_pRootParameterIndices;
 	if (m_pd3dSRVGPUDescriptorHandle) delete[] m_pd3dSRVGPUDescriptorHandle;
 
+}
+
+void Texture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	if (m_nTextureType == RESOURCE_TEXTURE2D_ARRAY)
+	{
+		pd3dCommandList->SetGraphicsRootDescriptorTable(m_pRootParameterIndices[0], m_pd3dSRVGPUDescriptorHandle[0]);
+	}
+	else
+	{
+		for (int i = 0; i < m_nTextures; i++)
+		{
+			pd3dCommandList->SetGraphicsRootDescriptorTable(m_pRootParameterIndices[i], m_pd3dSRVGPUDescriptorHandle[i]);
+		}
+	}
+}
+
+void Texture::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, int nIndex)
+{
+	pd3dCommandList->SetGraphicsRootDescriptorTable(m_pRootParameterIndices[nIndex], m_pd3dSRVGPUDescriptorHandle[nIndex]);
 }
 
 D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetShaderResourceViewDesc(int nIndex)
@@ -144,7 +179,7 @@ bool Texture::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 			LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, m_ppstrTextureNames[nIndex], RESOURCE_TEXTURE2D, nIndex);
 			pShader->CreateShaderResourceView(pd3dDevice, this, nIndex);
 #ifdef _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS
-			m_pnRootParameterIndices[nIndex] = PARAMETER_STANDARD_TEXTURE + nIndex;
+			m_pRootParameterIndices[nIndex] = PARAMETER_STANDARD_TEXTURE + nIndex;
 #endif
 		}
 		else
@@ -463,6 +498,10 @@ bool Object::IsVisible(Camera* pCamera)
 {
 	OnPrepareRender();
 	bool bIsVisible = false;
+	if (!m_pMesh)
+	{
+		return false;
+	}
 	BoundingOrientedBox xmBoundingBox = m_pMesh->GetBoundingBox();
 	//모델 좌표계의 바운딩 박스를 월드 좌표계로 변환한다.
 	xmBoundingBox.Transform(xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
@@ -656,6 +695,7 @@ void Object::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 			pTexture = new Texture(7, RESOURCE_TEXTURE2D, 7);
 
 			pMaterial->SetTexture(pTexture);
+			pMaterial->SetShader(pShader);
 			SetMaterials(nMaterial, pMaterial);
 		}
 		else if (!strcmp(pstrToken, "<AlbedoColor>:"))
@@ -854,8 +894,10 @@ void Object::LoadAnimationFromFile(FILE* OpenedFile, LoadedModelInfo* pLoadModel
 					nReads = (UINT)::fread(pAnimationSet->m_ppKeyFrameTransforms[i], sizeof(XMFLOAT4X4), pLoadModel->m_pAnimationSets->m_nAnimatedBoneFrames, OpenedFile);
 				}
 			}
-
-
+		}
+		else if (!strcmp(pstrToken, "</AnimationSets>"))
+		{
+			break;
 		}
 	}
 }
@@ -907,7 +949,7 @@ void Object::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
 	//객체의 월드 변환 행렬을 루트 상수(32-비트 값)를 통하여 셰이더 변수(상수 버퍼)로 복사한다.
-	pd3dCommandList->SetGraphicsRoot32BitConstants(0, 16, &xmf4x4World, 0);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(2, 16, &xmf4x4World, 0);
 }
 
 void Object::ReleaseUploadBuffers()
@@ -928,19 +970,40 @@ void Object::OnPrepareRender()
 }
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	if (IsVisible(pCamera))
-	{
+	//if (IsVisible(pCamera))
+	//{
 		OnPrepareRender();
-		if (m_pMaterial)
+		if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
+		if (m_pMesh)
 		{
-			if (m_pMaterial->m_pShader)
+			if (m_pMaterial)
 			{
-				m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
-				m_pMaterial->m_pShader->UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+				if (m_pMaterial->m_pShader)
+				{
+					m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+					m_pMaterial->m_pShader->UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+				}
+				UpdateShaderVariables(pd3dCommandList);
+				m_pMesh->Render(pd3dCommandList);
+			}
+
+			else if (m_nMaterials > 0)
+			{
+				UpdateShaderVariables(pd3dCommandList);
+				for (int i = 0; i < m_nMaterials; ++i)
+				{
+					if (m_ppMaterials[i])
+					{
+						if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+						m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
+					}
+					m_pMesh->Render(pd3dCommandList, i);
+				}
 			}
 		}
-		if (m_pMesh) m_pMesh->Render(pd3dCommandList);
-	}
+	//}
+	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
+	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
 }
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
 {
@@ -1004,3 +1067,4 @@ TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pLoadedModel);
 
 }
+
