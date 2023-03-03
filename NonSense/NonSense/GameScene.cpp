@@ -50,11 +50,14 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_pSkinnedShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 76);
 
 	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/F05.bin", m_pSkinnedShader);
-	m_GameObjects[0] = new TestModelObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pModel, 1);
+	m_GameObjects[0] = new TestModelObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, 1);
 	m_GameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_GameObjects[0]->SetPosition(0.0f, 0.0f, 0.0f);
+	m_GameObjects[0]->SetPosition(0.0f, 0.0f, 20.0f);
 
-	if (pModel) delete pModel;
+	m_nShaders = 1;
+	m_pShaders = new ObjectsShader[m_nShaders];
+	m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	m_pShaders[0].BuildObjects(pd3dDevice, pd3dCommandList);
 
 	BuildLightsAndMaterials();
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -163,10 +166,9 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[1].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[2].Constants.Num32BitValues = 18;
-	pd3dRootParameters[2].Constants.ShaderRegister = 2; //GameObject
-	pd3dRootParameters[2].Constants.RegisterSpace = 0;
+	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[2].Descriptor.ShaderRegister = 2; //GameObject
+	pd3dRootParameters[2].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -313,15 +315,20 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 	pd3dCommandList->SetGraphicsRootConstantBufferView(3, d3dcbMaterialsGpuVirtualAddress);
 
 	// 오브젝트 렌더링
-	for (int i = 0; i < m_nObjects; ++i)
+	for (int i = 0; i < m_nShaders; i++)
 	{
-		if (m_GameObjects[i])
-		{
-			//m_GameObjects[i]->Animate(m_ElapsedTime);
-			//if (m_GameObjects[i]->m_pSkinnedAnimationController) m_GameObjects[i]->UpdateTransform(NULL);
-			m_GameObjects[i]->Render(pd3dCommandList,pCamera);
-		}
+		m_pShaders[i].Render(pd3dCommandList, pCamera);
 	}
+
+	//for (int i = 0; i < m_nObjects; ++i)
+	//{
+	//	if (m_GameObjects[i])
+	//	{
+	//		//m_GameObjects[i]->Animate(m_ElapsedTime);
+	//		//if (m_GameObjects[i]->m_pSkinnedAnimationController) m_GameObjects[i]->UpdateTransform(NULL);
+	//		m_GameObjects[i]->Render(pd3dCommandList,pCamera);
+	//	}
+	//}
 
 
 }

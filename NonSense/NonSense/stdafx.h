@@ -53,7 +53,7 @@ using Microsoft::WRL::ComPtr;
 #define ANIMATION_TYPE_PINGPONG			2
 
 #define _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS
-#define PARAMETER_STANDARD_TEXTURE		3
+#define PARAMETER_STANDARD_TEXTURE		7
 
 
 #define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))

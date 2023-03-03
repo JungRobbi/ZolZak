@@ -18,10 +18,7 @@ void Material::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
 
 	pd3dCommandList->SetGraphicsRoot32BitConstants(2, 1, &m_nType, 17);
 
-	for (int i = 0; i < m_nTextures; ++i)
-	{
-		if (m_ppTextures[i]) m_ppTextures[i]->UpdateShaderVariable(pd3dCommandList, 0);
-	}
+	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 }
 
 Texture::Texture(int nTextures, UINT nTextureType, int nRootParameters)
@@ -72,7 +69,7 @@ void Texture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	{
 		for (int i = 0; i < m_nTextures; i++)
 		{
-			pd3dCommandList->SetGraphicsRootDescriptorTable(m_pRootParameterIndices[i], m_pd3dSRVGPUDescriptorHandle[i]);
+			if(m_pRootParameterIndices[i] >= 0) pd3dCommandList->SetGraphicsRootDescriptorTable(m_pRootParameterIndices[i], m_pd3dSRVGPUDescriptorHandle[i]);
 		}
 	}
 }
@@ -691,7 +688,7 @@ void Object::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 		{
 			nMaterial = ReadIntegerFromFile(OpenedFile);
 
-			pMaterial = new Material;
+			pMaterial = new Material();
 			pTexture = new Texture(7, RESOURCE_TEXTURE2D, 7);
 
 			pMaterial->SetTexture(pTexture);
@@ -949,7 +946,7 @@ void Object::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
 	//객체의 월드 변환 행렬을 루트 상수(32-비트 값)를 통하여 셰이더 변수(상수 버퍼)로 복사한다.
-	pd3dCommandList->SetGraphicsRoot32BitConstants(2, 16, &xmf4x4World, 0);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(0, 16, &xmf4x4World, 0);
 }
 
 void Object::ReleaseUploadBuffers()
@@ -1060,7 +1057,14 @@ TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	LoadedModelInfo* pLoadedModel = pModel;
 	if (!pLoadedModel)
 	{
-		pLoadedModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
+
+		SkinnedModelShader* pShader = new SkinnedModelShader();
+		pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
+		pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		pShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 7);
+
+
+		pLoadedModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", pShader);
 
 	}
 	SetChild(pLoadedModel->m_pRoot, true);
