@@ -81,7 +81,11 @@ public:
 	//씬의 모든 게임 객체들에 대한 마우스 픽킹을 수행한다.
 	Object* PickObjectPointedByCursor(int xClient, int yClient, Camera* pCamera);
 	Player* m_pPlayer = NULL;
-	
+
+	void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
+	static D3D12_GPU_DESCRIPTOR_HANDLE CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nRootParameter, bool bAutoIncrement);
+	static D3D12_GPU_DESCRIPTOR_HANDLE CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride);
+
 protected:
 	ObjectsShader* m_pShaders = NULL;
 	int m_nShaders = 0;
@@ -97,4 +101,22 @@ protected:
 	//재질을 나타내는 리소스와 리소스에 대한 포인터이다.
 	ID3D12Resource* m_pd3dcbMaterials = NULL;
 	MATERIAL* m_pcbMappedMaterials = NULL;
+
+	SkinnedModelShader* m_pSkinnedShader = NULL;
+
+	int m_nObjects = 0;
+	Object** m_GameObjects = NULL;
+
+	static ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap;
+
+	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorStartHandle;
+	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorStartHandle;
+	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dSrvCPUDescriptorStartHandle;
+	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dSrvGPUDescriptorStartHandle;
+
+	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorNextHandle;
+	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorNextHandle;
+	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dSrvCPUDescriptorNextHandle;
+	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dSrvGPUDescriptorNextHandle;
+
 };

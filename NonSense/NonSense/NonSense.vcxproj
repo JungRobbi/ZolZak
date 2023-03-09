@@ -112,7 +112,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\lsy01\OneDrive\바탕 화면\ZolZak\NonSense\x64\Debug;C:\Users\82107\OneDrive\바탕 화면\ZolZak\NonSense\x64\Debug;D:\ZolZak\ZolZak\NonSense\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\코딩\EduProject\ZolZak_AnotherBranch\NonSense\x64\Debug;C:\Users\lsy01\OneDrive\바탕 화면\ZolZak\NonSense\x64\Debug;C:\Users\82107\OneDrive\바탕 화면\ZolZak\NonSense\x64\Debug;D:\ZolZak\ZolZak\NonSense\x64\Debug</AdditionalLibraryDirectories>
       <AdditionalDependencies>ImaysNet.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

@@ -8,7 +8,6 @@ struct CB_GAMEOBJECT_INFO
 {
 	XMFLOAT4X4 m_xmf4x4World;
 	UINT m_nObjectID;
-	UINT m_nMaterial;
 };
 
 struct CB_SCREEN_INFO
@@ -83,6 +82,9 @@ protected:
 
 	D3D12_CPU_DESCRIPTOR_HANDLE		m_SRVCPUDescriptorNextHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_SRVGPUDescriptorNextHandle;
+
+	ID3D12PipelineState** m_ppd3dPipelineStates = NULL;
+	int m_nPipelineStates = 0;
 };
 
 class DiffusedShader : public Shader
@@ -195,4 +197,32 @@ protected:
 
 public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRtvCPUDescriptorHandle(UINT nIndex) { return(m_pRTVDescriptorHandles[nIndex]); }
+};
+
+class StandardShader : public Shader
+{
+public:
+	StandardShader() {}
+	virtual ~StandardShader() {}
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+
+
+};
+class SkinnedModelShader : public StandardShader
+{
+public:
+	SkinnedModelShader() {}
+	virtual ~SkinnedModelShader() {}
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+
+	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat);
 };

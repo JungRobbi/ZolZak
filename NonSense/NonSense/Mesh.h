@@ -1,4 +1,6 @@
 #pragma once
+#include "Object.h"
+class Object;
 
 //정점을 표현하기 위한 클래스를 선언한다.
 class Vertex
@@ -59,8 +61,6 @@ public:
 	~CIlluminatedTexturedVertex() { }
 };
 
-
-
 class Mesh
 {
 public:
@@ -78,6 +78,14 @@ public:
 protected:
 	//정점을 픽킹을 위하여 저장한다(정점 버퍼를 Map()하여 읽지 않아도 되도록).
 	DiffusedVertex* m_pVertices = NULL;
+
+	// 파일에서 읽는 위치를 받기위해 만듬 위에 Vertex랑 겹치는데 의논을 좀 해봐야 할듯
+	XMFLOAT3* m_pxmf3Positions = NULL;
+	ID3D12Resource* m_pd3dPositionBuffer = NULL;
+	ID3D12Resource* m_pd3dPositionUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dPositionBufferView;
+
+
 	//메쉬의 인덱스를 저장한다(인덱스 버퍼를 Map()하여 읽지 않아도 되도록).
 	UINT* m_pnIndices = NULL;
 	BoundingOrientedBox m_xmBoundingBox;
@@ -101,8 +109,27 @@ protected:
 	int m_nBaseVertex = 0;
 	//인덱스 버퍼의 인덱스에 더해질 인덱스이다.
 
+
+	// 서브매쉬
+	int								m_nSubMeshes = 0;
+	int* m_pnSubSetIndices = NULL;
+	UINT** m_ppnSubSetIndices = NULL;
+
+	ID3D12Resource** m_ppd3dSubSetIndexBuffers = NULL;
+	ID3D12Resource** m_ppd3dSubSetIndexUploadBuffers = NULL;
+	D3D12_INDEX_BUFFER_VIEW* m_pd3dSubSetIndexBufferViews = NULL;
+
+	char							m_pstrMeshName[64] = { 0 };
+
 public:
+
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList) { }
+	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
+
+
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet);
+
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nInstances);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView);
 };
@@ -146,4 +173,85 @@ class CubeMeshIlluminated : public IlluminatedMesh
 public:
 	CubeMeshIlluminated(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
 	virtual ~CubeMeshIlluminated();
+};
+
+class LoadMesh : public IlluminatedMesh
+{
+public:
+	LoadMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual ~LoadMesh();
+
+protected:
+	XMFLOAT4* m_pxmf4Colors = NULL;
+	XMFLOAT3* m_pxmf3Normals = NULL;
+	XMFLOAT3* m_pxmf3Tangents = NULL;
+	XMFLOAT3* m_pxmf3BiTangents = NULL;
+
+	XMFLOAT2* m_pxmf2TextureCoords0 = NULL;
+	XMFLOAT2* m_pxmf2TextureCoords1 = NULL;
+
+	ID3D12Resource* m_pd3dTextureCoord0Buffer = NULL;
+	ID3D12Resource* m_pd3dTextureCoord0UploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord0BufferView;
+
+	ID3D12Resource* m_pd3dTextureCoord1Buffer = NULL;
+	ID3D12Resource* m_pd3dTextureCoord1UploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord1BufferView;
+
+	ID3D12Resource* m_pd3dNormalBuffer = NULL;
+	ID3D12Resource* m_pd3dNormalUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dNormalBufferView;
+
+	ID3D12Resource* m_pd3dTangentBuffer = NULL;
+	ID3D12Resource* m_pd3dTangentUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTangentBufferView;
+
+	ID3D12Resource* m_pd3dBiTangentBuffer = NULL;
+	ID3D12Resource* m_pd3dBiTangentUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dBiTangentBufferView;
+
+public:
+	void LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FILE* OpenedFile);
+
+};
+
+#define SKINNED_ANIMATION_BONES		256
+
+class SkinnedMesh : public LoadMesh
+{
+public:
+	SkinnedMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	~SkinnedMesh();
+protected:
+	int								m_nBonesPerVertex;
+	XMINT4* m_pBoneIndices = NULL;
+	XMFLOAT4* m_pBoneWeight = NULL;
+
+	ID3D12Resource* m_pd3dBoneIndexBuffer = NULL;
+	ID3D12Resource* m_pd3dBoneIndexUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dBoneIndexBufferView;
+
+	ID3D12Resource* m_pd3dBoneWeightBuffer = NULL;
+	ID3D12Resource* m_pd3dBoneWeightUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dBoneWeightBufferView;
+public:
+	int								m_nSkinningBones = 0;
+
+	char(*m_ppstrSkinningBoneNames)[64];
+	Object** m_ppSkinningBoneFrameCaches = NULL;
+
+	XMFLOAT4X4* m_pBindPoseBoneOffsets = NULL;
+
+	ID3D12Resource* m_pd3dcbBindPoseBoneOffsets = NULL;
+	XMFLOAT4X4* m_pcbxmf4x4MappedBindPoseBoneOffsets = NULL;
+
+	ID3D12Resource* m_pd3dcbSkinningBoneTransforms = NULL;
+	XMFLOAT4X4* m_pMappedSkinningBoneTransforms = NULL;
+
+public:
+	void PrepareSkinning(Object* pRoot);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
+
+	void LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FILE* OpenedFile);
 };

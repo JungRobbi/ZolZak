@@ -16,9 +16,6 @@
     <Filter Include="소스 파일\DirectX 12">
       <UniqueIdentifier>{e01b3cd7-4898-49e0-aa36-1cf3143ed41f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Framework">
-      <UniqueIdentifier>{f393ba7c-4471-4e70-9191-53066386f2dc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\MSG">
       <UniqueIdentifier>{8f36df8d-9d3f-42b5-9660-130b82ae17c1}</UniqueIdentifier>
     </Filter>
@@ -39,6 +36,9 @@
     </Filter>
     <Filter Include="소스 파일\DirectX 12\TextureLoader">
       <UniqueIdentifier>{c45f60a0-87bc-4768-bbf7-40726cd51c7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Framework">
+      <UniqueIdentifier>{f393ba7c-4471-4e70-9191-53066386f2dc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -241,7 +241,7 @@ void Shader::ReleaseShaderVariables()
 void Shader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_pPipelineState) pd3dCommandList->SetPipelineState(m_pPipelineState);
-	pd3dCommandList->SetDescriptorHeaps(1, &m_CBVSRVDescriptorHeap);
+	//pd3dCommandList->SetDescriptorHeaps(1, &m_CBVSRVDescriptorHeap);
 }
 
 void Shader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -403,7 +403,6 @@ void ObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommand
 		XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&gameobject->GetWorld())));
 		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects + (k * ncbGameObjectBytes));
 		::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
-		pbMappedcbGameObject->m_nMaterial = gameobject->GetMaterial()->m_nReflection;
 		pbMappedcbGameObject->m_nObjectID = k++;
 	}
 	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
@@ -545,7 +544,7 @@ void ScreenShader::CreateResourcesAndViews(ID3D12Device* pd3dDevice, UINT nResou
 {
 	m_pTexture = new CTexture(nResources, RESOURCE_TEXTURE2D, 0, 1);
 
-	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM, { 0.0f, 0.0f, 1.0f, 1.0f } };
+	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM, { ClearColor[0], ClearColor[1], ClearColor[2], ClearColor[3]}};
 	for (UINT i = 0; i < nResources; i++)
 	{
 		d3dClearValue.Format = pdxgiFormats[i];
@@ -588,8 +587,7 @@ void ScreenShader::OnPrepareRenderTarget(ID3D12GraphicsCommandList* pd3dCommandL
 	{
 		::ResourceTransition(pd3dCommandList, GetTextureResource(i), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorCPUHandle = GetRtvCPUDescriptorHandle(i);
-		FLOAT pfClearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-		pd3dCommandList->ClearRenderTargetView(m_RTVDescriptorCPUHandle, pfClearColor, 0, NULL);
+		pd3dCommandList->ClearRenderTargetView(m_RTVDescriptorCPUHandle, ClearColor, 0, NULL);
 		pd3dAllRtvCPUHandles[nRenderTargets + i] = m_RTVDescriptorCPUHandle;
 	}
 
@@ -617,3 +615,75 @@ void ScreenShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pC
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 }
+
+
+D3D12_INPUT_LAYOUT_DESC StandardShader::CreateInputLayout()
+{
+	UINT nInputElementDescs = 5;
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);
+}
+
+D3D12_SHADER_BYTECODE StandardShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSStandard", "vs_5_1", ppd3dShaderBlob));
+}
+
+D3D12_SHADER_BYTECODE StandardShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSStandard", "ps_5_1", ppd3dShaderBlob));
+}
+
+
+void StandardShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	Shader::Render(pd3dCommandList, pCamera);
+
+
+}
+
+
+D3D12_INPUT_LAYOUT_DESC SkinnedModelShader::CreateInputLayout()
+{
+	UINT nInputElementDescs = 7;
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[5] = { "BONEINDEX", 0, DXGI_FORMAT_R32G32B32A32_SINT, 5, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[6] = { "BONEWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 6, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);
+}
+
+D3D12_SHADER_BYTECODE SkinnedModelShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSSkinnedAnimationStandard", "vs_5_1", ppd3dShaderBlob));
+}
+
+void SkinnedModelShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
+{
+	m_nPipelineStates = 1;
+	m_ppd3dPipelineStates = new ID3D12PipelineState * [m_nPipelineStates];
+	Shader::CreateShader(pd3dDevice, pd3dGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
+}
+
+
