@@ -226,7 +226,7 @@ void Material::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	
 	pd3dCommandList->SetGraphicsRoot32BitConstants(3, 1, &m_nType, 16);
 
-	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
+	//if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 	for (int i = 0; i < m_nTextures; i++)
 	{
 		if (m_ppTextures[i]) m_ppTextures[i]->UpdateShaderVariable(pd3dCommandList,0);
@@ -514,11 +514,13 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 Object::Object()
 {
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
+	XMStoreFloat4x4(&m_xmf4x4ToParent, XMMatrixIdentity());
 	GameScene::MainScene->creationQueue.push(this);
 }
 Object::Object(bool Push_List)
 {
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
+	XMStoreFloat4x4(&m_xmf4x4ToParent, XMMatrixIdentity());
 	if (Push_List) {
 		GameScene::MainScene->creationQueue.push(this);
 	}
@@ -679,10 +681,13 @@ void Object::ReleaseShaderVariables()
 
 void Object::FindAndSetSkinnedMesh(SkinnedMesh** ppSkinnedMeshes, int* pnSkinnedMesh)
 {
-	if (m_pMesh) ppSkinnedMeshes[(*pnSkinnedMesh)++] = (SkinnedMesh*)m_pMesh;
+	if (m_pMesh)
+		ppSkinnedMeshes[(*pnSkinnedMesh)++] = (SkinnedMesh*)m_pMesh;
 
-	if (m_pSibling) m_pSibling->FindAndSetSkinnedMesh(ppSkinnedMeshes, pnSkinnedMesh);
-	if (m_pChild) m_pChild->FindAndSetSkinnedMesh(ppSkinnedMeshes, pnSkinnedMesh);
+	if (m_pSibling)
+		m_pSibling->FindAndSetSkinnedMesh(ppSkinnedMeshes, pnSkinnedMesh);
+	if (m_pChild)
+		m_pChild->FindAndSetSkinnedMesh(ppSkinnedMeshes, pnSkinnedMesh);
 }
 
 Object* Object::FindFrame(char* pstrFrameName)
