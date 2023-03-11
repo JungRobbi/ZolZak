@@ -1072,6 +1072,13 @@ void Object::Rotate(XMFLOAT3* pxmf3Axis, float fAngle)
 }
 void Object::Animate(float fTimeElapsed)
 {
+	OnPrepareRender();
+
+	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
+
+	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
+	if (m_pChild) m_pChild->Animate(fTimeElapsed);
+
 }
 void Object::OnPrepareRender()
 {

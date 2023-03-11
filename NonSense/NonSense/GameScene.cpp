@@ -73,7 +73,7 @@ void GameScene::BuildLightsAndMaterials()
 	::ZeroMemory(m_pLights, sizeof(LIGHTS));
 	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 
-	m_pLights->m_pLights[0].m_bEnable = true;
+	m_pLights->m_pLights[0].m_bEnable = false;
 	m_pLights->m_pLights[0].m_nType = SPOT_LIGHT;
 	m_pLights->m_pLights[0].m_fRange = 50.0f;
 	m_pLights->m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
@@ -441,6 +441,12 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 
 void GameScene::AnimateObjects(float fTimeElapsed)
 {
+
+	for (int i = 0; i < m_nObjects; i++)
+	{
+		m_GameObjects[i]->Animate(fTimeElapsed);
+	}
+
 	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].AnimateObjects(fTimeElapsed);
 	//조명의 위치와 방향을 플레이어의 위치와 방향으로 변경한다.
 	if (m_pLights)
@@ -476,6 +482,7 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 
 	for (int i = 0; i < m_nObjects; i++)
 	{
+		m_GameObjects[i]->UpdateTransform(NULL);
 		m_GameObjects[i]->Render(pd3dCommandList,pCamera);
 	}
 }
