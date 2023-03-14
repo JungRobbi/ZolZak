@@ -70,15 +70,14 @@ using Microsoft::WRL::ComPtr;
 extern UINT	CBVSRVDescriptorSize;
 extern UINT RTVDescriptorSize;
 
-extern UINT	gnCbvSrvDescriptorIncrementSize;
 extern UINT	gnRtvDescriptorIncrementSize;
 extern UINT gnDsvDescriptorIncrementSize;
 
 extern FLOAT ClearColor[4];
 
-extern BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken);
-extern int ReadIntegerFromFile(FILE* pInFile);
-extern float ReadFloatFromFile(FILE* pInFile);
+extern BYTE ReadStringFromFile(FILE* OpenedFile, char* pstrToken);
+extern int ReadIntegerFromFile(FILE* OpenedFile);
+extern float ReadFloatFromFile(FILE* OpenedFile);
 
 extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer = NULL);
 extern ID3D12Resource* CreateTextureResourceFromDDSFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);

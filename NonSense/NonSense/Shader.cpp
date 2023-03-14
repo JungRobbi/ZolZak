@@ -617,6 +617,14 @@ void ScreenShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pC
 }
 
 
+StandardShader::StandardShader()
+{
+}
+
+StandardShader::~StandardShader()
+{
+}
+
 D3D12_INPUT_LAYOUT_DESC StandardShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 5;
@@ -633,6 +641,7 @@ D3D12_INPUT_LAYOUT_DESC StandardShader::CreateInputLayout()
 	d3dInputLayoutDesc.NumElements = nInputElementDescs;
 
 	return(d3dInputLayoutDesc);
+
 }
 
 D3D12_SHADER_BYTECODE StandardShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
@@ -644,15 +653,6 @@ D3D12_SHADER_BYTECODE StandardShader::CreatePixelShader(ID3DBlob** ppd3dShaderBl
 {
 	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSStandard", "ps_5_1", ppd3dShaderBlob));
 }
-
-
-void StandardShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
-{
-	Shader::Render(pd3dCommandList, pCamera);
-
-
-}
-
 
 D3D12_INPUT_LAYOUT_DESC SkinnedModelShader::CreateInputLayout()
 {
@@ -681,8 +681,6 @@ D3D12_SHADER_BYTECODE SkinnedModelShader::CreateVertexShader(ID3DBlob** ppd3dSha
 
 void SkinnedModelShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
 {
-	m_nPipelineStates = 1;
-	m_ppd3dPipelineStates = new ID3D12PipelineState * [m_nPipelineStates];
 	Shader::CreateShader(pd3dDevice, pd3dGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
 }
 

@@ -6,7 +6,6 @@
 UINT CBVSRVDescriptorSize = 0;
 UINT RTVDescriptorSize = 0;
 
-UINT gnCbvSrvDescriptorIncrementSize = 0;
 UINT gnRtvDescriptorIncrementSize = 0;
 UINT gnDsvDescriptorIncrementSize = 0;
 

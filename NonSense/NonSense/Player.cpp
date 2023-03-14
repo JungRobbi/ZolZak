@@ -232,7 +232,7 @@ CubePlayer::CubePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	SetPosition(XMFLOAT3(0.0f, 0.0f, -5.0f));
+	SetPosition(XMFLOAT3(0.0f, 0.0f, -2.0f));
 
 	DiffusedShader* pShader = new DiffusedShader();
 	DXGI_FORMAT pdxgiRtvFormats[1] = { DXGI_FORMAT_R8G8B8A8_UNORM };

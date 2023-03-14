@@ -137,6 +137,8 @@ public:
 
 	void SetMaterialType(UINT nType) { m_nType |= nType; }
 
+	static Shader* m_pStandardShader;
+	static Shader* m_pSkinnedAnimationShader;
 
 	//재질의 번호
 	UINT m_nReflection = 0;
@@ -148,7 +150,11 @@ public:
 	void SetTexture(CTexture* pTexture);
 	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 
-	void LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR* pwstrTextureName, CTexture** ppTexture, Object* pParent, FILE* pInFile, Shader* pShader);
+	void LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR* pwstrTextureName, CTexture** ppTexture, Object* pParent, FILE* OpenedFile, Shader* pShader);
+	void SetStandardShader() { Material::SetShader(m_pStandardShader); }
+	void SetSkinnedAnimationShader() { Material::SetShader(m_pSkinnedAnimationShader); }
+
+	static void Material::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 
 
 };
@@ -293,7 +299,7 @@ public:
 
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
-
+	
 
 private:
 	int m_nReferences = 0;
@@ -317,7 +323,7 @@ public:
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
 	void MoveForward(float fDistance = 1.0f);
-
+	void SetScale(float x, float y, float z);
 	void UpdateTransform(XMFLOAT4X4* pxmf4x4Parent);
 
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
@@ -334,6 +340,8 @@ protected:
 	Mesh* m_pMesh = NULL;
 	Material* m_pMaterial = NULL;
 public:
+	UINT GetMeshType(); 
+
 	void ReleaseUploadBuffers();
 	bool IsVisible(Camera* pCamera = NULL);
 	virtual void SetMesh(Mesh* pMesh);
@@ -404,7 +412,7 @@ inline T* Object::GetComponent()
 class TestModelObject : public Object
 {
 public:
-	TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, int nAnimationTracks);
+	TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks);
 	virtual ~TestModelObject() {};
 
 };

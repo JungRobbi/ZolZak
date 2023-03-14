@@ -503,7 +503,7 @@ void GameFramework::FrameAdvance()
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
 	GameScene::MainScene->update();
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
-	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
+	//if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
 
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);

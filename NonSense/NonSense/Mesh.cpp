@@ -500,27 +500,7 @@ CubeMeshIlluminated::~CubeMeshIlluminated()
 }
 
 
-SkinnedMesh::SkinnedMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) : LoadMesh(pd3dDevice, pd3dCommandList)
-{
 
-}
-
-SkinnedMesh::~SkinnedMesh()
-{
-	if (m_pBoneIndices) delete[] m_pBoneIndices;
-	if (m_pBoneWeight) delete[] m_pBoneWeight;
-
-	if (m_ppSkinningBoneFrameCaches) delete[] m_ppSkinningBoneFrameCaches;
-	if (m_ppstrSkinningBoneNames) delete[] m_ppstrSkinningBoneNames;
-
-	if (m_pBindPoseBoneOffsets) delete[] m_pBindPoseBoneOffsets;
-	if (m_pd3dcbBindPoseBoneOffsets) m_pd3dcbBindPoseBoneOffsets->Release();
-
-	if (m_pd3dBoneIndexBuffer) m_pd3dBoneIndexBuffer->Release();
-	if (m_pd3dBoneWeightBuffer) m_pd3dBoneWeightBuffer->Release();
-
-	//ReleaseShaderVariables();
-}
 // LoadMesh
 LoadMesh::LoadMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) : IlluminatedMesh(pd3dDevice, pd3dCommandList)
 {
@@ -528,20 +508,36 @@ LoadMesh::LoadMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 }
 LoadMesh::~LoadMesh()
 {
+	if (m_pd3dTextureCoord0Buffer) m_pd3dTextureCoord0Buffer->Release();
+	if (m_pd3dNormalBuffer) m_pd3dNormalBuffer->Release();
+	if (m_pd3dTangentBuffer) m_pd3dTangentBuffer->Release();
+	if (m_pd3dBiTangentBuffer) m_pd3dBiTangentBuffer->Release();
 
+	if (m_pxmf4Colors) delete[] m_pxmf4Colors;
+	if (m_pxmf3Normals) delete[] m_pxmf3Normals;
+	if (m_pxmf3Tangents) delete[] m_pxmf3Tangents;
+	if (m_pxmf3BiTangents) delete[] m_pxmf3BiTangents;
+	if (m_pxmf2TextureCoords0) delete[] m_pxmf2TextureCoords0;
+	if (m_pxmf2TextureCoords1) delete[] m_pxmf2TextureCoords1;
+}
+
+void LoadMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
+{
+	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[5] = { m_d3dPositionBufferView, m_d3dTextureCoord0BufferView, m_d3dNormalBufferView, m_d3dTangentBufferView, m_d3dBiTangentBufferView };
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, 5, pVertexBufferViews);
 }
 
 void LoadMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FILE* OpenedFile)
 {
 	char pstrToken[64] = { '\0' };
 	int nPositions = 0, nColors = 0, nNormals = 0, nTangents = 0, nBiTangents = 0, nTextureCoords = 0, nIndices = 0, nSubMeshes = 0, nSubIndices = 0;
-	XMFLOAT3 BBCenter = { 0.0f,0.0f,0.0f }, BBExtents = { 0.0f,0.0f,0.0f };
 
 	UINT nReads = (UINT)::fread(&m_nVertices, sizeof(int), 1, OpenedFile);
-
+	XMFLOAT3 BBCenter = { 0,0,0 };
+	XMFLOAT3 BBExtents = { 0,0,0 };
 	::ReadStringFromFile(OpenedFile, m_pstrMeshName);
 
-	while (true)
+	for (; ; )
 	{
 		::ReadStringFromFile(OpenedFile, pstrToken);
 		if (!strcmp(pstrToken, "<Bounds>:"))
@@ -549,13 +545,13 @@ void LoadMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 			nReads = (UINT)::fread(&BBCenter, sizeof(XMFLOAT3), 1, OpenedFile);
 			nReads = (UINT)::fread(&BBExtents, sizeof(XMFLOAT3), 1, OpenedFile);
 			m_xmBoundingBox = BoundingOrientedBox(BBCenter, BBExtents, XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
-
 		}
 		else if (!strcmp(pstrToken, "<Positions>:"))
 		{
 			nReads = (UINT)::fread(&nPositions, sizeof(int), 1, OpenedFile);
 			if (nPositions > 0)
 			{
+				m_nType |= VERTEXT_POSITION;
 				m_pxmf3Positions = new XMFLOAT3[nPositions];
 				nReads = (UINT)::fread(m_pxmf3Positions, sizeof(XMFLOAT3), nPositions, OpenedFile);
 
@@ -564,26 +560,24 @@ void LoadMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 				m_d3dPositionBufferView.BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
 				m_d3dPositionBufferView.StrideInBytes = sizeof(XMFLOAT3);
 				m_d3dPositionBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
-
 			}
-
 		}
 		else if (!strcmp(pstrToken, "<Colors>:"))
 		{
 			nReads = (UINT)::fread(&nColors, sizeof(int), 1, OpenedFile);
 			if (nColors > 0)
 			{
+				m_nType |= VERTEXT_COLOR;
 				m_pxmf4Colors = new XMFLOAT4[nColors];
 				nReads = (UINT)::fread(m_pxmf4Colors, sizeof(XMFLOAT4), nColors, OpenedFile);
 			}
-
 		}
-
 		else if (!strcmp(pstrToken, "<TextureCoords0>:"))
 		{
 			nReads = (UINT)::fread(&nTextureCoords, sizeof(int), 1, OpenedFile);
 			if (nTextureCoords > 0)
 			{
+				m_nType |= VERTEXT_TEXTURE_COORD0;
 				m_pxmf2TextureCoords0 = new XMFLOAT2[nTextureCoords];
 				nReads = (UINT)::fread(m_pxmf2TextureCoords0, sizeof(XMFLOAT2), nTextureCoords, OpenedFile);
 
@@ -592,7 +586,6 @@ void LoadMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 				m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTextureCoord0Buffer->GetGPUVirtualAddress();
 				m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);
 				m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
-
 			}
 		}
 		else if (!strcmp(pstrToken, "<TextureCoords1>:"))
@@ -600,23 +593,23 @@ void LoadMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 			nReads = (UINT)::fread(&nTextureCoords, sizeof(int), 1, OpenedFile);
 			if (nTextureCoords > 0)
 			{
-				m_pxmf2TextureCoords0 = new XMFLOAT2[nTextureCoords];
-				nReads = (UINT)::fread(m_pxmf2TextureCoords0, sizeof(XMFLOAT2), nTextureCoords, OpenedFile);
+				m_nType |= VERTEXT_TEXTURE_COORD1;
+				m_pxmf2TextureCoords1 = new XMFLOAT2[nTextureCoords];
+				nReads = (UINT)::fread(m_pxmf2TextureCoords1, sizeof(XMFLOAT2), nTextureCoords, OpenedFile);
 
-				m_pd3dTextureCoord0Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
+				m_pd3dTextureCoord1Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords1, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord1UploadBuffer);
 
-				m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTextureCoord0Buffer->GetGPUVirtualAddress();
-				m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);
-				m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
-
+				m_d3dTextureCoord1BufferView.BufferLocation = m_pd3dTextureCoord1Buffer->GetGPUVirtualAddress();
+				m_d3dTextureCoord1BufferView.StrideInBytes = sizeof(XMFLOAT2);
+				m_d3dTextureCoord1BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
 			}
 		}
-
 		else if (!strcmp(pstrToken, "<Normals>:"))
 		{
 			nReads = (UINT)::fread(&nNormals, sizeof(int), 1, OpenedFile);
 			if (nNormals > 0)
 			{
+				m_nType |= VERTEXT_NORMAL;
 				m_pxmf3Normals = new XMFLOAT3[nNormals];
 				nReads = (UINT)::fread(m_pxmf3Normals, sizeof(XMFLOAT3), nNormals, OpenedFile);
 
@@ -632,6 +625,7 @@ void LoadMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 			nReads = (UINT)::fread(&nTangents, sizeof(int), 1, OpenedFile);
 			if (nTangents > 0)
 			{
+				m_nType |= VERTEXT_TANGENT;
 				m_pxmf3Tangents = new XMFLOAT3[nTangents];
 				nReads = (UINT)::fread(m_pxmf3Tangents, sizeof(XMFLOAT3), nTangents, OpenedFile);
 
@@ -691,19 +685,34 @@ void LoadMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 					}
 				}
 			}
-
 		}
-
 		else if (!strcmp(pstrToken, "</Mesh>"))
 		{
 			break;
 		}
-
-
-
 	}
 }
+SkinnedMesh::SkinnedMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) : LoadMesh(pd3dDevice, pd3dCommandList)
+{
 
+}
+
+SkinnedMesh::~SkinnedMesh()
+{
+	if (m_pBoneIndices) delete[] m_pBoneIndices;
+	if (m_pBoneWeight) delete[] m_pBoneWeight;
+
+	if (m_ppSkinningBoneFrameCaches) delete[] m_ppSkinningBoneFrameCaches;
+	if (m_ppstrSkinningBoneNames) delete[] m_ppstrSkinningBoneNames;
+
+	if (m_pBindPoseBoneOffsets) delete[] m_pBindPoseBoneOffsets;
+	if (m_pd3dcbBindPoseBoneOffsets) m_pd3dcbBindPoseBoneOffsets->Release();
+
+	if (m_pd3dBoneIndexBuffer) m_pd3dBoneIndexBuffer->Release();
+	if (m_pd3dBoneWeightBuffer) m_pd3dBoneWeightBuffer->Release();
+
+	//ReleaseShaderVariables();
+}
 
 void SkinnedMesh::PrepareSkinning(Object* pRoot)
 {
@@ -767,6 +776,8 @@ void SkinnedMesh::LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		}
 		else if (!strcmp(pstrToken, "<BoneIndices>:"))
 		{
+			m_nType |= VERTEXT_BONE_INDEX_WEIGHT;
+
 			m_nVertices = ::ReadIntegerFromFile(OpenedFile);
 			if (m_nVertices > 0)
 			{
@@ -782,6 +793,8 @@ void SkinnedMesh::LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		}
 		else if (!strcmp(pstrToken, "<BoneWeights>:"))
 		{
+			m_nType |= VERTEXT_BONE_INDEX_WEIGHT;
+
 			m_nVertices = ::ReadIntegerFromFile(OpenedFile);
 			if (m_nVertices > 0)
 			{

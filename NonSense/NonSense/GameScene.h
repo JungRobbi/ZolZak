@@ -102,8 +102,6 @@ protected:
 	ID3D12Resource* m_pd3dcbMaterials = NULL;
 	MATERIAL* m_pcbMappedMaterials = NULL;
 
-	SkinnedModelShader* m_pSkinnedShader = NULL;
-
 	int m_nObjects = 0;
 	Object** m_GameObjects = NULL;
 

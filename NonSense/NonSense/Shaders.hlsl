@@ -239,7 +239,20 @@ struct VS_STANDARD_OUTPUT
 	float3 bitangentW : BITANGENT;
 	float2 uv : TEXCOORD;
 };
+VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
+{
+	VS_STANDARD_OUTPUT output;
+	matrix m = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+	//output.positionW = input.position;
+	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
+	output.tangentW = mul(input.tangent, (float3x3)gmtxGameObject);
+	output.bitangentW = mul(input.bitangent, (float3x3)gmtxGameObject);
+	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	output.uv = input.uv;
 
+	return(output);
+}
 
 float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
@@ -267,8 +280,8 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 		normalW = normalize(input.normalW);
 	}
 	float4 cIllumination = Lighting(input.positionW, normalW);
-	//return(0.0f, 1.0f, 0.0f, 1.0f);
-	return(lerp(cColor, cIllumination, 0.5f));
+	//return(cColor);
+	return(lerp(cColor, cIllumination, 0.1f));
 }
 
 #define MAX_VERTEX_INFLUENCES			4
@@ -319,6 +332,7 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 		//		mtxVertexToBoneWorld += input.weights[i] * gpmtxBoneTransforms[input.indices[i]];
 		mtxVertexToBoneWorld += input.weights[i] * mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
 	}
+
 	output.positionW = mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
 	output.normalW = mul(input.normal, (float3x3)mtxVertexToBoneWorld).xyz;
 	output.tangentW = mul(input.tangent, (float3x3)mtxVertexToBoneWorld).xyz;

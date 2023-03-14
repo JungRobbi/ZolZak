@@ -102,9 +102,11 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 	
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 16); 
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 16, 20); 
 
-	
+	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	BuildLightsAndMaterials();
+
 	//m_nShaders = 1;
 	//m_pShaders = new ObjectsShader[m_nShaders];
 	//DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
@@ -115,16 +117,17 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_nObjects = 1;
 	m_GameObjects = new Object * [m_nObjects];
 
-	m_pSkinnedShader = new SkinnedModelShader();
-	m_pSkinnedShader->CreateShader(pd3dDevice, m_pGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	//m_pSkinnedShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 16, 8);
-	
-	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/F05.bin", m_pSkinnedShader);
-	m_GameObjects[0] = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, 1);
-	m_GameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
+	//LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
+
+	m_GameObjects[0] = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
+	m_GameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
 	m_GameObjects[0]->SetPosition(0.0f, 0.0f, 0.0f);
 
-	BuildLightsAndMaterials();
+	//m_GameObjects[0] = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pWeaponModel, NULL, 0);
+	//m_GameObjects[0]->SetPosition(0.0f, 5.0f, 0.0f);
+	//m_GameObjects[0]->SetScale(2.0f, 2.0f, 2.0f);
+
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
@@ -474,16 +477,17 @@ void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Came
 
 void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
+	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 	//for (int i = 0; i < m_nShaders; i++)
 	//{
 	//	m_pShaders[i].Render(pd3dCommandList, pCamera);
 	//}
-
+   
 	for (int i = 0; i < m_nObjects; i++)
 	{
 		m_GameObjects[i]->UpdateTransform(NULL);
-		m_GameObjects[i]->Render(pd3dCommandList,pCamera);
+		m_GameObjects[i]->Render(pd3dCommandList, pCamera);
 	}
 }
 
@@ -492,15 +496,11 @@ void GameScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256의 배수
 	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dcbLights->Map(0, NULL, (void**)&m_pcbMappedLights);
-	UINT ncbMaterialBytes = ((sizeof(MATERIALS) + 255) & ~255); //256의 배수
-	m_pd3dcbMaterials = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbMaterialBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-	m_pd3dcbMaterials->Map(0, NULL, (void**)&m_pcbMappedMaterials);
 }
 
 void GameScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	::memcpy(m_pcbMappedLights, m_pLights, sizeof(LIGHTS));
-	::memcpy(m_pcbMappedMaterials, m_pMaterials, sizeof(MATERIALS));
 }
 
 void GameScene::ReleaseShaderVariables()

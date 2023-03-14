@@ -204,6 +204,16 @@ Material::Material(int Textures)
 	for (int i = 0; i < m_nTextures; i++) m_ppTextures[i] = NULL;
 	for (int i = 0; i < m_nTextures; i++) m_ppstrTextureNames[i][0] = '\0';
 }
+Shader* Material::m_pSkinnedAnimationShader = NULL;
+Shader* Material::m_pStandardShader = NULL;
+void Material::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_pStandardShader = new StandardShader();
+	m_pStandardShader->CreateShader(pd3dDevice,  pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	m_pSkinnedAnimationShader = new SkinnedModelShader();
+	m_pSkinnedAnimationShader->CreateShader(pd3dDevice,  pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+}
 
 void Material::SetShader(Shader* pShader)
 {
@@ -233,11 +243,11 @@ void Material::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	}
 }
 
-void Material::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR* pwstrTextureName, CTexture** ppTexture, Object* pParent, FILE* pInFile, Shader* pShader)
+void Material::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR* pwstrTextureName, CTexture** ppTexture, Object* pParent, FILE* OpenedFile, Shader* pShader)
 {
 	char pstrTextureName[64] = { '\0' };
 
-	BYTE nStrLength = ::ReadStringFromFile(pInFile, pstrTextureName);
+	BYTE nStrLength = ::ReadStringFromFile(OpenedFile, pstrTextureName);
 
 	bool bDuplicated = false;
 	if (strcmp(pstrTextureName, "null"))
@@ -587,7 +597,13 @@ void Object::SetMesh(Mesh* pMesh)
 	m_pMesh = pMesh;
 	if (m_pMesh) m_pMesh->AddRef();
 }
+void Object::SetScale(float x, float y, float z)
+{
+	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
+	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxScale, m_xmf4x4ToParent);
 
+	UpdateTransform(NULL);
+}
 void Object::SetPosition(float x, float y, float z)
 {
 	m_xmf4x4ToParent._41 = x;
@@ -658,19 +674,17 @@ void Object::Rotate(float fPitch, float fYaw, float fRoll)
 void Object::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
 {
 	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
-
+		
 	if (m_pSibling) m_pSibling->UpdateTransform(pxmf4x4Parent);
 	if (m_pChild) m_pChild->UpdateTransform(&m_xmf4x4World);
 }
 
 void Object::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	UINT ncbElementBytes = ((sizeof(CB_SCREEN_INFO) + 255) & ~255); //256의 배수
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
 
 	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
-
-	//GameScene::CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbGameObjects, ncbElementBytes);
 }
 
 
@@ -746,26 +760,26 @@ void Object::SetChild(Object* pChild, bool bReferenceUpdate)
 
 // -------------- 모델 & 애니메이션 로드 --------------
 
-int ReadIntegerFromFile(FILE* pInFile)
+int ReadIntegerFromFile(FILE* OpenedFile)
 {
 	int nValue = 0;
-	UINT nReads = (UINT)::fread(&nValue, sizeof(int), 1, pInFile);
+	UINT nReads = (UINT)::fread(&nValue, sizeof(int), 1, OpenedFile);
 	return(nValue);
 }
 
-float ReadFloatFromFile(FILE* pInFile)
+float ReadFloatFromFile(FILE* OpenedFile)
 {
 	float fValue = 0;
-	UINT nReads = (UINT)::fread(&fValue, sizeof(float), 1, pInFile);
+	UINT nReads = (UINT)::fread(&fValue, sizeof(float), 1, OpenedFile);
 	return(fValue);
 }
 
-BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
+BYTE ReadStringFromFile(FILE* OpenedFile, char* pstrToken)
 {
 	BYTE nStrLength = 0;
 	UINT nReads = 0;
-	nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
-	nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
+	nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, OpenedFile);
+	nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, OpenedFile);
 	pstrToken[nStrLength] = '\0';
 
 	return(nStrLength);
@@ -793,8 +807,21 @@ void Object::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 			pMaterial = new Material(7); //0:Albedo, 1:Specular, 2:Metallic, 3:Normal, 4:Emission, 5:DetailAlbedo, 6:DetailNormal
 
-
-			pMaterial->SetShader(pShader);
+			if (!pShader)
+			{
+				UINT nMeshType = GetMeshType();
+				if (nMeshType & VERTEXT_NORMAL_TANGENT_TEXTURE)
+				{
+					if (nMeshType & VERTEXT_BONE_INDEX_WEIGHT)
+					{
+						pMaterial->SetSkinnedAnimationShader();
+					}
+					else
+					{
+						pMaterial->SetStandardShader();
+					}
+				}
+			}
 			SetMaterials(nMaterial, pMaterial);
 		}
 		else if (!strcmp(pstrToken, "<AlbedoColor>:"))
@@ -1047,17 +1074,21 @@ void Object::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	////객체의 월드 변환 행렬을 루트 상수(32-비트 값)를 통하여 셰이더 변수(상수 버퍼)로 복사한다.
 	//pd3dCommandList->SetGraphicsRoot32BitConstants(0, 16, &xmf4x4World, 0);
 
-	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
 	XMFLOAT4X4 xmf4x4World;
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbGameObjectGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
 
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&GetWorld())));
-	CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects + (ncbGameObjectBytes));
+	CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects);
 	::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
 	pbMappedcbGameObject->m_nObjectID = 20;
 
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_OBJECT, d3dcbGameObjectGpuVirtualAddress);
 
+}
+
+UINT Object::GetMeshType()
+{
+	{ return((m_pMesh) ? m_pMesh->GetType() : 0x00); }
 }
 
 void Object::ReleaseUploadBuffers()
@@ -1109,6 +1140,7 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 				{
 					if (m_ppMaterials[i])
 					{
+				
 						if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
 						m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 					}
@@ -1157,10 +1189,19 @@ int Object::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& 
 	return(nIntersected);
 }
 
-TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, int nAnimationTracks) : Object(false)
+TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks) : Object(false)
 {
 	LoadedModelInfo* pLoadedModel = pModel;
-
-	SetChild(pLoadedModel->m_pRoot, true);
-	m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pLoadedModel);
+	LoadedModelInfo* pWeapon = pWeaponModel;
+	if(pLoadedModel)
+		SetChild(pLoadedModel->m_pRoot, true);
+	if (pWeapon) {
+		Object* Hand = FindFrame("Sword_parentR"); // 무기를 붙여줄 팔 찾기
+		if (Hand) {
+			Hand->SetChild(pWeapon->m_pRoot, true);
+			
+		}
+	}
+	if (nAnimationTracks > 0)
+		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pLoadedModel);
 }
