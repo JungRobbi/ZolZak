@@ -43,7 +43,7 @@ cbuffer cbDrawOptions : register(b5)
 };
 
 Texture2DArray gtxtTextureArray : register(t0);
-Texture2D gtxtInputTextures[4] : register(t1); //Position, Normal+ObjectID, Texture, Depth
+Texture2D RenderInfor[4] : register(t1); //Position, Normal+ObjectID, Texture, Depth
 SamplerState gssDefaultSamplerState : register(s0);
 
 #include "Light.hlsl"
@@ -152,23 +152,24 @@ VS_SCREEN_OUTPUT VSScreen(uint nVertexID : SV_VertexID)
 static float gfLaplacians[9] = { -1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f };
 static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, { 1,0 }, { -1,1 }, { 0,1 }, { 1,1 } };
 
-
 float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 {
-	float4 cColor = gtxtInputTextures[2].Sample(gssDefaultSamplerState, input.uv);
-	int Edge = false;
-	float fObjectID = gtxtInputTextures[1][int2(input.position.xy)].a;
+	float4 cColor = RenderInfor[2][int2(input.position.xy)]; // 240 ~ 290 FPS
+	//float4 cColor = RenderInfor[2].Sample(gssDefaultSamplerState, input.uv); // 210 ~ 240 FPS
+	//float4 cColor = RenderInfor[2].Load(uint3((uint)input.position.x, (uint)input.position.y, 0)); // 280 ~ 320 FPS
 
+	int Edge = false;
+	float fObjectID = RenderInfor[1][int2(input.position.xy)].a;
 	for (int i = 0; i < LineSize; i++)
 	{
-		if(gtxtInputTextures[1][int2(input.position.xy) + gnOffsets[i]].a != 0 && fObjectID!=0)
-		if (fObjectID != gtxtInputTextures[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
+		if (RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a != 0 && fObjectID != 0)
+			if (fObjectID != RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
 	}
 
 	if (Edge)
 		return(float4(LineColor));
 	else
-		return(float4(cColor));
+		return(cColor);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -178,27 +179,32 @@ struct VS_DEBUG_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float2 uv : TEXCOORD0;
+	uint num : NUMBER;
 };
 
 VS_DEBUG_OUTPUT VSDebug(uint nVertexID : SV_VertexID)
 {
-	VS_SCREEN_OUTPUT output = (VS_SCREEN_OUTPUT)0;
+	VS_DEBUG_OUTPUT output = (VS_DEBUG_OUTPUT)0;
+	int s = nVertexID / 6;
 
-	if (nVertexID == 0) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
-	else if (nVertexID == 1) { output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
-	else if (nVertexID == 2) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
-
-	else if (nVertexID == 3) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
-	else if (nVertexID == 4) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
-	else if (nVertexID == 5) { output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
+	if (nVertexID % 6 == 0) { output.position = float4((0.5 * s) - 1.0f, -0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
+	else if (nVertexID % 6 == 1) { output.position = float4((0.5 * (s + 1)) - 1.0f, -0.5f, 0.0f, 1.0f);	output.uv = float2(1.0f, 0.0f); output.num = s; }
+	else if (nVertexID % 6 == 2) { output.position = float4((0.5 * (s + 1)) - 1.0f, -1.0f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
+	else if (nVertexID % 6 == 3) { output.position = float4((0.5 * s) - 1.0f, -0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
+	else if (nVertexID % 6 == 4) { output.position = float4((0.5 * (s + 1)) - 1.0f, -1.0f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
+	else if (nVertexID % 6 == 5) { output.position = float4((0.5 * s) - 1.0f, -1.0f, 0.0f, 1.0f);		output.uv = float2(0.0f, 1.0f); output.num = s; }
 
 	return(output);
 }
 
 float4 PSDebug(VS_DEBUG_OUTPUT input) : SV_Target
 {
-	float4 cColor = gtxtInputTextures[2].Sample(gssDefaultSamplerState, input.uv);
+
+	float4 cColor;
+	if (input.num != 3) cColor = RenderInfor[input.num].Sample(gssDefaultSamplerState, input.uv);
+	else cColor = RenderInfor[3].Sample(gssDefaultSamplerState, input.uv).r;
 	return(cColor);
+
 }
 
 
@@ -254,8 +260,12 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 	return(output);
 }
 
-float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
+	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+	output.Scene = float4(0, 1, 0, 1);
+	output.Position = float4(input.positionW, 1.0f);
+
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
 	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -266,9 +276,10 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
 	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
+	output.Texture = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
 
 	float3 normalW;
-	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
+	
 	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
 	{
 		float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
@@ -279,9 +290,9 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	{
 		normalW = normalize(input.normalW);
 	}
-	float4 cIllumination = Lighting(input.positionW, normalW);
-	//return(cColor);
-	return(lerp(cColor, cIllumination, 0.1f));
+	output.Normal = float4(normalW.xyz, 1 / ((float)objectID + 2));
+
+	return(output);
 }
 
 #define MAX_VERTEX_INFLUENCES			4

@@ -48,6 +48,7 @@ public:
 	Camera* m_pCamera = NULL;
 	Player* m_pPlayer = NULL;
 	ScreenShader* m_pScreen = NULL;
+	DebugShader* m_pDebug = NULL;
 	Object* m_pSelectedObject = NULL;
 	POINT m_ptOldCursorPos;
 

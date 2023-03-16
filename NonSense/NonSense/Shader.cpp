@@ -458,6 +458,7 @@ void ObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	}
 
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ScreenShader::ScreenShader()
 {
@@ -531,9 +532,8 @@ void ScreenShader::ReleaseShaderVariables()
 
 void ScreenShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	m_pMappedScreenOptions->DrawOptions = 1;
-	m_pMappedScreenOptions->LineColor = XMFLOAT4(0.0f,1.0f,0.0f,1.0f);
-	m_pMappedScreenOptions->LineSize = 1;
+	m_pMappedScreenOptions->LineColor = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	m_pMappedScreenOptions->LineSize = 9;
 	m_pMappedScreenOptions->ToonShading = 5;
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pScreenOptions->GetGPUVirtualAddress();
@@ -544,7 +544,7 @@ void ScreenShader::CreateResourcesAndViews(ID3D12Device* pd3dDevice, UINT nResou
 {
 	m_pTexture = new CTexture(nResources, RESOURCE_TEXTURE2D, 0, 1);
 
-	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM, { ClearColor[0], ClearColor[1], ClearColor[2], ClearColor[3]}};
+	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM, {ClearColor[0],ClearColor[1],ClearColor[2],ClearColor[3]} };
 	for (UINT i = 0; i < nResources; i++)
 	{
 		d3dClearValue.Format = pdxgiFormats[i];
@@ -607,15 +607,56 @@ void ScreenShader::OnPostRenderTarget(ID3D12GraphicsCommandList* pd3dCommandList
 
 void ScreenShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-
+	pd3dCommandList->SetDescriptorHeaps(1, &m_CBVSRVDescriptorHeap);
 	Shader::Render(pd3dCommandList, pCamera);
-
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+DebugShader::DebugShader()
+{
+}
+
+DebugShader::~DebugShader()
+{
+	ReleaseShaderVariables();
+}
+
+D3D12_SHADER_BYTECODE DebugShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSDebug", "vs_5_1", ppd3dShaderBlob));
+}
+D3D12_SHADER_BYTECODE DebugShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSDebug", "ps_5_1", ppd3dShaderBlob));
+}
+
+void DebugShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+}
+
+void DebugShader::ReleaseShaderVariables()
+{
+}
+
+void DebugShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+}
+
+void DebugShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	pd3dCommandList->SetDescriptorHeaps(1, &m_CBVSRVDescriptorHeap);
+	Shader::Render(pd3dCommandList, pCamera);
+	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
+
+	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pd3dCommandList->DrawInstanced(24, 1, 0, 0);
+}
 
 StandardShader::StandardShader()
 {
