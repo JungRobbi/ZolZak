@@ -69,6 +69,7 @@ using Microsoft::WRL::ComPtr;
 
 extern UINT	CBVSRVDescriptorSize;
 extern UINT RTVDescriptorSize;
+extern bool DebugMode;
 
 extern UINT	gnRtvDescriptorIncrementSize;
 extern UINT gnDsvDescriptorIncrementSize;

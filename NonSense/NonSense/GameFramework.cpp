@@ -277,6 +277,9 @@ void GameFramework::BuildObjects()
 {
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
+	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
+
 	auto m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
 
@@ -284,18 +287,17 @@ void GameFramework::BuildObjects()
 	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
+	m_pDebug = new DebugShader();
 	m_pScreen = new ScreenShader();
-    m_pScreen->CreateShader(m_pDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pScreen->CreateShader(m_pDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pDebug->CreateShader(m_pDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
-
-	DXGI_FORMAT pdxgiResourceFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
-	m_pScreen->CreateResourcesAndViews(m_pDevice, MRT, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT + 1); //SRV to (Render Targets) + (Depth Buffer)
-
+	DXGI_FORMAT pdxgiResourceFormats[MRT - 1] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
+	m_pDebug->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT);
+	m_pScreen->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT); //SRV to (Render Targets) + (Depth Buffer)
 	DXGI_FORMAT pdxgiDepthSrvFormats[1] = { DXGI_FORMAT_R24_UNORM_X8_TYPELESS };
 	m_pScreen->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
-
+	m_pDebug->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
 	m_pCommandList->Close();
 
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
@@ -349,6 +351,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 		case VK_RETURN:
 			break;
 		case VK_F8:
+			(DebugMode) ? (DebugMode = 0) : (DebugMode = 1);
 			break;
 		case VK_F9:
 			ChangeSwapChainState();
@@ -507,7 +510,8 @@ void GameFramework::FrameAdvance()
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
 
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
-	//m_pScreen->Render(m_pCommandList, m_pCamera);
+	m_pScreen->Render(m_pCommandList, m_pCamera);
+	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

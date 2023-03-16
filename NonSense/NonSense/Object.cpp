@@ -75,8 +75,8 @@ void CTexture::SetSampler(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSamplerGpuD
 
 void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	//pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[0], m_pd3dSrvGpuDescriptorHandles[0]);
-	if (m_nTextureType == RESOURCE_TEXTURE2D_ARRAY)
+	pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[0], m_pd3dSrvGpuDescriptorHandles[0]);
+	/*if (m_nTextureType == RESOURCE_TEXTURE2D_ARRAY)
 	{
 		pd3dCommandList->SetGraphicsRootDescriptorTable(m_pRootArgumentInfos[0].m_nRootParameterIndex, m_pRootArgumentInfos[0].m_d3dSrvGpuDescriptorHandle);
 	}
@@ -86,7 +86,7 @@ void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 		{
 			pd3dCommandList->SetGraphicsRootDescriptorTable(m_pRootArgumentInfos[i].m_nRootParameterIndex, m_pRootArgumentInfos[i].m_d3dSrvGpuDescriptorHandle);
 		}
-	}
+	}*/
 	//if (m_nTextureType == RESOURCE_TEXTURE2D_ARRAY)
 	//{
 	//	pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[0], m_pd3dSrvGpuDescriptorHandles[0]);
@@ -208,11 +208,13 @@ Shader* Material::m_pSkinnedAnimationShader = NULL;
 Shader* Material::m_pStandardShader = NULL;
 void Material::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
+	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
+
 	m_pStandardShader = new StandardShader();
-	m_pStandardShader->CreateShader(pd3dDevice,  pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pStandardShader->CreateShader(pd3dDevice,  pd3dGraphicsRootSignature, MRT, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 	m_pSkinnedAnimationShader = new SkinnedModelShader();
-	m_pSkinnedAnimationShader->CreateShader(pd3dDevice,  pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pSkinnedAnimationShader->CreateShader(pd3dDevice,  pd3dGraphicsRootSignature, MRT, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
 }
 
 void Material::SetShader(Shader* pShader)
