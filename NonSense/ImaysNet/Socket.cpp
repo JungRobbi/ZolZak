@@ -5,11 +5,13 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #endif
+
+#include <algorithm>
+
 #include "Socket.h"
 #include "Endpoint.h"
 #include "SocketInit.h"
 #include "Exception.h"
-
 
 
 using namespace std;
@@ -40,7 +42,7 @@ Socket::Socket(SocketType socketType)
 	}
 
 #ifdef _WIN32
-	ZeroMemory(&m_readOverlappedStruct, sizeof(m_readOverlappedStruct));
+	ZeroMemory(&m_recvOverlapped, sizeof(m_recvOverlapped));
 #endif
 }
 
@@ -51,7 +53,7 @@ Socket::Socket(SOCKET fd)
 	m_fd = fd;
 
 #ifdef _WIN32
-	ZeroMemory(&m_readOverlappedStruct, sizeof(m_readOverlappedStruct));
+	ZeroMemory(&m_recvOverlapped, sizeof(m_recvOverlapped));
 #endif
 }
 
@@ -65,7 +67,7 @@ Socket::Socket()
 	m_fd = -1;
 
 #ifdef _WIN32
-	ZeroMemory(&m_readOverlappedStruct, sizeof(m_readOverlappedStruct));
+	ZeroMemory(&m_recvOverlapped, sizeof(m_recvOverlapped));
 #endif
 }
 
@@ -172,7 +174,7 @@ bool Socket::AcceptOverlapped(Socket& acceptCandidateSocket, string& errorText)
 		50,
 		50,
 		&ignored2,
-		&m_readOverlappedStruct
+		(WSAOVERLAPPED*)&m_recvOverlapped
 	) == TRUE;
 	
 	return ret;
@@ -229,7 +231,7 @@ Endpoint Socket::GetPeerAddr()
 // 리턴값: recv 리턴값 그대로입니다.
 int Socket::Receive()
 {
-	return (int)recv(m_fd, m_receiveBuffer, MaxReceiveLength, 0);
+	return (int)recv(m_fd, m_recvOverlapped.m_dataBuffer, MAX_SOCKBUF, 0);
 }
 
 #ifdef _WIN32
@@ -239,14 +241,43 @@ int Socket::Receive()
 // 리턴값: WSARecv의 리턴값 그대로입니다.
 int Socket::ReceiveOverlapped()
 {
-	WSABUF b;
-	b.buf = m_receiveBuffer;
-	b.len = MaxReceiveLength;
-
+	m_recvOverlapped.m_wsaBuf.buf = m_recvOverlapped.m_dataBuffer;
+	m_recvOverlapped.m_wsaBuf.len = MAX_SOCKBUF;
+	m_recvOverlapped.m_ioType = IO_TYPE::IO_RECV;
 	// overlapped I/O가 진행되는 동안 여기 값이 채워집니다.
 	m_readFlags = 0;
 
-	return WSARecv(m_fd, &b, 1, NULL, &m_readFlags, &m_readOverlappedStruct, NULL);
+	return WSARecv(m_fd, &m_recvOverlapped.m_wsaBuf, 1, NULL, &m_readFlags, (WSAOVERLAPPED*)&m_recvOverlapped, NULL);
+}
+
+int Socket::SendOverlapped(const char* data, int length)
+{
+	auto p = find_if(m_sendOverlapped_list.begin(), m_sendOverlapped_list.end(), [](shared_ptr<OVERLAPPEDEX>& lhs) {
+		return lhs->m_isReadOverlapped == false;
+		});
+
+	if (p != m_sendOverlapped_list.end()) {
+		ZeroMemory((*p)->m_dataBuffer, sizeof((*p)->m_dataBuffer));
+		memcpy((*p)->m_dataBuffer, data, length);
+		(*p)->m_wsaBuf.buf = (*p)->m_dataBuffer;
+		(*p)->m_wsaBuf.len = length;
+		(*p)->m_ioType = IO_TYPE::IO_SEND;
+		(*p)->m_isReadOverlapped = true;
+		return WSASend(m_fd, &(*p)->m_wsaBuf, 1, NULL, 0, (LPWSAOVERLAPPED)(*p).get(), NULL);
+	}
+
+
+	// 객체 새로 추가
+	std::shared_ptr<OVERLAPPEDEX> overLappedEx = make_shared<OVERLAPPEDEX>();
+	ZeroMemory(overLappedEx->m_dataBuffer, sizeof(overLappedEx->m_dataBuffer));
+	memcpy(overLappedEx->m_dataBuffer, data, length);
+	overLappedEx->m_wsaBuf.buf = overLappedEx->m_dataBuffer;
+	overLappedEx->m_wsaBuf.len = length;
+	overLappedEx->m_ioType = IO_TYPE::IO_SEND;
+	overLappedEx->m_isReadOverlapped = true;
+	m_sendOverlapped_list.push_back(overLappedEx);
+
+	return WSASend(m_fd, &overLappedEx->m_wsaBuf, 1, NULL, 0, (LPWSAOVERLAPPED)overLappedEx.get(), NULL);
 }
 
 #endif
