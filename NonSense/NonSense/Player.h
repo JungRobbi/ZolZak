@@ -30,6 +30,8 @@ protected:
 	LPVOID m_pCameraUpdatedContext;
 	Camera* m_pCamera = NULL;
 
+	XMFLOAT3 m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+
 public:
 	Player();
 	virtual ~Player();
@@ -60,7 +62,7 @@ public:
 
 	void Rotate(float x, float y, float z);
 
-	void Update(float fTimeElapsed);
+	virtual void Update(float fTimeElapsed);
 
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed) { }
 	void SetPlayerUpdatedContext(LPVOID pContext) { m_pPlayerUpdatedContext = pContext; }
@@ -83,4 +85,15 @@ public:
 	virtual ~CubePlayer();
 	virtual Camera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void OnPrepareRender();
+};
+
+class MagePlayer : public Player
+{
+public:
+	MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~MagePlayer() {}
+
+	virtual Camera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
+	virtual void Update(float fTimeElapsed);
+
 };

@@ -283,7 +283,7 @@ void GameFramework::BuildObjects()
 	auto m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
 
-	m_pPlayer = new CubePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
 	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
@@ -506,7 +506,7 @@ void GameFramework::FrameAdvance()
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
 	GameScene::MainScene->update();
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
-	//if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
+	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
 
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
