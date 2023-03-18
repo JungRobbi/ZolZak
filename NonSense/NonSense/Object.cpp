@@ -565,6 +565,13 @@ void Object::SetShader(Shader* pShader)
 	if (m_pMaterial) m_pMaterial->SetShader(pShader);
 }
 
+void Object::SetNum(int num)
+{
+	Num = num;
+	if (m_pSibling) m_pSibling->SetNum(num);
+	if (m_pChild) m_pChild->SetNum(num);
+}
+
 void Object::SetMaterial(Material* pMaterial)
 {
 	if (m_pMaterial) m_pMaterial->Release();

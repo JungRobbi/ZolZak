@@ -347,7 +347,7 @@ public:
 	bool IsVisible(Camera* pCamera = NULL);
 	virtual void SetMesh(Mesh* pMesh);
 	virtual void SetShader(Shader* pShader);
-	virtual void SetNum(int num) { Num = num; }
+	virtual void SetNum(int num); 
 	virtual void Animate(float fTimeElapsed);
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
