@@ -289,6 +289,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	{
 		normalW = normalize(input.normalW);
 	}
+
 	//output.Normal = float4(normalW.xyz, 1 / ((float)objectID + 2));
 	if(objectID==0) output.Normal = float4(1,0,0,1);
 	if(objectID==1) output.Normal = float4(0,1,0,1);

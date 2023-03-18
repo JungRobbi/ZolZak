@@ -59,6 +59,7 @@ public:
 public:
 	GameScene();
 	virtual ~GameScene();
+	std::list<Object*> GetObjects() { return gameObjects; }
 	//씬의 모든 조명과 재질을 생성
 	void BuildLightsAndMaterials();
 	//씬의 모든 조명과 재질을 위한 리소스를 생성하고 갱신
