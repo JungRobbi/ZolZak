@@ -1082,7 +1082,7 @@ void Object::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&GetWorld())));
 	CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects);
 	::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
-	pbMappedcbGameObject->m_nObjectID = 20;
+	pbMappedcbGameObject->m_nObjectID = Num;
 
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_OBJECT, d3dcbGameObjectGpuVirtualAddress);
 
@@ -1132,7 +1132,7 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 					m_pMaterial->m_pShader->UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
 				}
 			
-				//UpdateShaderVariables(pd3dCommandList);
+				UpdateShaderVariables(pd3dCommandList);
 				m_pMesh->Render(pd3dCommandList);
 			}
 			else if (m_nMaterials > 0)

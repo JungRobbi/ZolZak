@@ -72,6 +72,7 @@ inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
 extern UINT	CBVSRVDescriptorSize;
 extern UINT RTVDescriptorSize;
 extern bool DebugMode;
+extern UINT OBJNum;
 
 extern UINT	gnRtvDescriptorIncrementSize;
 extern UINT gnDsvDescriptorIncrementSize;

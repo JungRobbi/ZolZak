@@ -250,7 +250,6 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 	VS_STANDARD_OUTPUT output;
 	matrix m = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
 	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
-	//output.positionW = input.position;
 	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
 	output.tangentW = mul(input.tangent, (float3x3)gmtxGameObject);
 	output.bitangentW = mul(input.bitangent, (float3x3)gmtxGameObject);
@@ -290,7 +289,13 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	{
 		normalW = normalize(input.normalW);
 	}
-	output.Normal = float4(normalW.xyz, 1 / ((float)objectID + 2));
+	//output.Normal = float4(normalW.xyz, 1 / ((float)objectID + 2));
+	if(objectID==0) output.Normal = float4(1,0,0,1);
+	if(objectID==1) output.Normal = float4(0,1,0,1);
+	if(objectID==2) output.Normal = float4(0,0,1,1);
+	if(objectID==3) output.Normal = float4(1,0,1,1);
+	if(objectID==4) output.Normal = float4(0,1,1,1);
+	if(objectID==4) output.Normal = float4(1,1,1,1);
 
 	return(output);
 }
