@@ -142,6 +142,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	m_GameObjects[4] = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
 	m_GameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
+	m_GameObjects[4]->SetNum(4);
 	m_GameObjects[4]->SetPosition(-3.0f, 0.0f, 0.0f);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
