@@ -1,6 +1,6 @@
 #include "Object.h"
 #include "Shader.h"
-#include "GameScene.h"
+#include "SceneMGR.h"
 #include "stdafx.h"
 
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters)
@@ -527,14 +527,14 @@ Object::Object()
 {
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_xmf4x4ToParent, XMMatrixIdentity());
-	GameScene::MainScene->creationQueue.push(this);
+	SceneMGR::MainScene->creationQueue.push(this);
 }
 Object::Object(bool Push_List)
 {
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_xmf4x4ToParent, XMMatrixIdentity());
 	if (Push_List) {
-		GameScene::MainScene->creationQueue.push(this);
+		SceneMGR::MainScene->creationQueue.push(this);
 	}
 }
 Object::~Object()

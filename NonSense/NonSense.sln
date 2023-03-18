@@ -11,6 +11,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImaysNet", "ImaysNet\ImaysNet.vcxproj", "{5D85CC51-6249-481A-A5DF-85A83CD975DE}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NonSense_Server", "NonSense_Server\NonSense_Server.vcxproj", "{1C52AAA2-06FD-4CC7-9E80-4B933C4CC2B0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5D85CC51-6249-481A-A5DF-85A83CD975DE} = {5D85CC51-6249-481A-A5DF-85A83CD975DE}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

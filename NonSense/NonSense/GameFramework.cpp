@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "GameFramework.h"
+#include "NetworkMGR.h"
+#include "SceneMGR.h"
 
 GameFramework::GameFramework()
 {
@@ -33,6 +35,9 @@ bool GameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
+
+	NetworkMGR::start();
+	SceneMGR::start();
 
 	CreateDirect3DDevice();				// Device 생성
 	CreateCommandQueueAndList();		// Command 큐, 리스트 생성
@@ -281,6 +286,7 @@ void GameFramework::BuildObjects()
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
 	auto m_pScene = new GameScene();
+	SceneMGR::setScene(m_pScene);
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
@@ -311,7 +317,7 @@ void GameFramework::BuildObjects()
 
 void GameFramework::ReleaseObjects()
 {
-	GameScene::MainScene->ReleaseObjects();
+	SceneMGR::MainScene->ReleaseObjects();
 }
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	LPARAM lParam)
@@ -321,7 +327,7 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 		//마우스가 눌려지면 마우스 픽킹을 하여 선택한 게임 객체를 찾는다.
-		m_pSelectedObject = GameScene::MainScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pCamera);
+		m_pSelectedObject = SceneMGR::MainScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pCamera);
 		//마우스 캡쳐를 하고 현재 마우스 위치를 가져온다.
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
@@ -461,7 +467,7 @@ void GameFramework::ProcessInput()
 
 void GameFramework::AnimateObjects()
 {
-	GameScene::MainScene->AnimateObjects(Timer::GetTimeElapsed());
+	SceneMGR::MainScene->AnimateObjects(Timer::GetTimeElapsed());
 }
 
 void GameFramework::WaitForGpuComplete()
@@ -491,21 +497,23 @@ void GameFramework::FrameAdvance()
 {
 	Timer::Tick(0.0f);
 
+	NetworkMGR::Tick();
+	SceneMGR::Tick();
+
 	ProcessInput();
-	GameScene::MainScene->AnimateObjects(Timer::GetTimeElapsed());
+	SceneMGR::MainScene->AnimateObjects(Timer::GetTimeElapsed());
 
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-	GameScene::MainScene->OnPrepareRender(m_pCommandList, m_pCamera);
+	SceneMGR::MainScene->OnPrepareRender(m_pCommandList, m_pCamera);
 
 	m_pCommandList->ClearDepthStencilView(m_DSVDescriptorCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 	
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
-	GameScene::MainScene->update();
-	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
+	SceneMGR::MainScene->Render(m_pCommandList, m_pCamera);
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
 

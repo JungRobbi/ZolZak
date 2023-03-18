@@ -40,6 +40,9 @@
     <Filter Include="소스 파일\Framework">
       <UniqueIdentifier>{f393ba7c-4471-4e70-9191-53066386f2dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\MGR">
+      <UniqueIdentifier>{d2573055-adfb-4116-a356-badd8b071e9f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -111,6 +114,12 @@
     <ClInclude Include="WICTextureLoader12.h">
       <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
     </ClInclude>
+    <ClInclude Include="NetworkMGR.h">
+      <Filter>소스 파일\MGR</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneMGR.h">
+      <Filter>소스 파일\MGR</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -172,6 +181,12 @@
     </ClCompile>
     <ClCompile Include="WICTextureLoader12.cpp">
       <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkMGR.cpp">
+      <Filter>소스 파일\MGR</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneMGR.cpp">
+      <Filter>소스 파일\MGR</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

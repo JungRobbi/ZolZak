@@ -14,11 +14,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE	GameScene::m_d3dCbvGPUDescriptorNextHandle;
 D3D12_CPU_DESCRIPTOR_HANDLE	GameScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	GameScene::m_d3dSrvGPUDescriptorNextHandle;
 
-GameScene* GameScene::MainScene;
-
 GameScene::GameScene()
 {
-	MainScene = this;
 }
 
 GameScene::~GameScene()

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Shader.h"
-#include "GameScene.h"
+#include "SceneMGR.h"
 #include "RotateComponent.h"
 
 Shader::Shader()
@@ -336,7 +336,7 @@ void ObjectsShader::ReleaseObjects()
 
 void ObjectsShader::AnimateObjects(float fTimeElapsed)
 {
-	for (auto gameobject : GameScene::MainScene->gameObjects)
+	for (auto gameobject : SceneMGR::MainScene->gameObjects)
 	{
 		gameobject->Animate(fTimeElapsed);
 	}
@@ -344,7 +344,7 @@ void ObjectsShader::AnimateObjects(float fTimeElapsed)
 
 void ObjectsShader::ReleaseUploadBuffers()
 {
-	for (auto gameobject : GameScene::MainScene->gameObjects)
+	for (auto gameobject : SceneMGR::MainScene->gameObjects)
 	{
 		gameobject->ReleaseUploadBuffers();
 	}
@@ -358,7 +358,7 @@ void ObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* p
 	Shader::Render(pd3dCommandList, pCamera);
 	
 	int k = 0;
-	for (auto gameobject : GameScene::MainScene->gameObjects)
+	for (auto gameobject : SceneMGR::MainScene->gameObjects)
 	{
 		pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_OBJECT, d3dcbGameObjectGpuVirtualAddress + (ncbGameObjectBytes * k++));
 		gameobject->Render(pd3dCommandList, pCamera);
@@ -372,7 +372,7 @@ Object* ObjectsShader::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, X
 	float fHitDistance = FLT_MAX;
 	Object* pSelectedObject = NULL;
 
-	for (auto gameobject : GameScene::MainScene->gameObjects)
+	for (auto gameobject : SceneMGR::MainScene->gameObjects)
 	{
 		nIntersected = gameobject->PickObjectByRayIntersection(xmf3PickPosition, xmf4x4View, &fHitDistance);
 		if ((nIntersected > 0) && (fHitDistance < *pfNearHitDistance))
@@ -398,7 +398,7 @@ void ObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommand
 	XMFLOAT4X4 xmf4x4World;
 	
 	int k = 0;
-	for (auto gameobject : GameScene::MainScene->gameObjects)
+	for (auto gameobject : SceneMGR::MainScene->gameObjects)
 	{
 		XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&gameobject->GetWorld())));
 		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects + (k * ncbGameObjectBytes));

@@ -41,10 +41,6 @@ class GameScene
 	std::deque<Object*> deletionQueue;
 
 	std::list<Object*> gameObjects;
-
-public:
-	static GameScene* MainScene;
-
 protected:
 	Object* CreateEmpty();
 
