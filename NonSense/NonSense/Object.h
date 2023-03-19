@@ -326,6 +326,8 @@ public:
 	void MoveForward(float fDistance = 1.0f);
 	void SetScale(float x, float y, float z);
 	void UpdateTransform(XMFLOAT4X4* pxmf4x4Parent);
+	void ChangeShader(Shader* pShader);
+
 
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
 	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
@@ -416,5 +418,13 @@ class TestModelObject : public Object
 public:
 	TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks);
 	virtual ~TestModelObject() {};
+
+};
+
+class TestModelBlendObject : public Object
+{
+public:
+	TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader);
+	virtual ~TestModelBlendObject() {};
 
 };

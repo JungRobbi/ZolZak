@@ -395,6 +395,7 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 void MagePlayer::Update(float fTimeElapsed)
 {
+
 	Player::Update(fTimeElapsed);
 	if (m_pSkinnedAnimationController)
 	{

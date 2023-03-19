@@ -264,7 +264,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
 	output.Scene = float4(0, 1, 0, 1);
 	output.Position = float4(input.positionW, 1.0f);
-
+	
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
 	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -276,7 +276,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
 	output.Texture = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
-
+	
 	float3 normalW;
 	
 	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
@@ -289,7 +289,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	{
 		normalW = normalize(input.normalW);
 	}
-
+	
 	//output.Normal = float4(normalW.xyz, 1 / ((float)objectID + 2));
 	if(objectID==0) output.Normal = float4(1,0,0,1);
 	if(objectID==1) output.Normal = float4(0,1,0,1);
@@ -300,6 +300,14 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 
 	return(output);
 }
+
+float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtAlbedoTexture.Sample(gssDefaultSamplerState, input.uv);
+
+	return(cColor);
+}
+
 
 #define MAX_VERTEX_INFLUENCES			4
 #define SKINNED_ANIMATION_BONES			256

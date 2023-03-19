@@ -75,6 +75,7 @@ public:
 	void AnimateObjects(float fTimeElapsed);
 	void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	void RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void ReleaseUploadBuffers();
 	//그래픽 루트 시그너쳐를 생성한다.
 	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
@@ -105,6 +106,9 @@ protected:
 
 	int m_nObjects = 0;
 	Object** m_GameObjects = NULL;
+	int m_nBlendObjects = 0;
+	Object** m_ppBlendObjects = NULL;
+	Shader* m_pBlendShader = NULL;
 
 	static ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap;
 

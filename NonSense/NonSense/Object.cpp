@@ -564,7 +564,19 @@ void Object::SetShader(Shader* pShader)
 	}
 	if (m_pMaterial) m_pMaterial->SetShader(pShader);
 }
-
+void Object::ChangeShader(Shader* pShader)
+{
+	if (m_nMaterials > 0)
+	{
+		for (int i = 0; i < m_nMaterials; ++i)
+		{
+			if (m_ppMaterials[i])
+				m_ppMaterials[i]->SetShader(pShader);
+		}
+	}
+	if (m_pSibling) m_pSibling->ChangeShader(pShader);
+	if (m_pChild) m_pChild->ChangeShader(pShader);
+}
 void Object::SetNum(int num)
 {
 	Num = num;
@@ -1214,3 +1226,14 @@ TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	if (nAnimationTracks > 0)
 		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pLoadedModel);
 }
+
+TestModelBlendObject::TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader) : Object(false)
+{
+	LoadedModelInfo* pLoadedModel = pModel;
+	if (pLoadedModel) {
+		SetChild(pLoadedModel->m_pRoot, true);
+		ChangeShader(pShader);
+	}
+}
+
+

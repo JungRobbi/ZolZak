@@ -684,6 +684,8 @@ D3D12_INPUT_LAYOUT_DESC StandardShader::CreateInputLayout()
 	return(d3dInputLayoutDesc);
 
 }
+
+
 void StandardShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
@@ -723,6 +725,8 @@ D3D12_SHADER_BYTECODE StandardShader::CreatePixelShader(ID3DBlob** ppd3dShaderBl
 	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSStandard", "ps_5_1", ppd3dShaderBlob));
 }
 
+
+
 D3D12_INPUT_LAYOUT_DESC SkinnedModelShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 7;
@@ -742,7 +746,11 @@ D3D12_INPUT_LAYOUT_DESC SkinnedModelShader::CreateInputLayout()
 
 	return(d3dInputLayoutDesc);
 }
+D3D12_BLEND_DESC SkinnedModelShader::CreateBlendState()
+{
+	return(Shader::CreateBlendState());
 
+}
 D3D12_SHADER_BYTECODE SkinnedModelShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
 	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSSkinnedAnimationStandard", "vs_5_1", ppd3dShaderBlob));
@@ -753,4 +761,28 @@ void SkinnedModelShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignat
 	Shader::CreateShader(pd3dDevice, pd3dGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
 }
 
+D3D12_SHADER_BYTECODE BlendShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSBlend", "ps_5_1", ppd3dShaderBlob));
+}
 
+
+D3D12_BLEND_DESC BlendShader::CreateBlendState()
+{
+	D3D12_BLEND_DESC d3dBlendDesc;
+	::ZeroMemory(&d3dBlendDesc, sizeof(D3D12_BLEND_DESC));
+	d3dBlendDesc.AlphaToCoverageEnable = TRUE;
+	d3dBlendDesc.IndependentBlendEnable = FALSE;
+	d3dBlendDesc.RenderTarget[0].BlendEnable = TRUE;
+	d3dBlendDesc.RenderTarget[0].LogicOpEnable = FALSE;
+	d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	d3dBlendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	d3dBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	d3dBlendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	d3dBlendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	d3dBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	return(d3dBlendDesc);
+}
