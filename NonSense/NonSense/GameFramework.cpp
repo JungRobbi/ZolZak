@@ -493,7 +493,6 @@ void GameFramework::FrameAdvance()
 
 	ProcessInput();
 	GameScene::MainScene->AnimateObjects(Timer::GetTimeElapsed());
-
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 

@@ -46,6 +46,8 @@ Texture2DArray gtxtTextureArray : register(t0);
 Texture2D RenderInfor[4] : register(t1); //Position, Normal+ObjectID, Texture, Depth
 SamplerState gssDefaultSamplerState : register(s0);
 
+// SkyBox
+TextureCube gtxtSkyCubeTexture : register(t13);
 #include "Light.hlsl"
 
 
@@ -355,4 +357,33 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 	output.uv = input.uv;
 
 	return(output);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+struct VS_SKYBOX_CUBEMAP_INPUT
+{
+	float3 position : POSITION;
+};
+
+struct VS_SKYBOX_CUBEMAP_OUTPUT
+{
+	float3	positionL : POSITION;
+	float4	position : SV_POSITION;
+};
+
+VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
+{
+	VS_SKYBOX_CUBEMAP_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.positionL = input.position;
+
+	return(output);
+}
+
+float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtSkyCubeTexture.Sample(gssDefaultSamplerState, input.positionL);
+
+	return(cColor);
 }

@@ -89,6 +89,7 @@ public:
 
 protected:
 	ObjectsShader* m_pShaders = NULL;
+	SkyBox* m_pSkyBox = NULL;
 	int m_nShaders = 0;
 	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
 

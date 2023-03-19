@@ -154,28 +154,6 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView);
 };
 
-class TriangleMesh : public Mesh
-{
-public:
-	TriangleMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual ~TriangleMesh() { }
-};
-
-class CubeMesh : public Mesh
-{
-public:
-	//직육면체의 가로, 세로, 깊이의 길이를 지정하여 직육면체 메쉬를 생성한다.
-	CubeMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
-	virtual ~CubeMesh();
-};
-
-class SphereMesh : public Mesh
-{
-public:
-	SphereMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius = 2.0f, int nSlices = 20, int nStacks = 20);
-	virtual ~SphereMesh();
-};
-
 class IlluminatedMesh : public Mesh
 {
 public:
@@ -195,6 +173,7 @@ public:
 	virtual ~CubeMeshIlluminated();
 };
 
+/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class LoadMesh : public IlluminatedMesh
 {
 public:
@@ -276,4 +255,12 @@ public:
 
 	void LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FILE* OpenedFile);
 
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class SkyBoxMesh : public Mesh
+{
+public:
+	SkyBoxMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 20.0f, float fHeight = 20.0f, float fDepth = 20.0f);
+	virtual ~SkyBoxMesh();
 };

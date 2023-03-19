@@ -1078,11 +1078,6 @@ LoadedModelInfo* Object::LoadAnimationModel(ID3D12Device* pd3dDevice, ID3D12Grap
 
 void Object::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	//XMFLOAT4X4 xmf4x4World;
-	//XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-	////객체의 월드 변환 행렬을 루트 상수(32-비트 값)를 통하여 셰이더 변수(상수 버퍼)로 복사한다.
-	//pd3dCommandList->SetGraphicsRoot32BitConstants(0, 16, &xmf4x4World, 0);
-
 	XMFLOAT4X4 xmf4x4World;
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbGameObjectGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
 
@@ -1138,8 +1133,7 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 					m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
 					m_pMaterial->m_pShader->UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
 				}
-			
-				UpdateShaderVariables(pd3dCommandList);
+		
 				m_pMesh->Render(pd3dCommandList);
 			}
 			else if (m_nMaterials > 0)
@@ -1213,4 +1207,61 @@ TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	}
 	if (nAnimationTracks > 0)
 		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pLoadedModel);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SkyBox::SkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(false)
+{
+	SkyBoxMesh* pSkyBoxMesh = new SkyBoxMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 20.0f);
+	SetMesh(pSkyBoxMesh);
+
+	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0, 1);
+	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"SkyBox/SkyBox_0.dds", RESOURCE_TEXTURE_CUBE, 0);
+
+	SkyBoxShader* pSkyBoxShader = new SkyBoxShader();
+	pSkyBoxShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature,1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	pSkyBoxShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	pSkyBoxShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 1);
+	pSkyBoxShader->CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 0, 17);
+
+	Material* pSkyBoxMaterial = new Material();
+	pSkyBoxMaterial->SetTexture(pSkyBoxTexture);
+	pSkyBoxMaterial->SetShader(pSkyBoxShader);
+
+	SetMaterial(pSkyBoxMaterial);
+}
+
+SkyBox::~SkyBox()
+{
+}
+
+void SkyBox::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
+{
+	XMFLOAT4X4 xmf4x4World;
+	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
+}
+
+void SkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	XMFLOAT3 xmf3CameraPos = pCamera->GetPosition();
+	SetPosition(xmf3CameraPos.x, xmf3CameraPos.y, xmf3CameraPos.z);
+
+	OnPrepareRender();
+
+	UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
+	if ((m_nMaterials == 1) && (m_ppMaterials[0]))
+	{
+		if (m_ppMaterials[0]->m_pShader) m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+		m_ppMaterials[0]->UpdateShaderVariables(pd3dCommandList);
+	}
+
+	if (m_pMesh)
+	{
+		m_pMesh->Render(pd3dCommandList, 0);
+	}
+
+	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
+	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
 }

@@ -145,6 +145,9 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_GameObjects[4]->SetNum(4);
 	m_GameObjects[4]->SetPosition(-3.0f, 0.0f, 0.0f);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void GameScene::ReleaseObjects()
@@ -158,11 +161,13 @@ void GameScene::ReleaseObjects()
 	if (m_pShaders) delete[] m_pShaders;
 	if (m_pLights) delete m_pLights;
 	if (m_pMaterials) delete m_pMaterials;
+	if (m_pSkyBox) delete m_pSkyBox;
 }
 
 void GameScene::ReleaseUploadBuffers()
 {
 	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].ReleaseUploadBuffers();
+	if (m_pSkyBox) m_pSkyBox->ReleaseUploadBuffers();
 }
 
 ID3D12RootSignature* GameScene::GetGraphicsRootSignature()
@@ -172,7 +177,7 @@ ID3D12RootSignature* GameScene::GetGraphicsRootSignature()
 
 ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[9];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[10];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -228,8 +233,14 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dDescriptorRanges[8].RegisterSpace = 0;
 	pd3dDescriptorRanges[8].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	pd3dDescriptorRanges[9].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[9].NumDescriptors = 1;
+	pd3dDescriptorRanges[9].BaseShaderRegister = 13; //t13: gtxtSkyBoxTexture
+	pd3dDescriptorRanges[9].RegisterSpace = 0;
+	pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
-	D3D12_ROOT_PARAMETER pd3dRootParameters[17];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[18];
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 0; //Player
 	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
@@ -315,6 +326,12 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[16].Descriptor.ShaderRegister = 8; //Skinned Bone Transforms
 	pd3dRootParameters[16].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+
+
+	pd3dRootParameters[17].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[17].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[17].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[9]);
+	pd3dRootParameters[17].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc;
@@ -501,7 +518,7 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 	//{
 	//	m_pShaders[i].Render(pd3dCommandList, pCamera);
 	//}
-   
+	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
 	for (int i = 0; i < m_nObjects; i++)
 	{
 		m_GameObjects[i]->UpdateTransform(NULL);
@@ -533,6 +550,7 @@ void GameScene::ReleaseShaderVariables()
 		m_pd3dcbMaterials->Unmap(0, NULL);
 		m_pd3dcbMaterials->Release();
 	}
+	if (m_pSkyBox) m_pSkyBox->ReleaseShaderVariables();
 }
 
 Object* GameScene::PickObjectPointedByCursor(int xClient, int yClient, Camera* pCamera)

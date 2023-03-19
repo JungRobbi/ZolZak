@@ -346,6 +346,7 @@ public:
 	void ReleaseUploadBuffers();
 	bool IsVisible(Camera* pCamera = NULL);
 	virtual void SetMesh(Mesh* pMesh);
+	virtual Mesh* GetMesh() { return m_pMesh; }
 	virtual void SetShader(Shader* pShader);
 	virtual void SetNum(int num); 
 	virtual void Animate(float fTimeElapsed);
@@ -417,4 +418,15 @@ public:
 	TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks);
 	virtual ~TestModelObject() {};
 
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class SkyBox : public Object
+{
+public:
+	SkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~SkyBox();
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World);
 };
