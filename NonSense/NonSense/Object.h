@@ -159,6 +159,13 @@ public:
 
 };
 
+class SkyBoxMaterial : public Material
+{
+public:
+	SkyBoxMaterial() {};
+	~SkyBoxMaterial() {};
+};
+
 class AnimationSet
 {
 public:
