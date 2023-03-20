@@ -511,6 +511,7 @@ void GameFramework::FrameAdvance()
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
 	m_pScreen->Render(m_pCommandList, m_pCamera);
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
+	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

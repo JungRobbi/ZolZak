@@ -82,6 +82,7 @@ public:
 	//씬의 모든 게임 객체들에 대한 마우스 픽킹을 수행한다.
 	Object* PickObjectPointedByCursor(int xClient, int yClient, Camera* pCamera);
 	Player* m_pPlayer = NULL;
+	SkyBox* m_pSkyBox = NULL;
 
 	void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
 	static D3D12_GPU_DESCRIPTOR_HANDLE CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nRootParameter, bool bAutoIncrement);
@@ -89,7 +90,6 @@ public:
 
 protected:
 	ObjectsShader* m_pShaders = NULL;
-	SkyBox* m_pSkyBox = NULL;
 	int m_nShaders = 0;
 	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
 
