@@ -1198,8 +1198,6 @@ SkyBox::SkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 
 	SkyBoxShader* pSkyBoxShader = new SkyBoxShader();
 	pSkyBoxShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature,1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	//pSkyBoxShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	//pSkyBoxShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 1);
 	GameScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 17, false);
 
 	Material* pSkyBoxMaterial = new Material();
