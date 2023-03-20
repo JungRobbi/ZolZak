@@ -1198,9 +1198,9 @@ SkyBox::SkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 
 	SkyBoxShader* pSkyBoxShader = new SkyBoxShader();
 	pSkyBoxShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature,1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	pSkyBoxShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	pSkyBoxShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 1);
-	pSkyBoxShader->CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 0, 17);
+	//pSkyBoxShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//pSkyBoxShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 1);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 17, false);
 
 	Material* pSkyBoxMaterial = new Material();
 	pSkyBoxMaterial->SetTexture(pSkyBoxTexture);
@@ -1223,7 +1223,7 @@ void SkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 	UpdateShaderVariables(pd3dCommandList);
 
 	if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
-	if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariables(pd3dCommandList);
+	if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList,0);
 
 	if (m_pMesh)
 	{

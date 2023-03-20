@@ -510,6 +510,7 @@ void GameFramework::FrameAdvance()
 
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
 	m_pScreen->Render(m_pCommandList, m_pCamera);
+	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
