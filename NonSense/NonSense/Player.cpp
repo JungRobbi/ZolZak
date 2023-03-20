@@ -332,6 +332,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 			}
 		}
 
+		SetNum(9);
 		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 1, pModel);
 		m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 

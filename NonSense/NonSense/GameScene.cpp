@@ -114,7 +114,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
 
 	m_GameObjects[0] = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 1);
-	m_GameObjects[0]->SetNum(0);
+	m_GameObjects[0]->SetNum(4);
 	m_GameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
 	m_GameObjects[0]->SetPosition(0.0f, 0.0f, 0.0f);
 
@@ -144,22 +144,20 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_GameObjects[4]->SetPosition(0.0f, 0.0f, 0.0f);
 	
 
-	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
-
 	m_pBlendShader = new BlendShader();
-	m_pBlendShader->CreateShader(pd3dDevice, m_pGraphicsRootSignature, MRT, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pBlendShader->CreateShader(pd3dDevice, m_pGraphicsRootSignature, MRT, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 	m_nBlendObjects = 2;
 	m_ppBlendObjects = new Object * [m_nBlendObjects];
 	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/TFF_Birch_Tree_Dry_02A.bin", NULL);
 
 	m_ppBlendObjects[0] = new TestModelBlendObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, m_pBlendShader);
-	m_ppBlendObjects[0]-> SetNum(4);
+	m_ppBlendObjects[0]-> SetNum(6);
 	m_ppBlendObjects[0]->SetPosition(0, 0, 0);
 
 	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Map_Blend_Objects.bin", NULL);
 
 	m_ppBlendObjects[1] = new TestModelBlendObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, m_pBlendShader);
-	m_ppBlendObjects[1]->SetNum(4);
+	m_ppBlendObjects[1]->SetNum(7);
 	m_ppBlendObjects[1]->SetPosition(0, 0, 2);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
