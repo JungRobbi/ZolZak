@@ -48,7 +48,7 @@ SamplerState gssDefaultSamplerState : register(s0);
 
 // SkyBox
 TextureCube gtxtSkyCubeTexture : register(t13);
-#include "Light.hlsl"
+#include "Light1.hlsl"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -277,8 +277,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
 	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
-	output.Texture = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
-
+	output.Texture = (cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor);
 	float3 normalW;
 	
 	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
@@ -292,7 +291,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 		normalW = normalize(input.normalW);
 	}
 
-	output.Normal = float4(normalW.xyz, 1 / ((float)objectID + 2));
+	//output.Normal = float4(normalW.xyz, 1 / ((float)objectID + 2));
+	output.Normal = Lighting(input.positionW, input.normalW);
 
 	return(output);
 }
@@ -326,19 +326,6 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 {
 	VS_STANDARD_OUTPUT output;
 
-	//output.positionW = float3(0.0f, 0.0f, 0.0f);
-	//output.normalW = float3(0.0f, 0.0f, 0.0f);
-	//output.tangentW = float3(0.0f, 0.0f, 0.0f);
-	//output.bitangentW = float3(0.0f, 0.0f, 0.0f);
-	//matrix mtxVertexToBoneWorld;
-	//for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
-	//{
-	//	mtxVertexToBoneWorld = mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
-	//	output.positionW += input.weights[i] * mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
-	//	output.normalW += input.weights[i] * mul(input.normal, (float3x3)mtxVertexToBoneWorld);
-	//	output.tangentW += input.weights[i] * mul(input.tangent, (float3x3)mtxVertexToBoneWorld);
-	//	output.bitangentW += input.weights[i] * mul(input.bitangent, (float3x3)mtxVertexToBoneWorld);
-	//}
 	float4x4 mtxVertexToBoneWorld = (float4x4)0.0f;
 	for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
 	{

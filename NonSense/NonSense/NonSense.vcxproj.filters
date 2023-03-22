@@ -190,5 +190,6 @@
   <ItemGroup>
     <FxCompile Include="Light.hlsl" />
     <FxCompile Include="Shaders.hlsl" />
+    <FxCompile Include="Light1.hlsl" />
   </ItemGroup>
 </Project>

@@ -71,7 +71,7 @@ void GameScene::BuildLightsAndMaterials()
 {
 	m_pLights = new LIGHTS;
 	::ZeroMemory(m_pLights, sizeof(LIGHTS));
-	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
+	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 
 	m_pLights->m_pLights[0].m_bEnable = false;
 	m_pLights->m_pLights[0].m_nType = SPOT_LIGHT;
@@ -85,17 +85,19 @@ void GameScene::BuildLightsAndMaterials()
 	m_pLights->m_pLights[0].m_fFalloff = 8.0f;
 	m_pLights->m_pLights[0].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
 	m_pLights->m_pLights[0].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
-	;
-	m_pMaterials = new MATERIALS;
-	::ZeroMemory(m_pMaterials, sizeof(MATERIALS));
-	m_pMaterials->m_pReflections[0] = { XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[1] = { XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 10.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[2] = { XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 15.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[3] = { XMFLOAT4(0.5f, 0.0f, 1.0f, 1.0f), XMFLOAT4(0.0f, 0.5f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[4] = { XMFLOAT4(0.0f, 0.5f, 1.0f, 1.0f), XMFLOAT4(0.5f, 0.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 25.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[5] = { XMFLOAT4(0.0f, 0.5f, 0.5f, 1.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 30.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[6] = { XMFLOAT4(0.5f, 0.5f, 1.0f, 1.0f), XMFLOAT4(0.5f, 0.5f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 35.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[7] = { XMFLOAT4(1.0f, 0.5f, 1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 40.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+
+	m_pLights->m_pLights[1].m_bEnable = false;
+	m_pLights->m_pLights[1].m_nType = DIRECTIONAL_LIGHT;
+	m_pLights->m_pLights[1].m_fRange = 50.0f;
+	m_pLights->m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
+	m_pLights->m_pLights[1].m_xmf4Diffuse = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
+	m_pLights->m_pLights[1].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
+	m_pLights->m_pLights[1].m_xmf3Position = XMFLOAT3(0.5f, 0.0f, .0f);
+	m_pLights->m_pLights[1].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	m_pLights->m_pLights[1].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
+	m_pLights->m_pLights[1].m_fFalloff = 8.0f;
+	m_pLights->m_pLights[1].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
+	m_pLights->m_pLights[1].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 }
 
 void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -511,7 +513,6 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 {
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
-	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
 	for (int i = 0; i < m_nObjects; i++)
 	{
 		m_GameObjects[i]->UpdateTransform(NULL);
@@ -537,11 +538,6 @@ void GameScene::ReleaseShaderVariables()
 	{
 		m_pd3dcbLights->Unmap(0, NULL);
 		m_pd3dcbLights->Release();
-	}
-	if (m_pd3dcbMaterials)
-	{
-		m_pd3dcbMaterials->Unmap(0, NULL);
-		m_pd3dcbMaterials->Release();
 	}
 	if (m_pSkyBox) m_pSkyBox->ReleaseShaderVariables();
 }
