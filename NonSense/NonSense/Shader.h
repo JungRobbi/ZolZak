@@ -23,6 +23,11 @@ struct CB_PLAYER_INFO
 	XMFLOAT4X4 m_xmf4x4World;
 };
 
+struct CB_UI_INFO
+{
+	XMFLOAT4 m_xywh;
+};
+
 
 class Shader
 {
@@ -226,6 +231,22 @@ class SkyBoxShader : public Shader
 public:
 	SkyBoxShader();
 	virtual ~SkyBoxShader();
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
+	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat);
+};
+
+/////////////////////////////////////////////////////////////////////////
+
+class UIShader : public Shader
+{
+public:
+	UIShader();
+	virtual ~UIShader();
 
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();

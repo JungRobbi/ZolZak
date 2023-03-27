@@ -27,6 +27,7 @@ class SkinnedMesh;
 #define MATERIAL_DETAIL_NORMAL_MAP		0x40
 
 struct CB_GAMEOBJECT_INFO;
+struct CB_UI_INFO;
 
 struct MATERIAL
 {
@@ -435,4 +436,23 @@ public:
 	virtual ~SkyBox();
 
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+};
+/////////////////////////////////////////////////
+
+class UI : public Object
+{
+public:
+	UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~UI();
+
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void ReleaseShaderVariables();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+	virtual void SetPos(float x, float y, float w, float h) { xywh = XMFLOAT4(x, y, w, h); }
+	XMFLOAT4 GetPos() { return xywh; }
+private:
+	ID3D12Resource* m_pd3dcbUI = NULL;
+	CB_UI_INFO* m_pcbMappedUI = NULL;
+	XMFLOAT4 xywh = { 0,0,0,0 };
 };

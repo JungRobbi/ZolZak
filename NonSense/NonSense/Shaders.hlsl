@@ -1,4 +1,16 @@
-////////////////////////////////////////////////////////////////////////////
+
+
+#define MATERIAL_ALBEDO_MAP			0x01
+#define MATERIAL_SPECULAR_MAP		0x02
+#define MATERIAL_NORMAL_MAP			0x04
+#define MATERIAL_METALLIC_MAP		0x08
+#define MATERIAL_EMISSION_MAP		0x10
+#define MATERIAL_DETAIL_ALBEDO_MAP	0x20
+#define MATERIAL_DETAIL_NORMAL_MAP	0x40
+
+#define MAX_VERTEX_INFLUENCES			4
+#define SKINNED_ANIMATION_BONES			256
+
 struct MATERIAL
 {
 	float4					m_cAmbient;
@@ -42,17 +54,41 @@ cbuffer cbDrawOptions : register(b5)
 	uint ToonShading : packoffset(c1.z);
 };
 
+cbuffer cbBoneOffsets : register(b7)
+{
+	float4x4 gpmtxBoneOffsets[SKINNED_ANIMATION_BONES];
+};
+
+cbuffer cbBoneTransforms : register(b8)
+{
+	float4x4 gpmtxBoneTransforms[SKINNED_ANIMATION_BONES];
+};
+
+cbuffer cbUIInfo : register(b9)
+{
+	float4 xywh : packoffset(c0);
+};
+
+
+
 Texture2DArray gtxtTextureArray : register(t0);
 Texture2D RenderInfor[4] : register(t1); //Position, Normal+ObjectID, Texture, Depth
-SamplerState gssDefaultSamplerState : register(s0);
 
+Texture2D gtxtAlbedoTexture : register(t6);
+Texture2D gtxtSpecularTexture : register(t7);
+Texture2D gtxtNormalTexture : register(t8);
+Texture2D gtxtMetallicTexture : register(t9);
+Texture2D gtxtEmissionTexture : register(t10);
+Texture2D gtxtDetailAlbedoTexture : register(t11);
+Texture2D gtxtDetailNormalTexture : register(t12);
 // SkyBox
 TextureCube gtxtSkyCubeTexture : register(t13);
-#include "Light1.hlsl"
+
+SamplerState gssWrap : register(s0);
 
 
 /////////////////////////////////////////////////////////////////////////////
-
+#include "Light1.hlsl"
 struct VS_LIGHTING_INPUT
 {
 	float3 position : POSITION;
@@ -96,7 +132,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSObject(VS_LIGHTING_OUTPUT input, uint nPrimi
 	output.Position = float4(input.positionW, 1.0f);
 	output.Normal = float4(input.normalW.xyz, 1/((float)objectID+2));
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
-	output.Texture = gtxtTextureArray.Sample(gssDefaultSamplerState, uvw);
+	output.Texture = gtxtTextureArray.Sample(gssWrap, uvw);
 
 	return(output);
 }
@@ -176,7 +212,6 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-
 struct VS_DEBUG_OUTPUT
 {
 	float4 position : SV_POSITION;
@@ -203,31 +238,11 @@ float4 PSDebug(VS_DEBUG_OUTPUT input) : SV_Target
 {
 
 	float4 cColor;
-	if (input.num != 3) cColor = RenderInfor[input.num].Sample(gssDefaultSamplerState, input.uv);
-	else cColor = RenderInfor[3].Sample(gssDefaultSamplerState, input.uv).r;
+	if (input.num != 3) cColor = RenderInfor[input.num].Sample(gssWrap, input.uv);
+	else cColor = RenderInfor[3].Sample(gssWrap, input.uv).r;
 	return(cColor);
 
 }
-
-
-#define MATERIAL_ALBEDO_MAP			0x01
-#define MATERIAL_SPECULAR_MAP		0x02
-#define MATERIAL_NORMAL_MAP			0x04
-#define MATERIAL_METALLIC_MAP		0x08
-#define MATERIAL_EMISSION_MAP		0x10
-#define MATERIAL_DETAIL_ALBEDO_MAP	0x20
-#define MATERIAL_DETAIL_NORMAL_MAP	0x40
-
-Texture2D gtxtAlbedoTexture : register(t6);
-Texture2D gtxtSpecularTexture : register(t7);
-Texture2D gtxtNormalTexture : register(t8);
-Texture2D gtxtMetallicTexture : register(t9);
-Texture2D gtxtEmissionTexture : register(t10);
-Texture2D gtxtDetailAlbedoTexture : register(t11);
-Texture2D gtxtDetailNormalTexture : register(t12);
-
-SamplerState gssWrap : register(s0);
-
 
 struct VS_STANDARD_INPUT
 {
@@ -292,24 +307,11 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	}
 
 	output.Normal = float4(normalW.xyz, 1 / ((float)objectID + 2));
-	//output.Normal = Lighting(input.positionW, input.normalW, gf3CameraPosition);
-
 	return(output);
 }
 
-#define MAX_VERTEX_INFLUENCES			4
-#define SKINNED_ANIMATION_BONES			256
 
 
-cbuffer cbBoneOffsets : register(b7)
-{
-	float4x4 gpmtxBoneOffsets[SKINNED_ANIMATION_BONES];
-};
-
-cbuffer cbBoneTransforms : register(b8)
-{
-	float4x4 gpmtxBoneTransforms[SKINNED_ANIMATION_BONES];
-};
 
 struct VS_SKINNED_STANDARD_INPUT
 {
@@ -370,7 +372,54 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 
 float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 {
-	float4 cColor = gtxtSkyCubeTexture.Sample(gssDefaultSamplerState, input.positionL);
+	float4 cColor = gtxtSkyCubeTexture.Sample(gssWrap, input.positionL);
 
 	return(cColor);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//struct VS_SCREEN_OUTPUT
+//{
+//	float4 position : SV_POSITION;
+//	float2 uv : TEXCOORD0;
+//};
+//
+//VS_SCREEN_OUTPUT VSScreen(uint nVertexID : SV_VertexID)
+//{
+//	VS_SCREEN_OUTPUT output = (VS_SCREEN_OUTPUT)0;
+//
+//	if (nVertexID == 0) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+//	else if (nVertexID == 1) { output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
+//	else if (nVertexID == 2) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+//
+//	else if (nVertexID == 3) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+//	else if (nVertexID == 4) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+//	else if (nVertexID == 5) { output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
+//
+//	return(output);
+//}
+//
+//static float gfLaplacians[9] = { -1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f };
+//static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, { 1,0 }, { -1,1 }, { 0,1 }, { 1,1 } };
+//
+//float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
+//{
+//	float4 cColor = RenderInfor[2][int2(input.position.xy)]; // 240 ~ 290 FPS
+//	//float4 cColor = RenderInfor[2].Sample(gssDefaultSamplerState, input.uv); // 210 ~ 240 FPS
+//	//float4 cColor = RenderInfor[2].Load(uint3((uint)input.position.x, (uint)input.position.y, 0)); // 280 ~ 320 FPS
+//
+//	int Edge = false;
+//	float fObjectID = RenderInfor[1][int2(input.position.xy)].a;
+//	for (int i = 0; i < LineSize; i++)
+//	{
+//		if (RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a != 0 && fObjectID != 0)
+//			if (fObjectID != RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
+//	}
+//	cColor += Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection);
+//	if (Edge)
+//		return(float4(LineColor));
+//	else
+//		return(cColor);
+//}

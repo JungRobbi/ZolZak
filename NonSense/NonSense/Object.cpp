@@ -1214,8 +1214,6 @@ void SkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	XMFLOAT3 xmf3CameraPos = pCamera->GetPosition();
 	SetPosition(xmf3CameraPos.x, xmf3CameraPos.y, xmf3CameraPos.z);
-	
-	OnPrepareRender();
 
 	UpdateShaderVariables(pd3dCommandList);
 
@@ -1226,5 +1224,61 @@ void SkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 	{
 		m_pMesh->Render(pd3dCommandList, 0);
 	}
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(false)
+{
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/My_State.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 18, false);
+
+	Material* pSkyBoxMaterial = new Material();
+	pSkyBoxMaterial->SetTexture(pUITexture);
+	pSkyBoxMaterial->SetShader(pUIShader);
+
+	SetMaterial(pSkyBoxMaterial);
+}
+
+UI::~UI()
+{
+}
+
+void UI::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	UINT ncbElementBytes = ((sizeof(CB_UI_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
+
+	m_pd3dcbUI = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dcbUI->Map(0, NULL, (void**)&m_pcbMappedUI);
+}
+
+void UI::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	D3D12_GPU_VIRTUAL_ADDRESS d3dcbUIGpuVirtualAddress = m_pd3dcbUI->GetGPUVirtualAddress();
+
+	CB_UI_INFO* pbMappedcbUI = (CB_UI_INFO*)((UINT8*)m_pcbMappedUI);
+	::memcpy(&pbMappedcbUI->m_xywh, &xywh, sizeof(XMFLOAT4));
+
+	pd3dCommandList->SetGraphicsRootConstantBufferView(19, d3dcbUIGpuVirtualAddress);
+}
+
+void UI::ReleaseShaderVariables()
+{
+}
+
+void UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	UpdateShaderVariables(pd3dCommandList);
+
+	if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+	if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 
 }
