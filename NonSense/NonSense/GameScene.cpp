@@ -42,8 +42,18 @@ void GameScene::update()
 		gameObjects.push_back(gameObject);
 		creationQueue.pop();
 	}
+	while (!creationBlendQueue.empty()) //Blend Object
+	{
+		auto gameObject = creationBlendQueue.front();
+		gameObject->start();
+		blendGameObjects.push_back(gameObject);
+		creationBlendQueue.pop();
+	}
 
 	for (auto gameObject : gameObjects)
+		gameObject->update();
+
+	for (auto gameObject : blendGameObjects) //Blend Object
 		gameObject->update();
 
 	auto t = deletionQueue;
@@ -52,6 +62,14 @@ void GameScene::update()
 		auto gameObject = deletionQueue.front();
 		gameObjects.erase(std::find(gameObjects.begin(), gameObjects.end(), gameObject));
 		deletionQueue.pop_front();
+
+		delete gameObject;
+	}
+	while (!deletionBlendQueue.empty()) //Blend Object
+	{
+		auto gameObject = deletionBlendQueue.front();
+		blendGameObjects.erase(std::find(blendGameObjects.begin(), blendGameObjects.end(), gameObject));
+		deletionBlendQueue.pop_front();
 
 		delete gameObject;
 	}
@@ -116,37 +134,38 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/F05.bin", NULL);
 	LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
 
-	m_GameObjects[0] = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 1);
-	m_GameObjects[0]->SetNum(0);
-	m_GameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
-	m_GameObjects[0]->SetPosition(0.0f, 0.0f, 0.0f);
+	
+	TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 1);
+	TempObject->SetNum(0);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
+	TempObject->SetPosition(0.0f, 0.0f, 0.0f);
 
 	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
-	m_GameObjects[1] = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
-	m_GameObjects[1]->SetNum(1);
-	m_GameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
-	m_GameObjects[1]->SetPosition(1.0f, 0.0f, 0.0f);
+	TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
+	TempObject->SetNum(1);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
+	TempObject->SetPosition(1.0f, 0.0f, 0.0f);
 
 	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Close.bin", NULL);
 
-	m_GameObjects[2] = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
-	m_GameObjects[2]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
-	m_GameObjects[2]->SetNum(2);
-	m_GameObjects[2]->SetPosition(2.0f, 0.0f, 0.0f);
+	TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
+	TempObject->SetNum(2);
+	TempObject->SetPosition(2.0f, 0.0f, 0.0f);
 
 	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Rush.bin", NULL);
 
-	m_GameObjects[3] = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
-	m_GameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 5);
-	m_GameObjects[3]->SetNum(3);
-	m_GameObjects[3]->SetPosition(-1.0f, 0.0f, 0.0f);
+	TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 5);
+	TempObject->SetNum(3);
+	TempObject->SetPosition(-1.0f, 0.0f, 0.0f);
 
 	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/ent.bin", NULL);
 
-	m_GameObjects[4] = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
-	m_GameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
-	m_GameObjects[4]->SetNum(4);
-	m_GameObjects[4]->SetPosition(-3.0f, 0.0f, 0.0f);
+	TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
+	TempObject->SetNum(4);
+	TempObject->SetPosition(-3.0f, 0.0f, 0.0f);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
@@ -480,11 +499,15 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 
 void GameScene::AnimateObjects(float fTimeElapsed)
 {
-
-	for (int i = 0; i < m_nObjects; i++)
+	for (auto& object : gameObjects)
 	{
-		m_GameObjects[i]->Animate(fTimeElapsed);
+		object->Animate(fTimeElapsed);
+		
 	}
+	//for (int i = 0; i < m_nObjects; i++)
+	//{
+	//	m_GameObjects[i]->Animate(fTimeElapsed);
+	//}
 
 	if (m_pPlayer) m_pPlayer->Animate(fTimeElapsed);
 
@@ -511,11 +534,18 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 {
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
-	for (int i = 0; i < m_nObjects; i++)
+
+	for (auto& object : gameObjects)
 	{
-		m_GameObjects[i]->UpdateTransform(NULL);
-		m_GameObjects[i]->Render(pd3dCommandList, pCamera);
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
 	}
+
+	//for (int i = 0; i < m_nObjects; i++)
+	//{
+	//	m_GameObjects[i]->UpdateTransform(NULL);
+	//	m_GameObjects[i]->Render(pd3dCommandList, pCamera);
+	//}
 }
 
 void GameScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)

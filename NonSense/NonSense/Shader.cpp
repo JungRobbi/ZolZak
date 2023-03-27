@@ -247,7 +247,7 @@ void Shader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 void Shader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	OnPrepareRender(pd3dCommandList);
-	UpdateShaderVariables(pd3dCommandList);
+	//UpdateShaderVariables(pd3dCommandList);
 }
 
 DiffusedShader::DiffusedShader()

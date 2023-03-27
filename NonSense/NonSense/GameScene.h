@@ -42,6 +42,11 @@ class GameScene
 
 	std::list<Object*> gameObjects;
 
+	std::queue<Object*> creationBlendQueue;
+	std::deque<Object*> deletionBlendQueue;
+
+	std::list<Object*> blendGameObjects;
+
 public:
 	static GameScene* MainScene;
 
@@ -112,6 +117,7 @@ protected:
 	Object** m_ppBlendObjects = NULL;
 	Shader* m_pBlendShader = NULL;
 
+	Object* TempObject = NULL;
 
 	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorStartHandle;
 	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorStartHandle;

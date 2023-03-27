@@ -514,6 +514,24 @@ Object::Object(bool Push_List)
 		GameScene::MainScene->creationQueue.push(this);
 	}
 }
+Object::Object(bool Push_List, bool isBlendObject)
+{
+	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
+	XMStoreFloat4x4(&m_xmf4x4ToParent, XMMatrixIdentity());
+	if (isBlendObject)
+	{
+		if (Push_List) {
+			GameScene::MainScene->creationBlendQueue.push(this);
+		}
+	}
+	else 
+	{
+		if (Push_List) {
+			GameScene::MainScene->creationQueue.push(this);
+		}
+	}
+	
+}
 Object::~Object()
 {
 	if (m_pMesh) m_pMesh->Release();
@@ -1169,7 +1187,7 @@ int Object::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& 
 	return(nIntersected);
 }
 
-TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks) : Object(false)
+TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks) : Object(true)
 {
 	LoadedModelInfo* pLoadedModel = pModel;
 	LoadedModelInfo* pWeapon = pWeaponModel;

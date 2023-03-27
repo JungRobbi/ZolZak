@@ -291,6 +291,7 @@ public:
 	Object();
 	// GameScene의 gameobjects 리스트에 안넣기 위해 만든 생성자
 	Object(bool Push_List);
+	Object(bool Push_List, bool isBlendObject);
 	virtual ~Object();
 
 	virtual void start();
