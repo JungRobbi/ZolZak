@@ -124,9 +124,9 @@ float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera)
 }
 
 
-float4 Lighting(float3 vPosition, float3 vNormal)
+float4 Lighting(float3 vPosition, float3 vNormal, float3 CameraPosition)
 {
-	float3 vCameraPosition = gf3CameraPosition;
+	float3 vCameraPosition = CameraPosition;
 	float3 vToCamera = normalize(vCameraPosition - vPosition);
 
 	float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f);

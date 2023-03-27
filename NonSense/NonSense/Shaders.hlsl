@@ -292,7 +292,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	}
 
 	//output.Normal = float4(normalW.xyz, 1 / ((float)objectID + 2));
-	output.Normal = Lighting(input.positionW, input.normalW);
+	output.Normal = Lighting(input.positionW, input.normalW, gf3CameraPosition);
 
 	return(output);
 }

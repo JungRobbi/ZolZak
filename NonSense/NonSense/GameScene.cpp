@@ -71,7 +71,7 @@ void GameScene::BuildLightsAndMaterials()
 {
 	m_pLights = new LIGHTS;
 	::ZeroMemory(m_pLights, sizeof(LIGHTS));
-	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 
 	m_pLights->m_pLights[0].m_bEnable = false;
 	m_pLights->m_pLights[0].m_nType = SPOT_LIGHT;
