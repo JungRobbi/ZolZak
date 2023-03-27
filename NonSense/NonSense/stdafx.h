@@ -14,6 +14,7 @@
 #include <tchar.h>
 #include <chrono>
 #include <list>
+#include <map>
 #include <string>
 #include <wrl.h>
 #include <shellapi.h>

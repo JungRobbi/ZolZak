@@ -789,6 +789,64 @@ BYTE ReadStringFromFile(FILE* OpenedFile, char* pstrToken)
 	return(nStrLength);
 }
 
+void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, bool isBlendObjects)
+{
+	char pstrToken[64] = { '\0' };
+	int nMesh = 0;
+	UINT nReads = 0;
+	Object* pObject = NULL;
+	FILE* OpenedFile = NULL;
+	::fopen_s(&OpenedFile, pstrFileName, "rb");
+	::rewind(OpenedFile);
+	std::map<std::string,LoadedModelInfo*> ModelMap;
+	::ReadStringFromFile(OpenedFile, pstrToken);
+	if (!strcmp(pstrToken, "<Objects>:"))
+	{
+		while (true)
+		{
+			::ReadStringFromFile(OpenedFile, pstrToken);
+			if (!strcmp(pstrToken, "<Mesh>:"))
+			{
+				BYTE Length = ::ReadStringFromFile(OpenedFile, pstrToken);
+			
+				if (pstrToken[0] == '@') // Mesh이름과 맞는 Mesh가 이미 로드가 되었다면 true -> 있는 모델 쓰면 됨
+				{
+					std::string str(pstrToken + 1);
+					pObject = new TestModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMap[str], NULL, 0, isBlendObjects);
+				}
+				else
+				{
+					std::string str(pstrToken);
+					char pstrFilePath[64] = { '\0' };
+					strcpy_s(pstrFilePath, 64, "Model/");
+					strcpy_s(pstrFilePath + 6, 64 - 6, pstrToken);
+					strcpy_s(pstrFilePath + 6 + Length, 64 - 6 - Length, ".bin");
+
+
+					LoadedModelInfo* pLoadedModel = LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pstrFilePath, NULL);
+
+					ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // 읽은 모델은 map에 저장
+
+			
+					pObject = new TestModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel, NULL, 0, isBlendObjects);
+
+				}
+			}
+			if (!strcmp(pstrToken, "<Position>:"))
+			{
+				nReads = (UINT)::fread(&pObject->m_xmf4x4ToParent, sizeof(float), 16, OpenedFile);
+			}
+			if (!strcmp(pstrToken, "</Objects>"))
+			{
+				break;
+			}
+		}
+	}
+	
+	
+}
+
+
 void Object::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* OpenedFile, Shader* pShader)
 {
 	char pstrToken[64] = { '\0' };
@@ -1187,7 +1245,7 @@ int Object::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& 
 	return(nIntersected);
 }
 
-TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks) : Object(true)
+TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks, bool isBlendObject) : Object(true, isBlendObject)
 {
 	LoadedModelInfo* pLoadedModel = pModel;
 	LoadedModelInfo* pWeapon = pWeaponModel;
