@@ -159,6 +159,13 @@ public:
 
 };
 
+class SkyBoxMaterial : public Material
+{
+public:
+	SkyBoxMaterial() {};
+	~SkyBoxMaterial() {};
+};
+
 class AnimationSet
 {
 public:
@@ -326,8 +333,6 @@ public:
 	void MoveForward(float fDistance = 1.0f);
 	void SetScale(float x, float y, float z);
 	void UpdateTransform(XMFLOAT4X4* pxmf4x4Parent);
-	void ChangeShader(Shader* pShader);
-
 
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
 	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
@@ -348,6 +353,7 @@ public:
 	void ReleaseUploadBuffers();
 	bool IsVisible(Camera* pCamera = NULL);
 	virtual void SetMesh(Mesh* pMesh);
+	virtual Mesh* GetMesh() { return m_pMesh; }
 	virtual void SetShader(Shader* pShader);
 	virtual void SetNum(int num); 
 	virtual void Animate(float fTimeElapsed);
@@ -421,10 +427,12 @@ public:
 
 };
 
-class TestModelBlendObject : public Object
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class SkyBox : public Object
 {
 public:
-	TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader);
-	virtual ~TestModelBlendObject() {};
+	SkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~SkyBox();
 
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 };
