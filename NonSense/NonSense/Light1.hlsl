@@ -1,4 +1,4 @@
-#define MAX_LIGHTS 1
+#define MAX_LIGHTS 2
 #define MAX_MATERIALS 8
 #define POINT_LIGHT 1
 #define SPOT_LIGHT 2
@@ -118,7 +118,7 @@ float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera)
 #endif
 		float fAttenuationFactor = 1.0f / dot(gLights[nIndex].m_vAttenuation, float3(1.0f, fDistance, fDistance * fDistance));
 
-		return(((gLights[nIndex].m_cAmbient) + (gLights[nIndex].m_cDiffuse * fDiffuseFactor ) + (gLights[nIndex].m_cSpecular * fSpecularFactor )) * fAttenuationFactor * fSpotFactor);
+		return(((gLights[nIndex].m_cAmbient) + (gLights[nIndex].m_cDiffuse * (round(fDiffuseFactor * TOON_SHADING) / TOON_SHADING)) + (gLights[nIndex].m_cSpecular * fSpecularFactor )) * fAttenuationFactor * fSpotFactor);
 	}
 	return(float4(0.0f, 0.0f, 0.0f, 0.0f));
 }
@@ -148,7 +148,7 @@ float4 Lighting(float3 vPosition, float3 vNormal, float3 CameraPosition)
 			}
 		}
 	}
-	cColor += gcGlobalAmbientLight;
+	cColor += (gcGlobalAmbientLight * gMaterial.m_cAmbient.a);;
 	cColor.a = 1;
 
 	return(cColor);
