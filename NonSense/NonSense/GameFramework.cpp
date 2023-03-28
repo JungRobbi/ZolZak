@@ -282,6 +282,7 @@ void GameFramework::BuildObjects()
 
 	auto m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
+	m_pUI = new UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
 	m_pScene->m_pPlayer = m_pPlayer;
@@ -300,7 +301,7 @@ void GameFramework::BuildObjects()
 	m_pDebug->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
 	m_pCommandList->Close();
 
-	m_pUI = new UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+
 
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
@@ -516,6 +517,8 @@ void GameFramework::FrameAdvance()
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
+
+	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	m_pUI->Render(m_pCommandList, m_pCamera);
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
