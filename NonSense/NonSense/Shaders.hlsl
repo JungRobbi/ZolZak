@@ -239,7 +239,7 @@ float4 PSDebug(VS_DEBUG_OUTPUT input) : SV_Target
 {
 
 	float4 cColor;
-	if (input.num != 3) cColor = RenderInfor[input.num].Sample(gssWrap, input.uv);
+	if (input.num != 3) cColor = gtxtUITexture.Sample(gssWrap, input.uv);
 	else cColor = RenderInfor[3].Sample(gssWrap, input.uv).r;
 	return(cColor);
 
@@ -402,6 +402,6 @@ VS_UI_OUTPUT VSUI(uint nVertexID : SV_VertexID)
 }
 float4 PSUI(VS_UI_OUTPUT input) : SV_Target
 {
-	float4 cColor = gtxtUITexture.Sample(gssWrap, input.position);
+	float4 cColor = gtxtUITexture.Sample(gssWrap, input.uv);
 	return(cColor);
 }
