@@ -454,5 +454,5 @@ public:
 private:
 	ID3D12Resource* m_pd3dcbUI = NULL;
 	CB_UI_INFO* m_pcbMappedUI = NULL;
-	XMFLOAT4 xywh = { 0,0,0,0 };
+	XMFLOAT4 xywh = { -1,-1,1,1 };
 };

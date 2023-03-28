@@ -50,6 +50,7 @@ public:
 	ScreenShader* m_pScreen = NULL;
 	DebugShader* m_pDebug = NULL;
 	Object* m_pSelectedObject = NULL;
+	UI* m_pUI = NULL;
 	POINT m_ptOldCursorPos;
 
 	GameFramework();

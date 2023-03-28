@@ -83,6 +83,7 @@ Texture2D gtxtDetailAlbedoTexture : register(t11);
 Texture2D gtxtDetailNormalTexture : register(t12);
 // SkyBox
 TextureCube gtxtSkyCubeTexture : register(t13);
+Texture2D gtxtUITexture : register(t14);
 
 SamplerState gssWrap : register(s0);
 
@@ -378,48 +379,29 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//
-//
-//struct VS_SCREEN_OUTPUT
-//{
-//	float4 position : SV_POSITION;
-//	float2 uv : TEXCOORD0;
-//};
-//
-//VS_SCREEN_OUTPUT VSScreen(uint nVertexID : SV_VertexID)
-//{
-//	VS_SCREEN_OUTPUT output = (VS_SCREEN_OUTPUT)0;
-//
-//	if (nVertexID == 0) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
-//	else if (nVertexID == 1) { output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
-//	else if (nVertexID == 2) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
-//
-//	else if (nVertexID == 3) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
-//	else if (nVertexID == 4) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
-//	else if (nVertexID == 5) { output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
-//
-//	return(output);
-//}
-//
-//static float gfLaplacians[9] = { -1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f };
-//static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, { 1,0 }, { -1,1 }, { 0,1 }, { 1,1 } };
-//
-//float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
-//{
-//	float4 cColor = RenderInfor[2][int2(input.position.xy)]; // 240 ~ 290 FPS
-//	//float4 cColor = RenderInfor[2].Sample(gssDefaultSamplerState, input.uv); // 210 ~ 240 FPS
-//	//float4 cColor = RenderInfor[2].Load(uint3((uint)input.position.x, (uint)input.position.y, 0)); // 280 ~ 320 FPS
-//
-//	int Edge = false;
-//	float fObjectID = RenderInfor[1][int2(input.position.xy)].a;
-//	for (int i = 0; i < LineSize; i++)
-//	{
-//		if (RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a != 0 && fObjectID != 0)
-//			if (fObjectID != RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
-//	}
-//	cColor += Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection);
-//	if (Edge)
-//		return(float4(LineColor));
-//	else
-//		return(cColor);
-//}
+
+
+struct VS_UI_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD0;
+};
+
+VS_UI_OUTPUT VSUI(uint nVertexID : SV_VertexID)
+{
+	VS_UI_OUTPUT output = (VS_UI_OUTPUT)0;
+
+	if (nVertexID == 0) { output.position = float4(xywh.x, xywh.y + xywh.w, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 1) { output.position = float4(xywh.x + xywh.z, xywh.y + xywh.w, 0.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
+	else if (nVertexID == 2) { output.position = float4(xywh.x + xywh.z, xywh.y, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+	else if (nVertexID == 3) { output.position = float4(xywh.x, xywh.y + xywh.w, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 4) { output.position = float4(xywh.x + xywh.z, xywh.y, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+	else if (nVertexID == 5) { output.position = float4(xywh.x, xywh.y, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
+
+	return(output);
+}
+float4 PSUI(VS_UI_OUTPUT input) : SV_Target
+{
+	float4 cColor = gtxtUITexture.Sample(gssWrap, input.position);
+	return(cColor);
+}
