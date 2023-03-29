@@ -27,7 +27,7 @@ class SkinnedMesh;
 #define MATERIAL_DETAIL_NORMAL_MAP		0x40
 
 struct CB_GAMEOBJECT_INFO;
-struct CB_UI_INFO;
+struct CB_PLAYER_INFO;
 
 struct MATERIAL
 {
@@ -343,9 +343,9 @@ public:
 	//카메라 좌표계의 한 점에 대한 모델 좌표계의 픽킹 광선을 생성하고 객체와의 교차를 검사한다.
 	int PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& xmf4x4View, float* pfHitDistance);
 
-	XMFLOAT4X4 m_xmf4x4World;
 
 protected:
+	XMFLOAT4X4 m_xmf4x4World;
 	Mesh* m_pMesh = NULL;
 	Material* m_pMaterial = NULL;
 public:
@@ -449,10 +449,19 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
-	virtual void SetPos(float x, float y, float w, float h) { xywh = XMFLOAT4(x, y, w, h); }
-	XMFLOAT4 GetPos() { return xywh; }
+	virtual void SetParentUI(UI* Parent) { ParentUI = Parent; }
+	virtual void SetPos(float x, float y, float w, float h)
+	{
+		m_xmf4x4World._11 = w * 2; // 0 ~ 1 -> 0 ~ 2
+		m_xmf4x4World._22 = h * 2;
+		m_xmf4x4World._41 = x * 2 - 1; // 0 ~ 1 -> -1 ~ 1
+		m_xmf4x4World._42 = y * 2 - 1;
+		if (ParentUI) {
+			m_xmf4x4World = Matrix4x4::Multiply(m_xmf4x4World, ParentUI->GetWorld());
+		}
+	};
 private:
 	ID3D12Resource* m_pd3dcbUI = NULL;
-	CB_UI_INFO* m_pcbMappedUI = NULL;
-	XMFLOAT4 xywh = { -1,-1,1,1 };
+	CB_PLAYER_INFO* m_pcbMappedUI = NULL;
+	UI* ParentUI = NULL;
 };

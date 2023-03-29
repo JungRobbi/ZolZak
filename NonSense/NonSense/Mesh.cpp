@@ -684,7 +684,7 @@ void SkinnedMesh::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLi
 
 		for (int j = 0; j < m_nSkinningBones; j++)
 		{
-			XMStoreFloat4x4(&m_pMappedSkinningBoneTransforms[j], XMMatrixTranspose(XMLoadFloat4x4(&m_ppSkinningBoneFrameCaches[j]->m_xmf4x4World)));
+			XMStoreFloat4x4(&m_pMappedSkinningBoneTransforms[j], XMMatrixTranspose(XMLoadFloat4x4(&m_ppSkinningBoneFrameCaches[j]->GetWorld())));
 		}
 	}
 }

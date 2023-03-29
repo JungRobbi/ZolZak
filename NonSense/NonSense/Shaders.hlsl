@@ -180,7 +180,6 @@ VS_SCREEN_OUTPUT VSScreen(uint nVertexID : SV_VertexID)
 	if (nVertexID == 0) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
 	else if (nVertexID == 1) { output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
 	else if (nVertexID == 2) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
-
 	else if (nVertexID == 3) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
 	else if (nVertexID == 4) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
 	else if (nVertexID == 5) { output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
@@ -239,7 +238,7 @@ float4 PSDebug(VS_DEBUG_OUTPUT input) : SV_Target
 {
 
 	float4 cColor;
-	if (input.num != 3) cColor = gtxtUITexture.Sample(gssWrap, input.uv);
+	if (input.num != 3) cColor = RenderInfor[input.num].Sample(gssWrap, input.uv);
 	else cColor = RenderInfor[3].Sample(gssWrap, input.uv).r;
 	return(cColor);
 
@@ -391,12 +390,14 @@ VS_UI_OUTPUT VSUI(uint nVertexID : SV_VertexID)
 {
 	VS_UI_OUTPUT output = (VS_UI_OUTPUT)0;
 
-	if (nVertexID == 0) { output.position = float4(xywh.x, xywh.y + xywh.w, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
-	else if (nVertexID == 1) { output.position = float4(xywh.x + xywh.z, xywh.y + xywh.w, 0.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
-	else if (nVertexID == 2) { output.position = float4(xywh.x + xywh.z, xywh.y, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
-	else if (nVertexID == 3) { output.position = float4(xywh.x, xywh.y + xywh.w, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
-	else if (nVertexID == 4) { output.position = float4(xywh.x + xywh.z, xywh.y, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
-	else if (nVertexID == 5) { output.position = float4(xywh.x, xywh.y, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
+	if (nVertexID == 0)		 { output.position = float4(0.0f, 1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 1) { output.position = float4(1.0f, 1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
+	else if (nVertexID == 2) { output.position = float4(1.0f, 0.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+	else if (nVertexID == 3) { output.position = float4(0.0f, 1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 4) { output.position = float4(1.0f, 0.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+	else if (nVertexID == 5) { output.position = float4(0.0f, 0.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
+
+	output.position = mul(output.position, gmtxPlayerWorld);
 
 	return(output);
 }

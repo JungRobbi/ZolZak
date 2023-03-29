@@ -164,7 +164,6 @@ void GameFramework::CreateDirect3DDevice()
 		hResult = m_pFactory->EnumWarpAdapter(_uuidof(IDXGIAdapter1), (void**)&pd3dAdapter);
 		hResult = D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), (void**)&m_pDevice);
 	}
-
 	if (!m_pDevice)
 	{
 		MessageBox(NULL, L"Direct3D 12 Device Cannot be Created.", L"Error", MB_OK);
@@ -282,7 +281,11 @@ void GameFramework::BuildObjects()
 
 	auto m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
+
 	m_pUI = new UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+	m_pParentUI = new UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+	m_pParentUI -> SetPos(0, 0, 0.5, 0.5);
+	m_pUI -> SetParentUI(m_pParentUI);
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
 	m_pScene->m_pPlayer = m_pPlayer;

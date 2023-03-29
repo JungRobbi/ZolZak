@@ -1232,7 +1232,7 @@ void SkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(false)
 {
 	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Skin.dds", RESOURCE_TEXTURE2D, 0);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Player_State.dds", RESOURCE_TEXTURE2D, 0);
 
 	UIShader* pUIShader = new UIShader();
 	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -1252,7 +1252,7 @@ UI::~UI()
 
 void UI::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	UINT ncbElementBytes = ((sizeof(CB_UI_INFO) + 255) & ~255); //256의 배수
+	UINT ncbElementBytes = ((sizeof(CB_PLAYER_INFO) + 255) & ~255); //256의 배수
 
 	m_pd3dcbUI = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dcbUI->Map(0, NULL, (void**)&m_pcbMappedUI);
@@ -1260,12 +1260,13 @@ void UI::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 void UI::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	XMFLOAT4X4 xmf4x4World;
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbUIGpuVirtualAddress = m_pd3dcbUI->GetGPUVirtualAddress();
+	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&GetWorld())));
+	CB_PLAYER_INFO* pbMappedcbUI = (CB_PLAYER_INFO*)((UINT8*)m_pcbMappedUI);
+	::memcpy(&pbMappedcbUI->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
 
-	CB_UI_INFO* pbMappedcbUI = (CB_UI_INFO*)((UINT8*)m_pcbMappedUI);
-	::memcpy(&pbMappedcbUI->m_xywh, &xywh, sizeof(XMFLOAT4));
-
-	pd3dCommandList->SetGraphicsRootConstantBufferView(19, d3dcbUIGpuVirtualAddress);
+	pd3dCommandList->SetGraphicsRootConstantBufferView(0, d3dcbUIGpuVirtualAddress);
 }
 
 void UI::ReleaseShaderVariables()
@@ -1274,6 +1275,7 @@ void UI::ReleaseShaderVariables()
 
 void UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
+	SetPos(0, 0, 1, 1);
 	UpdateShaderVariables(pd3dCommandList);
 
 	if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
