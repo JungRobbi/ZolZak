@@ -72,13 +72,6 @@ void NetworkMGR::ClientThread()
 	//
 
 	while (true) {
-		// 데이터 받기 (말의 위치)
-		/* 데이터 구조
-			int msg - 어떤 내용인지 (지금은 말의 위치)
-			int x,
-			int y
-		*/
-		
 		if (tcpSocket->Receive() == SOCKET_ERROR) {
 			// 소켓 연결에 문제가 생김.
 			break;
