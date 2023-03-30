@@ -111,6 +111,9 @@
     <ClInclude Include="WICTextureLoader12.h">
       <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
     </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -172,6 +175,9 @@
     </ClCompile>
     <ClCompile Include="WICTextureLoader12.cpp">
       <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

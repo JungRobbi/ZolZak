@@ -282,10 +282,9 @@ void GameFramework::BuildObjects()
 	auto m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
 
-	m_pUI = new UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
-	m_pParentUI = new UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
-	m_pParentUI -> SetPos(0, 0, 0.5, 0.5);
-	m_pUI -> SetParentUI(m_pParentUI);
+	m_pUI = new Player_State_UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+	m_pHPUI = new Player_HP_UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+	m_pHPUI->SetParentUI(m_pUI);
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
 	m_pScene->m_pPlayer = m_pPlayer;
@@ -362,6 +361,9 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 		case VK_F9:
 			ChangeSwapChainState();
 			break;
+		case '2':
+			m_pHPUI->HP -= 0.1;
+			m_pHPUI->SetMyPos(0.2, 0.04, 0.8 * m_pHPUI->HP, 0.32);
 		default:
 			break;
 		}
@@ -522,6 +524,9 @@ void GameFramework::FrameAdvance()
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
+	
+	
+	m_pHPUI->Render(m_pCommandList, m_pCamera);
 	m_pUI->Render(m_pCommandList, m_pCamera);
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);

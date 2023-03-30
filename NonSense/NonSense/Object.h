@@ -450,18 +450,27 @@ public:
 	virtual void ReleaseShaderVariables();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 	virtual void SetParentUI(UI* Parent) { ParentUI = Parent; }
-	virtual void SetPos(float x, float y, float w, float h)
-	{
-		m_xmf4x4World._11 = w * 2; // 0 ~ 1 -> 0 ~ 2
-		m_xmf4x4World._22 = h * 2;
-		m_xmf4x4World._41 = x * 2 - 1; // 0 ~ 1 -> -1 ~ 1
-		m_xmf4x4World._42 = y * 2 - 1;
-		if (ParentUI) {
-			m_xmf4x4World = Matrix4x4::Multiply(m_xmf4x4World, ParentUI->GetWorld());
-		}
-	};
+	virtual void SetMyPos(float x, float y, float w, float h);
+	virtual void OnPreRender();
 private:
 	ID3D12Resource* m_pd3dcbUI = NULL;
 	CB_PLAYER_INFO* m_pcbMappedUI = NULL;
 	UI* ParentUI = NULL;
+	XMFLOAT4X4 XYWH;
+};
+
+class Player_State_UI : public UI
+{
+public:
+	Player_State_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Player_State_UI() {};
+};
+
+class Player_HP_UI : public UI
+{
+public:
+	Player_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Player_HP_UI() {};
+	float HP = 1.0;
+private:
 };

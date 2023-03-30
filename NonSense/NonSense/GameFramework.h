@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "GameScene.h"
 #include "Player.h"
+//#include "UI.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
@@ -51,7 +52,7 @@ public:
 	DebugShader* m_pDebug = NULL;
 	Object* m_pSelectedObject = NULL;
 	UI* m_pUI = NULL;
-	UI* m_pParentUI = NULL;
+	Player_HP_UI* m_pHPUI = NULL;
 	POINT m_ptOldCursorPos;
 
 	GameFramework();
