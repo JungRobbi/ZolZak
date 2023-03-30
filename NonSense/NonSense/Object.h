@@ -472,5 +472,13 @@ public:
 	Player_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~Player_HP_UI() {};
 	float HP = 1.0;
-private:
+};
+
+class Player_HP_DEC_UI : public Player_HP_UI
+{
+public:
+	Player_HP_DEC_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Player_HP_DEC_UI() {};
+	virtual void update();
+	float Dec_HP = 1.0;
 };

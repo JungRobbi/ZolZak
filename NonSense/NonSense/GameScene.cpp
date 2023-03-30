@@ -71,7 +71,7 @@ void GameScene::BuildLightsAndMaterials()
 {
 	m_pLights = new LIGHTS;
 	::ZeroMemory(m_pLights, sizeof(LIGHTS));
-	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(-0.0f, -0.0f, -0.0f, 1.0f);
+	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(-0.5f, -0.4f, -0.2f, 1.0f);
 
 	m_pLights->m_pLights[0].m_bEnable = false;
 	m_pLights->m_pLights[0].m_nType = SPOT_LIGHT;
@@ -90,8 +90,8 @@ void GameScene::BuildLightsAndMaterials()
 	m_pLights->m_pLights[1].m_nType = DIRECTIONAL_LIGHT;
 	m_pLights->m_pLights[1].m_fRange = 50.0f;
 	m_pLights->m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-	m_pLights->m_pLights[1].m_xmf4Diffuse = XMFLOAT4(0.1f, 0.1f, 0.2f, 1.0f);
-	m_pLights->m_pLights[1].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.2f, 0.0f);
+	m_pLights->m_pLights[1].m_xmf4Diffuse = XMFLOAT4(0.2f, 0.2f, 0.3f, 1.0f);
+	m_pLights->m_pLights[1].m_xmf4Specular = XMFLOAT4(0.2f, 0.2f, 0.3f, 0.0f);
 	m_pLights->m_pLights[1].m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_pLights->m_pLights[1].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 1.0f);
 	m_pLights->m_pLights[1].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
@@ -105,7 +105,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 	
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 16, 20); 
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 16, 25); 
 
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();

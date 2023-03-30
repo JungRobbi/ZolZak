@@ -52,7 +52,8 @@ public:
 	DebugShader* m_pDebug = NULL;
 	Object* m_pSelectedObject = NULL;
 	UI* m_pUI = NULL;
-	Player_HP_UI* m_pHPUI = NULL;
+	Player_HP_UI* m_pHP_UI = NULL;
+	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;
 	POINT m_ptOldCursorPos;
 
 	GameFramework();

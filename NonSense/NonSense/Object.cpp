@@ -1193,7 +1193,7 @@ SkyBox::SkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	SetMesh(pSkyBoxMesh);
 
 	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0, 1);
-	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"SkyBox/SkyBox_0.dds", RESOURCE_TEXTURE_CUBE, 0);
+	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"SkyBox/SkyBox_1.dds", RESOURCE_TEXTURE_CUBE, 0);
 
 	SkyBoxShader* pSkyBoxShader = new SkyBoxShader();
 	pSkyBoxShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature,1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -1282,6 +1282,7 @@ void UI::OnPreRender()
 
 void UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
+	update();
 	OnPreRender();
 	UpdateShaderVariables(pd3dCommandList);
 
@@ -1326,5 +1327,31 @@ Player_HP_UI::Player_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	SetMaterial(pUIMaterial);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.2, 0.04, 0.8, 0.32);
+}
+
+Player_HP_DEC_UI::Player_HP_DEC_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/HP_Decrease.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 18, false);
+
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+}
+
+void Player_HP_DEC_UI::update() {
+	if (Dec_HP < HP) {
+		HP -= (HP-Dec_HP)/65;
+		if (HP < Dec_HP) HP = Dec_HP;
+	}
 	SetMyPos(0.2, 0.04, 0.8*HP, 0.32);
 }
+
