@@ -40,6 +40,9 @@
     <Filter Include="소스 파일\Framework">
       <UniqueIdentifier>{f393ba7c-4471-4e70-9191-53066386f2dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\GameScenes">
+      <UniqueIdentifier>{513bd7b6-0495-40a2-af87-6a82bd77dff9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -114,6 +117,15 @@
     <ClInclude Include="UI.h">
       <Filter>소스 파일\DirectX 12</Filter>
     </ClInclude>
+    <ClInclude Include="Login_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Lobby_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Stage_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -178,6 +190,15 @@
     </ClCompile>
     <ClCompile Include="UI.cpp">
       <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="Login_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Lobby_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

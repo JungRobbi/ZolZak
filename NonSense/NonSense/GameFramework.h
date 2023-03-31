@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+
 #include "Timer.h"
 #include "Camera.h"
 #include "GameScene.h"
@@ -45,6 +47,8 @@ private:
 	ID3D12Fence *m_pFence;
 	UINT64 m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE m_FenceEventHandle;
+public:
+	std::vector<GameScene*> m_GameScenes;
 public:
 	Camera* m_pCamera = NULL;
 	Player* m_pPlayer = NULL;

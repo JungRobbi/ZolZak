@@ -67,6 +67,9 @@ void GameFramework::OnDestroy()
 	if (m_pSwapChain) m_pSwapChain->Release();
 	if (m_pDevice) m_pDevice->Release();
 	if (m_pFactory) m_pFactory->Release();
+
+	m_GameScenes.clear();
+
 #ifdef defined(_DEBUG)
 	IDXGIDebug1* pdxgiDebug = NULL;
 	DXGIGetDebugInterface1(0, __uuidof(IDXGIDebug1), (void**)&pdxgiDebug);
@@ -280,6 +283,7 @@ void GameFramework::BuildObjects()
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
 	auto m_pScene = new GameScene();
+	m_GameScenes.push_back(m_pScene);
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
 
 	m_pHP_Dec_UI = new Player_HP_DEC_UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
@@ -320,7 +324,8 @@ void GameFramework::BuildObjects()
 
 void GameFramework::ReleaseObjects()
 {
-	GameScene::MainScene->ReleaseObjects();
+	for (auto& gameScene : m_GameScenes)
+		gameScene->ReleaseObjects();
 }
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	LPARAM lParam)
