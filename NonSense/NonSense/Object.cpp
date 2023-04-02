@@ -206,6 +206,12 @@ void Material::SetTexture(CTexture* pTexture)
 	m_pTexture = pTexture;
 	if (m_pTexture) m_pTexture->AddRef();
 }
+void Material::SetTexture(CTexture* pTexture, UINT nTexture)
+{
+	if (m_ppTextures[nTexture]) m_ppTextures[nTexture]->Release();
+	m_ppTextures[nTexture] = pTexture;
+	if (m_ppTextures[nTexture]) m_ppTextures[nTexture]->AddRef();
+}
 void Material::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	pd3dCommandList->SetGraphicsRoot32BitConstants(3, 4, &m_xmf4Ambient, 0);
@@ -400,6 +406,8 @@ AnimationController::AnimationController(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pAnimationSets = pModel->m_pAnimationSets;
 	m_pAnimationSets->AddRef();
 
+	m_pModelRootObject = pModel->m_pRoot;
+
 	m_nSkinnedMeshes = pModel->m_nSkinnedMeshes;
 	m_ppSkinnedMeshes = new SkinnedMesh * [m_nSkinnedMeshes];
 	for (int i = 0; i < m_nSkinnedMeshes; i++) m_ppSkinnedMeshes[i] = pModel->m_ppSkinnedMeshes[i];
@@ -584,6 +592,21 @@ void Object::SetMaterials(int nMaterial, Material* pMaterial)
 	m_ppMaterials[nMaterial] = pMaterial;
 	if (m_ppMaterials[nMaterial]) m_ppMaterials[nMaterial]->AddRef();
 }
+
+void Object::ChangeShader(Shader* pShader)
+{
+	if (m_nMaterials > 0)
+	{
+		for (int i = 0; i < m_nMaterials; ++i)
+		{
+			if (m_ppMaterials[i])
+				m_ppMaterials[i]->SetShader(pShader);
+		}
+	}
+	if (m_pSibling) m_pSibling->ChangeShader(pShader);
+	if (m_pChild) m_pChild->ChangeShader(pShader);
+}
+
 bool Object::IsVisible(Camera* pCamera)
 {
 	OnPrepareRender();
@@ -672,7 +695,8 @@ void Object::Rotate(float fPitch, float fYaw, float fRoll)
 {
 	XMMATRIX mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(fPitch),
 		XMConvertToRadians(fYaw), XMConvertToRadians(fRoll));
-	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
+	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxRotate, m_xmf4x4ToParent);
+	UpdateTransform(NULL);
 }
 
 void Object::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
@@ -789,7 +813,7 @@ BYTE ReadStringFromFile(FILE* OpenedFile, char* pstrToken)
 	return(nStrLength);
 }
 
-void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, bool isBlendObjects)
+void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName)
 {
 	char pstrToken[64] = { '\0' };
 	int nMesh = 0;
@@ -812,7 +836,8 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 				if (pstrToken[0] == '@') // Mesh이름과 맞는 Mesh가 이미 로드가 되었다면 true -> 있는 모델 쓰면 됨
 				{
 					std::string str(pstrToken + 1);
-					pObject = new TestModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMap[str], NULL, 0, isBlendObjects);
+					pObject = new TestModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMap[str], NULL, 0);
+
 				}
 				else
 				{
@@ -828,13 +853,14 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 					ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // 읽은 모델은 map에 저장
 
 			
-					pObject = new TestModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel, NULL, 0, isBlendObjects);
+					pObject = new TestModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel, NULL, 0);
 
 				}
 			}
 			if (!strcmp(pstrToken, "<Position>:"))
 			{
 				nReads = (UINT)::fread(&pObject->m_xmf4x4ToParent, sizeof(float), 16, OpenedFile);
+
 			}
 			if (!strcmp(pstrToken, "</Objects>"))
 			{
@@ -842,10 +868,64 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 			}
 		}
 	}
-	
-	
 }
 
+void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, Shader* pBlendShader)
+{
+	char pstrToken[64] = { '\0' };
+	int nMesh = 0;
+	UINT nReads = 0;
+	Object* pObject = NULL;
+	FILE* OpenedFile = NULL;
+	::fopen_s(&OpenedFile, pstrFileName, "rb");
+	::rewind(OpenedFile);
+	std::map<std::string, LoadedModelInfo*> ModelMap;
+	::ReadStringFromFile(OpenedFile, pstrToken);
+	if (!strcmp(pstrToken, "<Objects>:"))
+	{
+		while (true)
+		{
+			::ReadStringFromFile(OpenedFile, pstrToken);
+			if (!strcmp(pstrToken, "<Mesh>:"))
+			{
+				BYTE Length = ::ReadStringFromFile(OpenedFile, pstrToken);
+
+				if (pstrToken[0] == '@') // Mesh이름과 맞는 Mesh가 이미 로드가 되었다면 true -> 있는 모델 쓰면 됨
+				{
+					std::string str(pstrToken + 1);
+					pObject = new TestModelBlendObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMap[str], pBlendShader);
+
+				}
+				else
+				{
+					std::string str(pstrToken);
+					char pstrFilePath[64] = { '\0' };
+					strcpy_s(pstrFilePath, 64, "Model/");
+					strcpy_s(pstrFilePath + 6, 64 - 6, pstrToken);
+					strcpy_s(pstrFilePath + 6 + Length, 64 - 6 - Length, ".bin");
+
+
+					LoadedModelInfo* pLoadedModel = LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pstrFilePath, NULL);
+
+					ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // 읽은 모델은 map에 저장
+
+
+					pObject = new TestModelBlendObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel, pBlendShader);
+
+				}
+			}
+			if (!strcmp(pstrToken, "<Position>:"))
+			{
+				nReads = (UINT)::fread(&pObject->m_xmf4x4ToParent, sizeof(float), 16, OpenedFile);
+
+			}
+			if (!strcmp(pstrToken, "</Objects>"))
+			{
+				break;
+			}
+		}
+	}
+}
 
 void Object::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* OpenedFile, Shader* pShader)
 {
@@ -964,8 +1044,7 @@ Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 
 	Object* pObject = new Object(false);
 
-	pObject->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	while (true)
+	for (; ; )
 	{
 		::ReadStringFromFile(OpenedFile, pstrToken);
 		if (!strcmp(pstrToken, "<Frame>:"))
@@ -977,13 +1056,12 @@ Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{
-			XMFLOAT3 Position, Rotation, Scale;
-			XMFLOAT4 Quat;
-
-			nReads = (UINT)::fread(&Position, sizeof(float), 3, OpenedFile);
-			nReads = (UINT)::fread(&Rotation, sizeof(float), 3, OpenedFile); //Euler Angle
-			nReads = (UINT)::fread(&Scale, sizeof(float), 3, OpenedFile);
-			nReads = (UINT)::fread(&Quat, sizeof(float), 4, OpenedFile); //Quaternion
+			XMFLOAT3 xmf3Position, xmf3Rotation, xmf3Scale;
+			XMFLOAT4 xmf4Rotation;
+			nReads = (UINT)::fread(&xmf3Position, sizeof(float), 3, OpenedFile);
+			nReads = (UINT)::fread(&xmf3Rotation, sizeof(float), 3, OpenedFile); //Euler Angle
+			nReads = (UINT)::fread(&xmf3Scale, sizeof(float), 3, OpenedFile);
+			nReads = (UINT)::fread(&xmf4Rotation, sizeof(float), 4, OpenedFile); //Quaternion
 		}
 		else if (!strcmp(pstrToken, "<TransformMatrix>:"))
 		{
@@ -991,15 +1069,15 @@ Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
+			pObject->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 			LoadMesh* pMesh = new LoadMesh(pd3dDevice, pd3dCommandList);
 			pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, OpenedFile);
-
 			pObject->SetMesh(pMesh);
 		}
 		else if (!strcmp(pstrToken, "<SkinningInfo>:"))
 		{
 			if (pnSkinnedMeshes) (*pnSkinnedMeshes)++;
-
+			pObject->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 			SkinnedMesh* pSkinnedMesh = new SkinnedMesh(pd3dDevice, pd3dCommandList);
 			pSkinnedMesh->LoadSkinInfoFromFile(pd3dDevice, pd3dCommandList, OpenedFile);
 
@@ -1007,7 +1085,6 @@ Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 			if (!strcmp(pstrToken, "<Mesh>:")) pSkinnedMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, OpenedFile);
 
 			pObject->SetMesh(pSkinnedMesh);
-
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
@@ -1015,10 +1092,10 @@ Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 		}
 		else if (!strcmp(pstrToken, "<Children>:"))
 		{
-			int nChildren = ::ReadIntegerFromFile(OpenedFile);
-			if (nChildren > 0)
+			int nChilds = ::ReadIntegerFromFile(OpenedFile);
+			if (nChilds > 0)
 			{
-				for (int i = 0; i < nChildren; i++)
+				for (int i = 0; i < nChilds; i++)
 				{
 					Object* pChild = Object::LoadHierarchy(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pObject, OpenedFile, pShader, pnSkinnedMeshes);
 					if (pChild) pObject->SetChild(pChild);
@@ -1030,7 +1107,7 @@ Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 			break;
 		}
 	}
-	return pObject;
+	return(pObject);
 }
 
 void Object::LoadAnimationFromFile(FILE* OpenedFile, LoadedModelInfo* pLoadModel)
@@ -1131,16 +1208,20 @@ LoadedModelInfo* Object::LoadAnimationModel(ID3D12Device* pd3dDevice, ID3D12Grap
 
 void Object::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	//XMFLOAT4X4 xmf4x4World;
+	//D3D12_GPU_VIRTUAL_ADDRESS d3dcbGameObjectGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
+	//
+	//XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&GetWorld())));
+	//CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects);
+	//::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
+	//pbMappedcbGameObject->m_nObjectID = Num;
+	//
+	//pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_OBJECT, d3dcbGameObjectGpuVirtualAddress);
+
 	XMFLOAT4X4 xmf4x4World;
-	D3D12_GPU_VIRTUAL_ADDRESS d3dcbGameObjectGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
-
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&GetWorld())));
-	CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects);
-	::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
-	pbMappedcbGameObject->m_nObjectID = Num;
-
-	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_OBJECT, d3dcbGameObjectGpuVirtualAddress);
-
+	pd3dCommandList->SetGraphicsRoot32BitConstants(ROOT_PARAMETER_OBJECT, 16, &xmf4x4World, 0);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(ROOT_PARAMETER_OBJECT, 1, &Num, 16);
 }
 
 UINT Object::GetMeshType()
@@ -1179,19 +1260,20 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 		if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 		if (m_pMesh)
 		{
-			if (m_pMaterial)
+			UpdateShaderVariables(pd3dCommandList);
+			//if (m_pMaterial)
+			//{
+			//	if (m_pMaterial->m_pShader)
+			//	{
+			//		m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+			//		m_pMaterial->m_pShader->UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+			//	}
+			//
+			//	m_pMesh->Render(pd3dCommandList);
+			//}
+			
+			if (m_nMaterials > 0)
 			{
-				if (m_pMaterial->m_pShader)
-				{
-					m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
-					m_pMaterial->m_pShader->UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-				}
-		
-				m_pMesh->Render(pd3dCommandList);
-			}
-			else if (m_nMaterials > 0)
-			{
-				UpdateShaderVariables(pd3dCommandList);
 				for (int i = 0; i < m_nMaterials; ++i)
 				{
 					if (m_ppMaterials[i])
@@ -1245,12 +1327,14 @@ int Object::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& 
 	return(nIntersected);
 }
 
-TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks, bool isBlendObject) : Object(true, isBlendObject)
+TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks) : Object(true, false)
 {
 	LoadedModelInfo* pLoadedModel = pModel;
 	LoadedModelInfo* pWeapon = pWeaponModel;
-	if(pLoadedModel)
+	if (pLoadedModel)
+	{
 		SetChild(pLoadedModel->m_pRoot, true);
+	}
 	if (pWeapon) {
 		Object* Hand = FindFrame("Sword_parentR"); // 무기를 붙여줄 팔 찾기
 		if (Hand) {
@@ -1260,6 +1344,16 @@ TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	}
 	if (nAnimationTracks > 0)
 		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pLoadedModel);
+}
+
+
+TestModelBlendObject::TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader) : Object(true,true)
+{
+	LoadedModelInfo* pLoadedModel = pModel;
+	if (pLoadedModel) {
+		SetChild(pLoadedModel->m_pRoot, true);
+		ChangeShader(pShader);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1303,4 +1397,74 @@ void SkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 		m_pMesh->Render(pd3dCommandList, 0);
 	}
 
+}
+
+
+HeightMapTerrain::HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : Object(true,false)
+{
+	m_nWidth = nWidth;
+	m_nLength = nLength;
+
+	m_xmf3Scale = xmf3Scale;
+
+	m_pHeightMapImage = new HeightMapImage(pFileName, nWidth, nLength, xmf3Scale);
+
+	HeightMapGridMesh* pMesh = new HeightMapGridMesh(pd3dDevice, pd3dCommandList, 0, 0, nWidth, nLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
+	SetMesh(pMesh);
+
+
+	CTexture* Terrain_Texture = new CTexture(10, RESOURCE_TEXTURE2D, 0, 18);
+
+	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TFF_Terrain_Dirt_1A_D.dds", RESOURCE_TEXTURE2D, 0);
+	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TFF_Terrain_Dirt_Road_1A_D.dds", RESOURCE_TEXTURE2D, 1);
+	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TFF_Terrain_Earth_1A_D.dds", RESOURCE_TEXTURE2D, 2);
+	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TFF_Terrain_Earth_2A_D.dds", RESOURCE_TEXTURE2D, 3);
+	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TFF_Terrain_Earth_3A_D.dds", RESOURCE_TEXTURE2D, 4);
+	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TFF_Terrain_Grass_1A_D.dds", RESOURCE_TEXTURE2D, 5);
+	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TFF_Terrain_Grass_2A_D.dds", RESOURCE_TEXTURE2D, 6);
+	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TFF_Terrain_Sand_1A_D.dds", RESOURCE_TEXTURE2D, 7);
+	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TestLevel_splatmap_0.dds", RESOURCE_TEXTURE2D, 8);
+	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TestLevel_splatmap_1.dds", RESOURCE_TEXTURE2D, 9);
+
+	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
+
+	TerrainShader* pTerrainShader = new TerrainShader();
+	pTerrainShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, MRT, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	GameScene::CreateShaderResourceViews(pd3dDevice, Terrain_Texture, 18, false);
+
+	m_nMaterials = 1;
+	m_ppMaterials = new Material * [1];
+	m_ppMaterials[0] = NULL;
+	Material* pTerrainMaterial = new Material(1);
+	pTerrainMaterial->SetTexture(Terrain_Texture, 0);
+	pTerrainMaterial->SetShader(pTerrainShader);
+
+
+	SetMaterials(0, pTerrainMaterial);
+}
+
+HeightMapTerrain::~HeightMapTerrain(void)
+{
+	if (m_pHeightMapImage) delete m_pHeightMapImage;
+}
+
+float HeightMapTerrain::GetHeight(float x, float z, bool bReverseQuad) 
+{ 
+	return(m_pHeightMapImage->GetHeight(x, z, bReverseQuad) * m_xmf3Scale.y); 
+}
+XMFLOAT3 HeightMapTerrain::GetNormal(float x, float z) {
+	return(m_pHeightMapImage->GetHeightMapNormal(int(x / m_xmf3Scale.x), int(z / m_xmf3Scale.z))); 
+}
+
+int HeightMapTerrain::GetHeightMapWidth() { 
+	return(m_pHeightMapImage->GetHeightMapWidth()); 
+}
+int HeightMapTerrain::GetHeightMapLength() {
+	return(m_pHeightMapImage->GetHeightMapLength()); 
+}
+
+void HeightMapTerrain::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	Object::Render(pd3dCommandList, pCamera);
 }

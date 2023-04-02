@@ -1,8 +1,9 @@
 #pragma once
+
 #include "stdafx.h"
 #include <list>
-
 #include "Mesh.h"
+
 #include "Camera.h"
 #include "Component.h"
 
@@ -11,6 +12,7 @@ class Camera;
 class Object; 
 class Mesh;
 class SkinnedMesh;
+class HeightMapTerrain;
 #define RESOURCE_TEXTURE2D			0x01
 #define RESOURCE_TEXTURE2D_ARRAY	0x02	//[]
 #define RESOURCE_TEXTURE2DARRAY		0x03
@@ -148,6 +150,7 @@ public:
 	void SetReflection(UINT nReflection) { m_nReflection = nReflection; }
 	void SetShader(Shader* pShader);
 	void SetTexture(CTexture* pTexture);
+	void SetTexture(CTexture* pTexture, UINT nTexture);
 	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 
 	void LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR* pwstrTextureName, CTexture** ppTexture, Object* pParent, FILE* OpenedFile, Shader* pShader);
@@ -269,6 +272,13 @@ public:
 	ID3D12Resource** m_ppd3dcbSkinningBoneTransforms = NULL; //[SkinnedMeshes]
 	XMFLOAT4X4** m_ppcbxmf4x4MappedSkinningBoneTransforms = NULL; //[SkinnedMeshes]
 
+	bool							m_bRootMotion = false;
+	Object* m_pModelRootObject = NULL;
+
+	Object* m_pRootMotionObject = NULL;
+	XMFLOAT3						m_xmf3FirstRootMotionPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+
 public:
 	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 
@@ -327,6 +337,7 @@ public:
 	void SetMaterial(Material* pMaterial);
 	void SetMaterial(UINT nReflection);
 	void SetMaterials(int nMaterial, Material* pMaterial);
+	void ChangeShader(Shader* pShader);
 	void SetPosition(float x, float y, float z);
 	void SetPosition(XMFLOAT3 xmf3Position);
 	void MoveStrafe(float fDistance = 1.0f);
@@ -373,7 +384,8 @@ public:
 	void FindAndSetSkinnedMesh(SkinnedMesh** ppSkinnedMeshes, int* pnSkinnedMesh);
 
 	// 맵 로드
-	static void LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, bool isBlendObjects);
+	static void LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName);
+	static void LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, Shader* pBlendShader);
 
 	// 모델 & 애니메이션 로드
 	static Object* LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, Object* pParent, FILE* OpendFile, Shader* pShader, int* pnSkinnedMeshes);
@@ -425,8 +437,16 @@ inline T* Object::GetComponent()
 class TestModelObject : public Object
 {
 public:
-	TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks, bool isBlendObject);
+	TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks);
 	virtual ~TestModelObject() {};
+
+};
+
+class TestModelBlendObject : public Object
+{
+public:
+	TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader);
+	virtual ~TestModelBlendObject() {};
 
 };
 
@@ -438,4 +458,34 @@ public:
 	virtual ~SkyBox();
 
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class HeightMapTerrain : public Object
+{
+public:
+	HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color);
+	virtual ~HeightMapTerrain();
+
+private:
+	HeightMapImage				*m_pHeightMapImage;
+
+	int							m_nWidth;
+	int							m_nLength;
+
+	XMFLOAT3					m_xmf3Scale;
+
+public:
+	float GetHeight(float x, float z, bool bReverseQuad = false); //World
+	XMFLOAT3 GetNormal(float x, float z);
+
+	int GetHeightMapWidth();
+	int GetHeightMapLength();
+
+	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
+	float GetWidth() { return(m_nWidth * m_xmf3Scale.x); }
+	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+
 };

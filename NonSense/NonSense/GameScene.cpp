@@ -123,50 +123,62 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 	
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 16, 20); 
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 150); 
 
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();
-
-	m_nObjects = 5;
-	m_GameObjects = new Object * [m_nObjects];
-
-	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/F05.bin", NULL);
+	XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
+	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
+	HeightMapTerrain* terrain = m_pTerrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
+	terrain->SetPosition(0, -500, 0);
+	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Map_Afternoon_Gorge.bin", NULL);
 	LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
 
+	Object* TempObject = NULL;
 	
-	TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 1);
-	TempObject->SetNum(0);
-	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
-	TempObject->SetPosition(0.0f, 0.0f, 0.0f);
+	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 0,false);
+	//TempObject->SetNum(0);
+	////TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
+	//TempObject->SetPosition(0.0f, 0.0f, 0.0f);
+	//m_nObjects = 1;
+	//m_GameObjects = new Object*[m_nObjects];
 
-	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
-	TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
-	TempObject->SetNum(1);
-	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
-	TempObject->SetPosition(1.0f, 0.0f, 0.0f);
-
-	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Close.bin", NULL);
-
-	TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
-	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
-	TempObject->SetNum(2);
-	TempObject->SetPosition(2.0f, 0.0f, 0.0f);
-
-	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Rush.bin", NULL);
-
-	TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
-	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 5);
-	TempObject->SetNum(3);
-	TempObject->SetPosition(-1.0f, 0.0f, 0.0f);
-
-	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/ent.bin", NULL);
-
-	TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
-	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
-	TempObject->SetNum(4);
-	TempObject->SetPosition(-3.0f, 0.0f, 0.0f);
+	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
+	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
+	//TempObject->SetNum(1);
+	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
+	//TempObject->SetPosition(1.0f, 0.0f, 0.0f);
+	//
+	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Close.bin", NULL);
+	//
+	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
+	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
+	//TempObject->SetNum(2);
+	//TempObject->SetPosition(2.0f, 0.0f, 0.0f);
+	//
+	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Rush.bin", NULL);
+	//
+	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
+	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 2);
+	//TempObject->SetNum(3);
+	//TempObject->SetPosition(-1.0f, 0.0f, 0.0f);
+	//
+	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/ent.bin", NULL);
+	//
+	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
+	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
+	//TempObject->SetNum(4);
+	//TempObject->SetPosition(-3.0f, 0.0f, 0.0f);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
+
+	m_pBlendShader = new BlendShader();
+	m_pBlendShader->CreateShader(pd3dDevice, m_pGraphicsRootSignature, MRT, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	Object::LoadMapData(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/NonBlend_Props_Map.bin");
+
+	Object::LoadMapData_Blend(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Blend_Objects_Map.bin", m_pBlendShader);
 
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -199,7 +211,7 @@ ID3D12RootSignature* GameScene::GetGraphicsRootSignature()
 
 ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[10];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[11];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -261,8 +273,15 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dDescriptorRanges[9].RegisterSpace = 0;
 	pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	pd3dDescriptorRanges[10].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[10].NumDescriptors = 10;
+	pd3dDescriptorRanges[10].BaseShaderRegister = 14; //t14 ~ t23
+	pd3dDescriptorRanges[10].RegisterSpace = 0;
+	pd3dDescriptorRanges[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
-	D3D12_ROOT_PARAMETER pd3dRootParameters[18];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[19];
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 0; //Player
 	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
@@ -273,7 +292,8 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[1].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	pd3dRootParameters[2].Constants.Num32BitValues = 17;
 	pd3dRootParameters[2].Descriptor.ShaderRegister = 2; //GameObject
 	pd3dRootParameters[2].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -349,12 +369,18 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[16].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
-
 	pd3dRootParameters[17].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[17].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[17].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[9]);
 	pd3dRootParameters[17].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+
+	pd3dRootParameters[18].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[18].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[18].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[10]);
+	pd3dRootParameters[18].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	
+	
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc;
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -534,6 +560,11 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 {
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	for (int i = 0; i < m_nObjects; i++)
+	{
+		m_GameObjects[i]->UpdateTransform(NULL);
+		m_GameObjects[i]->Render(pd3dCommandList, pCamera);
+	}
 
 	for (auto& object : gameObjects)
 	{
@@ -541,11 +572,18 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 		object->Render(pd3dCommandList, pCamera);
 	}
 
-	//for (int i = 0; i < m_nObjects; i++)
-	//{
-	//	m_GameObjects[i]->UpdateTransform(NULL);
-	//	m_GameObjects[i]->Render(pd3dCommandList, pCamera);
-	//}
+	//m_pTerrain->Render(pd3dCommandList, pCamera);
+}
+
+void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	OnPrepareRender(pd3dCommandList, pCamera);
+	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	for (auto& blendObject : blendGameObjects)
+	{
+		blendObject->UpdateTransform(NULL);
+		blendObject->Render(pd3dCommandList, pCamera);
+	}
 }
 
 void GameScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)

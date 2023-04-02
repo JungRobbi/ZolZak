@@ -206,6 +206,17 @@ protected:
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 
 };
+
+class BlendShader : public StandardShader
+{
+public:
+	BlendShader() {}
+	virtual ~BlendShader() {}
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_BLEND_DESC CreateBlendState();
+
+};
+
 class SkinnedModelShader : public StandardShader
 {
 public:
@@ -233,4 +244,16 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat);
+};
+
+class TerrainShader : public Shader
+{
+public:
+	TerrainShader();
+	virtual ~TerrainShader();
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
 };

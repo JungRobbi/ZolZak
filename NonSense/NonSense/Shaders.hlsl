@@ -297,6 +297,13 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	return(output);
 }
 
+float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtAlbedoTexture.Sample(gssDefaultSamplerState, input.uv);
+
+	return(cColor);
+}
+
 #define MAX_VERTEX_INFLUENCES			4
 #define SKINNED_ANIMATION_BONES			256
 
@@ -373,4 +380,56 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 	float4 cColor = gtxtSkyCubeTexture.Sample(gssDefaultSamplerState, input.positionL);
 
 	return(cColor);
+}
+
+
+Texture2D TFF_Terrain_Dirt_1A_D : register(t14);
+Texture2D TFF_Terrain_Dirt_Road_1A_D : register(t15);
+Texture2D TFF_Terrain_Earth_1A_D : register(t16);
+Texture2D TFF_Terrain_Earth_2A_D : register(t17);
+Texture2D TFF_Terrain_Earth_3A_D : register(t18);
+Texture2D TFF_Terrain_Grass_1A_D : register(t19);
+Texture2D TFF_Terrain_Grass_2A_D : register(t20);
+Texture2D TFF_Terrain_Sand_1A_D : register(t21);
+
+
+Texture2D SplatMap_0 : register(t22);
+Texture2D SplatMap_1 : register(t23);
+
+struct VS_TERRAIN_INPUT
+{
+	float3 position : POSITION;
+	float4 color : COLOR;
+	float2 uv0 : TEXCOORD0;
+	float2 uv1 : TEXCOORD1;
+};
+
+struct VS_TERRAIN_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float4 color : COLOR;
+	float2 uv0 : TEXCOORD0;
+	float2 uv1 : TEXCOORD1;
+};
+
+VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
+{
+	VS_TERRAIN_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.color = input.color;
+	output.uv0 = input.uv0;
+	output.uv1 = input.uv1;
+
+	return(output);
+}
+
+float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
+{
+	float4 cBaseTexColor = TFF_Terrain_Grass_2A_D.Sample(gssWrap, input.uv0);
+	float4 cDetailTexColor = TFF_Terrain_Dirt_Road_1A_D.Sample(gssWrap, input.uv1);
+	//	float4 cColor = saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
+	float4 cColor = input.color * saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
+
+	return(cDetailTexColor);
 }
