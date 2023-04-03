@@ -94,7 +94,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSObject(VS_LIGHTING_OUTPUT input, uint nPrimi
 	output.Scene = float4(0, 1, 0, 0);
 
 	output.Position = float4(input.positionW, 1.0f);
-	output.Normal = float4(input.normalW.xyz, 1/((float)objectID+2));
+	output.Normal = float4(input.normalW.xyz, 1 / ((float)objectID + 2));
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	output.Texture = gtxtTextureArray.Sample(gssDefaultSamplerState, uvw);
 
@@ -156,10 +156,6 @@ static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, {
 
 float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 {
-	float4 cColor = RenderInfor[2][int2(input.position.xy)]; // 240 ~ 290 FPS
-	//float4 cColor = RenderInfor[2].Sample(gssDefaultSamplerState, input.uv); // 210 ~ 240 FPS
-	//float4 cColor = RenderInfor[2].Load(uint3((uint)input.position.x, (uint)input.position.y, 0)); // 280 ~ 320 FPS
-
 	int Edge = false;
 	float fObjectID = RenderInfor[1][int2(input.position.xy)].a;
 	for (int i = 0; i < LineSize; i++)
@@ -167,7 +163,7 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 		if (RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a != 0 && fObjectID != 0)
 			if (fObjectID != RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
 	}
-	cColor += Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection);
+	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection);
 	if (Edge)
 		return(float4(LineColor));
 	else
@@ -279,7 +275,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
 	output.Texture = (cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor);
 	float3 normalW;
-	
+
 	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
 	{
 		float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
@@ -292,8 +288,6 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	}
 
 	output.Normal = float4(normalW.xyz, 1 / ((float)objectID + 2));
-	//output.Normal = Lighting(input.positionW, input.normalW, gf3CameraPosition);
-
 	return(output);
 }
 
@@ -382,6 +376,40 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 	return(cColor);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////
+Texture2D gtxtUITexture : register(t24);
+
+struct VS_UI_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD0;
+};
+
+VS_UI_OUTPUT VSUI(uint nVertexID : SV_VertexID)
+{
+	VS_UI_OUTPUT output = (VS_UI_OUTPUT)0;
+
+	if (nVertexID == 0) { output.position = float4(0.0f, 1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 1) { output.position = float4(1.0f, 1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
+	else if (nVertexID == 2) { output.position = float4(1.0f, 0.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+	else if (nVertexID == 3) { output.position = float4(0.0f, 1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 4) { output.position = float4(1.0f, 0.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+	else if (nVertexID == 5) { output.position = float4(0.0f, 0.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
+
+	output.position = mul(output.position, gmtxPlayerWorld);
+
+	return(output);
+}
+float4 PSUI(VS_UI_OUTPUT input) : SV_Target
+{
+	float4 cColor = gtxtUITexture.Sample(gssWrap, input.uv);
+
+	return(cColor);
+}
+
+
+/// ///////////////////////////////////////////////////////////////////////////////////////
 
 Texture2D TFF_Terrain_Dirt_1A_D : register(t14);
 Texture2D TFF_Terrain_Dirt_Road_1A_D : register(t15);
