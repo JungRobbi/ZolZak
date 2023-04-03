@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+
 #include "Timer.h"
 #include "Camera.h"
 #include "GameScene.h"
@@ -45,6 +47,8 @@ private:
 	UINT64 m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE m_FenceEventHandle;
 public:
+	std::vector<GameScene*> m_GameScenes;
+public:
 	Camera* m_pCamera = NULL;
 	Player* m_pPlayer = NULL;
 	ScreenShader* m_pScreen = NULL;
@@ -84,5 +88,6 @@ public:
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,LPARAM lParam);
 
+	void ChangeScene(unsigned char num);
 };
 
