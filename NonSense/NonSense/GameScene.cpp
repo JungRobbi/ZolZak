@@ -127,21 +127,19 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();
-	XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
+	XMFLOAT3 xmf3Scale(1.0, 0.4, 1.0);
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
-	HeightMapTerrain* terrain = m_pTerrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
-	terrain->SetPosition(0, -500, 0);
-	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Map_Afternoon_Gorge.bin", NULL);
+	m_pTerrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, xmf3Scale, xmf4Color);
+	m_pTerrain->SetPosition(-400, 0.0, -400);
+	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/F05.bin", NULL);
 	LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
 
 	Object* TempObject = NULL;
 	
-	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 0,false);
-	//TempObject->SetNum(0);
-	////TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
-	//TempObject->SetPosition(0.0f, 0.0f, 0.0f);
-	//m_nObjects = 1;
-	//m_GameObjects = new Object*[m_nObjects];
+	TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel,1);
+	TempObject->SetNum(0);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
+	TempObject->SetPosition(400.0f, 0.0f, 0.0f);
 
 	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
 	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
