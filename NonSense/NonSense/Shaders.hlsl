@@ -454,10 +454,27 @@ VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
 
 float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 {
-	float4 cBaseTexColor = TFF_Terrain_Grass_2A_D.Sample(gssWrap, input.uv0);
-	float4 cDetailTexColor = TFF_Terrain_Dirt_Road_1A_D.Sample(gssWrap, input.uv1);
-	//	float4 cColor = saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
-	float4 cColor = input.color * saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
+	float4 SplatMap0 = SplatMap_0.Sample(gssWrap, input.uv0);
+	float4 SplatMap1 = SplatMap_1.Sample(gssWrap, input.uv0);
+	float4 Dirt = TFF_Terrain_Dirt_1A_D.Sample(gssWrap, input.uv1);
+	float4 Dirt_Road = TFF_Terrain_Dirt_Road_1A_D.Sample(gssWrap, input.uv1);
+	float4 Earth_1 = TFF_Terrain_Earth_1A_D.Sample(gssWrap, input.uv1);
+	float4 Earth_2 = TFF_Terrain_Earth_2A_D.Sample(gssWrap, input.uv1);
+	float4 Earth_3 = TFF_Terrain_Earth_3A_D.Sample(gssWrap, input.uv1);
+	float4 Grass_1 = TFF_Terrain_Grass_1A_D.Sample(gssWrap, input.uv1);
+	float4 Grass_2 = TFF_Terrain_Grass_2A_D.Sample(gssWrap, input.uv1);
+	float4 Sand = TFF_Terrain_Sand_1A_D.Sample(gssWrap, input.uv1);
 
-	return(cDetailTexColor);
+	float4 cColor = float4(0,0,0,0);
+
+	cColor += Grass_1 * SplatMap0.r;
+	cColor += Grass_2 * SplatMap0.g;
+	cColor += Earth_1 * SplatMap0.b;
+	cColor += Earth_2 * SplatMap0.a;
+
+	cColor += Earth_3 * SplatMap1.r;
+	cColor += Dirt * SplatMap1.g;
+	cColor += Sand * SplatMap1.b;
+	cColor += Dirt_Road * SplatMap1.a;
+	return cColor;
 }
