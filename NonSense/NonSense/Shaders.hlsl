@@ -377,6 +377,40 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 }
 
 
+///////////////////////////////////////////////////////////////////////////////////////
+Texture2D gtxtUITexture : register(t24);
+
+struct VS_UI_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD0;
+};
+
+VS_UI_OUTPUT VSUI(uint nVertexID : SV_VertexID)
+{
+	VS_UI_OUTPUT output = (VS_UI_OUTPUT)0;
+
+	if (nVertexID == 0) { output.position = float4(0.0f, 1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 1) { output.position = float4(1.0f, 1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
+	else if (nVertexID == 2) { output.position = float4(1.0f, 0.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+	else if (nVertexID == 3) { output.position = float4(0.0f, 1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 4) { output.position = float4(1.0f, 0.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+	else if (nVertexID == 5) { output.position = float4(0.0f, 0.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
+
+	output.position = mul(output.position, gmtxPlayerWorld);
+
+	return(output);
+}
+float4 PSUI(VS_UI_OUTPUT input) : SV_Target
+{
+	float4 cColor = gtxtUITexture.Sample(gssWrap, input.uv);
+
+	return(cColor);
+}
+
+
+/// ///////////////////////////////////////////////////////////////////////////////////////
+
 Texture2D TFF_Terrain_Dirt_1A_D : register(t14);
 Texture2D TFF_Terrain_Dirt_Road_1A_D : register(t15);
 Texture2D TFF_Terrain_Earth_1A_D : register(t16);
