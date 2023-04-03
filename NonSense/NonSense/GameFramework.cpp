@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "GameFramework.h"
 
+#include "Login_GameScene.h"
+#include "Lobby_GameScene.h"
+#include "Stage_GameScene.h"
+
 GameFramework::GameFramework()
 {
 	m_pFactory = NULL;
@@ -282,26 +286,30 @@ void GameFramework::BuildObjects()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
-	auto m_pScene = new GameScene();
-	m_GameScenes.push_back(m_pScene);
-	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
+	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Stage
+	m_GameScenes.emplace_back(new Login_GameScene());
+	m_GameScenes.emplace_back(new Lobby_GameScene());
+	m_GameScenes.emplace_back(new Stage_GameScene()); 
 
-	m_pHP_Dec_UI = new Player_HP_DEC_UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+	for (auto& gameScene : m_GameScenes)
+		gameScene->BuildObjects(m_pDevice, m_pCommandList);
 
-	m_pUI = new Player_State_UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
-	m_pHP_UI = new Player_HP_UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+	m_pHP_Dec_UI = new Player_HP_DEC_UI(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature());
+
+	m_pUI = new Player_State_UI(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature());
+	m_pHP_UI = new Player_HP_UI(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature());
 	m_pHP_UI->SetParentUI(m_pUI);
 
 	m_pHP_Dec_UI->SetParentUI(m_pUI);
-
-	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
-	m_pScene->m_pPlayer = m_pPlayer;
+	
+	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature());
+	GameScene::MainScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
 	m_pDebug = new DebugShader();
 	m_pScreen = new ScreenShader();
-	m_pScreen->CreateShader(m_pDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	m_pDebug->CreateShader(m_pDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pScreen->CreateShader(m_pDevice, GameScene::MainScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pDebug->CreateShader(m_pDevice, GameScene::MainScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 	DXGI_FORMAT pdxgiResourceFormats[MRT - 1] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
 	m_pDebug->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT);
@@ -311,14 +319,17 @@ void GameFramework::BuildObjects()
 	m_pDebug->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
 	m_pCommandList->Close();
 
-
-
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	if (m_pScene) m_pScene->ReleaseUploadBuffers();
-	if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
+	for (auto& gameScene : m_GameScenes) {
+		gameScene->ReleaseUploadBuffers();
+		if (gameScene->m_pPlayer)
+			gameScene->m_pPlayer->ReleaseUploadBuffers();
+	}
+	if (m_pPlayer)
+		m_pPlayer->ReleaseUploadBuffers();
 	Timer::Reset();
 }
 
@@ -379,6 +390,19 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			m_pHP_UI->HP -= 0.2;
 			m_pHP_Dec_UI->Dec_HP -= 0.2;
 			m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+			break;
+		case 'J':
+		case 'j':
+			ChangeScene(0);
+			break;
+		case 'K':
+		case 'k':
+			ChangeScene(1);
+			break;
+		case 'L':
+		case 'l':
+			ChangeScene(2);
+			break;
 		default:
 			break;
 		}
@@ -412,6 +436,12 @@ LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessa
 	}
 	return(0);
 }
+
+void GameFramework::ChangeScene(unsigned char num)
+{
+	GameScene::MainScene = m_GameScenes.at(num);
+}
+
 void GameFramework::ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta)
 {
 	//픽킹으로 선택한 게임 객체가 있으면 키보드를 누르거나 마우스를 움직이면 게임 개체를 이동 또는 회전한다.

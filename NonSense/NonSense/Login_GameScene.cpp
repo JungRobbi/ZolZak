@@ -9,7 +9,7 @@ void Login_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();
 
-	m_nObjects = 5;
+	m_nObjects = 2;
 	m_GameObjects = new Object * [m_nObjects];
 
 	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/F05.bin", NULL);
@@ -26,7 +26,7 @@ void Login_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_GameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
 	m_GameObjects[1]->SetPosition(1.0f, 0.0f, 0.0f);
 
-	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Close.bin", NULL);
+	/*pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Close.bin", NULL);
 
 	m_GameObjects[2] = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1);
 	m_GameObjects[2]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
@@ -46,7 +46,7 @@ void Login_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_GameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
 	m_GameObjects[4]->SetNum(4);
 	m_GameObjects[4]->SetPosition(-3.0f, 0.0f, 0.0f);
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);*/
 
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);

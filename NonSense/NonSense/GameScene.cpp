@@ -105,7 +105,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 	
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 16, 25); 
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 16, 25);
 
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();
