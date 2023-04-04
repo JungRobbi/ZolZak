@@ -60,6 +60,14 @@ public:
 		ZeroMemory(&_buf, sizeof(_buf));
 		memcpy(_buf, packet, packet[0]);
 	}
+	EXP_OVER(const char* buf, short buf_size) : m_ioType(IO_TYPE::IO_SEND)
+	{
+		ZeroMemory(&_wsa_over, sizeof(_wsa_over));
+		_wsa_buf.buf = _buf;
+		_wsa_buf.len = buf_size;
+		ZeroMemory(&_buf, sizeof(_buf));
+		memcpy(_buf, buf, buf_size);
+	}
 
 	~EXP_OVER() {}
 };

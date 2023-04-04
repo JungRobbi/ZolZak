@@ -99,7 +99,7 @@ void NetworkMGR::Tick()
 
 		// EXP_OVER 형태로 복사 혹은 buf 형태로 복사 후 send 해야함
 
-		do_send(0, BUFSIZE, buf);
+		do_send(send_buf, buf_size);
 		PacketQueue::PopSendPacket();
 	}
 }
@@ -109,8 +109,8 @@ void NetworkMGR::do_recv() {
 	WSARecv(tcpSocket->m_fd, &(tcpSocket->m_recvOverlapped._wsa_buf), 1, 0, &recv_flag, &(tcpSocket->m_recvOverlapped._wsa_over), recv_callback);
 }
 
-void NetworkMGR::do_send(unsigned long long sender_id, int num_bytes, const char* buff) {
-	EXP_OVER* send_over = new EXP_OVER(sender_id, num_bytes, buff);
+void NetworkMGR::do_send(const char* buf, short buf_size) {
+	EXP_OVER* send_over = new EXP_OVER(buf, buf_size);
 	WSASend(tcpSocket->m_fd, &send_over->_wsa_buf, 1, 0, 0, &send_over->_wsa_over, send_callback);
 }
 
