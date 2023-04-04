@@ -16,9 +16,6 @@
     <Filter Include="소스 파일\DirectX 12">
       <UniqueIdentifier>{e01b3cd7-4898-49e0-aa36-1cf3143ed41f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\MSG">
-      <UniqueIdentifier>{8f36df8d-9d3f-42b5-9660-130b82ae17c1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\Components">
       <UniqueIdentifier>{72921a05-7971-4c38-ac8c-6bb42cbf3860}</UniqueIdentifier>
     </Filter>
@@ -77,12 +74,6 @@
     </ClInclude>
     <ClInclude Include="GameState.h">
       <Filter>소스 파일\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="MSGQueue.h">
-      <Filter>소스 파일\MSG</Filter>
-    </ClInclude>
-    <ClInclude Include="DataMSG.h">
-      <Filter>소스 파일\MSG</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>소스 파일\PCH_AND_MISC</Filter>
@@ -154,12 +145,6 @@
     </ClCompile>
     <ClCompile Include="GameState.cpp">
       <Filter>소스 파일\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="MSGQueue.cpp">
-      <Filter>소스 파일\MSG</Filter>
-    </ClCompile>
-    <ClCompile Include="DataMSG.cpp">
-      <Filter>소스 파일\MSG</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일\PCH_AND_MISC</Filter>

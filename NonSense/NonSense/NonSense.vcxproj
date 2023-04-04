@@ -105,7 +105,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
     </ClCompile>
@@ -139,7 +139,6 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CollideComponent.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="DataMSG.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="GameScene.h" />
@@ -148,7 +147,6 @@
     <ClInclude Include="Lobby_GameScene.h" />
     <ClInclude Include="Login_GameScene.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MSGQueue.h" />
     <ClInclude Include="NetworkMGR.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
@@ -167,7 +165,6 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CollideComponent.cpp" />
     <ClCompile Include="Component.cpp" />
-    <ClCompile Include="DataMSG.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="GameScene.cpp" />
@@ -176,7 +173,6 @@
     <ClCompile Include="Lobby_GameScene.cpp" />
     <ClCompile Include="Login_GameScene.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MSGQueue.cpp" />
     <ClCompile Include="NetworkMGR.cpp" />
     <ClCompile Include="NonSense.cpp" />
     <ClCompile Include="Object.cpp" />
