@@ -12,19 +12,39 @@ shared_ptr<Socket> NetworkMGR::tcpSocket;
 void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED recv_over, DWORD recv_flag)
 {
 	char* recv_buf = reinterpret_cast<EXP_OVER*>(recv_over)->_wsa_buf.buf;
-	
-	DataMSG rdm{ recv_buf + 5 };
-	
-	if (rdm.msg == E_MSG_POSITIONING) { // 위치 이동
-		int x;
-		int y;
-		memcpy(&x, rdm.data, sizeof(int));
-		memcpy(&y, &rdm.data[4], sizeof(int));
-		Vectorint2 pos{ x, y };
-		dynamic_cast<GameScene*>(Scene::scene)->player->setPosition(pos);
+	int recv_buf_Length = MAX_SOCKBUF; // 받은 버퍼 사이즈를 확인할 방법을 찾아야 함
+
+	{ // 패킷 처리
+		int remain_data = recv_buf_Length + NetworkMGR::tcpSocket->m_prev_remain;
+		while (remain_data > 0) {
+			unsigned char packet_size = recv_buf[0];
+			// 남은 데이터가 현재 처리할 패킷 크기보다 적으면 잘린 것이다. (혹은 딱 맞게 떨어진 것이다.)
+			// 혹은 packet_size가 0일 경우 버퍼의 빈 부분을 찾은 것이거나 오류이다.
+			if (packet_size > remain_data)
+				break;
+			else if (packet_size == 0) {
+				remain_data = 0;
+				break;
+			}
+
+			//패킷 처리
+			NetworkMGR::Process_Packet(recv_buf);
+
+			//다음 패킷 이동, 남은 데이터 갱신
+			recv_buf += packet_size;
+			remain_data -= packet_size;
+		}
+		//남은 데이터 저장
+		NetworkMGR::tcpSocket->m_prev_remain = remain_data;
+
+		//남은 데이터가 0보다 크면 recv_buf의 맨 앞으로 복사한다.
+		if (remain_data > 0) {
+			memcpy(NetworkMGR::tcpSocket->m_recvOverlapped._buf, recv_buf, remain_data);
+		}
 	}
-	memset(&NetworkMGR::tcpSocket->m_recvOverlapped._buf_send_msg, 0, sizeof(NetworkMGR::tcpSocket->m_readOverlappedStruct._send_msg));
-	memset(&NetworkMGR::tcpSocket->m_readOverlappedStruct._wsa_over, 0, sizeof(NetworkMGR::tcpSocket->m_readOverlappedStruct._wsa_over));
+
+	memset(&NetworkMGR::tcpSocket->m_recvOverlapped._buf, 0, sizeof(NetworkMGR::tcpSocket->m_recvOverlapped._buf));
+	memset(&NetworkMGR::tcpSocket->m_recvOverlapped._wsa_over, 0, sizeof(NetworkMGR::tcpSocket->m_recvOverlapped._wsa_over));
 	NetworkMGR::do_recv();
 }
 
@@ -68,12 +88,19 @@ void NetworkMGR::Tick()
 
 	while (!PacketQueue::SendQueue.empty()) {
 		// 데이터 송신
-		DataMSG msg = PacketQueue::PopSendPacket();
-		char buf[BUFSIZE];
+		char* send_buf = PacketQueue::SendQueue.front();
 
-		memcpy(buf, &msg, sizeof(DataMSG));
+		int buf_size{};
+		while (1) {
+			if (buf_size + send_buf[buf_size] > MAX_BUFSIZE_CLIENT || send_buf[buf_size] == 0)
+				break;
+			buf_size += send_buf[buf_size];
+		}
+
+		// EXP_OVER 형태로 복사 혹은 buf 형태로 복사 후 send 해야함
 
 		do_send(0, BUFSIZE, buf);
+		PacketQueue::PopSendPacket();
 	}
 }
 
