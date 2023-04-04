@@ -305,7 +305,6 @@ void GameFramework::BuildObjects()
 	m_pHP_Dec_UI->SetParentUI(m_pUI);
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature());
-	GameScene::MainScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
 	m_pDebug = new DebugShader();
@@ -390,16 +389,13 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			m_pHP_Dec_UI->Dec_HP -= 0.2;
 			m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
 			break;
-		case 'J':
-		case 'j':
+		case '7':
 			ChangeScene(0);
 			break;
-		case 'K':
-		case 'k':
+		case '8':
 			ChangeScene(1);
 			break;
-		case 'L':
-		case 'l':
+		case '9':
 			ChangeScene(2);
 			break;
 		default:
@@ -506,7 +502,6 @@ void GameFramework::ProcessInput()
 			if (dwDirection) m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
 		}
 	}
-	m_pPlayer->Update(Timer::GetTimeElapsed());
 }
 
 void GameFramework::AnimateObjects()
@@ -554,6 +549,7 @@ void GameFramework::FrameAdvance()
 
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
 	GameScene::MainScene->update();
+	m_pPlayer->Update(Timer::GetTimeElapsed());
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	m_pScreen->OnPostRenderTarget(m_pCommandList);

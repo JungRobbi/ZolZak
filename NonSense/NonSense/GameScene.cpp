@@ -544,8 +544,6 @@ void GameScene::AnimateObjects(float fTimeElapsed)
 	//	m_GameObjects[i]->Animate(fTimeElapsed);
 	//}
 
-	if (m_pPlayer) m_pPlayer->Animate(fTimeElapsed);
-
 	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].AnimateObjects(fTimeElapsed);
 }
 
