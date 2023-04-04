@@ -3,26 +3,26 @@
 
 #include "DataMSG.h"
 
-class MSGQueue
+class PacketQueue
 {
 public:
-	static std::list<DataMSG> SendMSGQueue;
-	static std::list<DataMSG> RecvMSGQueue;
+	static std::list<DataMSG> SendPacketQueue;
+	static std::list<DataMSG> RecvPacketQueue;
 
 public:
-	static void AddSendMSG(DataMSG input) { SendMSGQueue.push_back(input); }
-	static void AddRecvMSG(DataMSG input) { RecvMSGQueue.push_back(input); }
+	static void AddSendMSG(DataMSG input) { SendPacketQueue.push_back(input); }
+	static void AddRecvMSG(DataMSG input) { RecvPacketQueue.push_back(input); }
 
 	static DataMSG& PopFrontSendMSG()
 	{
-		DataMSG front_msg = SendMSGQueue.front();
-		SendMSGQueue.pop_front();
+		DataMSG front_msg = SendPacketQueue.front();
+		SendPacketQueue.pop_front();
 		return front_msg;
 	}
 	static DataMSG& PopFrontRecvMSG()
 	{
-		DataMSG front_msg = RecvMSGQueue.front();
-		RecvMSGQueue.pop_front();
+		DataMSG front_msg = RecvPacketQueue.front();
+		RecvPacketQueue.pop_front();
 		return front_msg;
 	}
 

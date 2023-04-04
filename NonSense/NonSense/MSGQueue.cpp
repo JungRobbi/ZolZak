@@ -1,4 +1,4 @@
-#include "MSGQueue.h"
+#include "PacketQueue.h"
 
-std::list<DataMSG> MSGQueue::SendMSGQueue;
-std::list<DataMSG> MSGQueue::RecvMSGQueue;
+std::list<DataMSG> PacketQueue::SendPacketQueue;
+std::list<DataMSG> PacketQueue::RecvPacketQueue;

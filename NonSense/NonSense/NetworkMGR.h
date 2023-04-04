@@ -28,4 +28,5 @@ public:
 
 	static void do_recv();
 	static void do_send(unsigned long long sender_id, int num_bytes, const char* buff);
+	static void Process_Packet(char* p_Packet);
 };

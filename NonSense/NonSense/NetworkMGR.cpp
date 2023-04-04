@@ -23,7 +23,7 @@ void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED recv_ove
 		Vectorint2 pos{ x, y };
 		dynamic_cast<GameScene*>(Scene::scene)->player->setPosition(pos);
 	}
-	memset(&NetworkMGR::tcpSocket->m_readOverlappedStruct._send_msg, 0, sizeof(NetworkMGR::tcpSocket->m_readOverlappedStruct._send_msg));
+	memset(&NetworkMGR::tcpSocket->m_recvOverlapped._buf_send_msg, 0, sizeof(NetworkMGR::tcpSocket->m_readOverlappedStruct._send_msg));
 	memset(&NetworkMGR::tcpSocket->m_readOverlappedStruct._wsa_over, 0, sizeof(NetworkMGR::tcpSocket->m_readOverlappedStruct._wsa_over));
 	NetworkMGR::do_recv();
 }
@@ -63,12 +63,12 @@ void NetworkMGR::Tick()
 	SleepEx(0, true);
 
 	// MSGSendQueue를 확인하고 있으면 서버로 전송
-	if (MSGQueue::SendMSGQueue.empty() || tcpSocket->m_fd == INVALID_SOCKET)
+	if (PacketQueue::SendQueue.empty() || tcpSocket->m_fd == INVALID_SOCKET)
 		return;
 
-	while (!MSGQueue::SendMSGQueue.empty()) {
+	while (!PacketQueue::SendQueue.empty()) {
 		// 데이터 송신
-		DataMSG msg = MSGQueue::PopFrontSendMSG();
+		DataMSG msg = PacketQueue::PopSendPacket();
 		char buf[BUFSIZE];
 
 		memcpy(buf, &msg, sizeof(DataMSG));
@@ -79,10 +79,24 @@ void NetworkMGR::Tick()
 
 void NetworkMGR::do_recv() {
 	DWORD recv_flag = 0;
-	WSARecv(tcpSocket->m_fd, &(tcpSocket->m_readOverlappedStruct._wsa_buf), 1, 0, &recv_flag, &(tcpSocket->m_readOverlappedStruct._wsa_over), recv_callback);
+	WSARecv(tcpSocket->m_fd, &(tcpSocket->m_recvOverlapped._wsa_buf), 1, 0, &recv_flag, &(tcpSocket->m_recvOverlapped._wsa_over), recv_callback);
 }
 
 void NetworkMGR::do_send(unsigned long long sender_id, int num_bytes, const char* buff) {
 	EXP_OVER* send_over = new EXP_OVER(sender_id, num_bytes, buff);
 	WSASend(tcpSocket->m_fd, &send_over->_wsa_buf, 1, 0, 0, &send_over->_wsa_over, send_callback);
+}
+
+void NetworkMGR::Process_Packet(char* p_Packet)
+{
+	switch (p_Packet[1]) // 패킷 타입
+	{
+	case E_PACKET::E_PACKET_SC_POSITIONING_PLAYER: {
+		SC_MOVE_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(p_Packet);
+
+		break;
+	}
+	default:
+		break;
+	}
 }
