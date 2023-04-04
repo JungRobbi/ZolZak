@@ -149,6 +149,7 @@
     <ClInclude Include="Login_GameScene.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MSGQueue.h" />
+    <ClInclude Include="NetworkMGR.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerMovementComponent.h" />
@@ -176,6 +177,7 @@
     <ClCompile Include="Login_GameScene.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MSGQueue.cpp" />
+    <ClCompile Include="NetworkMGR.cpp" />
     <ClCompile Include="NonSense.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Player.cpp" />

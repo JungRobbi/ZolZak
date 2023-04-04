@@ -123,6 +123,9 @@
     <ClInclude Include="Stage_GameScene.h">
       <Filter>소스 파일\GameScenes</Filter>
     </ClInclude>
+    <ClInclude Include="NetworkMGR.h">
+      <Filter>소스 파일\Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -193,6 +196,9 @@
     </ClCompile>
     <ClCompile Include="Stage_GameScene.cpp">
       <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkMGR.cpp">
+      <Filter>소스 파일\Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
