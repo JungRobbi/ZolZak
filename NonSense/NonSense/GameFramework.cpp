@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "GameFramework.h"
 
+#include "NetworkMGR.h"
+
 #include "Login_GameScene.h"
 #include "Lobby_GameScene.h"
 #include "Stage_GameScene.h"
@@ -46,6 +48,9 @@ bool GameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateRenderTargetViews();			// Render Target View 持失
 #endif
 	CreateDepthStencilView();			// Depth Stencil View 持失
+	
+	NetworkMGR::start();
+	
 	BuildObjects();						// Object 持失
 	return(true);
 }
@@ -535,6 +540,8 @@ void GameFramework::MoveToNextFrame()
 void GameFramework::FrameAdvance()
 {
 	Timer::Tick(0.0f);
+
+	NetworkMGR::Tick();
 
 	ProcessInput();
 	AnimateObjects();

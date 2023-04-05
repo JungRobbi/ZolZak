@@ -3,7 +3,7 @@
 #include "GameScene.h"
 #pragma comment(lib, "WS2_32.LIB")
 
-char* NetworkMGR::SERVERIP;
+char* NetworkMGR::SERVERIP = "127.0.0.1";
 
 recursive_mutex NetworkMGR::mutex;
 
@@ -61,14 +61,14 @@ void NetworkMGR::start()
 	// 연결
 	//
 
-	std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
+//	std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
 
-	std::cout << std::endl << "접속 할 서버주소를 입력해주세요(ex 197.xxx.xxx.xxx) : " << std::endl;
-	std::string server_s;
-	std::cin >> server_s;
-	SERVERIP = new char[server_s.size() + 1];
-	SERVERIP[server_s.size()] = '\0';
-	strcpy(SERVERIP, server_s.c_str());
+//	std::cout << std::endl << "접속 할 서버주소를 입력해주세요(ex 197.xxx.xxx.xxx) : " << std::endl;
+//	std::string server_s;
+//	std::cin >> server_s;
+//	SERVERIP = new char[server_s.size() + 1];
+//	SERVERIP[server_s.size()] = '\0';
+//	strcpy(SERVERIP, server_s.c_str());
 
 	tcpSocket->Bind(Endpoint::Any);
 	tcpSocket->Connect(Endpoint(SERVERIP, SERVERPORT));
