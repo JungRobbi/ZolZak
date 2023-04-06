@@ -521,26 +521,36 @@ void GameFramework::FrameAdvance()
 
 	m_pCommandList->ClearDepthStencilView(m_DSVDescriptorCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 
+	//////// MRT Render Target ////////
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
 	GameScene::MainScene->update();
+
+	// 불투명 오브젝트, Terrain
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
+	// 플레이어
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
+	// Sky Box
+	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
+	///////////////////////////////////
 
+
+	////////// Back Buffer ///////////
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
-	m_pScreen->Render(m_pCommandList, m_pCamera);
 
+	// MRT 결과
+	m_pScreen->Render(m_pCommandList, m_pCamera);
+	// 투명 오브젝트
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 
-	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
-	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
+	// Debug 화면
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
-	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
+	//m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 
-	m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
-	m_pHP_UI->Render(m_pCommandList, m_pCamera);
-	m_pUI->Render(m_pCommandList, m_pCamera);
+	//m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
+	//m_pHP_UI->Render(m_pCommandList, m_pCamera);
+	//m_pUI->Render(m_pCommandList, m_pCamera);
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

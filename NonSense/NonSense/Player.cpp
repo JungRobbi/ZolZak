@@ -283,7 +283,7 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera = OnChangeCamera(SPACESHIP_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		m_pCamera->GenerateProjectionMatrix(0.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
@@ -297,7 +297,7 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		//3인칭 카메라의 지연 효과를 설정한다. 값을 0.25f 대신에 0.0f와 1.0f로 설정한 결과를 비교하기 바란다.
 		m_pCamera->SetTimeLag(0.25f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 1.5f, -2.0f));
-		m_pCamera->GenerateProjectionMatrix(0.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;

@@ -130,7 +130,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
 	HeightMapTerrain* terrain = m_pTerrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
-	terrain->SetPosition(0, -500, 0);
+	terrain->SetPosition(0,-400,0);
 	//LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Map_Afternoon_Gorge.bin", NULL);
 	//LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
 
@@ -563,6 +563,7 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 {
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	m_pTerrain->Render(pd3dCommandList, pCamera);
 	for (int i = 0; i < m_nObjects; i++)
 	{
 		m_GameObjects[i]->UpdateTransform(NULL);
@@ -575,7 +576,6 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 		object->Render(pd3dCommandList, pCamera);
 	}
 
-	m_pTerrain->Render(pd3dCommandList, pCamera);
 }
 
 void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
