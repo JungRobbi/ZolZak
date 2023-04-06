@@ -452,8 +452,12 @@ VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
 	return(output);
 }
 
-float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 {
+	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+	output.Scene = float4(0, 1, 0, 1);
+	output.Position = input.position;
+
 	float4 SplatMap0 = SplatMap_0.Sample(gssWrap, input.uv0);
 	float4 SplatMap1 = SplatMap_1.Sample(gssWrap, input.uv0);
 	float4 Dirt = TFF_Terrain_Dirt_1A_D.Sample(gssWrap, input.uv1);
@@ -476,5 +480,6 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 	cColor += Dirt * SplatMap1.g;
 	cColor += Sand * SplatMap1.b;
 	cColor += Dirt_Road * SplatMap1.a;
-	return cColor;
+	output.Texture = cColor;
+	return output;
 }

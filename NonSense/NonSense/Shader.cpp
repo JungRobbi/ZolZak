@@ -534,7 +534,7 @@ void ScreenShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandL
 {
 	m_pMappedScreenOptions->LineColor = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	m_pMappedScreenOptions->LineSize = 9;
-	m_pMappedScreenOptions->ToonShading = 5;
+	m_pMappedScreenOptions->ToonShading = 10;
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pScreenOptions->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(7, d3dGpuVirtualAddress);

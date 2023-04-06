@@ -118,7 +118,7 @@ protected:
 	Shader* m_pBlendShader = NULL;
 
 	Object* TempObject = NULL;
-	//HeightMapTerrain* m_pTerrain = NULL;
+	HeightMapTerrain* m_pTerrain = NULL;
 
 	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorStartHandle;
 	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorStartHandle;
