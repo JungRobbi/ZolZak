@@ -445,8 +445,6 @@ void AnimationController::SetTrackAnimationSet(int nAnimationTrack, int nAnimati
 	if (m_pAnimationTracks)
 	{
 		m_pAnimationTracks[nAnimationTrack].m_nAnimationSet = nAnimationSet;
-		//		m_pAnimationTracks[nAnimationTrack].m_fPosition = 0.0f;
-		//		if (m_pAnimationSets) m_pAnimationSets->m_pAnimationSets[nAnimationSet]->m_fPosition = 0.0f;
 	}
 }
 

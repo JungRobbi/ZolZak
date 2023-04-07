@@ -249,9 +249,9 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		}
 
 		SetNum(9);
-		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 1, pModel);
+		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 2, pModel);
 		m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-
+		m_pSkinnedAnimationController->SetTrackAnimationSet(1, 0);
 	}
 }
 
@@ -316,14 +316,6 @@ void MagePlayer::Update(float fTimeElapsed)
 	Player::Update(fTimeElapsed);
 	if (m_pSkinnedAnimationController)
 	{
-		float VeloLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
-		if (::IsZero(VeloLength))
-		{
-			m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		}
-		else 
-		{
-			m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
-		}
+
 	}
 }
