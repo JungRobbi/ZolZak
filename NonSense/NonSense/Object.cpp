@@ -318,8 +318,12 @@ AnimationSets::~AnimationSets()
 	if (m_ppAnimatedBoneFrameCaches) delete[] m_ppAnimatedBoneFrameCaches;
 }
 
-void AnimationSet::SetPosition(float fElapsedPosition)
+bool AnimationSet::SetPosition(float fElapsedPosition)
 {
+	if (m_Position >= m_Length)
+	{
+		return false;
+	}
 	switch (m_nType)
 	{
 	case ANIMATION_TYPE_LOOP:
@@ -332,10 +336,16 @@ void AnimationSet::SetPosition(float fElapsedPosition)
 		break;
 	}
 	case ANIMATION_TYPE_ONCE:
+		m_Position += fElapsedPosition;
+		if (m_Position >= m_Length) {
+			//std::cout << "Animation Length : " << m_Length << " END" << std::endl;
+			return true;
+		}
 		break;
 	case ANIMATION_TYPE_PINGPONG:
 		break;
 	}
+	return false;
 }
 
 XMFLOAT4X4 AnimationSet::GetSRT(int nBone)
@@ -440,11 +450,40 @@ AnimationController::~AnimationController()
 	if (m_ppSkinnedMeshes) delete[] m_ppSkinnedMeshes;
 }
 
+void AnimationController::ChangeAnimationUseBlending(int nAnimationSet)
+{
+	if (m_pAnimationTracks)
+	{
+		if (m_pAnimationTracks[1].m_nAnimationSet == nAnimationSet)
+		{
+			return;
+		}
+		else if (m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[0].m_nAnimationSet]->m_nType == ANIMATION_TYPE_ONCE)
+		{
+			m_pAnimationTracks[2].m_nAnimationSet = nAnimationSet;
+			return;
+		}
+		else if (m_BlendingWeight < 1.0f)
+		{
+			m_pAnimationTracks[2].m_nAnimationSet = nAnimationSet;
+			return;
+		}
+		else 
+		{
+			m_pAnimationTracks[1].m_nAnimationSet = nAnimationSet;
+			m_pAnimationTracks[2].m_nAnimationSet = nAnimationSet;
+			SetTrackEnable(1, true);
+			m_BlendingWeight = 0.0f;
+		}
+	}
+}
+
 void AnimationController::SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet)
 {
 	if (m_pAnimationTracks)
 	{
 		m_pAnimationTracks[nAnimationTrack].m_nAnimationSet = nAnimationSet;
+		m_pAnimationSets->m_pAnimationSets[nAnimationSet]->m_Position = 0.0f;
 	}
 }
 
@@ -484,23 +523,82 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 	if (m_pAnimationTracks)
 	{
 		//		for (int k = 0; k < m_nAnimationTracks; k++) m_pAnimationTracks[k].m_fPosition += (fTimeElapsed * m_pAnimationTracks[k].m_fSpeed);
-		for (int k = 0; k < m_nAnimationTracks; k++) m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet]->SetPosition(fTimeElapsed * m_pAnimationTracks[k].m_fSpeed);
-
-		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
-		{
-			XMFLOAT4X4 xmf4x4Transform = Matrix4x4::Zero();
-			for (int k = 0; k < m_nAnimationTracks; k++)
+		for (int k = 0; k < m_nAnimationTracks; k++) {
+			if (m_pAnimationTracks[k].m_bEnable)
 			{
-				if (m_pAnimationTracks[k].m_bEnable)
+				bool IsAnimationEnd = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet]->SetPosition(fTimeElapsed * m_pAnimationTracks[k].m_fSpeed);
+				if (IsAnimationEnd)
 				{
-					AnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
-					XMFLOAT4X4 xmf4x4TrackTransform = pAnimationSet->GetSRT(j);
-					xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[k].m_fWeight));
+					if (m_pAnimationTracks[0].m_nAnimationSet == m_pAnimationTracks[2].m_nAnimationSet)
+					{
+						SetTrackAnimationSet(1, 0);
+						SetTrackAnimationSet(2, 0);
+						SetTrackEnable(1, true);
+						m_BlendingWeight = 0.0f;
+						break;
+					}
+					else
+					{
+						SetTrackAnimationSet(1, m_pAnimationTracks[2].m_nAnimationSet);
+						SetTrackAnimationSet(2, m_pAnimationTracks[2].m_nAnimationSet);
+						SetTrackEnable(1, true);
+						m_BlendingWeight = 0.0f;
+
+					}
 				}
 			}
-			m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = xmf4x4Transform;
+
 		}
 
+		if (!m_pAnimationTracks[1].m_bEnable) {										//일반 재생
+			for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
+			{
+				XMFLOAT4X4 xmf4x4Transform = Matrix4x4::Zero();
+				for (int k = 0; k < m_nAnimationTracks; k++)
+				{
+					if (m_pAnimationTracks[k].m_bEnable)
+					{
+						AnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
+						XMFLOAT4X4 xmf4x4TrackTransform = pAnimationSet->GetSRT(j);
+						xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[k].m_fWeight));
+					}
+				}
+				m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = xmf4x4Transform;
+			}
+		}
+		else																		//블렌딩
+		{
+			m_BlendingWeight += fTimeElapsed*3.5f;
+			m_BlendingWeight = max(0.0f, min(1.0f, m_BlendingWeight));
+			//std::cout << "Animation A : " << m_pAnimationTracks[0].m_nAnimationSet << ", Animation B : " << m_pAnimationTracks[1].m_nAnimationSet << ", Weight : " << m_BlendingWeight << std::endl;
+			if (m_BlendingWeight == 1.0f)
+			{
+				SetTrackAnimationSet(0, m_pAnimationTracks[1].m_nAnimationSet);
+
+				SetTrackEnable(1, false);
+
+				if (m_pAnimationTracks[1].m_nAnimationSet != m_pAnimationTracks[2].m_nAnimationSet)
+				{
+					m_pAnimationTracks[1].m_nAnimationSet = m_pAnimationTracks[2].m_nAnimationSet;
+					SetTrackEnable(1, true);
+					m_BlendingWeight = 0.0f;
+				}
+			}
+
+			for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
+			{
+				XMFLOAT4X4 xmf4x4Transform = Matrix4x4::Zero();
+
+				AnimationSet* pCurrentAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[0].m_nAnimationSet];
+				XMFLOAT4X4 CurrentTrackTransform = pCurrentAnimationSet->GetSRT(j);
+
+				AnimationSet* pNextAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[1].m_nAnimationSet];
+				XMFLOAT4X4 NextTrackTransform = pNextAnimationSet->GetSRT(j);
+
+				xmf4x4Transform = Matrix4x4::Interpolate(CurrentTrackTransform, NextTrackTransform, m_BlendingWeight);
+				m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = xmf4x4Transform;
+			}
+		}
 		pRootGameObject->UpdateTransform(NULL);
 	}
 }

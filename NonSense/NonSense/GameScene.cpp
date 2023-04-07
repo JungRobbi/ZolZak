@@ -525,6 +525,21 @@ D3D12_GPU_DESCRIPTOR_HANDLE GameScene::CreateShaderResourceViews(ID3D12Device* p
 
 bool GameScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+	switch (nMessageID)
+	{
+	case WM_LBUTTONDOWN:
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 6);
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 6);
+
+		break;
+	case WM_RBUTTONDOWN:
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 3);
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 3);
+
+		break;
+	}
 	return(false);
 }
 bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -535,7 +550,13 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 		switch (wParam)
 		{
 		case 'W':
-			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
+			m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+			break;
+		case VK_SPACE:
+			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
+			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 4);
+			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 4);
+			
 			break;
 		default:
 			break;
@@ -548,7 +569,7 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 		case 'A':
 		case 'S':
 		case 'D':
-			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+			m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
 			break;
 		default:
 			break;

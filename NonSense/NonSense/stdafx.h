@@ -28,6 +28,7 @@
 #include <DXGIDebug.h>
 
 #include <vector>
+#include <algorithm>
 #include <iostream>
 using namespace DirectX;
 using namespace DirectX::PackedVector;

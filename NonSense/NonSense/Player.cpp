@@ -249,9 +249,25 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		}
 
 		SetNum(9);
-		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 2, pModel);
+		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 3, pModel);
 		m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		m_pSkinnedAnimationController->SetTrackAnimationSet(1, 0);
+		m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		m_pSkinnedAnimationController->SetTrackAnimationSet(2, 0);
+		m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		m_pSkinnedAnimationController->SetTrackEnable(2, false);
+
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[3]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[4]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[6]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[7]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[8]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[9]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[10]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[11]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[12]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[13]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[14]->m_nType = ANIMATION_TYPE_ONCE;
+
 	}
 }
 

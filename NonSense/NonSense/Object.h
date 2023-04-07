@@ -190,7 +190,7 @@ public:
 
 	int 			m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
 public:
-	void SetPosition(float fTrackPosition);
+	bool SetPosition(float fTrackPosition);
 	XMFLOAT4X4 GetSRT(int nBone);
 };
 
@@ -261,7 +261,7 @@ public:
 
 public:
 	float 							m_fTime = 0.0f;
-
+	float							m_BlendingWeight = 1.0f;
 	int 							m_nAnimationTracks = 0;
 	AnimationTrack* m_pAnimationTracks = NULL;
 
@@ -284,7 +284,7 @@ public:
 	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 
 	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
-
+	void ChangeAnimationUseBlending(int nAnimationSet);
 	void SetTrackEnable(int nAnimationTrack, bool bEnable);
 	void SetTrackPosition(int nAnimationTrack, float fPosition);
 	void SetTrackSpeed(int nAnimationTrack, float fSpeed);
