@@ -853,6 +853,7 @@ HeightMapGridMesh::HeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	m_pxmf4Colors = new XMFLOAT4[m_nVertices];
 	m_pxmf2TextureCoords0 = new XMFLOAT2[m_nVertices];
 	m_pxmf2TextureCoords1 = new XMFLOAT2[m_nVertices];
+	m_pxmf3Normals = new XMFLOAT3[m_nVertices];
 
 	HeightMapImage* pHeightMapImage = (HeightMapImage*)pContext;
 	int cxHeightMap = pHeightMapImage->GetHeightMapWidth();
@@ -868,6 +869,7 @@ HeightMapGridMesh::HeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 			m_pxmf4Colors[i] = Vector4::Add(OnGetColor(x, z, pContext), xmf4Color);
 			m_pxmf2TextureCoords0[i] = XMFLOAT2(float(x) / float(cxHeightMap - 1), float(czHeightMap - 1 - z) / float(czHeightMap - 1));
 			m_pxmf2TextureCoords1[i] = XMFLOAT2(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f));
+			m_pxmf3Normals[i] = pHeightMapImage->GetHeightMapNormal(x, z);
 			if (fHeight < fMinHeight) fMinHeight = fHeight;
 			if (fHeight > fMaxHeight) fMaxHeight = fHeight;
 		}
@@ -896,6 +898,12 @@ HeightMapGridMesh::HeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	m_d3dTextureCoord1BufferView.BufferLocation = m_pd3dTextureCoord1Buffer->GetGPUVirtualAddress();
 	m_d3dTextureCoord1BufferView.StrideInBytes = sizeof(XMFLOAT2);
 	m_d3dTextureCoord1BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
+
+	m_pd3dNormalBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Normals, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dNormalUploadBuffer);
+
+	m_d3dNormalBufferView.BufferLocation = m_pd3dNormalBuffer->GetGPUVirtualAddress();
+	m_d3dNormalBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dNormalBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
 
 	m_nSubMeshes = 1;
 	m_pnSubSetIndices = new int[m_nSubMeshes];
@@ -959,6 +967,9 @@ void HeightMapGridMesh::ReleaseUploadBuffers()
 
 	if (m_pd3dTextureCoord1UploadBuffer) m_pd3dTextureCoord1UploadBuffer->Release();
 	m_pd3dTextureCoord1UploadBuffer = NULL;
+	
+	if (m_pd3dNormalUploadBuffer) m_pd3dNormalUploadBuffer->Release();
+	m_pd3dNormalUploadBuffer = NULL;
 }
 
 
@@ -992,6 +1003,6 @@ XMFLOAT4 HeightMapGridMesh::OnGetColor(int x, int z, void* pContext)
 
 void HeightMapGridMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
 {
-	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[4] = { m_d3dPositionBufferView, m_d3dColorBufferView, m_d3dTextureCoord0BufferView, m_d3dTextureCoord1BufferView };
-	pd3dCommandList->IASetVertexBuffers(m_nSlot, 4, pVertexBufferViews);
+	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[5] = { m_d3dPositionBufferView, m_d3dColorBufferView, m_d3dTextureCoord0BufferView, m_d3dTextureCoord1BufferView, m_d3dNormalBufferView };
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, 5, pVertexBufferViews);
 }
