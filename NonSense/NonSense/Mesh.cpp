@@ -1003,6 +1003,6 @@ XMFLOAT4 HeightMapGridMesh::OnGetColor(int x, int z, void* pContext)
 
 void HeightMapGridMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
 {
-	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[4] = { m_d3dPositionBufferView, m_d3dColorBufferView, m_d3dTextureCoord0BufferView, m_d3dTextureCoord1BufferView };
-	pd3dCommandList->IASetVertexBuffers(m_nSlot, 4, pVertexBufferViews);
+	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[5] = { m_d3dPositionBufferView, m_d3dColorBufferView, m_d3dTextureCoord0BufferView, m_d3dTextureCoord1BufferView, m_d3dNormalBufferView };
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, 5, pVertexBufferViews);
 }

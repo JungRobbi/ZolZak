@@ -529,9 +529,6 @@ void GameFramework::FrameAdvance()
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 	// 플레이어
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
-	// Sky Box
-	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
-	m_pScreen->OnPostRenderTarget(m_pCommandList);
 	///////////////////////////////////
 
 
@@ -542,7 +539,9 @@ void GameFramework::FrameAdvance()
 	m_pScreen->Render(m_pCommandList, m_pCamera);
 	// 투명 오브젝트
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
-
+	// Sky Box
+	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
+	m_pScreen->OnPostRenderTarget(m_pCommandList);
 	// Debug 화면
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 

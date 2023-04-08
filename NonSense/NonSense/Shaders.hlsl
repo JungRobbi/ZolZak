@@ -363,7 +363,7 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 {
 	VS_SKYBOX_CUBEMAP_OUTPUT output;
 
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.position = (mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection)).xyww;
 	output.positionL = input.position;
 
 	return(output);
@@ -462,7 +462,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
 	output.Scene = float4(0, 1, 0, 1);
 	output.Position = float4(input.positionW,1.0f);
-	output.Normal = float4(input.normal, 1.0f);
+	output.Normal = float4(input.normal,1.0f);
 
 	float4 SplatMap0 = SplatMap_0.Sample(gssWrap, input.uv0);
 	float4 SplatMap1 = SplatMap_1.Sample(gssWrap, input.uv0);
