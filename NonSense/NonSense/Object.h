@@ -364,7 +364,7 @@ public:
 	UINT GetMeshType(); 
 
 	void ReleaseUploadBuffers();
-	bool IsVisible(Camera* pCamera = NULL);
+	virtual bool IsVisible(Camera* pCamera = NULL);
 	virtual void SetMesh(Mesh* pMesh);
 	virtual Mesh* GetMesh() { return m_pMesh; }
 	virtual void SetShader(Shader* pShader);
@@ -533,7 +533,7 @@ public:
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
 	float GetWidth() { return(m_nWidth * m_xmf3Scale.x); }
 	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
-
+	bool IsVisible(Camera* pCamera);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 
 };

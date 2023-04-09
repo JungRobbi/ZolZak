@@ -1721,3 +1721,7 @@ void HeightMapTerrain::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera
 {
 	Object::Render(pd3dCommandList, pCamera);
 }
+bool HeightMapTerrain::IsVisible(Camera* pCamera)
+{
+	return true;
+}
