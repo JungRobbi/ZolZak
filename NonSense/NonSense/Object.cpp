@@ -707,7 +707,24 @@ bool Object::IsVisible(Camera* pCamera)
 {
 	OnPrepareRender();
 	bool bIsVisible = false;
-	BoundingOrientedBox xmBoundingBox = m_pMesh->GetBoundingBox();
+	BoundingOrientedBox xmBoundingBox;
+	if (m_pMesh)
+	{
+		xmBoundingBox= m_pMesh->GetBoundingBox();
+	}
+	else
+	{
+		if (m_pSibling)
+		{
+			bIsVisible = m_pSibling->IsVisible();
+			return bIsVisible;
+		}
+		else if (m_pChild)
+		{
+			bIsVisible = m_pChild->IsVisible();
+			return bIsVisible;
+		}
+	}
 	//모델 좌표계의 바운딩 박스를 월드 좌표계로 변환한다.
 	xmBoundingBox.Transform(xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
 	if (pCamera) bIsVisible = pCamera->IsInFrustum(xmBoundingBox);
