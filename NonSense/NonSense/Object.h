@@ -381,6 +381,7 @@ public:
 
 	CTexture* FindReplicatedTexture(_TCHAR* pstrTextureName);
 
+	Mesh* FindFirstMesh();
 	Object* FindFrame(char* pstrFrameName);
 	void FindAndSetSkinnedMesh(SkinnedMesh** ppSkinnedMeshes, int* pnSkinnedMesh);
 
