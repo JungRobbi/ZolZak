@@ -434,12 +434,12 @@ void GameFramework::ProcessInput()
 	DWORD dwDirection = 0;
 	if (::GetKeyboardState(pKeyBuffer))
 	{
-		if (pKeyBuffer[VK_UP] & 0xF0) dwDirection |= DIR_FORWARD;
-		if (pKeyBuffer[VK_DOWN] & 0xF0) dwDirection |= DIR_BACKWARD;
-		if (pKeyBuffer[VK_LEFT] & 0xF0) dwDirection |= DIR_LEFT;
-		if (pKeyBuffer[VK_RIGHT] & 0xF0) dwDirection |= DIR_RIGHT;
-		if (pKeyBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
-		if (pKeyBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
+		if (pKeyBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;
+		if (pKeyBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;
+		if (pKeyBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;
+		if (pKeyBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;
+		if (pKeyBuffer[0x45] & 0xF0) dwDirection |= DIR_UP;
+		if (pKeyBuffer[0x51] & 0xF0) dwDirection |= DIR_DOWN;
 	}
 	float cxDelta = 0.0f, cyDelta = 0.0f;
 	POINT ptCursorPos;
@@ -473,7 +473,17 @@ void GameFramework::ProcessInput()
 				else
 					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 			}
-			if (dwDirection) m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
+			if (dwDirection) {
+				if (pKeyBuffer[0x41] & 0xF0) {
+					m_pPlayer->Rotate(0.0f, -0.1f, 0.0f);
+					pKeyBuffer[0x41] = false;
+				}
+				else if (pKeyBuffer[0x44] & 0xF0) {
+					m_pPlayer->Rotate(0.0f, +0.1f, 0.0f);
+					pKeyBuffer[0x44] = false;
+				}
+				m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
+			}
 		}
 	}
 	m_pPlayer->Update(Timer::GetTimeElapsed());
