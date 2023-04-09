@@ -702,33 +702,40 @@ void Object::ChangeShader(Shader* pShader)
 	if (m_pSibling) m_pSibling->ChangeShader(pShader);
 	if (m_pChild) m_pChild->ChangeShader(pShader);
 }
-
-bool Object::IsVisible(Camera* pCamera)
+Mesh* Object::FindFirstMesh()
 {
-	OnPrepareRender();
-	bool bIsVisible = false;
-	BoundingOrientedBox xmBoundingBox;
-	if (m_pMesh)
+	Mesh* pMesh = GetMesh();
+	if (pMesh)
 	{
-		xmBoundingBox= m_pMesh->GetBoundingBox();
+		return pMesh;
 	}
 	else
 	{
 		if (m_pSibling)
 		{
-			bIsVisible = m_pSibling->IsVisible();
-			return bIsVisible;
+			return m_pSibling->FindFirstMesh();
 		}
-		else if (m_pChild)
+		if (m_pChild)
 		{
-			bIsVisible = m_pChild->IsVisible();
-			return bIsVisible;
+			return m_pChild->FindFirstMesh();
 		}
 	}
-	//모델 좌표계의 바운딩 박스를 월드 좌표계로 변환한다.
-	xmBoundingBox.Transform(xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
-	if (pCamera) bIsVisible = pCamera->IsInFrustum(xmBoundingBox);
-	return(bIsVisible);
+	return NULL;
+}
+bool Object::IsVisible(Camera* pCamera)
+{
+	OnPrepareRender();
+	bool bIsVisible = false;
+	BoundingOrientedBox xmBoundingBox;
+	Mesh* pMesh = FindFirstMesh();
+	if (pMesh)
+	{
+		xmBoundingBox = pMesh->GetBoundingBox();
+		xmBoundingBox.Transform(xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
+		if (pCamera) bIsVisible = pCamera->IsInFrustum(xmBoundingBox);
+		return(bIsVisible);
+	}
+	return false;
 }
 
 void Object::SetMesh(Mesh* pMesh)
@@ -983,6 +990,8 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 		}
 	}
 }
+
+
 
 void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, Shader* pBlendShader)
 {
