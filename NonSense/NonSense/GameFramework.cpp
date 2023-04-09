@@ -20,7 +20,7 @@ GameFramework::GameFramework()
 	m_pFence = NULL;
 	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
 	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
-	_tcscpy_s(m_FrameRate, _T("NonSense"));
+	_tcscpy_s(m_FrameRate, _T("NonSense("));
 
 	Timer::Initialize();
 }
@@ -546,11 +546,11 @@ void GameFramework::FrameAdvance()
 	// Debug È­¸é
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
-	//m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
+	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 
-	//m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
-	//m_pHP_UI->Render(m_pCommandList, m_pCamera);
-	//m_pUI->Render(m_pCommandList, m_pCamera);
+	m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
+	m_pHP_UI->Render(m_pCommandList, m_pCamera);
+	m_pUI->Render(m_pCommandList, m_pCamera);
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
@@ -564,6 +564,6 @@ void GameFramework::FrameAdvance()
 
 	MoveToNextFrame();
 
-	Timer::GetFrameRate(m_FrameRate + 12, 37);
+	Timer::GetFrameRate(m_FrameRate+9, 10);
 	::SetWindowText(m_hWnd, m_FrameRate);
 }

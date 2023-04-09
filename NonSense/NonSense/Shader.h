@@ -13,7 +13,6 @@ struct CB_GAMEOBJECT_INFO
 struct CB_SCREEN_INFO
 {
 	XMFLOAT4 LineColor;
-	UINT DrawOptions;
 	UINT LineSize;
 	UINT ToonShading;
 };

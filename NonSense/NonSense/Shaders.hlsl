@@ -37,9 +37,8 @@ cbuffer cbMaterial : register(b3)
 cbuffer cbDrawOptions : register(b5)
 {
 	float4 LineColor : packoffset(c0);
-	uint DrawOption : packoffset(c1.x);
-	uint LineSize : packoffset(c1.y);
-	uint ToonShading : packoffset(c1.z);
+	uint LineSize : packoffset(c1.x);
+	uint ToonShading : packoffset(c1.y);
 };
 
 Texture2DArray gtxtTextureArray : register(t0);
@@ -185,7 +184,7 @@ VS_DEBUG_OUTPUT VSDebug(uint nVertexID : SV_VertexID)
 	VS_DEBUG_OUTPUT output = (VS_DEBUG_OUTPUT)0;
 	int s = nVertexID / 6;
 
-	if (nVertexID % 6 == 0) { output.position = float4((0.5 * s) - 1.0f, -0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
+	if (nVertexID % 6 == 0)		 { output.position = float4((0.5 * s) - 1.0f, -0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
 	else if (nVertexID % 6 == 1) { output.position = float4((0.5 * (s + 1)) - 1.0f, -0.5f, 0.0f, 1.0f);	output.uv = float2(1.0f, 0.0f); output.num = s; }
 	else if (nVertexID % 6 == 2) { output.position = float4((0.5 * (s + 1)) - 1.0f, -1.0f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
 	else if (nVertexID % 6 == 3) { output.position = float4((0.5 * s) - 1.0f, -0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }

@@ -720,6 +720,7 @@ void Object::SetMesh(Mesh* pMesh)
 	m_pMesh = pMesh;
 	if (m_pMesh) m_pMesh->AddRef();
 }
+
 void Object::SetScale(float x, float y, float z)
 {
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
@@ -1350,7 +1351,7 @@ void Object::OnPrepareRender()
 }
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	//if (IsVisible(pCamera))
+	if (IsVisible(pCamera))
 	{
 		OnPrepareRender();
 		if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
