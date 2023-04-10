@@ -1524,7 +1524,7 @@ void SkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(false)
+UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(true, true)
 {
 }
 

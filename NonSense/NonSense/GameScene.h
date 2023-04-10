@@ -39,13 +39,15 @@ class GameScene
 {
 	std::queue<Object*> creationQueue;
 	std::deque<Object*> deletionQueue;
-
 	std::list<Object*> gameObjects;
 
 	std::queue<Object*> creationBlendQueue;
 	std::deque<Object*> deletionBlendQueue;
-
 	std::list<Object*> blendGameObjects;
+
+	std::queue<Object*> creationUIQueue;
+	std::deque<Object*> deletionUIQueue;
+	std::list<Object*> UIGameObjects;
 
 public:
 	static GameScene* MainScene;
@@ -81,6 +83,7 @@ public:
 	void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	void RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void ReleaseUploadBuffers();
 	HeightMapTerrain* GetTerrain() { return(m_pTerrain); }
 	//그래픽 루트 시그너쳐를 생성한다.
