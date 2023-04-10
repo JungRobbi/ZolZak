@@ -162,7 +162,7 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 		if (RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a != 0 && fObjectID != 0)
 			if (fObjectID != RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
 	}
-	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection);
+	float4 cColor = RenderInfor[2][int2(input.position.xy)];
 	if (Edge)
 		return(float4(LineColor));
 	else

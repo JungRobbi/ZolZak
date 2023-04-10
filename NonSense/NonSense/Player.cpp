@@ -266,7 +266,7 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void *pContext)
 {
 	{
-		m_pCamera = ChangeCamera(SPACESHIP_CAMERA, 0.0f);
+		m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 		SetPosition(XMFLOAT3(0.0f, 100.0f, -2.0f));

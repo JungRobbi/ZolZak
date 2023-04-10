@@ -39,13 +39,15 @@ class GameScene
 {
 	std::queue<Object*> creationQueue;
 	std::deque<Object*> deletionQueue;
-
 	std::list<Object*> gameObjects;
 
 	std::queue<Object*> creationBlendQueue;
 	std::deque<Object*> deletionBlendQueue;
-
 	std::list<Object*> blendGameObjects;
+
+	std::queue<Object*> creationUIQueue;
+	std::deque<Object*> deletionUIQueue;
+	std::list<Object*> UIGameObjects;
 
 public:
 	static GameScene* MainScene;

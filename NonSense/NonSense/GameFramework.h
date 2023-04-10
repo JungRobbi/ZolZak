@@ -52,10 +52,6 @@ public:
 	Object* m_pSelectedObject = NULL;
 	POINT m_ptOldCursorPos;
 
-	UI* m_pUI = NULL;
-	Player_HP_UI* m_pHP_UI = NULL;
-	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;
-
 	GameFramework();
 	~GameFramework();
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);

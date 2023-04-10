@@ -49,11 +49,21 @@ void GameScene::update()
 		blendGameObjects.push_back(gameObject);
 		creationBlendQueue.pop();
 	}
+	while (!creationBlendQueue.empty()) //UI Object
+	{
+		auto gameObject = creationUIQueue.front();
+		gameObject->start();
+		UIGameObjects.push_back(gameObject);
+		creationUIQueue.pop();
+	}
 
 	for (auto gameObject : gameObjects)
 		gameObject->update();
 
 	for (auto gameObject : blendGameObjects) //Blend Object
+		gameObject->update();
+
+	for (auto gameObject : blendGameObjects) //UI Object
 		gameObject->update();
 
 	auto t = deletionQueue;
@@ -70,6 +80,14 @@ void GameScene::update()
 		auto gameObject = deletionBlendQueue.front();
 		blendGameObjects.erase(std::find(blendGameObjects.begin(), blendGameObjects.end(), gameObject));
 		deletionBlendQueue.pop_front();
+
+		delete gameObject;
+	}
+	while (!deletionUIQueue.empty()) //UI Object
+	{
+		auto gameObject = deletionUIQueue.front();
+		UIGameObjects.erase(std::find(UIGameObjects.begin(), UIGameObjects.end(), gameObject));
+		deletionUIQueue.pop_front();
 
 		delete gameObject;
 	}
@@ -129,13 +147,21 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	BuildLightsAndMaterials();
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
-	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, xmf3Scale, xmf4Color);
-	terrain->SetPosition(-400, 0, -400);
-	m_pTerrain = terrain;
+
+	Player_HP_DEC_UI* m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Player_HP_UI* m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Player_State_UI* m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	m_pHP_UI->SetParentUI(m_pUI);
+	m_pHP_Dec_UI->SetParentUI(m_pUI);
+
+	//HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, xmf3Scale, xmf4Color);
+	//terrain->SetPosition(-400, 0, -400);
+	//m_pTerrain = terrain;
+	
 	//LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Map_Afternoon_Gorge.bin", NULL);
 	//LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
 
-	Object* TempObject = NULL;
+	//Object* TempObject = NULL;
 
 	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 0,false);
 	//TempObject->SetNum(0);
@@ -170,7 +196,6 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
 	//TempObject->SetNum(4);
 	//TempObject->SetPosition(-3.0f, 0.0f, 0.0f);
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
 
@@ -180,8 +205,9 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	Object::LoadMapData(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/NonBlend_Props_Map.bin");
 	Object::LoadMapData_Blend(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Blend_Objects_Map.bin", m_pBlendShader);
 
-	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	//m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void GameScene::ReleaseObjects()
@@ -623,8 +649,6 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
 	}
-
-	m_pTerrain->Render(pd3dCommandList, pCamera);
 }
 
 void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -635,6 +659,13 @@ void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* 
 	{
 		blendObject->UpdateTransform(NULL);
 		blendObject->Render(pd3dCommandList, pCamera);
+	}
+	for (auto& object : UIGameObjects)
+	{
+		printf("%d", object->IsVisible());
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
+		printf("\n");
 	}
 }
 
