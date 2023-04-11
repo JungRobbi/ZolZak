@@ -472,7 +472,6 @@ void GameFramework::ProcessInput()
 					pKeyBuffer[0x44] = false;
 				}
 				m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
-				m_pPlayer->SetWalk(true);
 			}
 		}
 	}

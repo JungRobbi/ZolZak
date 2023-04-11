@@ -587,12 +587,12 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		//case 'W':
-		//case 'A':
-		//case 'S':
-		//case 'D':
-		//	m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
-		//	break;
+		case 'W':
+		case 'A':
+		case 'S':
+		case 'D':
+			m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+			break;
 		case VK_SPACE:
 			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
 			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 4);
@@ -606,12 +606,12 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 	case WM_KEYUP:
 		switch (wParam)
 		{
-		//case 'W':
-		//case 'A':
-		//case 'S':
-		//case 'D':
-		//	m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
-		//	break;
+		case 'W':
+		case 'A':
+		case 'S':
+		case 'D':
+			m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
+			break;
 		default:
 			break;
 		}
