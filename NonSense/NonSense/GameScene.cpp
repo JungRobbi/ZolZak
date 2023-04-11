@@ -150,11 +150,21 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
 
+	Game_Option_UI* m_Game_Option_Dec_UI = new Game_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Graphic_Option_UI* m_Graphic_Option_Dec_UI = new Graphic_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Sound_Option_UI* m_Sound_Option_Dec_UI = new Sound_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Option_UI* m_Option_Dec_UI = new Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+
 	Player_State_UI* m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Player_HP_UI* m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Player_HP_DEC_UI* m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+
 	m_pHP_UI->SetParentUI(m_pUI);
 	m_pHP_Dec_UI->SetParentUI(m_pUI);
+
+	m_Game_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
+	m_Graphic_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
+	m_Sound_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 
 	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, xmf3Scale, xmf4Color);
 	terrain->SetPosition(-400, 0, -400);

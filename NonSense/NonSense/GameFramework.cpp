@@ -347,7 +347,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((wParam - VK_F1 + 1), Timer::GetTimeElapsed());
 			break;
 		case VK_ESCAPE:
-			::PostQuitMessage(0);
+			(OptionMode) ? (OptionMode = 0) : (OptionMode = 1);
 			break;
 		case VK_RETURN:
 			break;

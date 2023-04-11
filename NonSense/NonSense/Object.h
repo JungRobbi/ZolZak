@@ -508,6 +508,36 @@ public:
 	float Dec_HP = 1.0;
 };
 
+
+class Option_UI : public UI
+{
+public:
+	Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Option_UI() {};
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+};
+
+class Game_Option_UI : public Option_UI
+{
+public:
+	Game_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Game_Option_UI() {};
+};
+
+class Graphic_Option_UI : public Option_UI
+{
+public:
+	Graphic_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Graphic_Option_UI() {};
+};
+
+class Sound_Option_UI : public Option_UI
+{
+public:
+	Sound_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Sound_Option_UI() {};
+};
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class HeightMapTerrain : public Object
 {
