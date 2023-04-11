@@ -548,7 +548,7 @@ void GameFramework::FrameAdvance()
 	// Debug È­¸é
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 	///////////////////////////////////
-
+	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
 	hResult = m_pCommandList->Close();

@@ -618,24 +618,23 @@ Object::Object(bool Push_List)
 		GameScene::MainScene->creationQueue.push(this);
 	}
 }
-Object::Object(bool Push_List, bool isBlendObject)
+Object::Object(OBJECT_TYPE type)
 {
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_xmf4x4ToParent, XMMatrixIdentity());
-	if (isBlendObject)
-	{
-		if (Push_List) {
-			GameScene::MainScene->creationBlendQueue.push(this);
-		}
+	switch (type) {
+	case DEFAULT_OBJECT:
+		GameScene::MainScene->creationQueue.push(this);
+		break;
+	case BLEND_OBJECT:
+		GameScene::MainScene->creationBlendQueue.push(this);
+		break;
+	case UI_OBJECT:
+		GameScene::MainScene->creationUIQueue.push(this);
+		break;
 	}
-	else 
-	{
-		if (Push_List) {
-			GameScene::MainScene->creationQueue.push(this);
-		}
-	}
-	
 }
+
 Object::~Object()
 {
 	if (m_pMesh) m_pMesh->Release();
@@ -1450,7 +1449,7 @@ int Object::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& 
 	return(nIntersected);
 }
 
-ModelObject::ModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Object(true, false)
+ModelObject::ModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Object(DEFAULT_OBJECT)
 {
 	LoadedModelInfo* pLoadedModel = pModel;
 	if (pLoadedModel)
@@ -1460,8 +1459,13 @@ ModelObject::ModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 }
 
 
-TestModelBlendObject::TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader) : ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
+TestModelBlendObject::TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader) : Object(BLEND_OBJECT)
 {
+	LoadedModelInfo* pLoadedModel = pModel;
+	if (pLoadedModel)
+	{
+		SetChild(pLoadedModel->m_pRoot, true);
+	}
 	ChangeShader(pShader);
 }
 
@@ -1510,7 +1514,7 @@ void SkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(true, true)
+UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(UI_OBJECT)
 {
 }
 
@@ -1725,7 +1729,7 @@ Sound_Option_UI::Sound_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-HeightMapTerrain::HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : Object(true,false)
+HeightMapTerrain::HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : Object(DEFAULT_OBJECT)
 {
 	m_nWidth = nWidth;
 	m_nLength = nLength;

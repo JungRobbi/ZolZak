@@ -31,6 +31,13 @@ class HeightMapTerrain;
 struct CB_GAMEOBJECT_INFO;
 struct CB_PLAYER_INFO;
 
+enum OBJECT_TYPE
+{
+	DEFAULT_OBJECT = 1,
+	BLEND_OBJECT = 2,
+	UI_OBJECT = 3,
+};
+
 struct MATERIAL
 {
 	XMFLOAT4 m_xmf4Ambient;
@@ -302,7 +309,7 @@ public:
 	Object();
 	// GameScene의 gameobjects 리스트에 안넣기 위해 만든 생성자
 	Object(bool Push_List);
-	Object(bool Push_List, bool isBlendObject);
+	Object(OBJECT_TYPE type);
 	virtual ~Object();
 
 	virtual void start();
@@ -444,7 +451,7 @@ public:
 
 };
 
-class TestModelBlendObject : public ModelObject
+class TestModelBlendObject : public Object
 {
 public:
 	TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader);

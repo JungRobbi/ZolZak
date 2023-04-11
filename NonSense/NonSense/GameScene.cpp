@@ -49,7 +49,7 @@ void GameScene::update()
 		blendGameObjects.push_back(gameObject);
 		creationBlendQueue.pop();
 	}
-	while (!creationBlendQueue.empty()) //UI Object
+	while (!creationUIQueue.empty()) //UI Object
 	{
 		auto gameObject = creationUIQueue.front();
 		gameObject->start();
@@ -64,7 +64,7 @@ void GameScene::update()
 	for (auto gameObject : blendGameObjects) //Blend Object
 		gameObject->update();
 
-	for (auto gameObject : blendGameObjects) //UI Object
+	for (auto gameObject : UIGameObjects) //UI Object
 		gameObject->update();
 
 
@@ -172,7 +172,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	//LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Map_Afternoon_Gorge.bin", NULL);
 	//LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
 
-	Object* TempObject = NULL;
+	//Object* TempObject = NULL;
 
 	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 0,false);
 	//TempObject->SetNum(0);
@@ -207,7 +207,6 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
 	//TempObject->SetNum(4);
 	//TempObject->SetPosition(-3.0f, 0.0f, 0.0f);
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
 
@@ -219,6 +218,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void GameScene::ReleaseObjects()
@@ -652,19 +652,12 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 {
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
-	for (int i = 0; i < m_nObjects; i++)
-	{
-		m_GameObjects[i]->UpdateTransform(NULL);
-		m_GameObjects[i]->Render(pd3dCommandList, pCamera);
-	}
 
 	for (auto& object : gameObjects)
 	{
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
 	}
-
-	m_pTerrain->Render(pd3dCommandList, pCamera);
 }
 
 void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -676,17 +669,17 @@ void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* 
 		blendObject->UpdateTransform(NULL);
 		blendObject->Render(pd3dCommandList, pCamera);
 	}
+}
 
+void GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	OnPrepareRender(pd3dCommandList, pCamera);
+	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 	for (auto& object : UIGameObjects)
 	{
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
 	}
-}
-
-void GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
-{
-
 }
 
 void GameScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
