@@ -279,7 +279,7 @@ void Player::SetAnimation() {
 MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void *pContext)
 {
 	{
-		m_pCamera = ChangeCamera(SPACESHIP_CAMERA, 0.0f);
+		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 		XMFLOAT3 pos = XMFLOAT3(0.0f, 100.0f, -2.0f);
@@ -331,7 +331,7 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	{
 	case FIRST_PERSON_CAMERA:
 		//플레이어의 특성을 1인칭 카메라 모드에 맞게 변경한다. 중력은 적용하지 않는다.
-		SetFriction(200.0f);
+		SetFriction(50.0f);
 		SetGravity(XMFLOAT3(0.0f, -100.0f, 0.0f));
 		SetMaxVelocityXZ(125.0f);
 		SetMaxVelocityY(400.0f);
