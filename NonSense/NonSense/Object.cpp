@@ -957,7 +957,7 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 				if (pstrToken[0] == '@') // Mesh이름과 맞는 Mesh가 이미 로드가 되었다면 true -> 있는 모델 쓰면 됨
 				{
 					std::string str(pstrToken + 1);
-					pObject = new TestModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMap[str], NULL, 0);
+					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMap[str]);
 
 				}
 				else
@@ -974,7 +974,7 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 					ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // 읽은 모델은 map에 저장
 
 			
-					pObject = new TestModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel, NULL, 0);
+					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel);
 
 				}
 			}
@@ -1450,33 +1450,19 @@ int Object::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& 
 	return(nIntersected);
 }
 
-TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks) : Object(true, false)
+ModelObject::ModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Object(true, false)
 {
 	LoadedModelInfo* pLoadedModel = pModel;
-	LoadedModelInfo* pWeapon = pWeaponModel;
 	if (pLoadedModel)
 	{
 		SetChild(pLoadedModel->m_pRoot, true);
 	}
-	if (pWeapon) {
-		Object* Hand = FindFrame("Sword_parentR"); // 무기를 붙여줄 팔 찾기
-		if (Hand) {
-			Hand->SetChild(pWeapon->m_pRoot, true);
-			
-		}
-	}
-	if (nAnimationTracks > 0)
-		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pLoadedModel);
 }
 
 
-TestModelBlendObject::TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader) : Object(true,true)
+TestModelBlendObject::TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader) : ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
-	LoadedModelInfo* pLoadedModel = pModel;
-	if (pLoadedModel) {
-		SetChild(pLoadedModel->m_pRoot, true);
-		ChangeShader(pShader);
-	}
+	ChangeShader(pShader);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

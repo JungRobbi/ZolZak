@@ -436,20 +436,30 @@ inline T* Object::GetComponent()
 
 
 //¿”Ω√ ∞¥√º
-class TestModelObject : public Object
+class ModelObject : public Object
 {
 public:
-	TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks);
-	virtual ~TestModelObject() {};
+	ModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel);
+	virtual ~ModelObject() {};
 
 };
 
-class TestModelBlendObject : public Object
+class TestModelBlendObject : public ModelObject
 {
 public:
 	TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader);
 	virtual ~TestModelBlendObject() {};
 
+};
+
+class Character : public ModelObject
+{
+	float m_Health = 0;
+	float m_Defense = 0;
+	float m_Attack = 0;
+public:
+	Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel);
+	virtual ~Character() {};
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

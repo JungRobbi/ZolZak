@@ -137,7 +137,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	Object* TempObject = NULL;
 
-	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 0,false);
+	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 0,false);
 	//TempObject->SetNum(0);
 	////TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
 	//TempObject->SetPosition(0.0f, 0.0f, 0.0f);
@@ -145,28 +145,28 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	//m_GameObjects = new Object*[m_nObjects];
 
 	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
-	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
+	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
 	//TempObject->SetNum(1);
 	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
 	//TempObject->SetPosition(1.0f, 0.0f, 0.0f);
 	//
 	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Close.bin", NULL);
 	//
-	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
+	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
 	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
 	//TempObject->SetNum(2);
 	//TempObject->SetPosition(2.0f, 0.0f, 0.0f);
 	//
 	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Rush.bin", NULL);
 	//
-	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
+	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
 	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 2);
 	//TempObject->SetNum(3);
 	//TempObject->SetPosition(-1.0f, 0.0f, 0.0f);
 	//
 	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/ent.bin", NULL);
 	//
-	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
+	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
 	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
 	//TempObject->SetNum(4);
 	//TempObject->SetPosition(-3.0f, 0.0f, 0.0f);
