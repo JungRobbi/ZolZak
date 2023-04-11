@@ -130,13 +130,14 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\lsy01\OneDrive\바탕 화면\ZolZak\NonSense\x64\Release;C:\Users\82107\OneDrive\바탕 화면\ZolZak\NonSense\x64\Release;D:\ZolZak\ZolZak\NonSense\x64\Release;C:\Users\82107\OneDrive\바탕 화면\RealMerge\ZolZak\NonSense\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;C:\Users\82107\OneDrive\바탕 화면\ZolZak\NonSense\x64\Release;D:\ZolZak\ZolZak\NonSense\x64\Release;C:\Users\82107\OneDrive\바탕 화면\RealMerge\ZolZak\NonSense\x64\Release</AdditionalLibraryDirectories>
       <AdditionalDependencies>ImaysNet.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Globals.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Characters.h" />
     <ClInclude Include="CollideComponent.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="DataMSG.h" />
@@ -163,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Characters.cpp" />
     <ClCompile Include="CollideComponent.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DataMSG.cpp" />

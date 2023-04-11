@@ -459,16 +459,6 @@ public:
 
 };
 
-class Character : public ModelObject
-{
-	float m_Health = 0;
-	float m_Defense = 0;
-	float m_Attack = 0;
-public:
-	Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel);
-	virtual ~Character() {};
-};
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SkyBox : public Object
 {

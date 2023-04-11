@@ -114,6 +114,12 @@
     <ClInclude Include="Transform3DComponent.h">
       <Filter>소스 파일\Components</Filter>
     </ClInclude>
+    <ClInclude Include="GoblinComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Characters.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -178,6 +184,12 @@
     </ClCompile>
     <ClCompile Include="Transform3DComponent.cpp">
       <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="GoblinComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Characters.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
