@@ -130,7 +130,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\82107\OneDrive\바탕 화면\ZolZak\NonSense\x64\Release;D:\ZolZak\ZolZak\NonSense\x64\Release;C:\Users\82107\OneDrive\바탕 화면\RealMerge\ZolZak\NonSense\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\lsy01\OneDrive\바탕 화면\ZolZak\NonSense\x64\Release;C:\Users\82107\OneDrive\바탕 화면\ZolZak\NonSense\x64\Release;D:\ZolZak\ZolZak\NonSense\x64\Release;C:\Users\82107\OneDrive\바탕 화면\RealMerge\ZolZak\NonSense\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>ImaysNet.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
