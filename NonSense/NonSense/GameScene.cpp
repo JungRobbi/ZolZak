@@ -49,12 +49,24 @@ void GameScene::update()
 		blendGameObjects.push_back(gameObject);
 		creationBlendQueue.pop();
 	}
+	while (!creationBlendQueue.empty()) //UI Object
+	{
+		auto gameObject = creationUIQueue.front();
+		gameObject->start();
+		UIGameObjects.push_back(gameObject);
+		creationUIQueue.pop();
+	}
+
 
 	for (auto gameObject : gameObjects)
 		gameObject->update();
 
 	for (auto gameObject : blendGameObjects) //Blend Object
 		gameObject->update();
+
+	for (auto gameObject : blendGameObjects) //UI Object
+		gameObject->update();
+
 
 	auto t = deletionQueue;
 	while (!deletionQueue.empty())
@@ -70,6 +82,14 @@ void GameScene::update()
 		auto gameObject = deletionBlendQueue.front();
 		blendGameObjects.erase(std::find(blendGameObjects.begin(), blendGameObjects.end(), gameObject));
 		deletionBlendQueue.pop_front();
+
+		delete gameObject;
+	}
+	while (!deletionUIQueue.empty()) //UI Object
+	{
+		auto gameObject = deletionUIQueue.front();
+		UIGameObjects.erase(std::find(UIGameObjects.begin(), UIGameObjects.end(), gameObject));
+		deletionUIQueue.pop_front();
 
 		delete gameObject;
 	}
@@ -129,6 +149,23 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	BuildLightsAndMaterials();
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
+
+	Game_Option_UI* m_Game_Option_Dec_UI = new Game_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Graphic_Option_UI* m_Graphic_Option_Dec_UI = new Graphic_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Sound_Option_UI* m_Sound_Option_Dec_UI = new Sound_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Option_UI* m_Option_Dec_UI = new Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+
+	Player_State_UI* m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Player_HP_UI* m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Player_HP_DEC_UI* m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+
+	m_pHP_UI->SetParentUI(m_pUI);
+	m_pHP_Dec_UI->SetParentUI(m_pUI);
+
+	m_Game_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
+	m_Graphic_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
+	m_Sound_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
+
 	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, xmf3Scale, xmf4Color);
 	terrain->SetPosition(-400, 0, -400);
 	m_pTerrain = terrain;
@@ -550,9 +587,12 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		case 'W':
-			m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
-			break;
+		//case 'W':
+		//case 'A':
+		//case 'S':
+		//case 'D':
+		//	m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+		//	break;
 		case VK_SPACE:
 			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
 			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 4);
@@ -566,12 +606,12 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 	case WM_KEYUP:
 		switch (wParam)
 		{
-		case 'W':
-		case 'A':
-		case 'S':
-		case 'D':
-			m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
-			break;
+		//case 'W':
+		//case 'A':
+		//case 'S':
+		//case 'D':
+		//	m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
+		//	break;
 		default:
 			break;
 		}
@@ -636,6 +676,17 @@ void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* 
 		blendObject->UpdateTransform(NULL);
 		blendObject->Render(pd3dCommandList, pCamera);
 	}
+
+	for (auto& object : UIGameObjects)
+	{
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
+	}
+}
+
+void GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+
 }
 
 void GameScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)

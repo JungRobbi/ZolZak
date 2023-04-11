@@ -111,7 +111,7 @@
     <ClInclude Include="WICTextureLoader12.h">
       <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
     </ClInclude>
-    <ClInclude Include="GoblinComponent.h">
+    <ClInclude Include="Transform3DComponent.h">
       <Filter>소스 파일\Components</Filter>
     </ClInclude>
   </ItemGroup>
@@ -176,7 +176,7 @@
     <ClCompile Include="WICTextureLoader12.cpp">
       <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
     </ClCompile>
-    <ClCompile Include="GoblinComponent.cpp">
+    <ClCompile Include="Transform3DComponent.cpp">
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
   </ItemGroup>

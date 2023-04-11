@@ -29,6 +29,7 @@ protected:
 	LPVOID m_pPlayerUpdatedContext;
 	LPVOID m_pCameraUpdatedContext;
 	Camera* m_pCamera = NULL;
+	bool IsWalk = false;
 
 	XMFLOAT3 m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
@@ -41,12 +42,20 @@ public:
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
+	void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
+	void Move(XMFLOAT3& xmf3Shift, bool bVelocity = false);
+	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
+
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
 	void SetGravity(XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }
 	void SetMaxVelocityXZ(float fMaxVelocity) { m_fMaxVelocityXZ = fMaxVelocity; }
 	void SetMaxVelocityY(float fMaxVelocity) { m_fMaxVelocityY = fMaxVelocity; }
 	void SetVelocity(XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
-	void SetPosition(XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z), false); }
+	void SetPosition(XMFLOAT3& xmf3Position) { XMFLOAT3 pos = { xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z }; Move(pos, false); }
+	void SetAnimation();
+
+	void SetWalk(bool isWalk) { isWalk = IsWalk; }
+	bool GetWalk() { return IsWalk; }
 
 	XMFLOAT3& GetVelocity() { return(m_xmf3Velocity); }
 	float GetYaw() { return(m_fYaw); }
@@ -56,9 +65,7 @@ public:
 	Camera* GetCamera() { return(m_pCamera); }
 	void SetCamera(Camera* pCamera) { m_pCamera = pCamera; }
 
-	void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
-	void Move(XMFLOAT3& xmf3Shift, bool bVelocity = false);
-	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
+
 
 	void Rotate(float x, float y, float z);
 

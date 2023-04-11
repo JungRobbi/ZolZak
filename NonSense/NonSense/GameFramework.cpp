@@ -283,15 +283,6 @@ void GameFramework::BuildObjects()
 	auto m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
 
-
-	m_pHP_Dec_UI = new Player_HP_DEC_UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
-
-	m_pUI = new Player_State_UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
-	m_pHP_UI = new Player_HP_UI(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
-	m_pHP_UI->SetParentUI(m_pUI);
-
-	m_pHP_Dec_UI->SetParentUI(m_pUI);
-
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->GetTerrain());
 	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
@@ -342,8 +333,7 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 		break;
 	}
 }
-void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM
-	wParam, LPARAM lParam)
+void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	GameScene::MainScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
@@ -357,7 +347,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((wParam - VK_F1 + 1), Timer::GetTimeElapsed());
 			break;
 		case VK_ESCAPE:
-			::PostQuitMessage(0);
+			(OptionMode) ? (OptionMode = 0) : (OptionMode = 1);
 			break;
 		case VK_RETURN:
 			break;
@@ -368,14 +358,14 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			ChangeSwapChainState();
 			break;
 		case '2':
-			m_pHP_UI->HP -= 0.05;
-			m_pHP_Dec_UI->Dec_HP -= 0.05;
-			m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+			//m_pHP_UI->HP -= 0.05;
+			//m_pHP_Dec_UI->Dec_HP -= 0.05;
+			//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
 			break;
 		case '3':
-			m_pHP_UI->HP -= 0.2;
-			m_pHP_Dec_UI->Dec_HP -= 0.2;
-			m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+			//m_pHP_UI->HP -= 0.2;
+			//m_pHP_Dec_UI->Dec_HP -= 0.2;
+			//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
 			break;
 		default:
 			break;
@@ -385,8 +375,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 		break;
 	}
 }
-LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID,
-	WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	switch (nMessageID)
 	{
@@ -483,6 +472,7 @@ void GameFramework::ProcessInput()
 					pKeyBuffer[0x44] = false;
 				}
 				m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
+				m_pPlayer->SetWalk(true);
 			}
 		}
 	}
@@ -532,7 +522,7 @@ void GameFramework::FrameAdvance()
 
 	m_pCommandList->ClearDepthStencilView(m_DSVDescriptorCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 
-	//////// MRT Render Target ////////
+	//////////// MRT Render Target /////////////
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
 	GameScene::MainScene->update();
 
@@ -540,7 +530,7 @@ void GameFramework::FrameAdvance()
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 	// 플레이어
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
-	///////////////////////////////////
+	///////////////////////////////////////////
 
 
 	////////// Back Buffer ///////////
@@ -548,19 +538,16 @@ void GameFramework::FrameAdvance()
 
 	// MRT 결과
 	m_pScreen->Render(m_pCommandList, m_pCamera);
+	m_pScreen->OnPostRenderTarget(m_pCommandList);
 	// 투명 오브젝트
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
 	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
-	m_pScreen->OnPostRenderTarget(m_pCommandList);
+	// UI
+	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
 	// Debug 화면
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
-
-	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
-
-	m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
-	m_pHP_UI->Render(m_pCommandList, m_pCamera);
-	m_pUI->Render(m_pCommandList, m_pCamera);
+	///////////////////////////////////
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
