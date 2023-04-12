@@ -528,16 +528,16 @@ void GameFramework::FrameAdvance()
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
 
 	// MRT 결과
-	//m_pScreen->Render(m_pCommandList, m_pCamera);
+	m_pScreen->Render(m_pCommandList, m_pCamera);
 	// 투명 오브젝트
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
-	//GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
+	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
 	// Debug 화면
-	//if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
+	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
-	//m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
+	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
