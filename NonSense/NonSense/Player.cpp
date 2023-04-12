@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Player.h"
+#include "PlayerMovementComponent.h"
 
 
 Player::Player() : Object(false)
@@ -161,7 +162,7 @@ void Player::OnPlayerUpdateCallback(float fTimeElapsed)
 	XMFLOAT3 xmf3PlayerPosition = GetPosition();
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
 
-	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x+400.0f, xmf3PlayerPosition.z+400.0f)+1.5;
+	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x+400.0f, xmf3PlayerPosition.z+400.0f);
 	if (xmf3PlayerPosition.y < fHeight)
 	{
 		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
@@ -272,12 +273,13 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 void Player::SetAnimation() {
 	m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
 	if(IsWalk)
-	m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+		m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
 }
 
 
 MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void *pContext)
 {
+	AddComponent< PlayerMovementComponent>();
 	{
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -383,6 +385,7 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 void MagePlayer::Update(float fTimeElapsed)
 {
 
+	Object::update();
 	Player::Update(fTimeElapsed);
 	if (m_pSkinnedAnimationController)
 	{

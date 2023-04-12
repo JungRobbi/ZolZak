@@ -556,9 +556,6 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 		//	m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
 		//	break;
 		case VK_SPACE:
-			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
-			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 4);
-			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 4);
 			
 			break;
 		default:

@@ -336,6 +336,7 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	GameScene::MainScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+
 	switch (nMessageID)
 	{
 	case WM_KEYUP:
@@ -419,6 +420,7 @@ void GameFramework::ProcessSelectedObject(DWORD dwDirection, float cxDelta, floa
 
 void GameFramework::ProcessInput()
 {
+	Input::update();
 	static UCHAR pKeyBuffer[256];
 	DWORD dwDirection = 0;
 	if (::GetKeyboardState(pKeyBuffer))
