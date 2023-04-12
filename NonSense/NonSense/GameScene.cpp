@@ -131,44 +131,19 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
 	//HeightMapTerrain* terrain = m_pTerrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
 	//terrain->SetPosition(0, -500, 0);
-	//LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Map_Afternoon_Gorge.bin", NULL);
-	//LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
+	LoadedModelInfo* pModel;
+	LoadedModelInfo* pWeaponModel;
+	
+	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/F05.bin", NULL);
+	pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
+	
+	Object* p_TestObject;
 
-	Object* TempObject = NULL;
+	p_TestObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 1);
+	p_TestObject->SetNum(0);
+	p_TestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
+	p_TestObject->SetPosition(0.0f, 0.0f, 0.0f);
 
-	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 0,false);
-	//TempObject->SetNum(0);
-	////TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
-	//TempObject->SetPosition(0.0f, 0.0f, 0.0f);
-	//m_nObjects = 1;
-	//m_GameObjects = new Object*[m_nObjects];
-
-	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
-	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
-	//TempObject->SetNum(1);
-	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
-	//TempObject->SetPosition(1.0f, 0.0f, 0.0f);
-	//
-	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Close.bin", NULL);
-	//
-	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
-	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
-	//TempObject->SetNum(2);
-	//TempObject->SetPosition(2.0f, 0.0f, 0.0f);
-	//
-	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Rush.bin", NULL);
-	//
-	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
-	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 2);
-	//TempObject->SetNum(3);
-	//TempObject->SetPosition(-1.0f, 0.0f, 0.0f);
-	//
-	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/ent.bin", NULL);
-	//
-	//TempObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
-	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
-	//TempObject->SetNum(4);
-	//TempObject->SetPosition(-3.0f, 0.0f, 0.0f);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };

@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "GameFramework.h"
 
-#include "NetworkMGR.h"
+
 
 #include "Login_GameScene.h"
 #include "Lobby_GameScene.h"
 #include "Stage_GameScene.h"
+
+GameFramework* GameFramework::MainGameFramework;
 
 GameFramework::GameFramework()
 {
@@ -27,6 +29,8 @@ GameFramework::GameFramework()
 	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
 	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
 	_tcscpy_s(m_FrameRate, _T("NonSense"));
+	
+	MainGameFramework = this;
 
 	Timer::Initialize();
 }
@@ -300,7 +304,6 @@ void GameFramework::BuildObjects()
 	for (auto& gameScene : m_GameScenes)
 		gameScene->BuildObjects(m_pDevice, m_pCommandList);
 
-
 	m_pHP_Dec_UI = new Player_HP_DEC_UI(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature());
 
 	m_pUI = new Player_State_UI(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature());
@@ -562,12 +565,12 @@ void GameFramework::FrameAdvance()
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
 
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
-	m_pScreen->Render(m_pCommandList, m_pCamera);
+//	m_pScreen->Render(m_pCommandList, m_pCamera);
 
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
-	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
+//	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);

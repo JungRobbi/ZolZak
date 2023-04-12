@@ -1,6 +1,7 @@
 #include "../ImaysNet/ImaysNet.h"
 #include "NetworkMGR.h"
 #include "GameScene.h"
+#include "GameFramework.h"
 #pragma comment(lib, "WS2_32.LIB")
 
 char* NetworkMGR::SERVERIP = "127.0.0.1";
@@ -11,8 +12,12 @@ shared_ptr<Socket> NetworkMGR::tcpSocket;
 
 void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED recv_over, DWORD recv_flag)
 {
-	char* recv_buf = reinterpret_cast<EXP_OVER*>(recv_over)->_wsa_buf.buf;
-	int recv_buf_Length = MAX_SOCKBUF; // 받은 버퍼 사이즈를 확인할 방법을 찾아야 함
+	char* recv_buf = reinterpret_cast<EXP_OVER*>(recv_over)->_buf;
+	int recv_buf_Length = num_bytes;
+
+	cout << "패킷 사이즈 - " << (int)recv_buf[0] << endl;
+	cout << "num_bytes - " << num_bytes << endl;
+	cout << "패킷 종류 - " << (int)recv_buf[1] << endl;
 
 	{ // 패킷 처리
 		int remain_data = recv_buf_Length + NetworkMGR::tcpSocket->m_prev_remain;
@@ -43,7 +48,8 @@ void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED recv_ove
 		}
 	}
 
-	memset(&NetworkMGR::tcpSocket->m_recvOverlapped._buf, 0, sizeof(NetworkMGR::tcpSocket->m_recvOverlapped._buf));
+	memset(NetworkMGR::tcpSocket->m_recvOverlapped._buf + NetworkMGR::tcpSocket->m_prev_remain, 0,
+		sizeof(NetworkMGR::tcpSocket->m_recvOverlapped._buf) - NetworkMGR::tcpSocket->m_prev_remain);
 	memset(&NetworkMGR::tcpSocket->m_recvOverlapped._wsa_over, 0, sizeof(NetworkMGR::tcpSocket->m_recvOverlapped._wsa_over));
 	NetworkMGR::do_recv();
 }
@@ -70,10 +76,18 @@ void NetworkMGR::start()
 //	SERVERIP[server_s.size()] = '\0';
 //	strcpy(SERVERIP, server_s.c_str());
 
+	string name;
+	std::cout << "이름 입력 : ";
+	std::cin >> name;
+
 	tcpSocket->Bind(Endpoint::Any);
 	tcpSocket->Connect(Endpoint(SERVERIP, SERVERPORT));
 
-	system("cls");
+	CS_LOGIN_PACKET send_packet;
+	send_packet.size = sizeof(CS_LOGIN_PACKET);
+	send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
+	memcpy(send_packet.name, name.c_str(), name.size());
+	PacketQueue::AddSendPacket(&send_packet);
 
 	do_recv();
 }
@@ -98,15 +112,18 @@ void NetworkMGR::Tick()
 		}
 
 		// EXP_OVER 형태로 복사 혹은 buf 형태로 복사 후 send 해야함
-
 		do_send(send_buf, buf_size);
 		PacketQueue::PopSendPacket();
 	}
 }
 
 void NetworkMGR::do_recv() {
-	DWORD recv_flag = 0;
-	WSARecv(tcpSocket->m_fd, &(tcpSocket->m_recvOverlapped._wsa_buf), 1, 0, &recv_flag, &(tcpSocket->m_recvOverlapped._wsa_over), recv_callback);
+	tcpSocket->m_readFlags = 0;
+	ZeroMemory(&tcpSocket->m_recvOverlapped._wsa_over, sizeof(tcpSocket->m_recvOverlapped._wsa_over));
+	tcpSocket->m_recvOverlapped._wsa_buf.len = MAX_SOCKBUF - tcpSocket->m_prev_remain;
+	tcpSocket->m_recvOverlapped._wsa_buf.buf = tcpSocket->m_recvOverlapped._buf + tcpSocket->m_prev_remain;
+
+	WSARecv(tcpSocket->m_fd, &(tcpSocket->m_recvOverlapped._wsa_buf), 1, 0, &tcpSocket->m_readFlags, &(tcpSocket->m_recvOverlapped._wsa_over), recv_callback);
 }
 
 void NetworkMGR::do_send(const char* buf, short buf_size) {
@@ -118,9 +135,24 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 {
 	switch (p_Packet[1]) // 패킷 타입
 	{
-	case E_PACKET::E_PACKET_SC_POSITIONING_PLAYER: {
-		SC_MOVE_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(p_Packet);
+	case E_PACKET::E_PACKET_SC_ADD_PLAYER: {
+		SC_ADD_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(p_Packet);
 
+		cout << "E_PACKET_SC_ADD_PLAYER" << endl;
+		
+		// GameFramework::MainGameFramework->m_OtherPlayers
+		// 에 추가
+
+		LoadedModelInfo* pModel = Object::LoadAnimationModel(GameFramework::MainGameFramework->m_pDevice, GameFramework::MainGameFramework->m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), "Model/F05.bin", NULL);
+		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(GameFramework::MainGameFramework->m_pDevice, GameFramework::MainGameFramework->m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), "Model/Wand.bin", NULL);
+
+		Object* p_TestObeject;
+		
+		p_TestObeject = new TestModelObject(GameFramework::MainGameFramework->m_pDevice, GameFramework::MainGameFramework->m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), pModel, pWeaponModel, 1);
+		p_TestObeject->SetNum(0);
+		p_TestObeject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
+		//p_TestObeject->SetPosition(recv_packet->id, 0.0f, 0.0f);
+		p_TestObeject->SetPosition(1.0f, 0.0f, 0.0f);
 		break;
 	}
 	default:

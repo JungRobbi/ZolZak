@@ -45,7 +45,6 @@ public:
 class SC_ADD_PLAYER_PACKET : public PACKET_HEAD {
 public:
 	short	id;
-	short	x, y;
 	char	name[NAME_SIZE];
 };
 

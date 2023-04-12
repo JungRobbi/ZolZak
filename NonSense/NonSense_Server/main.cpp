@@ -41,6 +41,8 @@ public:
 
 	unsigned long long m_id;
 
+	char name[NAME_SIZE];
+
 	RemoteClient() : thread(), tcpConnection(SocketType::Tcp) {}
 	RemoteClient(SocketType socketType) :tcpConnection(socketType) {}
 };
@@ -93,6 +95,7 @@ void Worker_Thread()
 				auto p_readOverlapped = (EXP_OVER*)readEvent.lpOverlapped;
 
 				if (IO_TYPE::IO_SEND == p_readOverlapped->m_ioType) {
+					cout << " Send! - size : " << (int)p_readOverlapped->_buf[0] << endl;
 					cout << " Send! - type : " << (int)p_readOverlapped->_buf[1] << endl;
 					p_readOverlapped->m_isReadOverlapped = false;
 					continue;
@@ -323,6 +326,35 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 	switch (p_Packet[1]) // 패킷 타입
 	{
 	case E_PACKET::E_PACKET_CS_LOGIN: {
+		CS_LOGIN_PACKET* recv_packet = reinterpret_cast<CS_LOGIN_PACKET*>(p_Packet);
+		memcpy(p_Client->name,recv_packet->name,sizeof(recv_packet->name));
+
+		//id 부여
+		p_Client->m_id = N_CLIENT_ID++;
+
+		// 접속한 클라이언트에게 모든 플레이어 정보 송신
+		for (auto& rc : remoteClients) {
+			if (rc.second->m_id == p_Client->m_id) 
+				continue;
+			SC_ADD_PLAYER_PACKET send_packet;
+			send_packet.size = sizeof(SC_ADD_PLAYER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_ADD_PLAYER;
+			send_packet.id = rc.second->m_id;
+			memcpy(send_packet.name, rc.second->name, sizeof(rc.second->name));
+			p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+
+		// 다른 클라이언트들에게 접속한 클라이언트 정보 송신
+		for (auto& rc : remoteClients) {
+			if (rc.second->m_id == p_Client->m_id)
+				continue;
+			SC_ADD_PLAYER_PACKET send_packet;
+			send_packet.size = sizeof(SC_ADD_PLAYER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_ADD_PLAYER;
+			send_packet.id = p_Client->m_id;
+			memcpy(send_packet.name, p_Client->name, sizeof(p_Client->name));
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
 
 		break;
 	}

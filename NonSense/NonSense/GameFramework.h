@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "GameScene.h"
 #include "Player.h"
+#include "NetworkMGR.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
@@ -47,7 +48,10 @@ private:
 	UINT64 m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE m_FenceEventHandle;
 public:
+	static GameFramework* MainGameFramework;
+public:
 	std::vector<GameScene*> m_GameScenes;
+	std::vector<Object*> m_OtherPlayers;
 public:
 	Camera* m_pCamera = NULL;
 	Player* m_pPlayer = NULL;
@@ -89,5 +93,7 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,LPARAM lParam);
 
 	void ChangeScene(unsigned char num);
+
+	friend NetworkMGR;
 };
 
