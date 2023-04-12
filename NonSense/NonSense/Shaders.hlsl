@@ -37,9 +37,8 @@ cbuffer cbMaterial : register(b3)
 cbuffer cbDrawOptions : register(b5)
 {
 	float4 LineColor : packoffset(c0);
-	uint DrawOption : packoffset(c1.x);
-	uint LineSize : packoffset(c1.y);
-	uint ToonShading : packoffset(c1.z);
+	uint LineSize : packoffset(c1.x);
+	uint ToonShading : packoffset(c1.y);
 };
 
 Texture2DArray gtxtTextureArray : register(t0);
@@ -185,7 +184,7 @@ VS_DEBUG_OUTPUT VSDebug(uint nVertexID : SV_VertexID)
 	VS_DEBUG_OUTPUT output = (VS_DEBUG_OUTPUT)0;
 	int s = nVertexID / 6;
 
-	if (nVertexID % 6 == 0) { output.position = float4((0.5 * s) - 1.0f, -0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
+	if (nVertexID % 6 == 0)		 { output.position = float4((0.5 * s) - 1.0f, -0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
 	else if (nVertexID % 6 == 1) { output.position = float4((0.5 * (s + 1)) - 1.0f, -0.5f, 0.0f, 1.0f);	output.uv = float2(1.0f, 0.0f); output.num = s; }
 	else if (nVertexID % 6 == 2) { output.position = float4((0.5 * (s + 1)) - 1.0f, -1.0f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
 	else if (nVertexID % 6 == 3) { output.position = float4((0.5 * s) - 1.0f, -0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
@@ -363,7 +362,7 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 {
 	VS_SKYBOX_CUBEMAP_OUTPUT output;
 
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.position = (mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection)).xyww;
 	output.positionL = input.position;
 
 	return(output);
@@ -430,14 +429,17 @@ struct VS_TERRAIN_INPUT
 	float4 color : COLOR;
 	float2 uv0 : TEXCOORD0;
 	float2 uv1 : TEXCOORD1;
+	float3 normal : NORMAL;
 };
 
 struct VS_TERRAIN_OUTPUT
 {
 	float4 position : SV_POSITION;
+	float3 positionW : POSITION;
 	float4 color : COLOR;
 	float2 uv0 : TEXCOORD0;
 	float2 uv1 : TEXCOORD1;
+	float3 normal : NORMAL;
 };
 
 VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
@@ -445,15 +447,22 @@ VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
 	VS_TERRAIN_OUTPUT output;
 
 	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
 	output.color = input.color;
 	output.uv0 = input.uv0;
 	output.uv1 = input.uv1;
+	output.normal = input.normal;
 
 	return(output);
 }
 
-float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 {
+	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+	output.Scene = float4(0, 1, 0, 1);
+	output.Position = float4(input.positionW,1.0f);
+	output.Normal = float4(input.normal,1.0f);
+
 	float4 SplatMap0 = SplatMap_0.Sample(gssWrap, input.uv0);
 	float4 SplatMap1 = SplatMap_1.Sample(gssWrap, input.uv0);
 	float4 Dirt = TFF_Terrain_Dirt_1A_D.Sample(gssWrap, input.uv1);
@@ -476,5 +485,7 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 	cColor += Dirt * SplatMap1.g;
 	cColor += Sand * SplatMap1.b;
 	cColor += Dirt_Road * SplatMap1.a;
-	return cColor;
+
+	output.Texture = cColor;
+	return output;
 }

@@ -31,6 +31,13 @@ class HeightMapTerrain;
 struct CB_GAMEOBJECT_INFO;
 struct CB_PLAYER_INFO;
 
+enum OBJECT_TYPE
+{
+	DEFAULT_OBJECT = 1,
+	BLEND_OBJECT = 2,
+	UI_OBJECT = 3,
+};
+
 struct MATERIAL
 {
 	XMFLOAT4 m_xmf4Ambient;
@@ -190,7 +197,7 @@ public:
 
 	int 			m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
 public:
-	void SetPosition(float fTrackPosition);
+	bool SetPosition(float fTrackPosition);
 	XMFLOAT4X4 GetSRT(int nBone);
 };
 
@@ -261,7 +268,7 @@ public:
 
 public:
 	float 							m_fTime = 0.0f;
-
+	float							m_BlendingWeight = 1.0f;
 	int 							m_nAnimationTracks = 0;
 	AnimationTrack* m_pAnimationTracks = NULL;
 
@@ -284,7 +291,7 @@ public:
 	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 
 	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
-
+	void ChangeAnimationUseBlending(int nAnimationSet);
 	void SetTrackEnable(int nAnimationTrack, bool bEnable);
 	void SetTrackPosition(int nAnimationTrack, float fPosition);
 	void SetTrackSpeed(int nAnimationTrack, float fSpeed);
@@ -302,7 +309,7 @@ public:
 	Object();
 	// GameScene의 gameobjects 리스트에 안넣기 위해 만든 생성자
 	Object(bool Push_List);
-	Object(bool Push_List, bool isBlendObject);
+	Object(OBJECT_TYPE type);
 	virtual ~Object();
 
 	virtual void start();
@@ -364,7 +371,7 @@ public:
 	UINT GetMeshType(); 
 
 	void ReleaseUploadBuffers();
-	bool IsVisible(Camera* pCamera = NULL);
+	virtual bool IsVisible(Camera* pCamera = NULL);
 	virtual void SetMesh(Mesh* pMesh);
 	virtual Mesh* GetMesh() { return m_pMesh; }
 	virtual void SetShader(Shader* pShader);
@@ -381,6 +388,7 @@ public:
 
 	CTexture* FindReplicatedTexture(_TCHAR* pstrTextureName);
 
+	Mesh* FindFirstMesh();
 	Object* FindFrame(char* pstrFrameName);
 	void FindAndSetSkinnedMesh(SkinnedMesh** ppSkinnedMeshes, int* pnSkinnedMesh);
 
@@ -435,11 +443,11 @@ inline T* Object::GetComponent()
 
 
 //임시 객체
-class TestModelObject : public Object
+class ModelObject : public Object
 {
 public:
-	TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks);
-	virtual ~TestModelObject() {};
+	ModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel);
+	virtual ~ModelObject() {};
 
 };
 
@@ -449,6 +457,16 @@ public:
 	TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader);
 	virtual ~TestModelBlendObject() {};
 
+};
+
+class Character : public ModelObject
+{
+	float m_Health = 0;
+	float m_Defense = 0;
+	float m_Attack = 0;
+public:
+	Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel);
+	virtual ~Character() {};
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -507,6 +525,36 @@ public:
 	float Dec_HP = 1.0;
 };
 
+
+class Option_UI : public UI
+{
+public:
+	Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Option_UI() {};
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+};
+
+class Game_Option_UI : public Option_UI
+{
+public:
+	Game_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Game_Option_UI() {};
+};
+
+class Graphic_Option_UI : public Option_UI
+{
+public:
+	Graphic_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Graphic_Option_UI() {};
+};
+
+class Sound_Option_UI : public Option_UI
+{
+public:
+	Sound_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Sound_Option_UI() {};
+};
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class HeightMapTerrain : public Object
 {
@@ -532,7 +580,7 @@ public:
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
 	float GetWidth() { return(m_nWidth * m_xmf3Scale.x); }
 	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
-
+	bool IsVisible(Camera* pCamera);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 
 };

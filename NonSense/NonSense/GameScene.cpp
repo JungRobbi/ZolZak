@@ -49,12 +49,24 @@ void GameScene::update()
 		blendGameObjects.push_back(gameObject);
 		creationBlendQueue.pop();
 	}
+	while (!creationUIQueue.empty()) //UI Object
+	{
+		auto gameObject = creationUIQueue.front();
+		gameObject->start();
+		UIGameObjects.push_back(gameObject);
+		creationUIQueue.pop();
+	}
+
 
 	for (auto gameObject : gameObjects)
 		gameObject->update();
 
 	for (auto gameObject : blendGameObjects) //Blend Object
 		gameObject->update();
+
+	for (auto gameObject : UIGameObjects) //UI Object
+		gameObject->update();
+
 
 	auto t = deletionQueue;
 	while (!deletionQueue.empty())
@@ -70,6 +82,14 @@ void GameScene::update()
 		auto gameObject = deletionBlendQueue.front();
 		blendGameObjects.erase(std::find(blendGameObjects.begin(), blendGameObjects.end(), gameObject));
 		deletionBlendQueue.pop_front();
+
+		delete gameObject;
+	}
+	while (!deletionUIQueue.empty()) //UI Object
+	{
+		auto gameObject = deletionUIQueue.front();
+		UIGameObjects.erase(std::find(UIGameObjects.begin(), UIGameObjects.end(), gameObject));
+		deletionUIQueue.pop_front();
 
 		delete gameObject;
 	}
@@ -127,35 +147,78 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();
-	XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
+	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
-	//HeightMapTerrain* terrain = m_pTerrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
-	//terrain->SetPosition(0, -500, 0);
-	LoadedModelInfo* pModel;
-	LoadedModelInfo* pWeaponModel;
-	
-	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/F05.bin", NULL);
-	pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
-	
-	Object* p_TestObject;
 
-	p_TestObject = new TestModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 1);
-	p_TestObject->SetNum(0);
-	p_TestObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
-	p_TestObject->SetPosition(0.0f, 0.0f, 0.0f);
+	Game_Option_UI* m_Game_Option_Dec_UI = new Game_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Graphic_Option_UI* m_Graphic_Option_Dec_UI = new Graphic_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Sound_Option_UI* m_Sound_Option_Dec_UI = new Sound_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Option_UI* m_Option_Dec_UI = new Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	Player_State_UI* m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Player_HP_UI* m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Player_HP_DEC_UI* m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+
+	m_pHP_UI->SetParentUI(m_pUI);
+	m_pHP_Dec_UI->SetParentUI(m_pUI);
+
+	m_Game_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
+	m_Graphic_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
+	m_Sound_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
+
+	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, xmf3Scale, xmf4Color);
+	terrain->SetPosition(-400, 0, -400);
+	m_pTerrain = terrain;
+	//LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Map_Afternoon_Gorge.bin", NULL);
+	//LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
+
+	//Object* TempObject = NULL;
+
+	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 0,false);
+	//TempObject->SetNum(0);
+	////TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
+	//TempObject->SetPosition(0.0f, 0.0f, 0.0f);
+	//m_nObjects = 1;
+	//m_GameObjects = new Object*[m_nObjects];
+
+	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
+	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
+	//TempObject->SetNum(1);
+	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
+	//TempObject->SetPosition(1.0f, 0.0f, 0.0f);
+	//
+	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Close.bin", NULL);
+	//
+	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
+	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
+	//TempObject->SetNum(2);
+	//TempObject->SetPosition(2.0f, 0.0f, 0.0f);
+	//
+	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Rush.bin", NULL);
+	//
+	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
+	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 2);
+	//TempObject->SetNum(3);
+	//TempObject->SetPosition(-1.0f, 0.0f, 0.0f);
+	//
+	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/ent.bin", NULL);
+	//
+	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
+	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
+	//TempObject->SetNum(4);
+	//TempObject->SetPosition(-3.0f, 0.0f, 0.0f);
 
 	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
 
 	m_pBlendShader = new BlendShader();
 	m_pBlendShader->CreateShader(pd3dDevice, m_pGraphicsRootSignature, MRT, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-	//Object::LoadMapData(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/NonBlend_Props_Map.bin");
-	//Object::LoadMapData_Blend(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Blend_Objects_Map.bin", m_pBlendShader);
+	Object::LoadMapData(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/NonBlend_Props_Map.bin");
+	Object::LoadMapData_Blend(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Blend_Objects_Map.bin", m_pBlendShader);
 
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void GameScene::ReleaseObjects()
@@ -500,10 +563,61 @@ D3D12_GPU_DESCRIPTOR_HANDLE GameScene::CreateShaderResourceViews(ID3D12Device* p
 
 bool GameScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+	switch (nMessageID)
+	{
+	case WM_LBUTTONDOWN:
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 6);
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 6);
+
+		break;
+	case WM_RBUTTONDOWN:
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 3);
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 3);
+
+		break;
+	}
 	return(false);
 }
 bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+	switch (nMessageID)
+	{
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case 'W':
+		case 'A':
+		case 'S':
+		case 'D':
+			m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+			break;
+		case VK_SPACE:
+			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
+			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 4);
+			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 4);
+			
+			break;
+		default:
+			break;
+		}
+		break;
+	case WM_KEYUP:
+		switch (wParam)
+		{
+		case 'W':
+		case 'A':
+		case 'S':
+		case 'D':
+			m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
+			break;
+		default:
+			break;
+		}
+	default:
+		break;
+	}
 	return(false);
 }
 
@@ -536,19 +650,12 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 {
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
-	for (int i = 0; i < m_nObjects; i++)
-	{
-		m_GameObjects[i]->UpdateTransform(NULL);
-		m_GameObjects[i]->Render(pd3dCommandList, pCamera);
-	}
 
 	for (auto& object : gameObjects)
 	{
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
 	}
-
-	//m_pTerrain->Render(pd3dCommandList, pCamera);
 }
 
 void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -559,6 +666,17 @@ void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* 
 	{
 		blendObject->UpdateTransform(NULL);
 		blendObject->Render(pd3dCommandList, pCamera);
+	}
+}
+
+void GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	OnPrepareRender(pd3dCommandList, pCamera);
+	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	for (auto& object : UIGameObjects)
+	{
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
 	}
 }
 

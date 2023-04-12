@@ -318,8 +318,12 @@ AnimationSets::~AnimationSets()
 	if (m_ppAnimatedBoneFrameCaches) delete[] m_ppAnimatedBoneFrameCaches;
 }
 
-void AnimationSet::SetPosition(float fElapsedPosition)
+bool AnimationSet::SetPosition(float fElapsedPosition)
 {
+	if (m_Position >= m_Length)
+	{
+		return false;
+	}
 	switch (m_nType)
 	{
 	case ANIMATION_TYPE_LOOP:
@@ -332,10 +336,16 @@ void AnimationSet::SetPosition(float fElapsedPosition)
 		break;
 	}
 	case ANIMATION_TYPE_ONCE:
+		m_Position += fElapsedPosition;
+		if (m_Position >= m_Length) {
+			//std::cout << "Animation Length : " << m_Length << " END" << std::endl;
+			return true;
+		}
 		break;
 	case ANIMATION_TYPE_PINGPONG:
 		break;
 	}
+	return false;
 }
 
 XMFLOAT4X4 AnimationSet::GetSRT(int nBone)
@@ -440,13 +450,40 @@ AnimationController::~AnimationController()
 	if (m_ppSkinnedMeshes) delete[] m_ppSkinnedMeshes;
 }
 
+void AnimationController::ChangeAnimationUseBlending(int nAnimationSet)
+{
+	if (m_pAnimationTracks)
+	{
+		if (m_pAnimationTracks[1].m_nAnimationSet == nAnimationSet)
+		{
+			return;
+		}
+		else if (m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[0].m_nAnimationSet]->m_nType == ANIMATION_TYPE_ONCE)
+		{
+			m_pAnimationTracks[2].m_nAnimationSet = nAnimationSet;
+			return;
+		}
+		else if (m_BlendingWeight < 1.0f)
+		{
+			m_pAnimationTracks[2].m_nAnimationSet = nAnimationSet;
+			return;
+		}
+		else 
+		{
+			m_pAnimationTracks[1].m_nAnimationSet = nAnimationSet;
+			m_pAnimationTracks[2].m_nAnimationSet = nAnimationSet;
+			SetTrackEnable(1, true);
+			m_BlendingWeight = 0.0f;
+		}
+	}
+}
+
 void AnimationController::SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet)
 {
 	if (m_pAnimationTracks)
 	{
 		m_pAnimationTracks[nAnimationTrack].m_nAnimationSet = nAnimationSet;
-		//		m_pAnimationTracks[nAnimationTrack].m_fPosition = 0.0f;
-		//		if (m_pAnimationSets) m_pAnimationSets->m_pAnimationSets[nAnimationSet]->m_fPosition = 0.0f;
+		m_pAnimationSets->m_pAnimationSets[nAnimationSet]->m_Position = 0.0f;
 	}
 }
 
@@ -486,23 +523,82 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 	if (m_pAnimationTracks)
 	{
 		//		for (int k = 0; k < m_nAnimationTracks; k++) m_pAnimationTracks[k].m_fPosition += (fTimeElapsed * m_pAnimationTracks[k].m_fSpeed);
-		for (int k = 0; k < m_nAnimationTracks; k++) m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet]->SetPosition(fTimeElapsed * m_pAnimationTracks[k].m_fSpeed);
-
-		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
-		{
-			XMFLOAT4X4 xmf4x4Transform = Matrix4x4::Zero();
-			for (int k = 0; k < m_nAnimationTracks; k++)
+		for (int k = 0; k < m_nAnimationTracks; k++) {
+			if (m_pAnimationTracks[k].m_bEnable)
 			{
-				if (m_pAnimationTracks[k].m_bEnable)
+				bool IsAnimationEnd = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet]->SetPosition(fTimeElapsed * m_pAnimationTracks[k].m_fSpeed);
+				if (IsAnimationEnd)
 				{
-					AnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
-					XMFLOAT4X4 xmf4x4TrackTransform = pAnimationSet->GetSRT(j);
-					xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[k].m_fWeight));
+					if (m_pAnimationTracks[0].m_nAnimationSet == m_pAnimationTracks[2].m_nAnimationSet)
+					{
+						SetTrackAnimationSet(1, 0);
+						SetTrackAnimationSet(2, 0);
+						SetTrackEnable(1, true);
+						m_BlendingWeight = 0.0f;
+						break;
+					}
+					else
+					{
+						SetTrackAnimationSet(1, m_pAnimationTracks[2].m_nAnimationSet);
+						SetTrackAnimationSet(2, m_pAnimationTracks[2].m_nAnimationSet);
+						SetTrackEnable(1, true);
+						m_BlendingWeight = 0.0f;
+
+					}
 				}
 			}
-			m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = xmf4x4Transform;
+
 		}
 
+		if (!m_pAnimationTracks[1].m_bEnable) {										//일반 재생
+			for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
+			{
+				XMFLOAT4X4 xmf4x4Transform = Matrix4x4::Zero();
+				for (int k = 0; k < m_nAnimationTracks; k++)
+				{
+					if (m_pAnimationTracks[k].m_bEnable)
+					{
+						AnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
+						XMFLOAT4X4 xmf4x4TrackTransform = pAnimationSet->GetSRT(j);
+						xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[k].m_fWeight));
+					}
+				}
+				m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = xmf4x4Transform;
+			}
+		}
+		else																		//블렌딩
+		{
+			m_BlendingWeight += fTimeElapsed*3.5f;
+			m_BlendingWeight = max(0.0f, min(1.0f, m_BlendingWeight));
+			//std::cout << "Animation A : " << m_pAnimationTracks[0].m_nAnimationSet << ", Animation B : " << m_pAnimationTracks[1].m_nAnimationSet << ", Weight : " << m_BlendingWeight << std::endl;
+			if (m_BlendingWeight == 1.0f)
+			{
+				SetTrackAnimationSet(0, m_pAnimationTracks[1].m_nAnimationSet);
+
+				SetTrackEnable(1, false);
+
+				if (m_pAnimationTracks[1].m_nAnimationSet != m_pAnimationTracks[2].m_nAnimationSet)
+				{
+					m_pAnimationTracks[1].m_nAnimationSet = m_pAnimationTracks[2].m_nAnimationSet;
+					SetTrackEnable(1, true);
+					m_BlendingWeight = 0.0f;
+				}
+			}
+
+			for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
+			{
+				XMFLOAT4X4 xmf4x4Transform = Matrix4x4::Zero();
+
+				AnimationSet* pCurrentAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[0].m_nAnimationSet];
+				XMFLOAT4X4 CurrentTrackTransform = pCurrentAnimationSet->GetSRT(j);
+
+				AnimationSet* pNextAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[1].m_nAnimationSet];
+				XMFLOAT4X4 NextTrackTransform = pNextAnimationSet->GetSRT(j);
+
+				xmf4x4Transform = Matrix4x4::Interpolate(CurrentTrackTransform, NextTrackTransform, m_BlendingWeight);
+				m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = xmf4x4Transform;
+			}
+		}
 		pRootGameObject->UpdateTransform(NULL);
 	}
 }
@@ -522,24 +618,23 @@ Object::Object(bool Push_List)
 		GameScene::MainScene->creationQueue.push(this);
 	}
 }
-Object::Object(bool Push_List, bool isBlendObject)
+Object::Object(OBJECT_TYPE type)
 {
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_xmf4x4ToParent, XMMatrixIdentity());
-	if (isBlendObject)
-	{
-		if (Push_List) {
-			GameScene::MainScene->creationBlendQueue.push(this);
-		}
+	switch (type) {
+	case DEFAULT_OBJECT:
+		GameScene::MainScene->creationQueue.push(this);
+		break;
+	case BLEND_OBJECT:
+		GameScene::MainScene->creationBlendQueue.push(this);
+		break;
+	case UI_OBJECT:
+		GameScene::MainScene->creationUIQueue.push(this);
+		break;
 	}
-	else 
-	{
-		if (Push_List) {
-			GameScene::MainScene->creationQueue.push(this);
-		}
-	}
-	
 }
+
 Object::~Object()
 {
 	if (m_pMesh) m_pMesh->Release();
@@ -606,16 +701,40 @@ void Object::ChangeShader(Shader* pShader)
 	if (m_pSibling) m_pSibling->ChangeShader(pShader);
 	if (m_pChild) m_pChild->ChangeShader(pShader);
 }
-
+Mesh* Object::FindFirstMesh()
+{
+	Mesh* pMesh = GetMesh();
+	if (pMesh)
+	{
+		return pMesh;
+	}
+	else
+	{
+		if (m_pSibling)
+		{
+			return m_pSibling->FindFirstMesh();
+		}
+		if (m_pChild)
+		{
+			return m_pChild->FindFirstMesh();
+		}
+	}
+	return NULL;
+}
 bool Object::IsVisible(Camera* pCamera)
 {
 	OnPrepareRender();
 	bool bIsVisible = false;
-	BoundingOrientedBox xmBoundingBox = m_pMesh->GetBoundingBox();
-	//모델 좌표계의 바운딩 박스를 월드 좌표계로 변환한다.
-	xmBoundingBox.Transform(xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
-	if (pCamera) bIsVisible = pCamera->IsInFrustum(xmBoundingBox);
-	return(bIsVisible);
+	BoundingOrientedBox xmBoundingBox;
+	Mesh* pMesh = FindFirstMesh();
+	if (pMesh)
+	{
+		xmBoundingBox = pMesh->GetBoundingBox();
+		xmBoundingBox.Transform(xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
+		if (pCamera) bIsVisible = pCamera->IsInFrustum(xmBoundingBox);
+		return(bIsVisible);
+	}
+	return false;
 }
 
 void Object::SetMesh(Mesh* pMesh)
@@ -624,6 +743,7 @@ void Object::SetMesh(Mesh* pMesh)
 	m_pMesh = pMesh;
 	if (m_pMesh) m_pMesh->AddRef();
 }
+
 void Object::SetScale(float x, float y, float z)
 {
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
@@ -836,7 +956,7 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 				if (pstrToken[0] == '@') // Mesh이름과 맞는 Mesh가 이미 로드가 되었다면 true -> 있는 모델 쓰면 됨
 				{
 					std::string str(pstrToken + 1);
-					pObject = new TestModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMap[str], NULL, 0);
+					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMap[str]);
 
 				}
 				else
@@ -853,7 +973,7 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 					ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // 읽은 모델은 map에 저장
 
 			
-					pObject = new TestModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel, NULL, 0);
+					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel);
 
 				}
 			}
@@ -869,6 +989,8 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 		}
 	}
 }
+
+
 
 void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, Shader* pBlendShader)
 {
@@ -1254,7 +1376,7 @@ void Object::OnPrepareRender()
 }
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	//if (IsVisible(pCamera))
+	if (IsVisible(pCamera))
 	{
 		OnPrepareRender();
 		if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
@@ -1327,33 +1449,24 @@ int Object::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& 
 	return(nIntersected);
 }
 
-TestModelObject::TestModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponModel, int nAnimationTracks) : Object(true, false)
+ModelObject::ModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Object(DEFAULT_OBJECT)
 {
 	LoadedModelInfo* pLoadedModel = pModel;
-	LoadedModelInfo* pWeapon = pWeaponModel;
 	if (pLoadedModel)
 	{
 		SetChild(pLoadedModel->m_pRoot, true);
 	}
-	if (pWeapon) {
-		Object* Hand = FindFrame("Sword_parentR"); // 무기를 붙여줄 팔 찾기
-		if (Hand) {
-			Hand->SetChild(pWeapon->m_pRoot, true);
-			
-		}
-	}
-	if (nAnimationTracks > 0)
-		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pLoadedModel);
 }
 
 
-TestModelBlendObject::TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader) : Object(true,true)
+TestModelBlendObject::TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, Shader* pShader) : Object(BLEND_OBJECT)
 {
 	LoadedModelInfo* pLoadedModel = pModel;
-	if (pLoadedModel) {
+	if (pLoadedModel)
+	{
 		SetChild(pLoadedModel->m_pRoot, true);
-		ChangeShader(pShader);
 	}
+	ChangeShader(pShader);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1363,7 +1476,7 @@ SkyBox::SkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	SetMesh(pSkyBoxMesh);
 
 	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0, 1);
-	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"SkyBox/SkyBox_0.dds", RESOURCE_TEXTURE_CUBE, 0);
+	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"SkyBox/SkyBox_1.dds", RESOURCE_TEXTURE_CUBE, 0);
 
 	SkyBoxShader* pSkyBoxShader = new SkyBoxShader();
 	pSkyBoxShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature,1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -1401,7 +1514,7 @@ void SkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(false)
+UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(UI_OBJECT)
 {
 }
 
@@ -1527,10 +1640,96 @@ void Player_HP_DEC_UI::update() {
 	SetMyPos(0.2, 0.04, 0.8 * HP, 0.32);
 }
 
+Option_UI::Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/OptionUI.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.1, 0.1, 0.8, 0.8);
+}
+
+void Option_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (OptionMode) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
+}
+
+Game_Option_UI::Game_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :Option_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/GameOption.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.05, 0.6, 0.2, 0.2);
+}
+
+Graphic_Option_UI::Graphic_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :Option_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/GraphicOption.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.05, 0.35, 0.2, 0.2);
+}
+
+Sound_Option_UI::Sound_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :Option_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/SoundOption.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.05, 0.1, 0.2, 0.2);
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-HeightMapTerrain::HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : Object(true,false)
+HeightMapTerrain::HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : Object(DEFAULT_OBJECT)
 {
 	m_nWidth = nWidth;
 	m_nLength = nLength;
@@ -1598,3 +1797,8 @@ void HeightMapTerrain::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera
 {
 	Object::Render(pd3dCommandList, pCamera);
 }
+bool HeightMapTerrain::IsVisible(Camera* pCamera)
+{
+	return true;
+}
+

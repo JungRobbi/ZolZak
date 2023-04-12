@@ -123,7 +123,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -143,6 +143,7 @@
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="GameState.h" />
+    <ClInclude Include="GoblinComponent.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Lobby_GameScene.h" />
     <ClInclude Include="Login_GameScene.h" />
@@ -159,6 +160,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Transform3DComponent.h" />
     <ClInclude Include="WICTextureLoader12.h" />
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +171,7 @@
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="GameState.cpp" />
+    <ClCompile Include="GoblinComponent.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Lobby_GameScene.cpp" />
     <ClCompile Include="Login_GameScene.cpp" />
@@ -183,6 +186,7 @@
     <ClCompile Include="Stage_GameScene.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Transform3DComponent.cpp" />
     <ClCompile Include="WICTextureLoader12.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -195,9 +199,11 @@
   <ItemGroup>
     <FxCompile Include="Light1.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

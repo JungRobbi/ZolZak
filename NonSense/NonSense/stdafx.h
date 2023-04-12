@@ -28,6 +28,7 @@
 #include <DXGIDebug.h>
 
 #include <vector>
+#include <algorithm>
 #include <iostream>
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -73,6 +74,7 @@ inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
 extern UINT	CBVSRVDescriptorSize;
 extern UINT RTVDescriptorSize;
 extern bool DebugMode;
+extern bool OptionMode;
 extern UINT OBJNum;
 
 extern UINT	gnRtvDescriptorIncrementSize;

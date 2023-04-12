@@ -117,6 +117,9 @@
     <ClInclude Include="NetworkMGR.h">
       <Filter>소스 파일\Network</Filter>
     </ClInclude>
+    <ClInclude Include="Transform3DComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -184,6 +187,9 @@
     </ClCompile>
     <ClCompile Include="NetworkMGR.cpp">
       <Filter>소스 파일\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform3DComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

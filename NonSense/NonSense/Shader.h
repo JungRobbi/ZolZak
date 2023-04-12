@@ -13,7 +13,6 @@ struct CB_GAMEOBJECT_INFO
 struct CB_SCREEN_INFO
 {
 	XMFLOAT4 LineColor;
-	UINT DrawOptions;
 	UINT LineSize;
 	UINT ToonShading;
 };
@@ -254,7 +253,6 @@ public:
 	UIShader();
 	virtual ~UIShader();
 
-	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
 	virtual D3D12_BLEND_DESC CreateBlendState();
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);

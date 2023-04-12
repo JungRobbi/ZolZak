@@ -400,7 +400,8 @@ void ObjectsShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommand
 	int k = 0;
 	for (auto gameobject : GameScene::MainScene->gameObjects)
 	{
-		XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&gameobject->GetWorld())));
+		XMFLOAT4X4 ObjectWorld = gameobject->GetWorld();
+		XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&ObjectWorld)));
 		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects + (k * ncbGameObjectBytes));
 		::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
 		pbMappedcbGameObject->m_nObjectID = k++;
@@ -534,7 +535,7 @@ void ScreenShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandL
 {
 	m_pMappedScreenOptions->LineColor = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	m_pMappedScreenOptions->LineSize = 9;
-	m_pMappedScreenOptions->ToonShading = 5;
+	m_pMappedScreenOptions->ToonShading = 10;
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pScreenOptions->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(7, d3dGpuVirtualAddress);
@@ -852,26 +853,6 @@ UIShader::~UIShader()
 {
 }
 
-D3D12_DEPTH_STENCIL_DESC UIShader::CreateDepthStencilState()
-{
-	D3D12_DEPTH_STENCIL_DESC d3dDepthStencilDesc;
-	::ZeroMemory(&d3dDepthStencilDesc, sizeof(D3D12_DEPTH_STENCIL_DESC));
-	d3dDepthStencilDesc.DepthEnable = TRUE;
-	d3dDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-	d3dDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-	d3dDepthStencilDesc.StencilEnable = FALSE;
-	d3dDepthStencilDesc.StencilReadMask = 0x00;
-	d3dDepthStencilDesc.StencilWriteMask = 0x00;
-	d3dDepthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-	d3dDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-	d3dDepthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-	d3dDepthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
-	d3dDepthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-	d3dDepthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-	d3dDepthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-	d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
-	return(d3dDepthStencilDesc);
-}
 
 D3D12_BLEND_DESC UIShader::CreateBlendState()
 {
@@ -920,13 +901,14 @@ TerrainShader::~TerrainShader()
 
 D3D12_INPUT_LAYOUT_DESC TerrainShader::CreateInputLayout()
 {
-	UINT nInputElementDescs = 4;
+	UINT nInputElementDescs = 5;
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "COLOR", 0,	DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 2, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[3] = { "TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT, 3, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[4] = { "NORMAL", 0,	DXGI_FORMAT_R32G32B32_FLOAT, 4, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;

@@ -158,6 +158,43 @@ void Player::Update(float fTimeElapsed)
 	Animate(fTimeElapsed);
 }
 
+void Player::OnPlayerUpdateCallback(float fTimeElapsed)
+{
+	XMFLOAT3 xmf3PlayerPosition = GetPosition();
+	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
+
+	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x+400.0f, xmf3PlayerPosition.z+400.0f)+1.5;
+	if (xmf3PlayerPosition.y < fHeight)
+	{
+		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
+		xmf3PlayerVelocity.y = 0.0f;
+		SetVelocity(xmf3PlayerVelocity);
+		xmf3PlayerPosition.y = fHeight;
+		SetPosition(xmf3PlayerPosition);
+	}
+}
+
+void Player::OnCameraUpdateCallback(float fTimeElapsed)
+{
+	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pCameraUpdatedContext;
+	XMFLOAT3 xmf3Scale = pTerrain->GetScale();
+	XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
+	int z = (int)(xmf3CameraPosition.z / xmf3Scale.z);
+	bool bReverseQuad = ((z % 2) != 0);
+	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z, bReverseQuad);
+	if (xmf3CameraPosition.y <= fHeight)
+	{
+		xmf3CameraPosition.y = fHeight;
+		m_pCamera->SetPosition(xmf3CameraPosition);
+		if (m_pCamera->GetMode() == THIRD_PERSON_CAMERA)
+		{
+			ThirdPersonCamera* p3rdPersonCamera = (ThirdPersonCamera*)m_pCamera;
+			XMFLOAT3 pos = GetPosition();
+			p3rdPersonCamera->SetLookAt(pos);
+		}
+	}
+}
+
 Camera* Player::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
 	//새로운 카메라의 모드에 따라 카메라를 새로 생성한다.
@@ -176,12 +213,16 @@ Camera* Player::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 	}
 	if (nCurrentCameraMode == SPACESHIP_CAMERA)
 	{
-		m_xmf3Right = Vector3::Normalize(XMFLOAT3(m_xmf3Right.x, 0.0f, m_xmf3Right.z));
-		m_xmf3Up = Vector3::Normalize(XMFLOAT3(0.0f, 1.0f, 0.0f));
-		m_xmf3Look = Vector3::Normalize(XMFLOAT3(m_xmf3Look.x, 0.0f, m_xmf3Look.z));
+		XMFLOAT3 right = XMFLOAT3(m_xmf3Right.x, 0.0f, m_xmf3Right.z);
+		m_xmf3Right = Vector3::Normalize(right);
+		XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		m_xmf3Up = Vector3::Normalize(up);
+		XMFLOAT3 look = XMFLOAT3(m_xmf3Look.x, 0.0f, m_xmf3Look.z);
+		m_xmf3Look = Vector3::Normalize(look);
 		m_fPitch = 0.0f;
 		m_fRoll = 0.0f;
-		m_fYaw = Vector3::Angle(XMFLOAT3(0.0f, 0.0f, 1.0f), m_xmf3Look);
+		XMFLOAT3 angle = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		m_fYaw = Vector3::Angle(angle, m_xmf3Look);
 		if (m_xmf3Look.x < 0.0f) m_fYaw = -m_fYaw;
 	}
 	else if ((nNewCameraMode == SPACESHIP_CAMERA) && m_pCamera)
@@ -215,11 +256,13 @@ void Player::OnPrepareRender()
 	m_xmf4x4ToParent._42 = m_xmf3Position.y;
 	m_xmf4x4ToParent._43 = m_xmf3Position.z;
 
-	m_xmf4x4ToParent = Matrix4x4::Multiply(XMMatrixScaling(m_xmf3Scale.x, m_xmf3Scale.y, m_xmf3Scale.z), m_xmf4x4ToParent);
+	XMMATRIX mat = XMMatrixScaling(m_xmf3Scale.x, m_xmf3Scale.y, m_xmf3Scale.z);
+	m_xmf4x4ToParent = Matrix4x4::Multiply(mat, m_xmf4x4ToParent);
 
 }
 void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
+	
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
@@ -228,15 +271,21 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 	}
 }
 
+void Player::SetAnimation() {
+	m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
+	if(IsWalk)
+	m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+}
 
-MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+
+MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void *pContext)
 {
 	{
-		m_pCamera = ChangeCamera(SPACESHIP_CAMERA, 0.0f);
+		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-		SetPosition(XMFLOAT3(0.0f, 0.0f, -2.0f));
-
+		XMFLOAT3 pos = XMFLOAT3(0.0f, 100.0f, -2.0f);
+		SetPosition(pos);
 		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
 		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);
 
@@ -251,11 +300,32 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		}
 
 		SetNum(9);
-		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 1, pModel);
+		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 3, pModel);
 		m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		m_pSkinnedAnimationController->SetTrackAnimationSet(2, 0);
+		m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		m_pSkinnedAnimationController->SetTrackEnable(2, false);
+
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[3]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[4]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[6]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[7]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[8]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[9]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[10]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[11]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[12]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[13]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[14]->m_nType = ANIMATION_TYPE_ONCE;
 
 	}
+	HeightMapTerrain* pTerrain = (HeightMapTerrain*)pContext;
+	SetPlayerUpdatedContext(pTerrain);
+	SetCameraUpdatedContext(pTerrain);
 }
+
+
 
 Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 {
@@ -265,41 +335,41 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	{
 	case FIRST_PERSON_CAMERA:
 		//플레이어의 특성을 1인칭 카메라 모드에 맞게 변경한다. 중력은 적용하지 않는다.
-		SetFriction(200.0f);
-		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		SetFriction(50.0f);
+		SetGravity(XMFLOAT3(0.0f, -100.0f, 0.0f));
 		SetMaxVelocityXZ(125.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 1.0f, 0.0f));
-		m_pCamera->GenerateProjectionMatrix(0.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->GenerateProjectionMatrix(0.01f, 100.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
 	case SPACESHIP_CAMERA:
 		//플레이어의 특성을 스페이스-쉽 카메라 모드에 맞게 변경한다. 중력은 적용하지 않는다.
-		SetFriction(10.0f);
-		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		SetMaxVelocityXZ(400.0f);
-		SetMaxVelocityY(400.0f);
+		SetFriction(50.0f);
+		SetGravity(XMFLOAT3(0.0f, -100.0f, 0.0f));
+		SetMaxVelocityXZ(100.0f);
+		SetMaxVelocityY(100.0f);
 		m_pCamera = OnChangeCamera(SPACESHIP_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		m_pCamera->GenerateProjectionMatrix(0.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->GenerateProjectionMatrix(0.01f, 100.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
 	case THIRD_PERSON_CAMERA:
 		//플레이어의 특성을 3인칭 카메라 모드에 맞게 변경한다. 지연 효과와 카메라 오프셋을 설정한다.
 		SetFriction(50.0f);
-		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		SetGravity(XMFLOAT3(0.0f, -100.0f, 0.0f));
 		SetMaxVelocityXZ(5.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 		//3인칭 카메라의 지연 효과를 설정한다. 값을 0.25f 대신에 0.0f와 1.0f로 설정한 결과를 비교하기 바란다.
 		m_pCamera->SetTimeLag(0.25f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 1.5f, -2.0f));
-		m_pCamera->GenerateProjectionMatrix(0.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->GenerateProjectionMatrix(0.01f, 100.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
@@ -318,14 +388,6 @@ void MagePlayer::Update(float fTimeElapsed)
 	Player::Update(fTimeElapsed);
 	if (m_pSkinnedAnimationController)
 	{
-		float VeloLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
-		if (::IsZero(VeloLength))
-		{
-			m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		}
-		else 
-		{
-			m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
-		}
+
 	}
 }
