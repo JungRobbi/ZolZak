@@ -49,34 +49,6 @@ SamplerState gssDefaultSamplerState : register(s0);
 TextureCube gtxtSkyCubeTexture : register(t13);
 #include "Light1.hlsl"
 
-
-/////////////////////////////////////////////////////////////////////////////
-
-struct VS_LIGHTING_INPUT
-{
-	float3 position : POSITION;
-	float3 normal : NORMAL;
-	float2 uv : TEXCOORD;
-};
-
-struct VS_LIGHTING_OUTPUT
-{
-	float4 position : SV_POSITION;
-	float3 positionW : POSITION;
-	float3 normalW : NORMAL;
-	float2 uv : TEXCOORD;
-};
-
-VS_LIGHTING_OUTPUT VSObject(VS_LIGHTING_INPUT input)
-{
-	VS_LIGHTING_OUTPUT output;
-	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
-	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
-	output.uv = input.uv;
-	return(output);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
@@ -87,43 +59,27 @@ struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
 	float4 Texture : SV_TARGET3;
 };
 
-PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSObject(VS_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID)
-{
-	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
-	output.Scene = float4(0, 1, 0, 0);
-
-	output.Position = float4(input.positionW, 1.0f);
-	output.Normal = float4(input.normalW.xyz, 1 / ((float)objectID + 2));
-	float3 uvw = float3(input.uv, nPrimitiveID / 2);
-	output.Texture = gtxtTextureArray.Sample(gssDefaultSamplerState, uvw);
-
-	return(output);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////
-struct VS_INPUT
+struct VS_BoundingINPUT
 {
 	float3 position : POSITION;
-	float4 color : COLOR;
 };
 
-struct VS_OUTPUT
+struct VS_BoundingOUTPUT
 {
 	float4 position : SV_POSITION;
-	float4 color : COLOR;
 };
 
-VS_OUTPUT VSDiffused(VS_INPUT input)
+VS_BoundingOUTPUT VSBounding(VS_BoundingINPUT input)
 {
-	VS_OUTPUT output;
+	VS_BoundingOUTPUT output;
 	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxPlayerWorld), gmtxView), gmtxProjection);
-	output.color = input.color;
 	return(output);
 }
 
-float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
+float4 PSBounding(VS_BoundingOUTPUT input) : SV_TARGET
 {
-	return(input.color);
+	return(float4(1,0,0,0));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

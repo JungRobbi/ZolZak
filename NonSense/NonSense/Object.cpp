@@ -632,6 +632,9 @@ Object::Object(OBJECT_TYPE type)
 	case UI_OBJECT:
 		GameScene::MainScene->creationUIQueue.push(this);
 		break;
+	case BOUNDING_OBJECT:
+		GameScene::MainScene->creationBoundingQueue.push(this);
+		break;
 	}
 }
 
@@ -1472,7 +1475,7 @@ TestModelBlendObject::TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12Graph
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SkyBox::SkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(false)
 {
-	SkyBoxMesh* pSkyBoxMesh = new SkyBoxMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 20.0f);
+	SkyBoxMesh* pSkyBoxMesh = new SkyBoxMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
 	SetMesh(pSkyBoxMesh);
 
 	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0, 1);
@@ -1802,3 +1805,35 @@ bool HeightMapTerrain::IsVisible(Camera* pCamera)
 	return true;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
+BoundBox::BoundBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BOUNDING_OBJECT)
+{
+	CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 2.0f, 2.0f, 2.0f);
+	SetMesh(BoundMesh);
+
+	BoundingShader* pBoundingShader = new BoundingShader();
+	pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	Material* pBoundingMaterial = new Material();
+	pBoundingMaterial->SetShader(pBoundingShader);
+
+	SetMaterial(pBoundingMaterial);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+}
+
+BoundBox::~BoundBox()
+{
+}
+
+void BoundBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	OnPrepareRender();
+	UpdateShaderVariables(pd3dCommandList);
+
+	if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+	if (m_pMesh)
+	{
+		m_pMesh->Render(pd3dCommandList, 0);
+	}
+}

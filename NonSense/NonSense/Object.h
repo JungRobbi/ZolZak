@@ -36,6 +36,7 @@ enum OBJECT_TYPE
 	DEFAULT_OBJECT = 1,
 	BLEND_OBJECT = 2,
 	UI_OBJECT = 3,
+	BOUNDING_OBJECT = 4
 };
 
 struct MATERIAL
@@ -305,6 +306,7 @@ public:
 class Object
 {
 	std::list<Component*> components;
+	std::list<BoundingOrientedBox*> BoundingBoxes;
 public:
 	Object();
 	// GameScene의 gameobjects 리스트에 안넣기 위해 만든 생성자
@@ -475,6 +477,16 @@ class SkyBox : public Object
 public:
 	SkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~SkyBox();
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class BoundBox : public Object
+{
+public:
+	BoundBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~BoundBox();
 
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 };

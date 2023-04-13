@@ -114,6 +114,9 @@
     <ClInclude Include="Transform3DComponent.h">
       <Filter>소스 파일\Components</Filter>
     </ClInclude>
+    <ClInclude Include="GoblinComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -178,6 +181,9 @@
     </ClCompile>
     <ClCompile Include="Transform3DComponent.cpp">
       <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="GoblinComponent.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -26,6 +26,15 @@ GameScene::~GameScene()
 	for (auto object : gameObjects)
 		delete object;
 	gameObjects.clear();
+	for (auto object : blendGameObjects)
+		delete object;
+	blendGameObjects.clear();
+	for (auto object : UIGameObjects)
+		delete object;
+	UIGameObjects.clear();
+	for (auto object : BoundingGameObjects)
+		delete object;
+	BoundingGameObjects.clear();
 }
 
 Object* GameScene::CreateEmpty()
@@ -56,6 +65,13 @@ void GameScene::update()
 		UIGameObjects.push_back(gameObject);
 		creationUIQueue.pop();
 	}
+	while (!creationBoundingQueue.empty()) //Bounding Object
+	{
+		auto gameObject = creationBoundingQueue.front();
+		gameObject->start();
+		BoundingGameObjects.push_back(gameObject);
+		creationBoundingQueue.pop();
+	}
 
 
 	for (auto gameObject : gameObjects)
@@ -65,6 +81,8 @@ void GameScene::update()
 		gameObject->update();
 
 	for (auto gameObject : UIGameObjects) //UI Object
+		gameObject->update();
+	for (auto gameObject : BoundingGameObjects) //Bounding Object
 		gameObject->update();
 
 
@@ -90,6 +108,14 @@ void GameScene::update()
 		auto gameObject = deletionUIQueue.front();
 		UIGameObjects.erase(std::find(UIGameObjects.begin(), UIGameObjects.end(), gameObject));
 		deletionUIQueue.pop_front();
+
+		delete gameObject;
+	}
+	while (!deletionBoundingQueue.empty()) //Bounding Object
+	{
+		auto gameObject = deletionBoundingQueue.front();
+		BoundingGameObjects.erase(std::find(BoundingGameObjects.begin(), BoundingGameObjects.end(), gameObject));
+		deletionBoundingQueue.pop_front();
 
 		delete gameObject;
 	}
@@ -159,6 +185,8 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	Player_HP_UI* m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Player_HP_DEC_UI* m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
+	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+
 	m_pHP_UI->SetParentUI(m_pUI);
 	m_pHP_Dec_UI->SetParentUI(m_pUI);
 
@@ -169,6 +197,8 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, xmf3Scale, xmf4Color);
 	terrain->SetPosition(-400, 0, -400);
 	m_pTerrain = terrain;
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	//LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Map_Afternoon_Gorge.bin", NULL);
 	//LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
 
@@ -216,6 +246,8 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	Object::LoadMapData(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/NonBlend_Props_Map.bin");
 	Object::LoadMapData_Blend(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Blend_Objects_Map.bin", m_pBlendShader);
 
+
+
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -224,12 +256,6 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 void GameScene::ReleaseObjects()
 {
 	if (m_pGraphicsRootSignature) m_pGraphicsRootSignature->Release();
-	for (int i = 0; i < m_nShaders; i++)
-	{
-		m_pShaders[i].ReleaseShaderVariables();
-		m_pShaders[i].ReleaseObjects();
-	}
-	if (m_pShaders) delete[] m_pShaders;
 	if (m_pLights) delete m_pLights;
 	if (m_pMaterials) delete m_pMaterials;
 	if (m_pSkyBox) delete m_pSkyBox;
@@ -237,7 +263,6 @@ void GameScene::ReleaseObjects()
 
 void GameScene::ReleaseUploadBuffers()
 {
-	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].ReleaseUploadBuffers();
 	if (m_pSkyBox) m_pSkyBox->ReleaseUploadBuffers();
 }
 
@@ -628,14 +653,7 @@ void GameScene::AnimateObjects(float fTimeElapsed)
 		object->Animate(fTimeElapsed);
 
 	}
-	//for (int i = 0; i < m_nObjects; i++)
-	//{
-	//	m_GameObjects[i]->Animate(fTimeElapsed);
-	//}
-
 	if (m_pPlayer) m_pPlayer->Animate(fTimeElapsed);
-
-	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].AnimateObjects(fTimeElapsed);
 }
 
 void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -658,6 +676,7 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
 	}
+
 }
 
 void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -676,6 +695,17 @@ void GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCa
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 	for (auto& object : UIGameObjects)
+	{
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
+	}
+}
+
+void GameScene::RenderBoundingBox(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	OnPrepareRender(pd3dCommandList, pCamera);
+	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	for (auto& object : BoundingGameObjects)
 	{
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
@@ -724,8 +754,7 @@ Object* GameScene::PickObjectPointedByCursor(int xClient, int yClient, Camera* p
 	//셰이더의 모든 게임 객체들에 대한 마우스 픽킹을 수행하여 카메라와 가장 가까운 게임 객체를 구한다.
 	for (int i = 0; i < m_nShaders; i++)
 	{
-		pIntersectedObject = m_pShaders[i].PickObjectByRayIntersection(xmf3PickPosition,
-			xmf4x4View, &fHitDistance);
+		//pIntersectedObject = m_pShaders[i].PickObjectByRayIntersection(xmf3PickPosition,xmf4x4View, &fHitDistance);
 		if (pIntersectedObject && (fHitDistance < fNearestHitDistance))
 		{
 			fNearestHitDistance = fHitDistance;
