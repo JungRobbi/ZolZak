@@ -221,7 +221,7 @@ CubeMesh::CubeMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 	m_nVertices = 36;
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-	float fx = fWidth*3, fy = fHeight*3, fz = fDepth*3;
+	float fx = fWidth, fy = fHeight, fz = fDepth;
 
 	m_pxmf3Positions = new XMFLOAT3[m_nVertices];
 	int i = 0;

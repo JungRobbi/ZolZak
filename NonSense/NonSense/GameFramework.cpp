@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameFramework.h"
+#include "CollideComponent.h"
 
 GameFramework::GameFramework()
 {
@@ -283,7 +284,12 @@ void GameFramework::BuildObjects()
 	auto m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
 
+	BoundBox* bb = new BoundBox(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->GetTerrain());
+	m_pPlayer->AddComponent<CollideComponent>();
+	m_pPlayer->GetComponent<CollideComponent>()->SetBoundingObject(bb);
+	m_pPlayer->GetComponent<CollideComponent>()->SetExtents(XMFLOAT3(0.3, 0.5, 0.3));
+	
 	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
@@ -526,7 +532,6 @@ void GameFramework::FrameAdvance()
 	GameScene::MainScene->update();
 	// 불투명 오브젝트, Terrain
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
-	GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
 	// 플레이어
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	///////////////////////////////////////////
@@ -542,6 +547,8 @@ void GameFramework::FrameAdvance()
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
 	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
+	// Bounding Box
+	GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
 	// Debug 화면

@@ -622,6 +622,7 @@ Object::Object(OBJECT_TYPE type)
 {
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_xmf4x4ToParent, XMMatrixIdentity());
+	SetNum(OBJNum++);
 	switch (type) {
 	case DEFAULT_OBJECT:
 		GameScene::MainScene->creationQueue.push(this);
@@ -1809,7 +1810,7 @@ bool HeightMapTerrain::IsVisible(Camera* pCamera)
 
 BoundBox::BoundBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BOUNDING_OBJECT)
 {
-	CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 2.0f, 2.0f, 2.0f);
+	CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
 	SetMesh(BoundMesh);
 
 	BoundingShader* pBoundingShader = new BoundingShader();

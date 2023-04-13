@@ -185,8 +185,6 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	Player_HP_UI* m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Player_HP_DEC_UI* m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
-	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-
 	m_pHP_UI->SetParentUI(m_pUI);
 	m_pHP_Dec_UI->SetParentUI(m_pUI);
 

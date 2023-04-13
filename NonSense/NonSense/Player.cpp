@@ -154,6 +154,7 @@ void Player::Update(float fTimeElapsed)
 	float fDeceleration = (m_fFriction * fTimeElapsed);
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+	Object::update();
 }
 
 void Player::OnPlayerUpdateCallback(float fTimeElapsed)
@@ -297,7 +298,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 			}
 		}
 
-		SetNum(9);
+		SetNum(0);
 		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 3, pModel);
 		m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
