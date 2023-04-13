@@ -527,16 +527,7 @@ bool GameScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 {
 	switch (nMessageID)
 	{
-	case WM_LBUTTONDOWN:
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 6);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 6);
-
-		break;
-	case WM_RBUTTONDOWN:
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 3);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 3);
+	default:
 
 		break;
 	}

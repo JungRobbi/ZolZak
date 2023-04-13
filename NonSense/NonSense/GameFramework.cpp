@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "GameFramework.h"
-
+#include "PlayerMovementComponent.h"
 GameFramework::GameFramework()
 {
 	m_pFactory = NULL;
@@ -324,8 +324,7 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 		//마우스가 눌려지면 마우스 픽킹을 하여 선택한 게임 객체를 찾는다.
 		m_pSelectedObject = GameScene::MainScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pCamera);
 		//마우스 캡쳐를 하고 현재 마우스 위치를 가져온다.
-		::SetCapture(hWnd);
-		::GetCursorPos(&m_ptOldCursorPos);
+
 		break;
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
@@ -437,15 +436,15 @@ void GameFramework::ProcessInput()
 
 	if (::GetCapture() == m_hWnd)
 	{
-		//마우스 커서를 화면에서 없앤다(보이지 않게 한다).
-		::SetCursor(NULL);
-		//현재 마우스 커서의 위치를 가져온다.
-		::GetCursorPos(&ptCursorPos);
-		//마우스 버튼이 눌린 상태에서 마우스가 움직인 양을 구한다.
-		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-		//마우스 커서의 위치를 마우스가 눌려졌던 위치로 설정한다.
-		::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+		////마우스 커서를 화면에서 없앤다(보이지 않게 한다).
+		//::SetCursor(NULL);
+		////현재 마우스 커서의 위치를 가져온다.
+		//::GetCursorPos(&ptCursorPos);
+		////마우스 버튼이 눌린 상태에서 마우스가 움직인 양을 구한다.
+		//cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+		//cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+		////마우스 커서의 위치를 마우스가 눌려졌던 위치로 설정한다.
+		//::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 	}
 	//마우스 또는 키 입력이 있으면 플레이어를 이동하거나(dwDirection) 회전한다(cxDelta 또는 cyDelta).
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
@@ -456,14 +455,15 @@ void GameFramework::ProcessInput()
 		}
 		else
 		{
-			if (cxDelta || cyDelta)
-			{
-
-				if (pKeyBuffer[VK_RBUTTON] & 0xF0)
-					m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-				else
-					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-			}
+	
+			//if (cxDelta || cyDelta)
+			//{
+			//
+			//	if (pKeyBuffer[VK_RBUTTON] & 0xF0)
+			//		m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+			//	else
+			//		m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+			//}
 			if (dwDirection) {
 				if (pKeyBuffer[0x41] & 0xF0) {
 					m_pPlayer->Rotate(0.0f, -0.1f, 0.0f);
@@ -473,7 +473,7 @@ void GameFramework::ProcessInput()
 					m_pPlayer->Rotate(0.0f, +0.1f, 0.0f);
 					pKeyBuffer[0x44] = false;
 				}
-				m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
+			m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
 				m_pPlayer->SetWalk(true);
 			}
 		}
@@ -512,7 +512,11 @@ void GameFramework::MoveToNextFrame()
 void GameFramework::FrameAdvance()
 {
 	Timer::Tick(0.0f);
-
+	
+	if (!m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose)
+	{
+		::SetCapture(m_hWnd);
+	}
 	ProcessInput();
 	GameScene::MainScene->AnimateObjects(Timer::GetTimeElapsed());
 	HRESULT hResult = m_pCommandAllocator->Reset();
