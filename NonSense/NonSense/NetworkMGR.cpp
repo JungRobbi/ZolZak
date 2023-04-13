@@ -140,19 +140,6 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 
 		cout << "E_PACKET_SC_ADD_PLAYER" << endl;
 		
-		// GameFramework::MainGameFramework->m_OtherPlayers
-		// ¿¡ Ãß°¡
-
-		LoadedModelInfo* pModel = Object::LoadAnimationModel(GameFramework::MainGameFramework->m_pDevice, GameFramework::MainGameFramework->m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), "Model/F05.bin", NULL);
-		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(GameFramework::MainGameFramework->m_pDevice, GameFramework::MainGameFramework->m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), "Model/Wand.bin", NULL);
-
-		Object* p_TestObeject;
-		
-		p_TestObeject = new TestModelObject(GameFramework::MainGameFramework->m_pDevice, GameFramework::MainGameFramework->m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), pModel, pWeaponModel, 1);
-		p_TestObeject->SetNum(0);
-		p_TestObeject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
-		//p_TestObeject->SetPosition(recv_packet->id, 0.0f, 0.0f);
-		p_TestObeject->SetPosition(1.0f, 0.0f, 0.0f);
 		break;
 	}
 	default:
