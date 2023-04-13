@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameScene.h"
+#include "CollideComponent.h"
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 
 ID3D12DescriptorHeap* GameScene::m_pd3dCbvSrvDescriptorHeap = NULL;
@@ -202,19 +203,20 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	//Object* TempObject = NULL;
 
-	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 0,false);
+	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 0);
 	//TempObject->SetNum(0);
-	////TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
+	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
 	//TempObject->SetPosition(0.0f, 0.0f, 0.0f);
 	//m_nObjects = 1;
 	//m_GameObjects = new Object*[m_nObjects];
 
-	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
-	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
+
+	//LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
+	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel);
 	//TempObject->SetNum(1);
 	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
 	//TempObject->SetPosition(1.0f, 0.0f, 0.0f);
-	//
+	
 	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Close.bin", NULL);
 	//
 	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);

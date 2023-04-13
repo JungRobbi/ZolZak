@@ -289,7 +289,15 @@ void GameFramework::BuildObjects()
 	m_pPlayer->AddComponent<CollideComponent>();
 	m_pPlayer->GetComponent<CollideComponent>()->SetBoundingObject(bb);
 	m_pPlayer->GetComponent<CollideComponent>()->SetExtents(XMFLOAT3(0.3, 0.5, 0.3));
-	
+	m_pPlayer->GetComponent<CollideComponent>()->SetOffset(XMFLOAT3(0.0, 0.5, 0.0));
+	//{
+	//	BoundBox* bb = new BoundBox(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+	//	bb->SetPosition(XMFLOAT3(0, 0, 0));
+	//	bb->AddComponent<CollideComponent>();
+	//	bb->GetComponent<CollideComponent>()->SetBoundingObject(bb);
+	//	bb->GetComponent<CollideComponent>()->SetExtents(XMFLOAT3(0.3, 0.5, 0.3));
+	//	bb->GetComponent<CollideComponent>()->SetOffset(XMFLOAT3(0.0, 0.5, 0.0));
+	//}
 	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
