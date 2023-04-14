@@ -289,15 +289,14 @@ void GameFramework::BuildObjects()
 	m_pPlayer->AddComponent<CollideComponent>();
 	m_pPlayer->GetComponent<CollideComponent>()->SetBoundingObject(bb);
 	m_pPlayer->GetComponent<CollideComponent>()->SetExtents(XMFLOAT3(0.3, 0.5, 0.3));
-	m_pPlayer->GetComponent<CollideComponent>()->SetOffset(XMFLOAT3(0.0, 0.5, 0.0));
-	//{
-	//	BoundBox* bb = new BoundBox(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
-	//	bb->SetPosition(XMFLOAT3(0, 0, 0));
-	//	bb->AddComponent<CollideComponent>();
-	//	bb->GetComponent<CollideComponent>()->SetBoundingObject(bb);
-	//	bb->GetComponent<CollideComponent>()->SetExtents(XMFLOAT3(0.3, 0.5, 0.3));
-	//	bb->GetComponent<CollideComponent>()->SetOffset(XMFLOAT3(0.0, 0.5, 0.0));
-	//}
+	
+	BoundBox* ab = new BoundBox(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+	Object* m_temp = new Object(false);
+	m_temp->SetPosition(0, 0, 0);
+	m_temp->AddComponent<CollideComponent>();
+	m_temp->GetComponent<CollideComponent>()->SetBoundingObject(ab);
+	m_temp->GetComponent<CollideComponent>()->SetExtents(XMFLOAT3(0.3, 0.5, 0.3));
+
 	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
@@ -539,7 +538,7 @@ void GameFramework::FrameAdvance()
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
 	GameScene::MainScene->update();
 	// 불투명 오브젝트, Terrain
-	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
+	//GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 	// 플레이어
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	///////////////////////////////////////////
@@ -549,7 +548,7 @@ void GameFramework::FrameAdvance()
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
 
 	// MRT 결과
-	m_pScreen->Render(m_pCommandList, m_pCamera);
+	//m_pScreen->Render(m_pCommandList, m_pCamera);
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
 	// 투명 오브젝트
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
