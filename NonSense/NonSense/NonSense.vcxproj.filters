@@ -120,6 +120,9 @@
     <ClInclude Include="Characters.h">
       <Filter>소스 파일\DirectX 12</Filter>
     </ClInclude>
+    <ClInclude Include="AttackComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -190,6 +193,9 @@
     </ClCompile>
     <ClCompile Include="Characters.cpp">
       <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="AttackComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

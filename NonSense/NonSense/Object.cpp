@@ -329,7 +329,8 @@ bool AnimationSet::SetPosition(float fElapsedPosition)
 	case ANIMATION_TYPE_LOOP:
 	{
 		m_Position += fElapsedPosition;
-		if (m_Position >= m_Length) m_Position = 0.0f;
+		if (m_Position >= m_Length) 
+			m_Position = 0.0f;
 		//			m_fPosition = fmod(fTrackPosition, m_pfKeyFrameTimes[m_nKeyFrames-1]); // m_fPosition = fTrackPosition - int(fTrackPosition / m_pfKeyFrameTimes[m_nKeyFrames-1]) * m_pfKeyFrameTimes[m_nKeyFrames-1];
 		//			m_fPosition = fmod(fTrackPosition, m_fLength); //if (m_fPosition < 0) m_fPosition += m_fLength;
 		//			m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
@@ -483,7 +484,10 @@ void AnimationController::SetTrackAnimationSet(int nAnimationTrack, int nAnimati
 	if (m_pAnimationTracks)
 	{
 		m_pAnimationTracks[nAnimationTrack].m_nAnimationSet = nAnimationSet;
-		m_pAnimationSets->m_pAnimationSets[nAnimationSet]->m_Position = 0.0f;
+		if (m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[nAnimationTrack].m_nAnimationSet]->m_nType == ANIMATION_TYPE_ONCE)
+		{
+			m_pAnimationSets->m_pAnimationSets[nAnimationSet]->m_Position = 0.0f;
+		}
 	}
 }
 

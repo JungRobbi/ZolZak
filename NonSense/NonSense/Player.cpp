@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Player.h"
 #include "PlayerMovementComponent.h"
+#include "AttackComponent.h"
 
 
 Player::Player() : Object(false)
@@ -274,7 +275,8 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 
 MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void *pContext)
 {
-	AddComponent< PlayerMovementComponent>();
+	AddComponent<PlayerMovementComponent>();
+	AddComponent<AttackComponent>();
 	{
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);

@@ -516,6 +516,9 @@ void GameFramework::FrameAdvance()
 	if (!m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose)
 	{
 		::SetCapture(m_hWnd);
+		RECT rect;
+		::GetWindowRect(m_hWnd, &rect);
+		m_pPlayer->GetComponent<PlayerMovementComponent>()->SetWindowPos(rect);
 	}
 	ProcessInput();
 	GameScene::MainScene->AnimateObjects(Timer::GetTimeElapsed());
