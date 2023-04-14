@@ -2,6 +2,7 @@
 #include "Shader.h"
 #include "GameScene.h"
 #include "stdafx.h"
+#include "CollideComponent.h"
 
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters)
 {
@@ -961,7 +962,6 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 				{
 					std::string str(pstrToken + 1);
 					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMap[str]);
-
 				}
 				else
 				{
@@ -975,16 +975,16 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 					LoadedModelInfo* pLoadedModel = LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pstrFilePath, NULL);
 
 					ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // 읽은 모델은 map에 저장
-
-			
 					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel);
-
 				}
 			}
 			if (!strcmp(pstrToken, "<Position>:"))
 			{
+				BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				nReads = (UINT)::fread(&pObject->m_xmf4x4ToParent, sizeof(float), 16, OpenedFile);
-
+				pObject->UpdateTransform(NULL);
+				pObject->AddComponent<CollideComponent>();
+				pObject->GetComponent<CollideComponent>()->SetBoundingObject(bb);
 			}
 			if (!strcmp(pstrToken, "</Objects>"))
 			{

@@ -10,8 +10,7 @@ class CollideComponent : public Component
 public:
     void start();
     void update();
-    void SetExtents(XMFLOAT3 extents);
     BoundBox* GetBoundingObject() { return m_BoundingObject; }
-    void SetBoundingObject(BoundBox* bd) { m_BoundingObject = bd; }
+    void SetBoundingObject(BoundBox* bd);
 };
 

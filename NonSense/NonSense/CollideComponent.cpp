@@ -2,18 +2,21 @@
 
 void CollideComponent::start()
 {
-	m_BoundingBox.Center = XMFLOAT3(0.f, 0.f, 0.f);
-	m_BoundingBox.Extents = XMFLOAT3(0.f, 0.f, 0.f);
-	m_BoundingObject = NULL;
+
 }
 
 void CollideComponent::update()
 {
-	m_BoundingBox.Center = Vector3::Add(gameObject->GetPosition(), XMFLOAT3(0,m_BoundingBox.Extents.y,0));
-	m_BoundingObject->SetPosition(m_BoundingBox.Center);
+	m_BoundingBox.Transform(m_BoundingBox, XMLoadFloat4x4(&gameObject->GetWorld()));
+	if (m_BoundingObject)
+	{
+		m_BoundingObject->m_xmf4x4ToParent = gameObject->GetWorld();
+		m_BoundingObject->UpdateTransform(&gameObject->GetWorld());
+	}
+		
 }
-void CollideComponent::SetExtents(XMFLOAT3 extents)
+
+void CollideComponent::SetBoundingObject(BoundBox* bd)
 {
-	m_BoundingBox.Extents = extents;
-	m_BoundingObject->SetScale(extents.x, extents.y, extents.z);
+	m_BoundingObject = bd;
 }
