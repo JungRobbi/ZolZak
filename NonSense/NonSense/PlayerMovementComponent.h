@@ -7,8 +7,9 @@ class PlayerMovementComponent : public Component
 public:
     bool CursorExpose;
 private:
-   
-    POINT m_ptOldCursorPos;
+    POINT ptCursorPos;
+    POINT CenterOfWindow;
+    RECT WindowPos;
 
     float CursorCoolTime = 1.0f;
     float MaxCursorCoolTime = 1.0f;
@@ -24,6 +25,8 @@ private:
     void Jump();
     void Dash();
 public:
+    void SetWindowPos(RECT pos);
+
     void start();
     void update();
 };

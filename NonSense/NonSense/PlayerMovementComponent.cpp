@@ -1,4 +1,5 @@
 #include "PlayerMovementComponent.h"
+#include "AttackComponent.h"
 #include "Input.h"
 #include "Player.h"
 
@@ -35,6 +36,13 @@ void PlayerMovementComponent::Dash()
 	((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackSpeed(0, 2.0f);
 }
 
+void PlayerMovementComponent::SetWindowPos(RECT pos)
+{
+	WindowPos = pos;
+	CenterOfWindow.x = (pos.right - pos.left) / 2;
+	CenterOfWindow.y = (pos.bottom - pos.top) / 2;
+}
+
 void PlayerMovementComponent::start()
 {
 	CursorExpose = false;
@@ -43,20 +51,19 @@ void PlayerMovementComponent::start()
 void PlayerMovementComponent::update()
 {
 	float cxDelta = 0.0f, cyDelta = 0.0f;
-	POINT ptCursorPos;
+	
 	if (!CursorExpose)
 	{
-
-	
 		//마우스 커서를 화면에서 없앤다(보이지 않게 한다).
 		::SetCursor(NULL);
 		//현재 마우스 커서의 위치를 가져온다.
 		::GetCursorPos(&ptCursorPos);
 		//마우스 버튼이 눌린 상태에서 마우스가 움직인 양을 구한다.
-		cxDelta = (float)(ptCursorPos.x - 100.0f) / 3.0f;
-		cyDelta = (float)(ptCursorPos.y - 100.0f) / 3.0f;
+		cxDelta = (float)(ptCursorPos.x - CenterOfWindow.x) / 3.0f;
+		cyDelta = (float)(ptCursorPos.y - CenterOfWindow.y) / 3.0f;
 		//마우스 커서의 위치를 마우스가 눌려졌던 위치로 설정한다.
-		::SetCursorPos(100, 100);
+	
+		::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 
 
 	}
@@ -89,7 +96,8 @@ void PlayerMovementComponent::update()
 		}
 		else
 		{
-			((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
+			if(!((Player*)gameObject)->GetComponent<AttackComponent>()->During_Attack)
+				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
 		}
 		if (CursorCoolTime < MaxCursorCoolTime)
 		{
@@ -100,21 +108,16 @@ void PlayerMovementComponent::update()
 		{
 			CursorCoolTime = 0.0f;
 			CursorExpose = !CursorExpose; 
-			::SetCursorPos(100, 100);
+			::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 		}
-		if ((Input::InputKeyBuffer[VK_LBUTTON] & 0xF0))
-		{
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 6);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 6);
-		}
+
 		if ((Input::InputKeyBuffer[VK_RBUTTON] & 0xF0) && !Dashing && CanDash)
 		{
 			Dash();
 		}
-		XMFLOAT3 v = ((Player*)gameObject)->GetVelocity();
-		float len = Vector3::Length(v);
-		std::cout << len << std::endl;
+		//XMFLOAT3 v = ((Player*)gameObject)->GetVelocity();
+		//float len = Vector3::Length(v);
+		//std::cout << len << std::endl;
 		if (Dashing)
 		{
 			if (DashTimeLeft > 0.0f)
