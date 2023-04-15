@@ -12,5 +12,6 @@ public:
     void update();
     BoundBox* GetBoundingObject() { return m_BoundingObject; }
     void SetBoundingObject(BoundBox* bd);
+    void SetExtents(XMFLOAT3 ex);
 };
 

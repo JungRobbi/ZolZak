@@ -286,9 +286,9 @@ void GameFramework::BuildObjects()
 
 	BoundBox* bb = new BoundBox(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->GetTerrain());
-	//m_pPlayer->AddComponent<CollideComponent>();
-	//m_pPlayer->GetComponent<CollideComponent>()->SetBoundingObject(bb);
-	//m_pPlayer->GetComponent<CollideComponent>()->SetExtents(XMFLOAT3(0.3, 0.5, 0.3));
+	m_pPlayer->AddComponent<CollideComponent>();
+	m_pPlayer->GetComponent<CollideComponent>()->SetBoundingObject(bb);
+	m_pPlayer->GetComponent<CollideComponent>()->SetExtents(XMFLOAT3(0.1, 0.5, 0.1));
 	
 	//BoundBox* ab = new BoundBox(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
 	//Object* m_temp = new Object(false);
