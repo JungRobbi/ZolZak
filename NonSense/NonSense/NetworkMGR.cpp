@@ -140,6 +140,8 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 
 		cout << "E_PACKET_SC_ADD_PLAYER" << endl;
 		
+		GameFramework::MainGameFramework->m_OtherPlayers.push_back(GameFramework::MainGameFramework->m_OtherPlayersPool.back());
+		GameFramework::MainGameFramework->m_OtherPlayersPool.pop_back();
 		break;
 	}
 	default:

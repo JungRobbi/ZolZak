@@ -10,7 +10,7 @@ enum E_PACKET
 	E_PACKET_NONE = 0,
 
 	// Client -> Server packet
-	E_PACKET_CS_LOGIN, E_PACKET_CS_MOVE,
+	E_PACKET_CS_LOGIN, E_PACKET_CS_KEYDOWN, E_PACKET_CS_KEYUP, E_PACKET_CS_MOVE,
 
 	// Server -> Client packet
 	E_PACKET_SC_LOGIN_INFO, E_PACKET_SC_ADD_PLAYER, E_PACKET_SC_REMOVE_PLAYER, E_PACKET_SC_POSITIONING_PLAYER
@@ -34,6 +34,16 @@ public:
 class CS_MOVE_PACKET : public PACKET_HEAD {
 public:
 	char	direction;  // 0 : UP, 1 : DOWN, 2 : LEFT, 3 : RIGHT
+};
+
+class CS_KEYDOWN_PACKET : public PACKET_HEAD {
+public:
+	short	key;
+};
+
+class CS_KEYUP_PACKET : public PACKET_HEAD {
+public:
+	short	key;
 };
 
 class SC_LOGIN_INFO_PACKET : public PACKET_HEAD {

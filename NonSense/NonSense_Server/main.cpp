@@ -1,6 +1,7 @@
 #pragma once
 #include "../ImaysNet/ImaysNet.h"
 #include "../Globals.h"
+#include "Input.h"
 
 #include <iostream>
 #include <list>
@@ -15,6 +16,8 @@
 
 //#include "GameScene.h"
 #include "../ImaysNet/Packet.h"
+
+#include "PlayerInfo.h"
 
 using namespace std;
 
@@ -43,8 +46,11 @@ public:
 
 	char name[NAME_SIZE];
 
-	RemoteClient() : thread(), tcpConnection(SocketType::Tcp) {}
-	RemoteClient(SocketType socketType) :tcpConnection(socketType) {}
+	Input m_KeyInput;
+	PlayerInfo m_PlayerInfo;
+
+	RemoteClient() : thread(), tcpConnection(SocketType::Tcp), m_KeyInput(), m_PlayerInfo() {}
+	RemoteClient(SocketType socketType) :tcpConnection(socketType), m_KeyInput(), m_PlayerInfo() {}
 };
 
 unordered_map<RemoteClient*, shared_ptr<RemoteClient>> remoteClients;
@@ -356,6 +362,18 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 
+		break;
+	}
+	case E_PACKET::E_PACKET_CS_KEYDOWN: {
+		CS_KEYDOWN_PACKET* recv_packet = reinterpret_cast<CS_KEYDOWN_PACKET*>(p_Packet);
+		p_Client->m_KeyInput.keys[recv_packet->key] = TRUE;
+		cout << recv_packet->key << " E_PACKET_CS_KEYDOWN" << endl;
+		break;
+	}
+	case E_PACKET::E_PACKET_CS_KEYUP: {
+		CS_KEYUP_PACKET* recv_packet = reinterpret_cast<CS_KEYUP_PACKET*>(p_Packet);
+		p_Client->m_KeyInput.keys[recv_packet->key] = FALSE;
+		cout << recv_packet->key << " E_PACKET_CS_KEYUP" << endl;
 		break;
 	}
 	case E_PACKET::E_PACKET_CS_MOVE: {

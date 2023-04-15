@@ -51,6 +51,7 @@ public:
 	static GameFramework* MainGameFramework;
 public:
 	std::vector<GameScene*> m_GameScenes;
+	std::list<Object*> m_OtherPlayersPool;
 	std::vector<Object*> m_OtherPlayers;
 public:
 	Camera* m_pCamera = NULL;

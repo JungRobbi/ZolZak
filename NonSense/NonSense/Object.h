@@ -305,6 +305,7 @@ public:
 class Object
 {
 	std::list<Component*> components;
+	char isuse = 1; // Object를 Scene에 사용하는지를 구분하기 위한 변수
 public:
 	Object();
 	// GameScene의 gameobjects 리스트에 안넣기 위해 만든 생성자
@@ -326,6 +327,8 @@ public:
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	
+	bool GetUsed() { return isuse; }
+	void SetUsed(bool b) { isuse = b; }
 
 private:
 	int m_nReferences = 0;

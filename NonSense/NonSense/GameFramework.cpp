@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "GameFramework.h"
 
-
+#include "Input.h"
 
 #include "Login_GameScene.h"
 #include "Lobby_GameScene.h"
@@ -299,10 +299,19 @@ void GameFramework::BuildObjects()
 	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Stage
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
-	m_GameScenes.emplace_back(new Stage_GameScene());
+	m_GameScenes.emplace_back(new GameScene());
+
+	for (auto& gameScene : m_GameScenes)
+		gameScene->BuildObjects(m_pDevice, m_pCommandList);
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 	m_pCamera = m_pPlayer->GetCamera();
+
+	char n_players = 3;
+	for (int i{}; i < n_players; ++i) {
+		m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
+		m_OtherPlayersPool.back()->SetUsed(true);
+	}
 
 	m_pDebug = new DebugShader();
 	m_pScreen = new ScreenShader();
@@ -326,6 +335,8 @@ void GameFramework::BuildObjects()
 	}
 	if (m_pPlayer)
 		m_pPlayer->ReleaseUploadBuffers();
+	for(auto& p : m_OtherPlayersPool)
+		p->ReleaseUploadBuffers();
 	Timer::Reset();
 }
 
@@ -366,6 +377,27 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	GameScene::MainScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+	if (nMessageID == WM_KEYDOWN) {
+		if (Input::keys[wParam] != TRUE) {
+			CS_KEYDOWN_PACKET send_packet;
+			send_packet.size = sizeof(CS_KEYDOWN_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_KEYDOWN;
+			send_packet.key = wParam;
+			PacketQueue::AddSendPacket(&send_packet);
+			Input::keys[wParam] = TRUE;
+		}
+	}
+	else if (nMessageID == WM_KEYUP) {
+		if (Input::keys[wParam] != FALSE) {
+			CS_KEYUP_PACKET send_packet;
+			send_packet.size = sizeof(CS_KEYUP_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_KEYUP;
+			send_packet.key = wParam;
+			PacketQueue::AddSendPacket(&send_packet);
+			Input::keys[wParam] = FALSE;
+		}
+	}
+	
 	switch (nMessageID)
 	{
 	case WM_KEYDOWN:
@@ -595,9 +627,17 @@ void GameFramework::FrameAdvance()
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
 	GameScene::MainScene->update();
 	m_pPlayer->Update(Timer::GetTimeElapsed());
+	for (auto& p : m_OtherPlayers) {
+		if (p->GetUsed())
+			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());
+	}
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 	// 플레이어
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
+	for (auto& p : m_OtherPlayers) {
+		if (p->GetUsed())
+			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
+	}
 	///////////////////////////////////////////
 
 

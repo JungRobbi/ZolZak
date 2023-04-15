@@ -277,7 +277,6 @@ void Player::SetAnimation() {
 	m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
 }
 
-
 MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void *pContext)
 {
 	{
@@ -324,8 +323,6 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	SetPlayerUpdatedContext(pTerrain);
 	SetCameraUpdatedContext(pTerrain);
 }
-
-
 
 Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 {
@@ -384,7 +381,6 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 void MagePlayer::Update(float fTimeElapsed)
 {
-
 	Player::Update(fTimeElapsed);
 	if (m_pSkinnedAnimationController)
 	{
