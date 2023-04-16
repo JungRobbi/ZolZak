@@ -288,7 +288,8 @@ void GameFramework::BuildObjects()
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->GetTerrain());
 	m_pPlayer->AddComponent<CollideComponent>();
 	m_pPlayer->GetComponent<CollideComponent>()->SetBoundingObject(bb);
-	m_pPlayer->GetComponent<CollideComponent>()->SetExtents(XMFLOAT3(0.1, 0.5, 0.1));
+	m_pPlayer->GetComponent<CollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0),XMFLOAT3(0.3, 0.5, 0.3));
+	m_pPlayer->GetComponent<CollideComponent>()->SetMoveAble(true);
 	
 	//BoundBox* ab = new BoundBox(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
 	//Object* m_temp = new Object(false);
@@ -562,6 +563,12 @@ void GameFramework::FrameAdvance()
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
 	///////////////////////////////////
+	for (auto& o : GameScene::MainScene->gameObjects) {
+		if (o->GetComponent<CollideComponent>()) {
+			if (m_pPlayer->GetComponent<CollideComponent>()->GetBoundingBox().Intersects(o->GetComponent<CollideComponent>()->GetBoundingBox()))
+				printf("%f,%f,%f - %s Ãæµ¹\n", m_pPlayer->GetPosition().x, m_pPlayer->GetPosition().y, m_pPlayer->GetPosition().z, o->m_pFrameName);
+		}
+	}
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
