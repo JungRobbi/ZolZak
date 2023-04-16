@@ -6,8 +6,10 @@ class BoundBox;
 class CollideComponent : public Component
 {
     BoundingOrientedBox m_BoundingBox;
-    BoundBox* m_BoundingObject;
+    BoundBox* m_BoundingObject = NULL;
     bool MoveAble = false;
+    XMFLOAT3 Center = { 0,0,0 };
+    XMFLOAT3 Extents = { 0,0,0 };
 public:
     void start();
     void update();
