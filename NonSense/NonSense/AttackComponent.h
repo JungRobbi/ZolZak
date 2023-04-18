@@ -2,6 +2,14 @@
 #include "Component.h"
 #include "Timer.h"
 #include "Component.h"
+
+enum AttackCombo
+{
+	Combo1,
+	Combo2,
+	Combo3
+};
+
 class AttackComponent : public Component
 {
 private:
@@ -11,9 +19,11 @@ public:
 	bool During_Attack = false;
 private:
 	float NextAttackInputTime = 0.5;
-	float AttackDuration = 0.9;
+	float AttackDuration = 0.8;
 	float AttackTimeLeft = 0.0;
 	
+	AttackCombo type = Combo1;
+
 public:
 	void start();
 	void update();
