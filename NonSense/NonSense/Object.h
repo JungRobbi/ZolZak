@@ -513,6 +513,23 @@ private:
 	XMFLOAT4X4 XYWH;
 };
 
+class Monster_HP_UI : public UI
+{
+public:
+	Monster_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Monster_HP_UI() {};
+	float HP = 1.0;
+};
+
+class Monster_HP_DEC_UI : public Monster_HP_UI
+{
+public:
+	Monster_HP_DEC_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Monster_HP_DEC_UI() {};
+	virtual void update();
+	float Dec_HP = 1.0;
+};
+
 class Player_State_UI : public UI
 {
 public:

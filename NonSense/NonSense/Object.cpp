@@ -1459,6 +1459,7 @@ ModelObject::ModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 	if (pLoadedModel)
 	{
 		SetChild(pLoadedModel->m_pRoot, true);
+		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 3, pLoadedModel);
 	}
 }
 
@@ -1642,6 +1643,18 @@ void Player_HP_DEC_UI::update() {
 		if (HP < Dec_HP) HP = Dec_HP;
 	}
 	SetMyPos(0.2, 0.04, 0.8 * HP, 0.32);
+}
+
+Monster_HP_UI::Monster_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+}
+
+Monster_HP_DEC_UI::Monster_HP_DEC_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Monster_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+}
+
+void Monster_HP_DEC_UI::update()
+{
 }
 
 Option_UI::Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)

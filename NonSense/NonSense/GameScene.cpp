@@ -210,12 +210,12 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	//m_nObjects = 1;
 	//m_GameObjects = new Object*[m_nObjects];
 
-
-	//LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
-	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel);
-	//TempObject->SetNum(1);
-	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
-	//TempObject->SetPosition(1.0f, 0.0f, 0.0f);
+	
+	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
+	TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel);
+	TempObject->SetNum(1);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
+	TempObject->SetPosition(1.0f, 0.0f, 0.0f);
 	
 	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Close.bin", NULL);
 	//

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Player.h"
+#include "CollideComponent.h"
 
 
 Player::Player() : Object(false)
