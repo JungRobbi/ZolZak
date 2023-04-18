@@ -379,6 +379,7 @@ public:
 	virtual void Animate(float fTimeElapsed);
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual void RenderOnlyOneFrame(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView);
 	//상수 버퍼를 생성한다.
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
