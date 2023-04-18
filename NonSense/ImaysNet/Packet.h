@@ -1,5 +1,7 @@
 #pragma once
 #include "../Globals.h"
+#include <DirectXMath.h>
+#include <DirectXPackedVector.h>
 
 constexpr int NAME_SIZE = 20;
 
@@ -13,7 +15,7 @@ enum E_PACKET
 	E_PACKET_CS_LOGIN, E_PACKET_CS_KEYDOWN, E_PACKET_CS_KEYUP, E_PACKET_CS_MOVE,
 
 	// Server -> Client packet
-	E_PACKET_SC_LOGIN_INFO, E_PACKET_SC_ADD_PLAYER, E_PACKET_SC_REMOVE_PLAYER, E_PACKET_SC_POSITIONING_PLAYER
+	E_PACKET_SC_LOGIN_INFO, E_PACKET_SC_ADD_PLAYER, E_PACKET_SC_REMOVE_PLAYER, E_PACKET_SC_MOVE_PLAYER
 };
 
 
@@ -48,25 +50,25 @@ public:
 
 class SC_LOGIN_INFO_PACKET : public PACKET_HEAD {
 public:
-	short	id;
+	unsigned int	id;
 	short	x, y;
 };
 
 class SC_ADD_PLAYER_PACKET : public PACKET_HEAD {
 public:
-	short	id;
+	unsigned int	id;
 	char	name[NAME_SIZE];
 };
 
 class SC_REMOVE_PLAYER_PACKET : public PACKET_HEAD {
 public:
-	short	id;
+	unsigned int	id;
 };
 
 class SC_MOVE_PLAYER_PACKET : public PACKET_HEAD {
 public:
-	short	id;
-	short	x, y;
+	unsigned int	id;
+	unsigned long	direction;
 };
 
 #pragma pack (pop)

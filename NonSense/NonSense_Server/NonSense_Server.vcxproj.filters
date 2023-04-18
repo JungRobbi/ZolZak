@@ -13,10 +13,57 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="소스 파일\Components">
+      <UniqueIdentifier>{bdb43f13-7460-4d0a-b65d-40f56d98f6da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\RemoteClient">
+      <UniqueIdentifier>{ff705b7c-40a6-4dad-9ccb-b5d983b8608a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Components\base">
+      <UniqueIdentifier>{59ff87f7-7060-49a2-88cc-7a7e486265b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\GameFramework">
+      <UniqueIdentifier>{f27e4273-03be-4fc8-b9df-d56dfdced680}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="RemoteClients\RemoteClient.cpp">
+      <Filter>소스 파일\RemoteClient</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Component.cpp">
+      <Filter>소스 파일\Components\base</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>소스 파일\GameFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>소스 파일\GameFramework</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Input.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RemoteClients\RemoteClient.h">
+      <Filter>소스 파일\RemoteClient</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\Component.h">
+      <Filter>소스 파일\Components\base</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>소스 파일\GameFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>소스 파일\GameFramework</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -32,7 +32,8 @@ protected:
 	bool IsWalk = false;
 
 	XMFLOAT3 m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
-
+public:
+	unsigned int id = 0;
 public:
 	Player();
 	virtual ~Player();

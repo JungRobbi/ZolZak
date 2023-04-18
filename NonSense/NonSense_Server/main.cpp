@@ -1,5 +1,4 @@
 #pragma once
-#include "../ImaysNet/ImaysNet.h"
 #include "../Globals.h"
 #include "Input.h"
 
@@ -15,9 +14,8 @@
 #include <mutex>
 
 //#include "GameScene.h"
-#include "../ImaysNet/Packet.h"
 
-#include "PlayerInfo.h"
+#include "RemoteClients/RemoteClient.h"
 
 using namespace std;
 
@@ -36,22 +34,6 @@ void ProcessSignalAction(int sig_number)
 	if (sig_number == SIGINT)
 		stopWorking = true;
 }
-
-class RemoteClient {
-public:
-	shared_ptr<thread> thread; // 클라이언트 스레드
-	Socket tcpConnection;		// accept한 TCP 연결
-
-	unsigned long long m_id;
-
-	char name[NAME_SIZE];
-
-	Input m_KeyInput;
-	PlayerInfo m_PlayerInfo;
-
-	RemoteClient() : thread(), tcpConnection(SocketType::Tcp), m_KeyInput(), m_PlayerInfo() {}
-	RemoteClient(SocketType socketType) :tcpConnection(socketType), m_KeyInput(), m_PlayerInfo() {}
-};
 
 unordered_map<RemoteClient*, shared_ptr<RemoteClient>> remoteClients;
 vector<RemoteClient*> remoteClients_ptr_v; // 클라이언트들은 0부터 시작하는 양수의 id를 갖는다. id는 클라이언트 포인터를 담는 벡터의 인덱스를 의미한다.
@@ -212,6 +194,29 @@ int main(int argc, char* argv[])
 
 	for (int i{}; i < N_THREAD; ++i)
 		worker_threads.emplace_back(make_shared<thread>(Worker_Thread));
+
+	while (true) {
+		for (auto& rc : remoteClients) {
+			DWORD direction = 0;
+			if (rc.second->m_KeyInput.keys['W'] || rc.second->m_KeyInput.keys['w']) direction |= DIR_FORWARD;
+			if (rc.second->m_KeyInput.keys['S'] || rc.second->m_KeyInput.keys['s']) direction |= DIR_BACKWARD;
+			if (rc.second->m_KeyInput.keys['A'] || rc.second->m_KeyInput.keys['a']) direction |= DIR_LEFT;
+			if (rc.second->m_KeyInput.keys['D'] || rc.second->m_KeyInput.keys['d']) direction |= DIR_RIGHT;
+
+			if (direction) {
+				cout << "direction = " << direction << endl;
+
+				for (auto& rc_to : remoteClients) {
+					SC_MOVE_PLAYER_PACKET send_packet;
+					send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
+					send_packet.id = rc.second->m_id;
+					send_packet.direction = direction;
+					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				}
+			}
+		}
+	}
 
 	for (auto& th : worker_threads) th->join();
 

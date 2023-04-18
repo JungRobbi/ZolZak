@@ -1,4 +1,7 @@
 #include "../ImaysNet/ImaysNet.h"
+
+#include <algorithm>
+
 #include "NetworkMGR.h"
 #include "GameScene.h"
 #include "GameFramework.h"
@@ -142,6 +145,26 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		
 		GameFramework::MainGameFramework->m_OtherPlayers.push_back(GameFramework::MainGameFramework->m_OtherPlayersPool.back());
 		GameFramework::MainGameFramework->m_OtherPlayersPool.pop_back();
+		break;
+	}
+	case E_PACKET::E_PACKET_SC_MOVE_PLAYER: {
+		SC_MOVE_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(p_Packet);
+
+		GameFramework::MainGameFramework->m_pPlayer->Move(recv_packet->direction, 50.0f * Timer::GetTimeElapsed(), true);
+
+		/*if (recv_packet->id == GameFramework::MainGameFramework->m_pPlayer->id) {
+			GameFramework::MainGameFramework->m_pPlayer->Move(recv_packet->direction, 50.0f * Timer::GetTimeElapsed(), true);
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->id;
+				});
+
+			if (p != GameFramework::MainGameFramework->m_OtherPlayers.end())
+				dynamic_cast<Player*>(*p)->Move(recv_packet->direction, 50.0f * Timer::GetTimeElapsed(), true);
+		}*/
 		break;
 	}
 	default:

@@ -21,7 +21,6 @@ class NetworkMGR
 public:
 	static char* SERVERIP;
 	static shared_ptr<Socket> tcpSocket;
-
 public:
 	static void start();
 	static void Tick();
