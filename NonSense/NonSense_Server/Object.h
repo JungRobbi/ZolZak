@@ -1,14 +1,20 @@
 #pragma once
 #include <list>
-#include "Components/Component.h"
 #include "Scene.h"
+
+#include "Components/Component.h"
 
 class Object
 {
+protected:
 	std::list<Component*> components;
 
 public:
 	Object();
+	virtual ~Object()
+	{
+		components.clear();
+	}
 
 	virtual void start()
 	{
@@ -41,7 +47,7 @@ template<typename T>
 T* Object::AddComponent()
 {
 	auto component = new T;
-	component->Object = this;
+	component->gameObject = this;
 	components.push_back(component);
 	return component;
 }

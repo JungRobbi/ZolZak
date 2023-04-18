@@ -132,15 +132,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Components\Component.cpp" />
+    <ClCompile Include="Components\PlayerMovementComponent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="RemoteClients\RemoteClient.cpp" />
     <ClCompile Include="Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Components\Component.h" />
+    <ClInclude Include="Components\PlayerMovementComponent.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="RemoteClients\RemoteClient.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="stdafx.h" />

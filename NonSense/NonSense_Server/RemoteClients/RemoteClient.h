@@ -7,6 +7,8 @@
 
 #include "../Input.h"
 
+#include "../Player.h"
+
 using namespace std;
 
 class RemoteClient {
@@ -19,6 +21,7 @@ public:
 	char name[NAME_SIZE];
 
 	Input m_KeyInput;
+	shared_ptr<Player> m_pPlayer;
 
 	RemoteClient() : thread(), tcpConnection(SocketType::Tcp), m_KeyInput() {}
 	RemoteClient(SocketType socketType) :tcpConnection(socketType), m_KeyInput() {}

@@ -288,6 +288,8 @@ void ProcessAccept()
 	{
 		shared_ptr<RemoteClient> remoteClient = remoteClientCandidate;
 		remoteClient->m_id = N_CLIENT_ID++;
+		remoteClient->m_pPlayer = make_shared<Player>();
+		remoteClient->m_pPlayer->remoteClient = remoteClient.get();
 		remoteClients_ptr_v.emplace_back(remoteClient.get());
 
 		// 새 TCP 소켓도 IOCP에 추가한다.

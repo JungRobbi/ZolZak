@@ -42,6 +42,12 @@
     <ClCompile Include="Scene.cpp">
       <Filter>소스 파일\GameFramework</Filter>
     </ClCompile>
+    <ClCompile Include="Components\PlayerMovementComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>소스 파일\GameFramework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h">
@@ -63,6 +69,12 @@
       <Filter>소스 파일\GameFramework</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
+      <Filter>소스 파일\GameFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\PlayerMovementComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
       <Filter>소스 파일\GameFramework</Filter>
     </ClInclude>
   </ItemGroup>
