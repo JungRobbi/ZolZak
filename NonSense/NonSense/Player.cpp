@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "Player.h"
+#include "PlayerMovementComponent.h"
+#include "AttackComponent.h"
 #include "CollideComponent.h"
 
 
@@ -42,7 +44,8 @@ void Player::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	Object::UpdateShaderVariables(pd3dCommandList);
 }
 
-void Player::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
+
+void Player::Move(ULONG dwDirection, float fDistance, bool bUpdateVelocity)
 {
 	if (dwDirection)
 	{
@@ -137,8 +140,8 @@ void Player::Update(float fTimeElapsed)
 	float fMaxVelocityXZ = m_fMaxVelocityXZ * fTimeElapsed;
 	if (fLength > m_fMaxVelocityXZ)
 	{
-		m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
-		m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
+	//	m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
+	//	m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
 	}
 	float fMaxVelocityY = m_fMaxVelocityY * fTimeElapsed;
 	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
@@ -146,7 +149,6 @@ void Player::Update(float fTimeElapsed)
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 	Move(xmf3Velocity, false);
 	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
-	if (GetPosition().y < 0)SetPosition(XMFLOAT3(GetPosition().x, 0, GetPosition().z));
 	DWORD nCameraMode = m_pCamera->GetMode();
 	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
 	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
@@ -263,7 +265,7 @@ void Player::OnPrepareRender()
 }
 void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	
+
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
@@ -272,20 +274,16 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 	}
 }
 
-void Player::SetAnimation() {
-	m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
-	if(IsWalk)
-	m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
-}
-
 
 MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void *pContext)
 {
+	AddComponent<PlayerMovementComponent>();
+	AddComponent<AttackComponent>();
 	{
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-		XMFLOAT3 pos = XMFLOAT3(0.0f, 100.0f, -2.0f);
+		XMFLOAT3 pos = XMFLOAT3(0.0f, 5.0f, -2.0f);
 		SetPosition(pos);
 		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
 		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);
@@ -300,7 +298,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 			}
 		}
 
-		SetNum(0);
+		SetNum(9);
 		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 3, pModel);
 		m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
@@ -337,8 +335,8 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	case FIRST_PERSON_CAMERA:
 		//플레이어의 특성을 1인칭 카메라 모드에 맞게 변경한다. 중력은 적용하지 않는다.
 		SetFriction(50.0f);
-		SetGravity(XMFLOAT3(0.0f, -100.0f, 0.0f));
-		SetMaxVelocityXZ(125.0f);
+		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
+		SetMaxVelocityXZ(10.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
@@ -363,13 +361,13 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	case THIRD_PERSON_CAMERA:
 		//플레이어의 특성을 3인칭 카메라 모드에 맞게 변경한다. 지연 효과와 카메라 오프셋을 설정한다.
 		SetFriction(50.0f);
-		SetGravity(XMFLOAT3(0.0f, -100.0f, 0.0f));
-		SetMaxVelocityXZ(125.0f);
+		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
+		SetMaxVelocityXZ(10.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 		//3인칭 카메라의 지연 효과를 설정한다. 값을 0.25f 대신에 0.0f와 1.0f로 설정한 결과를 비교하기 바란다.
 		m_pCamera->SetTimeLag(0.25f);
-		m_pCamera->SetOffset(XMFLOAT3(0.0f, 1.5f, -2.0f));
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 2.5f, -2.0f));
 		m_pCamera->GenerateProjectionMatrix(0.01f, 100.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
@@ -385,6 +383,8 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 void MagePlayer::Update(float fTimeElapsed)
 {
+
+	Object::update();
 	Player::Update(fTimeElapsed);
 	if (m_pSkinnedAnimationController)
 	{

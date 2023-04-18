@@ -115,7 +115,13 @@
       <Filter>소스 파일\Components</Filter>
     </ClInclude>
     <ClInclude Include="GoblinComponent.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Characters.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="AttackComponent.h">
+      <Filter>소스 파일\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -183,7 +189,13 @@
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
     <ClCompile Include="GoblinComponent.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Characters.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="AttackComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

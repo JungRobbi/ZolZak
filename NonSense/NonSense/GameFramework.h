@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "GameScene.h"
 #include "Player.h"
+#include "Input.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
@@ -11,7 +12,7 @@ class GameFramework
 {
 private:
 	HINSTANCE m_hInstance;
-	HWND m_hWnd;
+
 	int m_nWndClientWidth;
 	int m_nWndClientHeight;
 	_TCHAR m_FrameRate[50];
@@ -45,6 +46,7 @@ private:
 	UINT64 m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE m_FenceEventHandle;
 public:
+	HWND m_hWnd;
 	Camera* m_pCamera = NULL;
 	Player* m_pPlayer = NULL;
 	ScreenShader* m_pScreen = NULL;

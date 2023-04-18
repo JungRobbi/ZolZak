@@ -1,0 +1,61 @@
+﻿#include "Characters.h"
+
+
+Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) :
+	ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
+{
+
+	m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 3, pModel);
+	m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_pSkinnedAnimationController->SetTrackAnimationSet(1, 0);
+	m_pSkinnedAnimationController->SetTrackAnimationSet(2, 0);
+	m_pSkinnedAnimationController->SetTrackEnable(1, false);
+	m_pSkinnedAnimationController->SetTrackEnable(2, false);
+
+}
+
+Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) :
+	Character(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
+{
+	switch (type)
+	{
+	case MONSTER_TYPE_CLOSE:
+		m_Health = 965;
+		m_Attack = 200;
+		m_Defense = 90;
+		break;
+	case MONSTER_TYPE_FAR:
+		m_Health = 675;
+		m_Attack = 180;
+		m_Defense = 80;
+		break;
+	case MONSTER_TYPE_RUSH:
+		m_Health = 1130;
+		m_Attack = 460;
+		m_Defense = 110;
+		break;
+	case MONSTER_TYPE_BOSS:
+		m_Health = 20000;
+		m_Attack = 200;
+		m_Defense = 90;
+		break;
+	default:
+		break;
+	}
+
+
+	if (pWeaponL && pWeaponR) {
+		Object* Hand = FindFrame("Weapon_Goblin_2_R_Dummy");
+		if (Hand) {
+			Hand->SetChild(pWeaponR->m_pRoot, true);
+
+		}
+		Hand = FindFrame("Weapon_Goblin_2_L_Dummy");
+		if (Hand) {
+			Hand->SetChild(pWeaponL->m_pRoot, true);
+
+		}
+	}
+
+
+}

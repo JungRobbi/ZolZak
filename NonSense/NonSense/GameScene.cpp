@@ -197,47 +197,6 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	terrain->SetPosition(-400, 0, -400);
 	m_pTerrain = terrain;
 
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	//LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Map_Afternoon_Gorge.bin", NULL);
-	//LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
-
-	//Object* TempObject = NULL;
-
-	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 0);
-	//TempObject->SetNum(0);
-	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
-	//TempObject->SetPosition(0.0f, 0.0f, 0.0f);
-	//m_nObjects = 1;
-	//m_GameObjects = new Object*[m_nObjects];
-
-	
-	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
-	TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel);
-	TempObject->SetNum(1);
-	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
-	TempObject->SetPosition(1.0f, 0.0f, 0.0f);
-	
-	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Close.bin", NULL);
-	//
-	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
-	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
-	//TempObject->SetNum(2);
-	//TempObject->SetPosition(2.0f, 0.0f, 0.0f);
-	//
-	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Rush.bin", NULL);
-	//
-	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
-	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 2);
-	//TempObject->SetNum(3);
-	//TempObject->SetPosition(-1.0f, 0.0f, 0.0f);
-	//
-	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/ent.bin", NULL);
-	//
-	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
-	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
-	//TempObject->SetNum(4);
-	//TempObject->SetPosition(-3.0f, 0.0f, 0.0f);
-
 	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
 
 	m_pBlendShader = new BlendShader();
@@ -245,8 +204,6 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	Object::LoadMapData(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/NonBlend_Props_Map.bin");
 	Object::LoadMapData_Blend(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Blend_Objects_Map.bin", m_pBlendShader);
-
-
 
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -590,16 +547,7 @@ bool GameScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 {
 	switch (nMessageID)
 	{
-	case WM_LBUTTONDOWN:
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 6);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 6);
-
-		break;
-	case WM_RBUTTONDOWN:
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 3);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 3);
+	default:
 
 		break;
 	}
@@ -612,16 +560,13 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		case 'W':
-		case 'A':
-		case 'S':
-		case 'D':
-			m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
-			break;
+		//case 'W':
+		//case 'A':
+		//case 'S':
+		//case 'D':
+		//	m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+		//	break;
 		case VK_SPACE:
-			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
-			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 4);
-			m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 4);
 			
 			break;
 		default:
@@ -631,12 +576,12 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 	case WM_KEYUP:
 		switch (wParam)
 		{
-		case 'W':
-		case 'A':
-		case 'S':
-		case 'D':
-			m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
-			break;
+		//case 'W':
+		//case 'A':
+		//case 'S':
+		//case 'D':
+		//	m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
+		//	break;
 		default:
 			break;
 		}

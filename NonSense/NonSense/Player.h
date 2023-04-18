@@ -26,14 +26,17 @@ protected:
 	float m_fMaxVelocityXZ;
 	float m_fMaxVelocityY;
 	float m_fFriction;
-	LPVOID m_pPlayerUpdatedContext;
-	LPVOID m_pCameraUpdatedContext;
+
 	Camera* m_pCamera = NULL;
 	bool IsWalk = false;
 
 	XMFLOAT3 m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 public:
+
+	LPVOID m_pPlayerUpdatedContext;
+	LPVOID m_pCameraUpdatedContext;
+
 	Player();
 	virtual ~Player();
 
