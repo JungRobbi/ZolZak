@@ -1463,7 +1463,6 @@ ModelObject::ModelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 	if (pLoadedModel)
 	{
 		SetChild(pLoadedModel->m_pRoot, true);
-		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 3, pLoadedModel);
 	}
 }
 
