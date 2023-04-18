@@ -358,6 +358,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			(OptionMode) ? (OptionMode = 0) : (OptionMode = 1);
 			break;
 		case VK_RETURN:
+			PostQuitMessage(0);
 			break;
 		case VK_F8:
 			(DebugMode) ? (DebugMode = 0) : (DebugMode = 1);
