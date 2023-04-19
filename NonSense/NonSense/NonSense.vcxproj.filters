@@ -81,6 +81,9 @@
     <ClCompile Include="NonSense.cpp">
       <Filter>SourceFile\System</Filter>
     </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>SourceFile\DirectX12</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AttackComponent.h">
@@ -163,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="..\Globals.h">
       <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>SourceFile\DirectX12</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

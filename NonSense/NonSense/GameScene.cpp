@@ -192,13 +192,19 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_Game_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Graphic_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Sound_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
+	
 
+	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Object* TempObject = NULL;
 	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
 	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_FAR);
 	TempObject->SetNum(1);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
-	TempObject->SetPosition(1.0f, 3.0f, 3.0f);
+	TempObject->SetPosition(1.0f, 1.0f, 3.0f);
+	TempObject->AddComponent<CollideComponent>();
+	TempObject->GetComponent<CollideComponent>()->SetBoundingObject(bb);
+	TempObject->GetComponent<CollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(0.3, 0.5, 0.3));
+	TempObject->GetComponent<CollideComponent>()->SetMoveAble(true);
 
 	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, xmf3Scale, xmf4Color);
 	terrain->SetPosition(-400, 0, -400);

@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Object.h"
 #include "Characters.h"
+#include "UI.h"
 
 struct LIGHT
 {

@@ -4,6 +4,7 @@
 #include "GameScene.h"
 #include "Player.h"
 #include "Input.h"
+#include "UI.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 

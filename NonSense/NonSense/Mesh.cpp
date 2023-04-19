@@ -76,8 +76,7 @@ void Mesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nInstances)
 		pd3dCommandList->DrawInstanced(m_nVertices, nInstances, m_nOffset, 0);
 	}
 }
-void Mesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nInstances,
-	D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
+void Mesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
 {
 	//정점 버퍼 뷰와 인스턴싱 버퍼 뷰를 입력-조립 단계에 설정한다.
 	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[] = { m_d3dVertexBufferView, d3dInstancingBufferView };
