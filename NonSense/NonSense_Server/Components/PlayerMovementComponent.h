@@ -36,5 +36,7 @@ public:
 
 	void Move(DWORD nDirection, float fDistance, bool bVelocity = false);
 	void Move(XMFLOAT3& xmf3Shift, bool bVelocity = false);
+
+	void updateValocity();
 };
 
