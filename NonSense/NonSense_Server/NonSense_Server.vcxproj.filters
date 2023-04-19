@@ -25,6 +25,9 @@
     <Filter Include="소스 파일\GameFramework">
       <UniqueIdentifier>{f27e4273-03be-4fc8-b9df-d56dfdced680}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\System">
+      <UniqueIdentifier>{3f605a84-8e1c-44ed-b296-f3d001908733}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -48,11 +51,11 @@
     <ClCompile Include="Player.cpp">
       <Filter>소스 파일\GameFramework</Filter>
     </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>소스 파일\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Input.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -76,6 +79,12 @@
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>소스 파일\GameFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>소스 파일\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>소스 파일\System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
