@@ -1,6 +1,5 @@
 #pragma once
 #include "../Globals.h"
-#include "Input.h"
 
 #include <iostream>
 #include <list>
@@ -12,6 +11,9 @@
 #include <thread>
 #include <memory>
 #include <mutex>
+
+#include "Input.h"
+#include "Timer.h"
 
 #include "RemoteClients/RemoteClient.h"
 #include "Scene.h"
@@ -177,6 +179,8 @@ int main(int argc, char* argv[])
 	signal(SIGINT, ProcessSignalAction);
 
 	scene = make_shared<Scene>();
+	Timer::Initialize();
+	Timer::Reset();
 
 	p_listenSocket = make_shared<Socket>(SocketType::Tcp);
 	p_listenSocket->Bind(Endpoint("0.0.0.0", SERVERPORT));
@@ -198,6 +202,8 @@ int main(int argc, char* argv[])
 		worker_threads.emplace_back(make_shared<thread>(Worker_Thread));
 
 	while (true) {
+		Timer::Tick(0.0f);
+
 		for (auto& rc : remoteClients) {
 			DWORD direction = 0;
 			if (rc.second->m_KeyInput.keys['W'] || rc.second->m_KeyInput.keys['w']) direction |= DIR_FORWARD;
