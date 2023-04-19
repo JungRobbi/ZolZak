@@ -91,10 +91,12 @@ public:
 class MagePlayer : public Player
 {
 public:
+	Object* pWeaponObject;
+
 	MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext);
 	virtual ~MagePlayer() {}
 
 	virtual Camera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void Update(float fTimeElapsed);
-
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 };

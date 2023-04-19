@@ -13,19 +13,32 @@ void AttackComponent::Attack()
 	}
 	else
 	{
-		if (AttackTimeLeft > 0.0f) {
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 7);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 7);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 7);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		}
-		else
+
+		switch (type)
 		{
+		case Combo1:
 			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
 			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 6);
 			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 6);
 			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+			type = Combo2;
+			break;
+		case Combo2:
+			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 8);
+			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 8);
+			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 8);
+			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+			type = Combo3;
+			break;
+		case Combo3:
+			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 9);
+			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 9);
+			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 9);
+			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackEnable(1, false);			
+			type = Combo1;
+			break;
 		}
+
 	}
 }
 
@@ -41,6 +54,7 @@ void AttackComponent::update()
 		{
 			if (!During_Attack)
 			{
+
 				Attack();
 				AttackTimeLeft = AttackDuration + NextAttackInputTime;
 				During_Attack = true;
@@ -48,16 +62,21 @@ void AttackComponent::update()
 			}
 		}
 	}
-	if (During_Attack || AttackTimeLeft > 0.0f)
+	if (AttackTimeLeft > 0.0f)
 	{
 		if (AttackTimeLeft > 0.0)
 		{
 			AttackTimeLeft -= Timer::GetTimeElapsed();
 		}
+
 		if (AttackTimeLeft < NextAttackInputTime)
 		{
 			During_Attack = false;
 		}
+	}
+	else
+	{
+		type = Combo1;
 	}
 }
 

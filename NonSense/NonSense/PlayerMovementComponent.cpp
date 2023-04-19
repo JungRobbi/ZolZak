@@ -29,6 +29,7 @@ void PlayerMovementComponent::Dash()
 	XMFLOAT3 look = ((Player*)gameObject)->GetLook();
 	float DistanceRatio = DashDistance / DashDuration;
 	XMFLOAT3 vel = XMFLOAT3(look.x * DistanceRatio, look.y * DistanceRatio, look.z * DistanceRatio);
+	((Player*)gameObject)->SetMaxVelocityXZ(6.5f);
 	((Player*)gameObject)->SetVelocity(vel);
 	((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
 	((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 3);
@@ -78,21 +79,60 @@ void PlayerMovementComponent::update()
 		{
 			Jump();
 		}
+		if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
+		{
+			if(!Dashing)
+				((Player*)gameObject)->SetMaxVelocityXZ(0.7f);
+		}
+		else
+		{
+			if (!Dashing)
+				((Player*)gameObject)->SetMaxVelocityXZ(3.5f);
+		}
 		if (Input::InputKeyBuffer['W'] & 0xF0)
 		{
-			((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(2);
+			if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
+			{
+				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+			}
+			else
+			{
+				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(2);
+			}
+
 		}
 		else if (Input::InputKeyBuffer['A'] & 0xF0)
 		{
-			((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(2);
+			if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
+			{
+				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+			}
+			else
+			{
+				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(2);
+			}
 		}
 		else if (Input::InputKeyBuffer['S'] & 0xF0)
 		{
-			((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(2);
+			if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
+			{
+				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+			}
+			else
+			{
+				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(2);
+			}
 		}
 		else if (Input::InputKeyBuffer['D'] & 0xF0)
 		{
-			((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(2);
+			if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
+			{
+				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+			}
+			else
+			{
+				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(2);
+			}
 		}
 		else
 		{
