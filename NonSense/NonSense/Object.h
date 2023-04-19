@@ -13,6 +13,7 @@ class Object;
 class Mesh;
 class SkinnedMesh;
 class HeightMapTerrain;
+class BoundSphere;
 #define RESOURCE_TEXTURE2D			0x01
 #define RESOURCE_TEXTURE2D_ARRAY	0x02	//[]
 #define RESOURCE_TEXTURE2DARRAY		0x03
@@ -475,13 +476,27 @@ class BoundBox : public Object
 {
 public:
 	XMFLOAT3 Center = { 0,0,0 };        
-	XMFLOAT3 Extents = { 0,0,0 };       
+	XMFLOAT3 Extents = { 1,1,1 };       
 	XMFLOAT4 Orientation = { 0,0,0,1 }; 
 	BoundBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~BoundBox();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 	virtual void Transform(_Out_ BoundBox& Out, _In_ FXMMATRIX M);
-	virtual bool Intersects(_In_ const BoundBox& box);
+	virtual bool Intersects(BoundBox& box);
+	virtual bool Intersects(BoundSphere& box);
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class BoundSphere : public Object
+{
+public:
+	XMFLOAT3 Center = { 0,0,0 };
+	float Radius = 1.f;           
+	BoundSphere(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~BoundSphere() {};
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+	virtual void Transform(_Out_ BoundSphere& Out, _In_ FXMMATRIX M);
+	virtual bool Intersects(BoundBox& box);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

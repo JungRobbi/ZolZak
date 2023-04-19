@@ -270,7 +270,39 @@ CubeMesh::CubeMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 CubeMesh::~CubeMesh()
 {
 }
+SphereMesh::SphereMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius, UINT nSlices, UINT nStacks) : Mesh(pd3dDevice, pd3dCommandList)
+{
+	m_nVertices = (nSlices * nStacks) * 3 * 2;
+	int k = 0;
+	float theta_i, theta_ii, phi_j, phi_jj, fRadius_j, fRadius_jj, y_j, y_jj;
+	m_pxmf3Positions = new XMFLOAT3[m_nVertices];
 
+	for (int j = 0; j < nStacks; j++)
+	{
+		phi_j = float(XM_PI / nStacks) * j;
+		phi_jj = float(XM_PI / nStacks) * (j + 1);
+		fRadius_j = fRadius * sinf(phi_j);
+		fRadius_jj = fRadius * sinf(phi_jj);
+		y_j = fRadius * cosf(phi_j);
+		y_jj = fRadius * cosf(phi_jj);
+		for (int i = 0; i < nSlices; i++)
+		{
+			theta_i = float(2 * XM_PI / nSlices) * i;
+			theta_ii = float(2 * XM_PI / nSlices) * (i + 1);
+			m_pxmf3Positions[k++] = XMFLOAT3(fRadius_j * cosf(theta_i), y_j, fRadius_j * sinf(theta_i));
+			m_pxmf3Positions[k++] = XMFLOAT3(fRadius_jj * cosf(theta_i), y_jj, fRadius_jj * sinf(theta_i));
+			m_pxmf3Positions[k++] = XMFLOAT3(fRadius_j * cosf(theta_ii), y_j, fRadius_j * sinf(theta_ii));
+			m_pxmf3Positions[k++] = XMFLOAT3(fRadius_jj * cosf(theta_i), y_jj, fRadius_jj * sinf(theta_i));
+			m_pxmf3Positions[k++] = XMFLOAT3(fRadius_jj * cosf(theta_ii), y_jj, fRadius_jj * sinf(theta_ii));
+			m_pxmf3Positions[k++] = XMFLOAT3(fRadius_j * cosf(theta_ii), y_j, fRadius_j * sinf(theta_ii));
+		}
+	}
+
+	m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Positions, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dPositionUploadBuffer);
+	m_d3dPositionBufferView.BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
+	m_d3dPositionBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dPositionBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+}
 
 
 // LoadMesh

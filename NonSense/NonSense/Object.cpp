@@ -2,7 +2,7 @@
 #include "Shader.h"
 #include "GameScene.h"
 #include "stdafx.h"
-#include "CollideComponent.h"
+#include "BoxCollideComponent.h"
 
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters)
 {
@@ -987,8 +987,8 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 				BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 				nReads = (UINT)::fread(&pObject->m_xmf4x4ToParent, sizeof(float), 16, OpenedFile);
 				pObject->UpdateTransform(NULL);
-				pObject->AddComponent<CollideComponent>();
-				pObject->GetComponent<CollideComponent>()->SetBoundingObject(bb);
+				pObject->AddComponent<BoxCollideComponent>();
+				pObject->GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
 			}
 			if (!strcmp(pstrToken, "</Objects>"))
 			{
@@ -1629,7 +1629,7 @@ void BoundBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamer
 	}
 }
 
-void BoundBox::Transform(BoundBox& Out, FXMMATRIX M)
+void BoundBox::Transform(_Out_ BoundBox& Out,_In_ FXMMATRIX M)
 {
 	// Load the box.
 	XMVECTOR vCenter = XMLoadFloat3(&Center);
@@ -1665,7 +1665,7 @@ void BoundBox::Transform(BoundBox& Out, FXMMATRIX M)
 	XMStoreFloat4(&Out.Orientation, vOrientation);
 }
 
-bool BoundBox::Intersects(const BoundBox& box)
+bool BoundBox::Intersects(BoundBox& box)
 {
 	// Build the 3x3 rotation matrix that defines the orientation of B relative to A.
 	XMVECTOR A_quat = XMLoadFloat4(&Orientation);
@@ -1863,4 +1863,97 @@ bool BoundBox::Intersects(const BoundBox& box)
 
 	// No seperating axis found, boxes must intersect.
 	return XMVector4NotEqualInt(NoIntersection, XMVectorTrueInt()) ? true : false;
+}
+bool BoundBox::Intersects(BoundSphere& sh)
+{
+	XMVECTOR SphereCenter = XMLoadFloat3(&sh.Center);
+	XMVECTOR SphereRadius = XMVectorReplicatePtr(&sh.Radius);
+
+	XMVECTOR BoxCenter = XMLoadFloat3(&Center);
+	XMVECTOR BoxExtents = XMLoadFloat3(&Extents);
+	XMVECTOR BoxOrientation = XMLoadFloat4(&Orientation);
+
+	assert(DirectX::Internal::XMQuaternionIsUnit(BoxOrientation));
+
+	// Transform the center of the sphere to be local to the box.
+	// BoxMin = -BoxExtents
+	// BoxMax = +BoxExtents
+	SphereCenter = XMVector3InverseRotate(XMVectorSubtract(SphereCenter, BoxCenter), BoxOrientation);
+
+	// Find the distance to the nearest point on the box.
+	// for each i in (x, y, z)
+	// if (SphereCenter(i) < BoxMin(i)) d2 += (SphereCenter(i) - BoxMin(i)) ^ 2
+	// else if (SphereCenter(i) > BoxMax(i)) d2 += (SphereCenter(i) - BoxMax(i)) ^ 2
+
+	XMVECTOR d = XMVectorZero();
+
+	// Compute d for each dimension.
+	XMVECTOR LessThanMin = XMVectorLess(SphereCenter, XMVectorNegate(BoxExtents));
+	XMVECTOR GreaterThanMax = XMVectorGreater(SphereCenter, BoxExtents);
+
+	XMVECTOR MinDelta = XMVectorAdd(SphereCenter, BoxExtents);
+	XMVECTOR MaxDelta = XMVectorSubtract(SphereCenter, BoxExtents);
+
+	// Choose value for each dimension based on the comparison.
+	d = XMVectorSelect(d, MinDelta, LessThanMin);
+	d = XMVectorSelect(d, MaxDelta, GreaterThanMax);
+
+	// Use a dot-product to square them and sum them together.
+	XMVECTOR d2 = XMVector3Dot(d, d);
+
+	return XMVector4LessOrEqual(d2, XMVectorMultiply(SphereRadius, SphereRadius)) ? true : false;
+}
+
+BoundSphere::BoundSphere(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BOUNDING_OBJECT)
+{
+	SphereMesh* BoundMesh = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 20, 20);
+	SetMesh(BoundMesh);
+
+	BoundingShader* pBoundingShader = new BoundingShader();
+	pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	Material* pBoundingMaterial = new Material();
+	pBoundingMaterial->SetShader(pBoundingShader);
+
+	SetMaterial(pBoundingMaterial);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+}
+
+void BoundSphere::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	OnPrepareRender();
+	UpdateShaderVariables(pd3dCommandList);
+
+	if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+	if (m_pMesh)
+	{
+		m_pMesh->Render(pd3dCommandList, 0);
+	}
+}
+
+void BoundSphere::Transform(BoundSphere& Out, FXMMATRIX M)
+{
+	// Load the center of the sphere.
+	XMVECTOR vCenter = XMLoadFloat3(&Center);
+
+	// Transform the center of the sphere.
+	XMVECTOR C = XMVector3Transform(vCenter, M);
+
+	XMVECTOR dX = XMVector3Dot(M.r[0], M.r[0]);
+	XMVECTOR dY = XMVector3Dot(M.r[1], M.r[1]);
+	XMVECTOR dZ = XMVector3Dot(M.r[2], M.r[2]);
+
+	XMVECTOR d = XMVectorMax(dX, XMVectorMax(dY, dZ));
+
+	// Store the center sphere.
+	XMStoreFloat3(&Out.Center, C);
+
+	// Scale the radius of the pshere.
+	float Scale = sqrtf(XMVectorGetX(d));
+	Out.Radius = Radius * Scale;
+}
+
+bool BoundSphere::Intersects(BoundBox& box)
+{
+	return box.Intersects(*this);
 }

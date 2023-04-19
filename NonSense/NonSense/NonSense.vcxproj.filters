@@ -15,7 +15,7 @@
     <ClCompile Include="Component.cpp">
       <Filter>SourceFile\Component\Base</Filter>
     </ClCompile>
-    <ClCompile Include="CollideComponent.cpp">
+    <ClCompile Include="BoxCollideComponent.cpp">
       <Filter>SourceFile\Component</Filter>
     </ClCompile>
     <ClCompile Include="PlayerMovementComponent.cpp">
@@ -84,6 +84,9 @@
     <ClCompile Include="UI.cpp">
       <Filter>SourceFile\DirectX12</Filter>
     </ClCompile>
+    <ClCompile Include="SphereCollideComponent.cpp">
+      <Filter>SourceFile\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AttackComponent.h">
@@ -92,7 +95,7 @@
     <ClInclude Include="Component.h">
       <Filter>SourceFile\Component\Base</Filter>
     </ClInclude>
-    <ClInclude Include="CollideComponent.h">
+    <ClInclude Include="BoxCollideComponent.h">
       <Filter>SourceFile\Component</Filter>
     </ClInclude>
     <ClInclude Include="PlayerMovementComponent.h">
@@ -169,6 +172,9 @@
     </ClInclude>
     <ClInclude Include="UI.h">
       <Filter>SourceFile\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereCollideComponent.h">
+      <Filter>SourceFile\Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

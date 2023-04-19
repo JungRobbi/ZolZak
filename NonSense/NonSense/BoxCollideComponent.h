@@ -3,7 +3,8 @@
 #include "Object.h"
 
 class BoundBox;
-class CollideComponent : public Component
+
+class BoxCollideComponent : public Component
 {
     BoundBox* m_BoundingObject = NULL;
     bool MoveAble = false;
@@ -12,8 +13,9 @@ class CollideComponent : public Component
 public:
     void start();
     void update();
+
     BoundBox* GetBoundingObject() { return m_BoundingObject; }
-    void SetBoundingObject(BoundBox* bd);
+    void SetBoundingObject(BoundBox* bd) { m_BoundingObject = bd; }
     void SetCenterExtents(XMFLOAT3 ct, XMFLOAT3 ex);
     void SetMoveAble(bool ma) { MoveAble = ma; }
 };

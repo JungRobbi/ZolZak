@@ -173,6 +173,13 @@ public:
 	virtual ~CubeMesh();
 };
 
+class SphereMesh : public Mesh
+{
+public:
+	SphereMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius = 2.0f, UINT nSlices = 20, UINT nStacks = 20);
+	virtual ~SphereMesh() {};
+};
+
 /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class LoadMesh : public IlluminatedMesh
 {

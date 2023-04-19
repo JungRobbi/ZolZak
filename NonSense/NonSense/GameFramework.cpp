@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "GameFramework.h"
 #include "PlayerMovementComponent.h"
-#include "CollideComponent.h"
+#include "BoxCollideComponent.h"
+#include "SphereCollideComponent.h"
 
 GameFramework::GameFramework()
 {
@@ -285,12 +286,11 @@ void GameFramework::BuildObjects()
 	auto m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
 
-	BoundBox* bb = new BoundBox(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+	BoundSphere* bs = new BoundSphere(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->GetTerrain());
-	m_pPlayer->AddComponent<CollideComponent>();
-	m_pPlayer->GetComponent<CollideComponent>()->SetBoundingObject(bb);
-	m_pPlayer->GetComponent<CollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0),XMFLOAT3(0.3, 0.5, 0.3));
-	m_pPlayer->GetComponent<CollideComponent>()->SetMoveAble(true);
+	m_pPlayer->AddComponent<SphereCollideComponent>();
+	m_pPlayer->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+	m_pPlayer->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
 
 	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
@@ -534,6 +534,14 @@ void GameFramework::FrameAdvance()
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
+
+	for (auto& o : GameScene::MainScene->gameObjects) {
+		if (o->GetComponent<BoxCollideComponent>()) {
+			if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
+				printf("Ãæµ¹");
+		}
+	}
+
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	GameScene::MainScene->OnPrepareRender(m_pCommandList, m_pCamera);
@@ -568,6 +576,8 @@ void GameFramework::FrameAdvance()
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
 	///////////////////////////////////
+
+
 
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
