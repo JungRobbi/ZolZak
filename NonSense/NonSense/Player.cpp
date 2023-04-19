@@ -337,9 +337,9 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	{
 	case FIRST_PERSON_CAMERA:
 		//플레이어의 특성을 1인칭 카메라 모드에 맞게 변경한다. 중력은 적용하지 않는다.
-		SetFriction(49.0f);
+		SetFriction(30.0f);
 		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
-		SetMaxVelocityXZ(10.0f);
+		SetMaxVelocityXZ(5.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
@@ -363,9 +363,9 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		break;
 	case THIRD_PERSON_CAMERA:
 		//플레이어의 특성을 3인칭 카메라 모드에 맞게 변경한다. 지연 효과와 카메라 오프셋을 설정한다.
-		SetFriction(50.0f);
+		SetFriction(30.0f);
 		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
-		SetMaxVelocityXZ(10.0f);
+		SetMaxVelocityXZ(5.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 		//3인칭 카메라의 지연 효과를 설정한다. 값을 0.25f 대신에 0.0f와 1.0f로 설정한 결과를 비교하기 바란다.

@@ -1387,16 +1387,6 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 		if (m_pMesh)
 		{
 			UpdateShaderVariables(pd3dCommandList);
-			//if (m_pMaterial)
-			//{
-			//	if (m_pMaterial->m_pShader)
-			//	{
-			//		m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
-			//		m_pMaterial->m_pShader->UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-			//	}
-			//
-			//	m_pMesh->Render(pd3dCommandList);
-			//}
 			
 			if (m_nMaterials > 0)
 			{
@@ -1417,6 +1407,33 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
 
 }
+
+void Object::RenderOnlyOneFrame(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+
+	OnPrepareRender();
+	if (m_pMesh)
+	{
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_nMaterials > 0)
+		{
+			for (int i = 0; i < m_nMaterials; ++i)
+			{
+				if (m_ppMaterials[i])
+				{
+
+					if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+					m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+				}
+				m_pMesh->Render(pd3dCommandList, i);
+			}
+		}
+	}
+
+
+}
+
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
 {
 	if (IsVisible(pCamera))
