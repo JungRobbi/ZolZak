@@ -474,10 +474,14 @@ public:
 class BoundBox : public Object
 {
 public:
+	XMFLOAT3 Center = { 0,0,0 };        
+	XMFLOAT3 Extents = { 0,0,0 };       
+	XMFLOAT4 Orientation = { 0,0,0,1 }; 
 	BoundBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~BoundBox();
-
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+	virtual void Transform(_Out_ BoundBox& Out, _In_ FXMMATRIX M);
+	virtual bool Intersects(_In_ const BoundBox& box);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

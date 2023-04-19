@@ -561,7 +561,7 @@ void GameFramework::FrameAdvance()
 	// Sky Box
 	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
 	// Bounding Box
-	GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
+	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
 	// Debug È­¸é

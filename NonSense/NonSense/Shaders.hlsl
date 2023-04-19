@@ -141,12 +141,12 @@ VS_DEBUG_OUTPUT VSDebug(uint nVertexID : SV_VertexID)
 	VS_DEBUG_OUTPUT output = (VS_DEBUG_OUTPUT)0;
 	int s = nVertexID / 6;
 
-	if (nVertexID % 6 == 0)		 { output.position = float4((0.5 * s) - 1.0f, -0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
-	else if (nVertexID % 6 == 1) { output.position = float4((0.5 * (s + 1)) - 1.0f, -0.5f, 0.0f, 1.0f);	output.uv = float2(1.0f, 0.0f); output.num = s; }
-	else if (nVertexID % 6 == 2) { output.position = float4((0.5 * (s + 1)) - 1.0f, -1.0f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
-	else if (nVertexID % 6 == 3) { output.position = float4((0.5 * s) - 1.0f, -0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
-	else if (nVertexID % 6 == 4) { output.position = float4((0.5 * (s + 1)) - 1.0f, -1.0f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
-	else if (nVertexID % 6 == 5) { output.position = float4((0.5 * s) - 1.0f, -1.0f, 0.0f, 1.0f);		output.uv = float2(0.0f, 1.0f); output.num = s; }
+	if (nVertexID % 6 == 0)		 { output.position = float4((0.5 * s) - 1.0f, 1.0f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
+	else if (nVertexID % 6 == 1) { output.position = float4((0.5 * (s + 1)) - 1.0f, 1.0f, 0.0f, 1.0f);	output.uv = float2(1.0f, 0.0f); output.num = s; }
+	else if (nVertexID % 6 == 2) { output.position = float4((0.5 * (s + 1)) - 1.0f, 0.5f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
+	else if (nVertexID % 6 == 3) { output.position = float4((0.5 * s) - 1.0f, 1.0f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
+	else if (nVertexID % 6 == 4) { output.position = float4((0.5 * (s + 1)) - 1.0f, 0.5f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
+	else if (nVertexID % 6 == 5) { output.position = float4((0.5 * s) - 1.0f, 0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 1.0f); output.num = s; }
 
 	return(output);
 }
