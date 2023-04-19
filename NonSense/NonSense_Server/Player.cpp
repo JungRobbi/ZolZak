@@ -1,6 +1,7 @@
 #include "Player.h"
 
 #include "Components/PlayerMovementComponent.h"
+#include "RemoteClients/RemoteClient.h"
 
 Player::Player() : Object()
 {

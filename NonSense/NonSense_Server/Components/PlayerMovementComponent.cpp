@@ -1,6 +1,7 @@
 #include "PlayerMovementComponent.h"
-#include "../Object.h"
+#include "../RemoteClients/RemoteClient.h"
 #include "../Player.h"
+#include "../Scene.h"
 
 void PlayerMovementComponent::start()
 {

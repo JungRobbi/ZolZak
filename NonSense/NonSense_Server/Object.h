@@ -1,6 +1,5 @@
 #pragma once
 #include <list>
-#include "Scene.h"
 
 #include "Components/Component.h"
 

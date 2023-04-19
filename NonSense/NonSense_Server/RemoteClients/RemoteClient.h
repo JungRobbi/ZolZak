@@ -23,6 +23,6 @@ public:
 	Input m_KeyInput;
 	shared_ptr<Player> m_pPlayer;
 
-	RemoteClient() : thread(), tcpConnection(SocketType::Tcp), m_KeyInput() {}
-	RemoteClient(SocketType socketType) :tcpConnection(socketType), m_KeyInput() {}
+	RemoteClient() : thread(), tcpConnection(SocketType::Tcp), m_KeyInput(), m_pPlayer() {}
+	RemoteClient(SocketType socketType) :tcpConnection(socketType), m_KeyInput(), m_pPlayer() {}
 };

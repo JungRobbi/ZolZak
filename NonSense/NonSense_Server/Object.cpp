@@ -1,4 +1,5 @@
 #include "Object.h"
+#include "Scene.h"
 
 Object::Object()
 {

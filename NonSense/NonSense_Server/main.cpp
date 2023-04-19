@@ -13,9 +13,8 @@
 #include <memory>
 #include <mutex>
 
-//#include "GameScene.h"
-
 #include "RemoteClients/RemoteClient.h"
+#include "Scene.h"
 
 using namespace std;
 
@@ -24,6 +23,7 @@ volatile bool stopWorking = false;
 const int N_THREAD{ 1 };
 static unsigned long long N_CLIENT_ID{ 0 };
 
+shared_ptr<Scene> scene;
 
 vector<shared_ptr<thread>> worker_threads;
 
@@ -175,6 +175,8 @@ int main(int argc, char* argv[])
 {
 	// 사용자가 ctl-c를 누르면 메인루프를 종료하게 만듭니다.
 	signal(SIGINT, ProcessSignalAction);
+
+	scene = make_shared<Scene>();
 
 	p_listenSocket = make_shared<Socket>(SocketType::Tcp);
 	p_listenSocket->Bind(Endpoint("0.0.0.0", SERVERPORT));
