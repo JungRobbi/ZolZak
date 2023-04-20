@@ -564,14 +564,14 @@ void GameFramework::ProcessInput()
 					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 			}
 			if (dwDirection) {
-				if (pKeyBuffer[0x41] & 0xF0) {
+				/*if (pKeyBuffer[0x41] & 0xF0) {
 					m_pPlayer->Rotate(0.0f, -0.1f, 0.0f);
 					pKeyBuffer[0x41] = false;
 				}
 				else if (pKeyBuffer[0x44] & 0xF0) {
 					m_pPlayer->Rotate(0.0f, +0.1f, 0.0f);
 					pKeyBuffer[0x44] = false;
-				}
+				}*/
 				m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
 			}
 		}

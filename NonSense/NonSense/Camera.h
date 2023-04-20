@@ -101,6 +101,10 @@ public:
 	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed) { }
 	//3인칭 카메라에서 카메라가 바라보는 지점을 설정한다. 일반적으로 플레이어를 바라보도록 설정한다.
 	virtual void SetLookAt(XMFLOAT3& xmf3LookAt) { }
+
+	void SetLookVector(XMFLOAT3 xmf3Look) { m_xmf3Look = xmf3Look; }
+	void SetUpVector(XMFLOAT3 xmf3Up) { m_xmf3Up = xmf3Up; }
+	void SetRightVector(XMFLOAT3 xmf3Right) { m_xmf3Right = xmf3Right; }
 };
 
 class SpaceShipCamera : public Camera

@@ -21,10 +21,6 @@ void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED recv_ove
 	char* recv_buf = reinterpret_cast<EXP_OVER*>(recv_over)->_buf;
 	int recv_buf_Length = num_bytes;
 
-	cout << "패킷 사이즈 - " << (int)recv_buf[0] << endl;
-	cout << "num_bytes - " << num_bytes << endl;
-	cout << "패킷 종류 - " << (int)recv_buf[1] << endl;
-
 	{ // 패킷 처리
 		int remain_data = recv_buf_Length + NetworkMGR::tcpSocket->m_prev_remain;
 		while (remain_data > 0) {
@@ -142,7 +138,6 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	{
 	case E_PACKET::E_PACKET_SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* recv_packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(p_Packet);
-		cout << "E_PACKET_SC_LOGIN_INFO" << endl;
 
 		GameFramework::MainGameFramework->m_pPlayer->id = recv_packet->id;
 
@@ -150,7 +145,6 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET::E_PACKET_SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(p_Packet);
-		cout << "E_PACKET_SC_ADD_PLAYER" << endl;
 
 		auto player = GameFramework::MainGameFramework->m_OtherPlayersPool.back();
 		GameFramework::MainGameFramework->m_OtherPlayersPool.pop_back();
@@ -162,8 +156,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET::E_PACKET_SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(p_Packet);
-		cout << " E_PACKET_SC_MOVE_PLAYER,  ID - " << recv_packet->id << endl;
-
+	
 		if (recv_packet->id == GameFramework::MainGameFramework->m_pPlayer->id) {
 			GameFramework::MainGameFramework->m_pPlayer->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
 		}
@@ -174,8 +167,46 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 					return dynamic_cast<Player*>(lhs)->id == recv_packet->id;
 				});
 
-			if (p != GameFramework::MainGameFramework->m_OtherPlayers.end())
-				dynamic_cast<Player*>(*p)->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
+
+			dynamic_cast<Player*>(*p)->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
+		}
+		break;
+	}
+	case E_PACKET::E_PACKET_SC_LOOK_PLAYER: {
+		SC_LOOK_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_LOOK_PLAYER_PACKET*>(p_Packet);
+		Player* player = GameFramework::MainGameFramework->m_pPlayer;
+		if (recv_packet->id == GameFramework::MainGameFramework->m_pPlayer->id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->id;
+				});
+
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
+
+			player = dynamic_cast<Player*>(*p);
+		}
+
+		XMFLOAT3 xmf3Look{ XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z) };
+		XMFLOAT3 xmf3RightVector = player->GetRightVector();
+		XMFLOAT3 xmf3UpVector = player->GetUpVector();
+
+		player->SetLookVector(xmf3Look);
+		player->SetRightVector(Vector3::CrossProduct(xmf3UpVector, xmf3Look, true));
+		xmf3RightVector = player->GetRightVector();
+		player->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3RightVector, true));
+		xmf3UpVector = player->GetUpVector();
+
+		if (player == GameFramework::MainGameFramework->m_pPlayer) {
+			player->GetCamera()->SetLookVector(Vector3::Normalize(xmf3Look));
+			player->GetCamera()->SetRightVector(Vector3::CrossProduct(xmf3UpVector, xmf3Look, true));
+			player->GetCamera()->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3RightVector, true));
 		}
 		break;
 	}
