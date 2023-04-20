@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClInclude Include="..\Globals.h" />
     <ClInclude Include="AttackComponent.h" />
+    <ClInclude Include="BillboardComponent.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Characters.h" />
     <ClInclude Include="BoxCollideComponent.h" />
@@ -167,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AttackComponent.cpp" />
+    <ClCompile Include="BillboardComponent.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Characters.cpp" />
     <ClCompile Include="BoxCollideComponent.cpp" />

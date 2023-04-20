@@ -28,7 +28,14 @@ class Monster_HP_UI : public Object
 public:
 	Monster_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~Monster_HP_UI() {};
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void ReleaseShaderVariables();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 	float HP = 1.0;
+private:
+	ID3D12Resource* m_pd3dcbUI = NULL;
+	CB_PLAYER_INFO* m_pcbMappedUI = NULL;
 };
 
 class Monster_HP_DEC_UI : public Monster_HP_UI

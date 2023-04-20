@@ -87,6 +87,9 @@
     <ClCompile Include="SphereCollideComponent.cpp">
       <Filter>SourceFile\Component</Filter>
     </ClCompile>
+    <ClCompile Include="BillboardComponent.cpp">
+      <Filter>SourceFile\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AttackComponent.h">
@@ -174,6 +177,9 @@
       <Filter>SourceFile\DirectX12</Filter>
     </ClInclude>
     <ClInclude Include="SphereCollideComponent.h">
+      <Filter>SourceFile\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="BillboardComponent.h">
       <Filter>SourceFile\Component</Filter>
     </ClInclude>
   </ItemGroup>

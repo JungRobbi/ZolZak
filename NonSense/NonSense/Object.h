@@ -14,6 +14,8 @@ class Mesh;
 class SkinnedMesh;
 class HeightMapTerrain;
 class BoundSphere;
+class Monster_HP_UI;
+
 #define RESOURCE_TEXTURE2D			0x01
 #define RESOURCE_TEXTURE2D_ARRAY	0x02	//[]
 #define RESOURCE_TEXTURE2DARRAY		0x03
@@ -306,7 +308,6 @@ public:
 class Object
 {
 	std::list<Component*> components;
-	std::list<BoundingOrientedBox*> BoundingBoxes;
 public:
 	Object();
 	// GameScene의 gameobjects 리스트에 안넣기 위해 만든 생성자
@@ -339,6 +340,7 @@ public:
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	XMFLOAT3 GetPosition();
 	XMFLOAT3 GetLook();
+	void SetLook(XMFLOAT3 look) { m_xmf4x4World._31 = look.x, m_xmf4x4World._32 = look.y, m_xmf4x4World._33 = look.z; }
 	XMFLOAT3 GetUp();
 	XMFLOAT3 GetRight();
 	XMFLOAT4X4 GetWorld() { return m_xmf4x4World; }
@@ -369,6 +371,7 @@ public:
 protected:
 	Mesh* m_pMesh = NULL;
 	Material* m_pMaterial = NULL;
+	Monster_HP_UI* m_pHP = NULL;
 public:
 	UINT GetMeshType(); 
 

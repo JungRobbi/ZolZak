@@ -534,14 +534,6 @@ void GameFramework::FrameAdvance()
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
-
-	for (auto& o : GameScene::MainScene->gameObjects) {
-		if (o->GetComponent<BoxCollideComponent>()) {
-			if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
-				printf("Ãæµ¹");
-		}
-	}
-
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	GameScene::MainScene->OnPrepareRender(m_pCommandList, m_pCamera);

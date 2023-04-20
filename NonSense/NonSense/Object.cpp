@@ -780,8 +780,7 @@ XMFLOAT3 Object::GetPosition()
 
 XMFLOAT3 Object::GetLook()
 {
-	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._31, m_xmf4x4World._32,
-		m_xmf4x4World._33)));
+	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._31, m_xmf4x4World._32, m_xmf4x4World._33)));
 }
 
 XMFLOAT3 Object::GetUp()
@@ -1338,16 +1337,6 @@ LoadedModelInfo* Object::LoadAnimationModel(ID3D12Device* pd3dDevice, ID3D12Grap
 
 void Object::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	//XMFLOAT4X4 xmf4x4World;
-	//D3D12_GPU_VIRTUAL_ADDRESS d3dcbGameObjectGpuVirtualAddress = m_pd3dcbGameObjects->GetGPUVirtualAddress();
-	//
-	//XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&GetWorld())));
-	//CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects);
-	//::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
-	//pbMappedcbGameObject->m_nObjectID = Num;
-	//
-	//pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_OBJECT, d3dcbGameObjectGpuVirtualAddress);
-
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&GetWorld())));
 	pd3dCommandList->SetGraphicsRoot32BitConstants(ROOT_PARAMETER_OBJECT, 16, &xmf4x4World, 0);
@@ -1381,6 +1370,10 @@ void Object::Animate(float fTimeElapsed)
 }
 void Object::OnPrepareRender()
 {
+	if (m_pHP)
+	{
+		m_pHP->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, GetComponent<BoxCollideComponent>()->GetBoundingObject()->Extents.y*2+0.5, 0)));
+	}
 }
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
@@ -1406,6 +1399,7 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 				}
 			}
 		}
+		if (m_pHP) m_pHP->Render(pd3dCommandList, pCamera);
 	}
 	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
 	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
@@ -1923,7 +1917,7 @@ bool BoundBox::Intersects(BoundSphere& sh)
 
 BoundSphere::BoundSphere(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BOUNDING_OBJECT)
 {
-	SphereMesh* BoundMesh = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 20, 20);
+	SphereMesh* BoundMesh = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
 	SetMesh(BoundMesh);
 
 	BoundingShader* pBoundingShader = new BoundingShader();
