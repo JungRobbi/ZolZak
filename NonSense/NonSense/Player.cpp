@@ -264,7 +264,7 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
-//	if (nCameraMode == THIRD_PERSON_CAMERA)
+	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
 		if (m_pMaterial) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
 		Object::Render(pd3dCommandList, pCamera);
