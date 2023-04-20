@@ -4,6 +4,7 @@
 #include <thread>
 #include <list>
 #include <mutex>
+#include <string>
 
 #include "../Globals.h"
 
@@ -21,6 +22,9 @@ class NetworkMGR
 public:
 	static char* SERVERIP;
 	static shared_ptr<Socket> tcpSocket;
+
+	static unsigned int id;
+	static string name;
 public:
 	static void start();
 	static void Tick();

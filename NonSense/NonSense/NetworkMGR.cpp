@@ -13,6 +13,9 @@ recursive_mutex NetworkMGR::mutex;
 
 shared_ptr<Socket> NetworkMGR::tcpSocket;
 
+unsigned int	NetworkMGR::id{};
+string			NetworkMGR::name{};
+
 void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED recv_over, DWORD recv_flag)
 {
 	char* recv_buf = reinterpret_cast<EXP_OVER*>(recv_over)->_buf;
@@ -79,7 +82,6 @@ void NetworkMGR::start()
 //	SERVERIP[server_s.size()] = '\0';
 //	strcpy(SERVERIP, server_s.c_str());
 
-	string name;
 	std::cout << "이름 입력 : ";
 	std::cin >> name;
 
@@ -138,10 +140,18 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 {
 	switch (p_Packet[1]) // 패킷 타입
 	{
+	case E_PACKET::E_PACKET_SC_LOGIN_INFO: {
+		SC_LOGIN_INFO_PACKET* recv_packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(p_Packet);
+		cout << "E_PACKET_SC_LOGIN_INFO" << endl;
+
+		GameFramework::MainGameFramework->m_pPlayer->id = recv_packet->id;
+
+		break;
+	}
 	case E_PACKET::E_PACKET_SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(p_Packet);
-
 		cout << "E_PACKET_SC_ADD_PLAYER" << endl;
+
 		auto player = GameFramework::MainGameFramework->m_OtherPlayersPool.back();
 		GameFramework::MainGameFramework->m_OtherPlayersPool.pop_back();
 		dynamic_cast<Player*>(player)->id = recv_packet->id;
@@ -152,10 +162,10 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET::E_PACKET_SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(p_Packet);
+		cout << " E_PACKET_SC_MOVE_PLAYER,  ID - " << recv_packet->id << endl;
 
-		GameFramework::MainGameFramework->m_pPlayer->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
-		/*if (recv_packet->id == GameFramework::MainGameFramework->m_pPlayer->id) {
-			GameFramework::MainGameFramework->m_pPlayer->Move(recv_packet->direction, 50.0f * Timer::GetTimeElapsed(), true);
+		if (recv_packet->id == GameFramework::MainGameFramework->m_pPlayer->id) {
+			GameFramework::MainGameFramework->m_pPlayer->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
 		}
 		else {
 			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
@@ -165,8 +175,8 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 				});
 
 			if (p != GameFramework::MainGameFramework->m_OtherPlayers.end())
-				dynamic_cast<Player*>(*p)->Move(recv_packet->direction, 50.0f * Timer::GetTimeElapsed(), true);
-		}*/
+				dynamic_cast<Player*>(*p)->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
+		}
 		break;
 	}
 	default:

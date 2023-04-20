@@ -355,6 +355,14 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		//id 부여
 		p_Client->m_id = N_CLIENT_ID++;
 
+		{ // 접속한 클라이언트 본인 정보 송신
+			SC_LOGIN_INFO_PACKET send_packet;
+			send_packet.size = sizeof(SC_LOGIN_INFO_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_LOGIN_INFO;
+			send_packet.id = p_Client->m_id;
+			p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+
 		// 접속한 클라이언트에게 모든 플레이어 정보 송신
 		for (auto& rc : remoteClients) {
 			if (rc.second->m_id == p_Client->m_id) 

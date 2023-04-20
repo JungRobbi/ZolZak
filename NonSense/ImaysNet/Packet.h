@@ -51,7 +51,6 @@ public:
 class SC_LOGIN_INFO_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	id;
-	short	x, y;
 };
 
 class SC_ADD_PLAYER_PACKET : public PACKET_HEAD {
