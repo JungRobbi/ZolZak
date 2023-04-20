@@ -8,9 +8,10 @@ struct MATERIAL
 };
 
 
-cbuffer cbPlayerInfo : register(b0)
+cbuffer cbWorldInfo : register(b0)
 {
-	matrix gmtxPlayerWorld : packoffset(c0);
+	matrix gmtxWorld : packoffset(c0);
+	float value : packoffset(c4);
 };
 
 cbuffer cbCameraInfo : register(b1)
@@ -24,7 +25,7 @@ cbuffer cbCameraInfo : register(b1)
 
 cbuffer cbGameObjectInfo : register(b2)
 {
-	matrix gmtxGameObject : packoffset(c0);
+	matrix gmtxObjectWorld : packoffset(c0);
 	uint objectID : packoffset(c4);
 };
 
@@ -45,37 +46,12 @@ Texture2DArray gtxtTextureArray : register(t0);
 Texture2D RenderInfor[4] : register(t1); //Position, Normal+ObjectID, Texture, Depth
 SamplerState gssDefaultSamplerState : register(s0);
 
+Texture2D gtxtUITexture : register(t24);
+SamplerState gssWrap : register(s0);
+SamplerState gssBorder : register(s1);
 // SkyBox
 TextureCube gtxtSkyCubeTexture : register(t13);
 #include "Light1.hlsl"
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-struct VS_LIGHTING_INPUT
-{
-	float3 position : POSITION;
-	float3 normal : NORMAL;
-	float2 uv : TEXCOORD;
-};
-
-struct VS_LIGHTING_OUTPUT
-{
-	float4 position : SV_POSITION;
-	float3 positionW : POSITION;
-	float3 normalW : NORMAL;
-	float2 uv : TEXCOORD;
-};
-
-VS_LIGHTING_OUTPUT VSObject(VS_LIGHTING_INPUT input)
-{
-	VS_LIGHTING_OUTPUT output;
-	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
-	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
-	output.uv = input.uv;
-	return(output);
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -87,44 +63,67 @@ struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
 	float4 Texture : SV_TARGET3;
 };
 
-PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSObject(VS_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID)
+///////////////////////////////////////////////////////////////////////////////////////////
+struct VS_BoundingINPUT
 {
-	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
-	output.Scene = float4(0, 1, 0, 0);
+	float3 position : POSITION;
+};
 
-	output.Position = float4(input.positionW, 1.0f);
-	output.Normal = float4(input.normalW.xyz, 1 / ((float)objectID + 2));
-	float3 uvw = float3(input.uv, nPrimitiveID / 2);
-	output.Texture = gtxtTextureArray.Sample(gssDefaultSamplerState, uvw);
+struct VS_BoundingOUTPUT
+{
+	float4 position : SV_POSITION;
+};
 
+VS_BoundingOUTPUT VSBounding(VS_BoundingINPUT input)
+{
+	VS_BoundingOUTPUT output;
+	output.position = (mul(mul(mul(float4(input.position, 1.0f), gmtxObjectWorld), gmtxView), gmtxProjection));
 	return(output);
+}
+
+float4 PSBounding(VS_BoundingOUTPUT input) : SV_TARGET
+{
+	return(float4(1,0,0,1));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-struct VS_INPUT
+
+struct VS_BillboardINPUT
 {
 	float3 position : POSITION;
-	float4 color : COLOR;
 };
 
-struct VS_OUTPUT
+struct VS_BillboardOUTPUT
 {
-	float4 position : SV_POSITION;
-	float4 color : COLOR;
+	float4 positionW : SV_POSITION;
+	float2 uv : TEXCOORD0;
 };
 
-VS_OUTPUT VSDiffused(VS_INPUT input)
+VS_BillboardOUTPUT VSBillboard(VS_BillboardINPUT input, uint nVertexID : SV_VertexID)
 {
-	VS_OUTPUT output;
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxPlayerWorld), gmtxView), gmtxProjection);
-	output.color = input.color;
+	VS_BillboardOUTPUT output;
+	if (nVertexID == 0)		 { output.uv = float2(-1.0f, 0.0f); }
+	else if (nVertexID == 1) { output.uv = float2(1.0f, 0.0f); }
+	else if (nVertexID == 2) { output.uv = float2(-1.0f, 1.0f); }
+	else if (nVertexID == 3) { output.uv = float2(-1.0f, 1.0f); }
+	else if (nVertexID == 4) { output.uv = float2(1.0f, 0.0f); }
+	else if (nVertexID == 5) { output.uv = float2(1.0f, 1.0f); }
+
+	output.positionW = (mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection));
 	return(output);
 }
 
-float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSBillboard(VS_BillboardOUTPUT input) : SV_TARGET
 {
-	return(input.color);
+	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+	output.Scene = float4(0, 1, 0, 1);
+	output.Position = float4(input.positionW.xyz, 1.0f);
+	output.Normal = float4(0,0,0,0);
+	output.Texture = gtxtUITexture.Sample(gssBorder, input.uv);;
+	return(output);
+
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -184,12 +183,12 @@ VS_DEBUG_OUTPUT VSDebug(uint nVertexID : SV_VertexID)
 	VS_DEBUG_OUTPUT output = (VS_DEBUG_OUTPUT)0;
 	int s = nVertexID / 6;
 
-	if (nVertexID % 6 == 0)		 { output.position = float4((0.5 * s) - 1.0f, -0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
-	else if (nVertexID % 6 == 1) { output.position = float4((0.5 * (s + 1)) - 1.0f, -0.5f, 0.0f, 1.0f);	output.uv = float2(1.0f, 0.0f); output.num = s; }
-	else if (nVertexID % 6 == 2) { output.position = float4((0.5 * (s + 1)) - 1.0f, -1.0f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
-	else if (nVertexID % 6 == 3) { output.position = float4((0.5 * s) - 1.0f, -0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
-	else if (nVertexID % 6 == 4) { output.position = float4((0.5 * (s + 1)) - 1.0f, -1.0f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
-	else if (nVertexID % 6 == 5) { output.position = float4((0.5 * s) - 1.0f, -1.0f, 0.0f, 1.0f);		output.uv = float2(0.0f, 1.0f); output.num = s; }
+	if (nVertexID % 6 == 0)		 { output.position = float4((0.5 * s) - 1.0f, 1.0f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
+	else if (nVertexID % 6 == 1) { output.position = float4((0.5 * (s + 1)) - 1.0f, 1.0f, 0.0f, 1.0f);	output.uv = float2(1.0f, 0.0f); output.num = s; }
+	else if (nVertexID % 6 == 2) { output.position = float4((0.5 * (s + 1)) - 1.0f, 0.5f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
+	else if (nVertexID % 6 == 3) { output.position = float4((0.5 * s) - 1.0f, 1.0f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
+	else if (nVertexID % 6 == 4) { output.position = float4((0.5 * (s + 1)) - 1.0f, 0.5f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
+	else if (nVertexID % 6 == 5) { output.position = float4((0.5 * s) - 1.0f, 0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 1.0f); output.num = s; }
 
 	return(output);
 }
@@ -221,7 +220,7 @@ Texture2D gtxtEmissionTexture : register(t10);
 Texture2D gtxtDetailAlbedoTexture : register(t11);
 Texture2D gtxtDetailNormalTexture : register(t12);
 
-SamplerState gssWrap : register(s0);
+
 
 
 struct VS_STANDARD_INPUT
@@ -246,10 +245,10 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 {
 	VS_STANDARD_OUTPUT output;
 	matrix m = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
-	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
-	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
-	output.tangentW = mul(input.tangent, (float3x3)gmtxGameObject);
-	output.bitangentW = mul(input.bitangent, (float3x3)gmtxGameObject);
+	output.positionW = mul(float4(input.position, 1.0f), gmtxObjectWorld).xyz;
+	output.normalW = mul(input.normal, (float3x3)gmtxObjectWorld);
+	output.tangentW = mul(input.tangent, (float3x3)gmtxObjectWorld);
+	output.bitangentW = mul(input.bitangent, (float3x3)gmtxObjectWorld);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	output.uv = input.uv;
 
@@ -286,7 +285,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 		normalW = normalize(input.normalW);
 	}
 
-	output.Normal = float4(normalW.xyz, 1 / ((float)objectID + 2));
+	output.Normal = float4(normalW.xyz, ((float)objectID / ((float)objectID + 2)));
 	return(output);
 }
 
@@ -338,7 +337,7 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 	output.tangentW = mul(input.tangent, (float3x3)mtxVertexToBoneWorld).xyz;
 	output.bitangentW = mul(input.bitangent, (float3x3)mtxVertexToBoneWorld).xyz;
 
-	//	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+	//	output.positionW = mul(float4(input.position, 1.0f), gmtxObjectWorld).xyz;
 
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	output.uv = input.uv;
@@ -362,7 +361,7 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 {
 	VS_SKYBOX_CUBEMAP_OUTPUT output;
 
-	output.position = (mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection)).xyww;
+	output.position = (mul(mul(mul(float4(input.position, 1.0f), gmtxObjectWorld), gmtxView), gmtxProjection)).xyww;
 	output.positionL = input.position;
 
 	return(output);
@@ -377,7 +376,7 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
-Texture2D gtxtUITexture : register(t24);
+
 
 struct VS_UI_OUTPUT
 {
@@ -396,7 +395,7 @@ VS_UI_OUTPUT VSUI(uint nVertexID : SV_VertexID)
 	else if (nVertexID == 4) { output.position = float4(1.0f, 0.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
 	else if (nVertexID == 5) { output.position = float4(0.0f, 0.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
 
-	output.position = mul(output.position, gmtxPlayerWorld);
+	output.position = mul(output.position, gmtxWorld);
 
 	return(output);
 }
@@ -446,8 +445,8 @@ VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
 {
 	VS_TERRAIN_OUTPUT output;
 
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
-	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxObjectWorld), gmtxView), gmtxProjection);
+	output.positionW = mul(float4(input.position, 1.0f), gmtxObjectWorld).xyz;
 	output.color = input.color;
 	output.uv0 = input.uv0;
 	output.uv1 = input.uv1;
@@ -461,7 +460,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
 	output.Scene = float4(0, 1, 0, 1);
 	output.Position = float4(input.positionW,1.0f);
-	output.Normal = float4(input.normal,1.0f);
+	output.Normal = float4(input.normal,0.0f);
 
 	float4 SplatMap0 = SplatMap_0.Sample(gssWrap, input.uv0);
 	float4 SplatMap1 = SplatMap_1.Sample(gssWrap, input.uv0);

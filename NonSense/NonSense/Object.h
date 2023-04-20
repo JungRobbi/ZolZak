@@ -13,6 +13,9 @@ class Object;
 class Mesh;
 class SkinnedMesh;
 class HeightMapTerrain;
+class BoundSphere;
+class Monster_HP_UI;
+
 #define RESOURCE_TEXTURE2D			0x01
 #define RESOURCE_TEXTURE2D_ARRAY	0x02	//[]
 #define RESOURCE_TEXTURE2DARRAY		0x03
@@ -29,13 +32,13 @@ class HeightMapTerrain;
 #define MATERIAL_DETAIL_NORMAL_MAP		0x40
 
 struct CB_GAMEOBJECT_INFO;
-struct CB_PLAYER_INFO;
 
 enum OBJECT_TYPE
 {
 	DEFAULT_OBJECT = 1,
 	BLEND_OBJECT = 2,
 	UI_OBJECT = 3,
+	BOUNDING_OBJECT = 4
 };
 
 struct MATERIAL
@@ -337,6 +340,7 @@ public:
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	XMFLOAT3 GetPosition();
 	XMFLOAT3 GetLook();
+	void SetLook(XMFLOAT3 look) { m_xmf4x4World._31 = look.x, m_xmf4x4World._32 = look.y, m_xmf4x4World._33 = look.z; }
 	XMFLOAT3 GetUp();
 	XMFLOAT3 GetRight();
 	XMFLOAT4X4 GetWorld() { return m_xmf4x4World; }
@@ -348,6 +352,7 @@ public:
 	void ChangeShader(Shader* pShader);
 	void SetPosition(float x, float y, float z);
 	void SetPosition(XMFLOAT3 xmf3Position);
+	void SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up);
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
 	void MoveForward(float fDistance = 1.0f);
@@ -367,6 +372,7 @@ public:
 protected:
 	Mesh* m_pMesh = NULL;
 	Material* m_pMaterial = NULL;
+	Monster_HP_UI* m_pHP = NULL;
 public:
 	UINT GetMeshType(); 
 
@@ -470,80 +476,32 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 };
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class UI : public Object
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class BoundBox : public Object
 {
 public:
-	UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual ~UI();
-
-	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void ReleaseShaderVariables();
+	XMFLOAT3 Center = { 0,0,0 };        
+	XMFLOAT3 Extents = { 1,1,1 };       
+	XMFLOAT4 Orientation = { 0,0,0,1 }; 
+	BoundBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~BoundBox();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
-	virtual void SetParentUI(UI* Parent) { ParentUI = Parent; }
-	virtual void SetMyPos(float x, float y, float w, float h);
-	virtual void OnPreRender();
-private:
-	ID3D12Resource* m_pd3dcbUI = NULL;
-	CB_PLAYER_INFO* m_pcbMappedUI = NULL;
-	UI* ParentUI = NULL;
-	XMFLOAT4X4 XYWH;
+	virtual void Transform(_Out_ BoundBox& Out, _In_ FXMMATRIX M);
+	virtual bool Intersects(BoundBox& box);
+	virtual bool Intersects(BoundSphere& box);
 };
 
-class Player_State_UI : public UI
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class BoundSphere : public Object
 {
 public:
-	Player_State_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual ~Player_State_UI() {};
-};
-
-class Player_HP_UI : public UI
-{
-public:
-	Player_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual ~Player_HP_UI() {};
-	float HP = 1.0;
-};
-
-class Player_HP_DEC_UI : public Player_HP_UI
-{
-public:
-	Player_HP_DEC_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual ~Player_HP_DEC_UI() {};
-	virtual void update();
-	float Dec_HP = 1.0;
-};
-
-
-class Option_UI : public UI
-{
-public:
-	Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual ~Option_UI() {};
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
-};
-
-class Game_Option_UI : public Option_UI
-{
-public:
-	Game_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual ~Game_Option_UI() {};
-};
-
-class Graphic_Option_UI : public Option_UI
-{
-public:
-	Graphic_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual ~Graphic_Option_UI() {};
-};
-
-class Sound_Option_UI : public Option_UI
-{
-public:
-	Sound_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual ~Sound_Option_UI() {};
+	XMFLOAT3 Center = { 0,0,0 };
+	float Radius = 1.f;           
+	BoundSphere(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~BoundSphere() {};
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+	virtual void Transform(_Out_ BoundSphere& Out, _In_ FXMMATRIX M);
+	virtual bool Intersects(BoundBox& box);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

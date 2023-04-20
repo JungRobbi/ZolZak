@@ -2,6 +2,9 @@
 #include "Player.h"
 #include "PlayerMovementComponent.h"
 #include "AttackComponent.h"
+#include "GameScene.h"
+#include "BoxCollideComponent.h"
+#include "SphereCollideComponent.h"
 
 
 Player::Player() : Object(false)
@@ -146,7 +149,23 @@ void Player::Update(float fTimeElapsed)
 	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-	Move(xmf3Velocity, false);
+	bool Iswall = false;
+	//if (GetComponent<SphereCollideComponent>())
+	//{
+	//	GetComponent<SphereCollideComponent>()->SetCenterRadius(Vector3::Add(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(xmf3Velocity.x*2, xmf3Velocity.y * 2, xmf3Velocity.z * 2)), 0.4);
+	//	GetComponent<SphereCollideComponent>()->update();
+	//	for (auto& o : GameScene::MainScene->gameObjects) {
+	//		if (o->GetComponent<BoxCollideComponent>()) {
+	//			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject())) {
+	//				Iswall = true;
+	//				break;
+	//			}
+	//		}
+	//	}
+	//	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
+	//	GetComponent<SphereCollideComponent>()->update();
+	//}
+	if(!Iswall)Move(xmf3Velocity, false);
 	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 	DWORD nCameraMode = m_pCamera->GetMode();
 	//if (nCameraMode == THIRD_PERSON_CAMERA) 
@@ -158,6 +177,7 @@ void Player::Update(float fTimeElapsed)
 	float fDeceleration = (m_fFriction * fTimeElapsed);
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+	Object::update();
 }
 
 void Player::OnPlayerUpdateCallback(float fTimeElapsed)
@@ -284,7 +304,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-		XMFLOAT3 pos = XMFLOAT3(0.0f, 5.0f, -2.0f);
+		XMFLOAT3 pos = XMFLOAT3(0.0f, 100.0f, -2.0f);
 		SetPosition(pos);
 		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
 		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);

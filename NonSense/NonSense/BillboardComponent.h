@@ -1,10 +1,8 @@
 #pragma once
 #include "stdafx.h"
 #include "Component.h"
-class CollideComponent :
-    public Component
+class BillboardComponent : public Component
 {
-
 public:
     void start();
     void update();

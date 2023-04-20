@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "GameFramework.h"
 #include "PlayerMovementComponent.h"
+#include "BoxCollideComponent.h"
+#include "SphereCollideComponent.h"
+
 GameFramework::GameFramework()
 {
 	m_pFactory = NULL;
@@ -283,7 +286,12 @@ void GameFramework::BuildObjects()
 	auto m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
 
+	BoundSphere* bs = new BoundSphere(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->GetTerrain());
+	m_pPlayer->AddComponent<SphereCollideComponent>();
+	m_pPlayer->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+	m_pPlayer->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
+
 	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
@@ -350,6 +358,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			(OptionMode) ? (OptionMode = 0) : (OptionMode = 1);
 			break;
 		case VK_RETURN:
+			PostQuitMessage(0);
 			break;
 		case VK_F8:
 			(DebugMode) ? (DebugMode = 0) : (DebugMode = 1);
@@ -534,7 +543,6 @@ void GameFramework::FrameAdvance()
 	//////////// MRT Render Target /////////////
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
 	GameScene::MainScene->update();
-
 	// 불투명 오브젝트, Terrain
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 	// 플레이어
@@ -552,11 +560,17 @@ void GameFramework::FrameAdvance()
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
 	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
+	// Bounding Box
+	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
 	// Debug 화면
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
+
 	///////////////////////////////////
+
+
+
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

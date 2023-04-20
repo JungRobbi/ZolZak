@@ -1,5 +1,6 @@
 #pragma once
 #include "Object.h"
+#include "UI.h"
 
 enum MonsterType
 {
@@ -25,6 +26,7 @@ public:
 class Goblin : public Character
 {
 public:
+
 	Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type);
 	virtual ~Goblin() {}
 };

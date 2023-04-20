@@ -43,6 +43,8 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		break;
 	}
 
+	Monster_HP_UI* m_HP_UI = new Monster_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pHP = m_HP_UI;
 
 	if (pWeaponL && pWeaponR) {
 		Object* Hand = FindFrame("Weapon_Goblin_3_R_Dummy");
@@ -56,6 +58,8 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 
 		}
 	}
+
+
 
 
 }
