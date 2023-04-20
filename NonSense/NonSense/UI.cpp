@@ -136,18 +136,18 @@ void Player_HP_DEC_UI::update() {
 Monster_HP_UI::Monster_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :Object(UI_OBJECT)
 {
 	PlaneMesh* Plane = new PlaneMesh(pd3dDevice, pd3dCommandList, 0.5,0.05);
-	//CubeMesh* Plane = new CubeMesh(pd3dDevice, pd3dCommandList, 0.1,0.1,0.1);
+
 	SetMesh(Plane);
 	AddComponent<BillboardComponent>();
 
-	//CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	//pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/HP.dds", RESOURCE_TEXTURE2D, 0);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/HP.dds", RESOURCE_TEXTURE2D, 0);
 
 	BillboardShader* pUIShader = new BillboardShader();
 	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	//GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
 	Material* pUIMaterial = new Material();
-	//pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetTexture(pUITexture);
 	pUIMaterial->SetShader(pUIShader);
 	SetMaterial(pUIMaterial);
 

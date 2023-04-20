@@ -352,6 +352,7 @@ public:
 	void ChangeShader(Shader* pShader);
 	void SetPosition(float x, float y, float z);
 	void SetPosition(XMFLOAT3 xmf3Position);
+	void SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up);
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
 	void MoveForward(float fDistance = 1.0f);

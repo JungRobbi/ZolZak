@@ -47,6 +47,7 @@ SamplerState gssDefaultSamplerState : register(s0);
 
 Texture2D gtxtUITexture : register(t24);
 SamplerState gssWrap : register(s0);
+SamplerState gssBorder : register(s1);
 // SkyBox
 TextureCube gtxtSkyCubeTexture : register(t13);
 #include "Light1.hlsl"
@@ -93,29 +94,33 @@ struct VS_BillboardINPUT
 
 struct VS_BillboardOUTPUT
 {
-	float4 position : SV_POSITION;
-	//float2 uv : TEXCOORD0;
+	float4 positionW : SV_POSITION;
+	float2 uv : TEXCOORD0;
 };
 
 VS_BillboardOUTPUT VSBillboard(VS_BillboardINPUT input, uint nVertexID : SV_VertexID)
 {
 	VS_BillboardOUTPUT output;
-	//if (nVertexID == 0)		 { output.uv = float2(0.0f, 0.0f); }
-	//else if (nVertexID == 1) { output.uv = float2(1.0f, 0.0f); }
-	//else if (nVertexID == 2) { output.uv = float2(1.0f, 1.0f); }
-	//else if (nVertexID == 3) { output.uv = float2(0.0f, 0.0f); }
-	//else if (nVertexID == 4) { output.uv = float2(1.0f, 1.0f); }
-	//else if (nVertexID == 5) { output.uv = float2(0.0f, 1.0f); }
+	if (nVertexID == 0)		 { output.uv = float2(-1.0f, 0.0f); }
+	else if (nVertexID == 1) { output.uv = float2(1.0f, 0.0f); }
+	else if (nVertexID == 2) { output.uv = float2(-1.0f, 1.0f); }
+	else if (nVertexID == 3) { output.uv = float2(-1.0f, 1.0f); }
+	else if (nVertexID == 4) { output.uv = float2(1.0f, 0.0f); }
+	else if (nVertexID == 5) { output.uv = float2(1.0f, 1.0f); }
 
-	output.position = (mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection));
+	output.positionW = (mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection));
 	return(output);
 }
 
-float4 PSBillboard(VS_BillboardOUTPUT input) : SV_TARGET
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSBillboard(VS_BillboardOUTPUT input) : SV_TARGET
 {
-	//float4 cColor = gtxtUITexture.Sample(gssWrap, input.uv);
+	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+	output.Scene = float4(0, 1, 0, 1);
+	output.Position = float4(input.positionW.xyz, 1.0f);
+	output.Normal = float4(0,0,0,0);
+	output.Texture = gtxtUITexture.Sample(gssBorder, input.uv);;
+	return(output);
 
-	return(float4(1,0,0,1));
 }
 
 

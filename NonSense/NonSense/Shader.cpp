@@ -356,7 +356,7 @@ D3D12_RASTERIZER_DESC BillboardShader::CreateRasterizerState()
 	d3dRasterizerDesc.SlopeScaledDepthBias = 0.0f;
 	d3dRasterizerDesc.DepthClipEnable = TRUE;
 	d3dRasterizerDesc.MultisampleEnable = FALSE;
-	d3dRasterizerDesc.AntialiasedLineEnable = FALSE;
+	d3dRasterizerDesc.AntialiasedLineEnable = TRUE;
 	d3dRasterizerDesc.ForcedSampleCount = 0;
 	d3dRasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 	return(d3dRasterizerDesc);

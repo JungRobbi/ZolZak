@@ -101,6 +101,9 @@ public:
 	Object* PickObjectPointedByCursor(int xClient, int yClient, Camera* pCamera);
 	Player* m_pPlayer = NULL;
 	SkyBox* m_pSkyBox = NULL;
+	Player_State_UI* m_pUI = NULL;
+	Player_HP_UI* m_pHP_UI = NULL;
+	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;
 
 	void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
 	static D3D12_GPU_DESCRIPTOR_HANDLE CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nRootParameter, bool bAutoIncrement);
