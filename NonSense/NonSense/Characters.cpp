@@ -21,21 +21,25 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	{
 	case MONSTER_TYPE_CLOSE:
 		m_Health = 965;
+		m_HP = 965;
 		m_Attack = 200;
 		m_Defense = 90;
 		break;
 	case MONSTER_TYPE_FAR:
 		m_Health = 675;
+		m_HP = 675;
 		m_Attack = 180;
 		m_Defense = 80;
 		break;
 	case MONSTER_TYPE_RUSH:
 		m_Health = 1130;
+		m_HP = 1130;
 		m_Attack = 460;
 		m_Defense = 110;
 		break;
 	case MONSTER_TYPE_BOSS:
 		m_Health = 20000;
+		m_HP = 20000;
 		m_Attack = 200;
 		m_Defense = 90;
 		break;
@@ -58,8 +62,10 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 
 		}
 	}
+}
 
-
-
-
+void Character::OnPrepareRender()
+{
+	Object::OnPrepareRender();
+	m_pHP->HP = m_HP / m_Health;
 }

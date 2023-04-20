@@ -17,10 +17,12 @@ protected:
 	float m_Health = 100;
 	float m_Defense = 100;
 	float m_Attack = 100;
+	float m_HP = 100;
 public:
 
 	Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel);
 	virtual ~Character() {}
+	virtual void OnPrepareRender();
 };
 
 class Goblin : public Character

@@ -102,10 +102,10 @@ struct VS_BillboardOUTPUT
 VS_BillboardOUTPUT VSBillboard(VS_BillboardINPUT input, uint nVertexID : SV_VertexID)
 {
 	VS_BillboardOUTPUT output;
-	if (nVertexID == 0)		 { output.uv = float2(-1.0f, 0.0f); }
+	if (nVertexID == 0)		 { output.uv = float2(-10.0f, 0.0f); }
 	else if (nVertexID == 1) { output.uv = float2(1.0f, 0.0f); }
-	else if (nVertexID == 2) { output.uv = float2(-1.0f, 1.0f); }
-	else if (nVertexID == 3) { output.uv = float2(-1.0f, 1.0f); }
+	else if (nVertexID == 2) { output.uv = float2(-10.0f, 1.0f); }
+	else if (nVertexID == 3) { output.uv = float2(-10.0f, 1.0f); }
 	else if (nVertexID == 4) { output.uv = float2(1.0f, 0.0f); }
 	else if (nVertexID == 5) { output.uv = float2(1.0f, 1.0f); }
 
