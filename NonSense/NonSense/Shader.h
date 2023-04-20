@@ -20,6 +20,7 @@ struct CB_SCREEN_INFO
 struct CB_PLAYER_INFO
 {
 	XMFLOAT4X4 m_xmf4x4World;
+	float Value;
 };
 
 

@@ -11,6 +11,7 @@ struct MATERIAL
 cbuffer cbWorldInfo : register(b0)
 {
 	matrix gmtxWorld : packoffset(c0);
+	float value : packoffset(c4);
 };
 
 cbuffer cbCameraInfo : register(b1)

@@ -606,16 +606,11 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 	case WM_KEYUP:
 		switch (wParam)
 		{
-		case 'W':
+		case 'E':
 			m_pHP_UI->HP -= 0.2;
 			m_pHP_Dec_UI->Dec_HP -= 0.2;
 			m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
- 			   break;
-		//case 'A':
-		//case 'S':
-		//case 'D':
-		//	m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
-		//	break;
+ 			 break;
 		default:
 			break;
 		}
