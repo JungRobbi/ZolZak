@@ -68,7 +68,7 @@ public:
 class SC_MOVE_PLAYER_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	id;
-	unsigned long	direction;
+	float	x, y, z;
 };
 
 #pragma pack (pop)

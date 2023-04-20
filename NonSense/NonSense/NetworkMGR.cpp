@@ -142,16 +142,18 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		SC_ADD_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(p_Packet);
 
 		cout << "E_PACKET_SC_ADD_PLAYER" << endl;
-		
-		GameFramework::MainGameFramework->m_OtherPlayers.push_back(GameFramework::MainGameFramework->m_OtherPlayersPool.back());
+		auto player = GameFramework::MainGameFramework->m_OtherPlayersPool.back();
 		GameFramework::MainGameFramework->m_OtherPlayersPool.pop_back();
+		dynamic_cast<Player*>(player)->id = recv_packet->id;
+		dynamic_cast<Player*>(player)->m_name = recv_packet->name;
+
+		GameFramework::MainGameFramework->m_OtherPlayers.push_back(player);
 		break;
 	}
 	case E_PACKET::E_PACKET_SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(p_Packet);
 
-		GameFramework::MainGameFramework->m_pPlayer->Move(recv_packet->direction, 50.0f * Timer::GetTimeElapsed(), true);
-
+		GameFramework::MainGameFramework->m_pPlayer->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
 		/*if (recv_packet->id == GameFramework::MainGameFramework->m_pPlayer->id) {
 			GameFramework::MainGameFramework->m_pPlayer->Move(recv_packet->direction, 50.0f * Timer::GetTimeElapsed(), true);
 		}

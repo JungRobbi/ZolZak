@@ -25,19 +25,21 @@ void PlayerMovementComponent::start()
 void PlayerMovementComponent::update()
 {
 	auto& keyboard = dynamic_cast<Player*>(gameObject)->remoteClient->m_KeyInput.keys;
-	if (keyboard['W'] || keyboard['w']) {
+	DWORD direction = 0;
 
+	if (keyboard['W'] || keyboard['w']) 
+		direction |= DIR_FORWARD;
+	if (keyboard['S'] || keyboard['s']) 
+		direction |= DIR_BACKWARD;
+	if (keyboard['A'] || keyboard['a']) 
+		direction |= DIR_LEFT;
+	if (keyboard['D'] || keyboard['d']) 
+		direction |= DIR_RIGHT;
+
+	if (direction) {
+		Move(direction, 50.0f * Timer::GetTimeElapsed(), false);
 	}
-	if (keyboard['S'] || keyboard['s']) {
-
-	}
-	if (keyboard['A'] || keyboard['a']) {
-
-	}
-	if (keyboard['D'] || keyboard['d']) {
-
-	}
-
+	updateValocity();
 }
 
 void PlayerMovementComponent::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
@@ -68,7 +70,7 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 
 void PlayerMovementComponent::updateValocity()
 {
-	float timeElapsed = Timer::GetTimeElapsed();
+	float timeElapsed = 0.01;
 
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity, timeElapsed, false));
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);

@@ -6,6 +6,7 @@
 #define DIR_UP 0x10
 #define DIR_DOWN 0x20
 
+#include <string>
 #include "Object.h"
 #include "Shader.h"
 
@@ -34,6 +35,7 @@ protected:
 	XMFLOAT3 m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 public:
 	unsigned int id = 0;
+	std::string m_name;
 public:
 	Player();
 	virtual ~Player();

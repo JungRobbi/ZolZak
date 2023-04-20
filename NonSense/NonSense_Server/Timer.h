@@ -3,7 +3,7 @@
 // File: Timer.h
 //-----------------------------------------------------------------------------
 
-const ULONG MAX_SAMPLE_COUNT = 50; // Maximum frame time sample count
+// const ULONG MAX_SAMPLE_COUNT = 50; // Maximum frame time sample count
 
 class Timer
 {
@@ -14,7 +14,7 @@ public:
 	static void Reset();
 	static void Initialize();
 
-	static unsigned long GetFrameRate(LPTSTR lpszString = NULL, int nCharacters = 0);
+	static unsigned long GetFrameRate(wchar_t* lpszString = NULL, int nCharacters = 0);
 	static float GetTimeElapsed();
 	static float GetTotalTime();
 
@@ -30,8 +30,8 @@ private:
 
 	static __int64							m_nPerformanceFrequencyPerSec;
 
-	static float							m_fFrameTime[MAX_SAMPLE_COUNT];
-	static ULONG							m_nSampleCount;
+	static float							m_fFrameTime[50];
+	static unsigned long					m_nSampleCount;
 
 	static unsigned long					m_nCurrentFrameRate;
 	static unsigned long					m_nFramesPerSecond;

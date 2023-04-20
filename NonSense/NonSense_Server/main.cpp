@@ -18,6 +18,8 @@
 #include "RemoteClients/RemoteClient.h"
 #include "Scene.h"
 
+#include "Components/PlayerMovementComponent.h"
+
 using namespace std;
 
 volatile bool stopWorking = false;
@@ -85,8 +87,8 @@ void Worker_Thread()
 				auto p_readOverlapped = (EXP_OVER*)readEvent.lpOverlapped;
 
 				if (IO_TYPE::IO_SEND == p_readOverlapped->m_ioType) {
-					cout << " Send! - size : " << (int)p_readOverlapped->_buf[0] << endl;
-					cout << " Send! - type : " << (int)p_readOverlapped->_buf[1] << endl;
+			/*		cout << " Send! - size : " << (int)p_readOverlapped->_buf[0] << endl;
+					cout << " Send! - type : " << (int)p_readOverlapped->_buf[1] << endl;*/
 					p_readOverlapped->m_isReadOverlapped = false;
 					continue;
 				}
@@ -203,27 +205,27 @@ int main(int argc, char* argv[])
 
 	while (true) {
 		Timer::Tick(0.0f);
+		Scene::scene->update();
 
-		for (auto& rc : remoteClients) {
-			DWORD direction = 0;
-			if (rc.second->m_KeyInput.keys['W'] || rc.second->m_KeyInput.keys['w']) direction |= DIR_FORWARD;
-			if (rc.second->m_KeyInput.keys['S'] || rc.second->m_KeyInput.keys['s']) direction |= DIR_BACKWARD;
-			if (rc.second->m_KeyInput.keys['A'] || rc.second->m_KeyInput.keys['a']) direction |= DIR_LEFT;
-			if (rc.second->m_KeyInput.keys['D'] || rc.second->m_KeyInput.keys['d']) direction |= DIR_RIGHT;
+		/*{
+			lock_guard<recursive_mutex> lock_rc(mx_rc);
 
-			if (direction) {
-				cout << "direction = " << direction << endl;
-
+			for (auto& rc : remoteClients) {
+				if (!rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>())
+					continue;
+				auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
 				for (auto& rc_to : remoteClients) {
 					SC_MOVE_PLAYER_PACKET send_packet;
 					send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
 					send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
 					send_packet.id = rc.second->m_id;
-					send_packet.direction = direction;
+					send_packet.x = rc_pos.x;
+					send_packet.y = rc_pos.y;
+					send_packet.z = rc_pos.z;
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
 			}
-		}
+		}*/
 	}
 
 	for (auto& th : worker_threads) th->join();

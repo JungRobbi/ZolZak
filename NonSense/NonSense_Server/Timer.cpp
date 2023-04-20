@@ -12,8 +12,8 @@ __int64							Timer::m_nLastPerformanceCounter;
 
 __int64							Timer::m_nPerformanceFrequencyPerSec;
 
-float							Timer::m_fFrameTime[MAX_SAMPLE_COUNT];
-ULONG							Timer::m_nSampleCount;
+float							Timer::m_fFrameTime[50];
+unsigned long					Timer::m_nSampleCount;
 
 unsigned long					Timer::m_nCurrentFrameRate;
 unsigned long					Timer::m_nFramesPerSecond;
@@ -46,9 +46,9 @@ void Timer::Tick(float fLockFPS)
 
 	if (fabsf(fTimeElapsed - m_fTimeElapsed) < 1.0f)
 	{
-		::memmove(&m_fFrameTime[1], m_fFrameTime, (MAX_SAMPLE_COUNT - 1) * sizeof(float));
+		::memmove(&m_fFrameTime[1], m_fFrameTime, (50 - 1) * sizeof(float));
 		m_fFrameTime[0] = fTimeElapsed;
-		if (m_nSampleCount < MAX_SAMPLE_COUNT) m_nSampleCount++;
+		if (m_nSampleCount < 50) m_nSampleCount++;
 	}
 
 	m_nFramesPerSecond++;
@@ -65,7 +65,7 @@ void Timer::Tick(float fLockFPS)
 	if (m_nSampleCount > 0) m_fTimeElapsed /= m_nSampleCount;
 }
 
-unsigned long Timer::GetFrameRate(LPTSTR lpszString, int nCharacters)
+unsigned long Timer::GetFrameRate(wchar_t* lpszString, int nCharacters)
 {
 	if (lpszString)
 	{
