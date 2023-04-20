@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Player.h"
-
+#include "../ImaysNet/PacketQueue.h"
 
 Player::Player() : Object(false)
 {
@@ -52,7 +52,17 @@ void Player::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 		if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
 		if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
-		Move(xmf3Shift, bUpdateVelocity);
+
+		XMFLOAT3 xmf3Dir = Vector3::Normalize(xmf3Shift);
+		CS_MOVE_PACKET send_packet;
+		send_packet.size = sizeof(CS_MOVE_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_CS_MOVE;
+		send_packet.dirX = xmf3Dir.x;
+		send_packet.dirY = xmf3Dir.y;
+		send_packet.dirZ = xmf3Dir.z;
+		PacketQueue::AddSendPacket(&send_packet);
+
+	//	Move(xmf3Shift, bUpdateVelocity);
 	}
 }
 void Player::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)

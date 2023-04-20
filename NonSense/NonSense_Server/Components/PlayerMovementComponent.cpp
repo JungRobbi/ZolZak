@@ -27,14 +27,14 @@ void PlayerMovementComponent::update()
 	auto& keyboard = dynamic_cast<Player*>(gameObject)->remoteClient->m_KeyInput.keys;
 	DWORD direction = 0;
 
-	if (keyboard['W'] || keyboard['w']) 
+	/*if (keyboard['W'] || keyboard['w']) 
 		direction |= DIR_FORWARD;
 	if (keyboard['S'] || keyboard['s']) 
 		direction |= DIR_BACKWARD;
 	if (keyboard['A'] || keyboard['a']) 
 		direction |= DIR_LEFT;
 	if (keyboard['D'] || keyboard['d']) 
-		direction |= DIR_RIGHT;
+		direction |= DIR_RIGHT;*/
 
 	if (direction) {
 		Move(direction, 50.0f * Timer::GetTimeElapsed(), false);

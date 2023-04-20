@@ -394,7 +394,21 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		break;
 	}
 	case E_PACKET::E_PACKET_CS_MOVE: {
-		
+		CS_MOVE_PACKET* recv_packet = reinterpret_cast<CS_MOVE_PACKET*>(p_Packet);
+		XMFLOAT3 xmf3Dir{ XMFLOAT3(recv_packet->dirX, recv_packet->dirY, recv_packet->dirZ) };
+		auto pos = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>();
+		pos->Move(xmf3Dir, false);
+
+		for (auto& rc_to : remoteClients) {
+			SC_MOVE_PLAYER_PACKET send_packet;
+			send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
+			send_packet.id = p_Client->m_id;
+			send_packet.x = pos->GetPosition().x;
+			send_packet.y = pos->GetPosition().y;
+			send_packet.z = pos->GetPosition().z;
+			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
 		break;
 	}
 	default:

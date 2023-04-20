@@ -35,7 +35,7 @@ public:
 
 class CS_MOVE_PACKET : public PACKET_HEAD {
 public:
-	char	direction;  // 0 : UP, 1 : DOWN, 2 : LEFT, 3 : RIGHT
+	float	dirX, dirY, dirZ;
 };
 
 class CS_KEYDOWN_PACKET : public PACKET_HEAD {
