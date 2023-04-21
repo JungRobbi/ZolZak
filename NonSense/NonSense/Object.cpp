@@ -1401,7 +1401,7 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 				}
 			}
 		}
-		if (m_pHP) m_pHP->Render(pd3dCommandList, pCamera);
+		//if (m_pHP) m_pHP->Render(pd3dCommandList, pCamera);
 	}
 	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
 	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);

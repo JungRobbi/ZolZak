@@ -30,7 +30,7 @@ void UI::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&GetWorld())));
 	CB_PLAYER_INFO* pbMappedcbUI = (CB_PLAYER_INFO*)((UINT8*)m_pcbMappedUI);
 	::memcpy(&pbMappedcbUI->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
-	::memcpy(&pbMappedcbUI->Value, &xmf4x4World, sizeof(float));
+	pbMappedcbUI->Value = 0;
 
 	pd3dCommandList->SetGraphicsRootConstantBufferView(0, d3dcbUIGpuVirtualAddress);
 }
@@ -174,6 +174,7 @@ void Monster_HP_UI::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommand
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&GetWorld())));
 	CB_PLAYER_INFO* pbMappedcbUI = (CB_PLAYER_INFO*)((UINT8*)m_pcbMappedUI);
 	::memcpy(&pbMappedcbUI->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
+	::memcpy(&pbMappedcbUI->Value, &HP, sizeof(float));
 
 	pd3dCommandList->SetGraphicsRootConstantBufferView(0, d3dcbUIGpuVirtualAddress);
 }
@@ -182,22 +183,6 @@ void Monster_HP_UI::ReleaseShaderVariables()
 {
 }
 
-Monster_HP_DEC_UI::Monster_HP_DEC_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Monster_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
-{
-	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/HP_Decrease.dds", RESOURCE_TEXTURE2D, 0);
-
-	BillboardShader* pUIShader = new BillboardShader();
-	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
-
-	Material* pUIMaterial = new Material();
-	pUIMaterial->SetTexture(pUITexture);
-	pUIMaterial->SetShader(pUIShader);
-	SetMaterial(pUIMaterial);
-
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-}
 
 void Monster_HP_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
