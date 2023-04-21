@@ -113,14 +113,9 @@ VS_BillboardOUTPUT VSBillboard(VS_BillboardINPUT input, uint nVertexID : SV_Vert
 	return(output);
 }
 
-PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSBillboard(VS_BillboardOUTPUT input) : SV_TARGET
+float4 PSBillboard(VS_BillboardOUTPUT input) : SV_TARGET
 {
-	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
-	output.Scene = float4(0, 1, 0, 1);
-	output.Position = float4(input.positionW.xyz, 1.0f);
-	output.Normal = float4(0,0,0,0);
-	output.Texture = gtxtUITexture.Sample(gssBorder, input.uv);;
-	return(output);
+	return(gtxtUITexture.Sample(gssBorder, input.uv));
 
 }
 
