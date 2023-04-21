@@ -1,7 +1,6 @@
 #pragma once
 #include "Component.h"
 #include "Timer.h"
-#include "Component.h"
 
 enum AttackCombo
 {
@@ -19,7 +18,7 @@ public:
 	bool During_Attack = false;
 private:
 	float NextAttackInputTime = 0.5;
-	float AttackDuration = 0.8;
+	float AttackDuration = 1.56;
 	float AttackTimeLeft = 0.0;
 	
 	AttackCombo type = Combo1;

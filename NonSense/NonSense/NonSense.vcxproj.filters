@@ -102,9 +102,6 @@
     <ClInclude Include="PlayerMovementComponent.h">
       <Filter>소스 파일\Components</Filter>
     </ClInclude>
-    <ClInclude Include="CollideComponent.h">
-      <Filter>소스 파일\Components</Filter>
-    </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>소스 파일\System</Filter>
     </ClInclude>
@@ -117,7 +114,7 @@
     <ClInclude Include="Transform3DComponent.h">
       <Filter>소스 파일\Components</Filter>
     </ClInclude>
-    <ClInclude Include="GoblinComponent.h">
+    <ClInclude Include="CloseTypeFSMComponent.h">
       <Filter>소스 파일\Components</Filter>
     </ClInclude>
     <ClInclude Include="Characters.h">
@@ -130,6 +127,21 @@
       <Filter>소스 파일\FSM</Filter>
     </ClInclude>
     <ClInclude Include="State.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxCollideComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="BillboardComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereCollideComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="CloseTypeState.h">
       <Filter>소스 파일\FSM</Filter>
     </ClInclude>
   </ItemGroup>
@@ -182,9 +194,6 @@
     <ClCompile Include="PlayerMovementComponent.cpp">
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
-    <ClCompile Include="CollideComponent.cpp">
-      <Filter>소스 파일\Components</Filter>
-    </ClCompile>
     <ClCompile Include="Input.cpp">
       <Filter>소스 파일\System</Filter>
     </ClCompile>
@@ -197,7 +206,7 @@
     <ClCompile Include="Transform3DComponent.cpp">
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
-    <ClCompile Include="GoblinComponent.cpp">
+    <ClCompile Include="CloseTypeFSMComponent.cpp">
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
     <ClCompile Include="Characters.cpp">
@@ -205,6 +214,21 @@
     </ClCompile>
     <ClCompile Include="AttackComponent.cpp">
       <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxCollideComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="BillboardComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereCollideComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="CloseTypeState.cpp">
+      <Filter>소스 파일\FSM</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

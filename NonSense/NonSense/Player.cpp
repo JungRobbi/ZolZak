@@ -304,7 +304,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-		XMFLOAT3 pos = XMFLOAT3(0.0f, 100.0f, -2.0f);
+		XMFLOAT3 pos = XMFLOAT3(0.0f, 2.0f, -2.0f);
 		SetPosition(pos);
 		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
 		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);

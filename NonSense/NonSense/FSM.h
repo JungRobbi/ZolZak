@@ -30,4 +30,9 @@ public:
 		m_pCurrentState = NewState;
 		m_pCurrentState->Enter(m_pOwner);
 	}
+
+	void SetCurrentState(State<owner_class>* NewState)
+	{
+		m_pCurrentState = NewState;
+	}
 };

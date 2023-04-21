@@ -1,7 +1,6 @@
 #pragma once
 #include "Object.h"
 #include "UI.h"
-
 enum MonsterType
 {
 	MONSTER_TYPE_CLOSE, 
