@@ -25,6 +25,8 @@ public:
 
 	static unsigned int id;
 	static string name;
+
+	static bool b_isNet;
 public:
 	static void start();
 	static void Tick();

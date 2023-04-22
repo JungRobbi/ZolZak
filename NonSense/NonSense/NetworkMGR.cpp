@@ -15,6 +15,7 @@ shared_ptr<Socket> NetworkMGR::tcpSocket;
 
 unsigned int	NetworkMGR::id{};
 string			NetworkMGR::name{};
+bool			NetworkMGR::b_isNet{true};
 
 void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED recv_over, DWORD recv_flag)
 {
@@ -78,6 +79,16 @@ void NetworkMGR::start()
 //	SERVERIP[server_s.size()] = '\0';
 //	strcpy(SERVERIP, server_s.c_str());
 
+	char isnet = 'n';
+	std::cout << "NetworkMGR::start()의 cin을 주석처리 하면 편함)" << endl;
+	std::cout << "네트워크 연결 여부 키 입력 (y/n - 연결O/연결X) :";
+
+	std::cin >> isnet;
+
+	if (isnet == 'n') {
+		b_isNet = false;
+		return;
+	}
 	std::cout << "이름 입력 : ";
 	std::cin >> name;
 

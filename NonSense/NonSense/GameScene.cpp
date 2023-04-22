@@ -230,7 +230,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	bb->SetNum(2);
 	Object* TempObject = NULL;
-	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
+	
 	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_CLOSE);
 	TempObject->SetNum(1);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
@@ -673,7 +673,6 @@ void GameScene::AnimateObjects(float fTimeElapsed)
 	{
 		object->Animate(fTimeElapsed);
 	}
-	if (m_pPlayer) m_pPlayer->Animate(fTimeElapsed);
 }
 
 void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)

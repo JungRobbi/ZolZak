@@ -387,24 +387,26 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	GameScene::MainScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-	if (nMessageID == WM_KEYDOWN) {
-		if (Input::keys[wParam] != TRUE) {
-			CS_KEYDOWN_PACKET send_packet;
-			send_packet.size = sizeof(CS_KEYDOWN_PACKET);
-			send_packet.type = E_PACKET::E_PACKET_CS_KEYDOWN;
-			send_packet.key = wParam;
-			PacketQueue::AddSendPacket(&send_packet);
-			Input::keys[wParam] = TRUE;
+	if (NetworkMGR::b_isNet) {
+		if (nMessageID == WM_KEYDOWN) {
+			if (Input::keys[wParam] != TRUE) {
+				CS_KEYDOWN_PACKET send_packet;
+				send_packet.size = sizeof(CS_KEYDOWN_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_CS_KEYDOWN;
+				send_packet.key = wParam;
+				PacketQueue::AddSendPacket(&send_packet);
+				Input::keys[wParam] = TRUE;
+			}
 		}
-	}
-	else if (nMessageID == WM_KEYUP) {
-		if (Input::keys[wParam] != FALSE) {
-			CS_KEYUP_PACKET send_packet;
-			send_packet.size = sizeof(CS_KEYUP_PACKET);
-			send_packet.type = E_PACKET::E_PACKET_CS_KEYUP;
-			send_packet.key = wParam;
-			PacketQueue::AddSendPacket(&send_packet);
-			Input::keys[wParam] = FALSE;
+		else if (nMessageID == WM_KEYUP) {
+			if (Input::keys[wParam] != FALSE) {
+				CS_KEYUP_PACKET send_packet;
+				send_packet.size = sizeof(CS_KEYUP_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_CS_KEYUP;
+				send_packet.key = wParam;
+				PacketQueue::AddSendPacket(&send_packet);
+				Input::keys[wParam] = FALSE;
+			}
 		}
 	}
 	
@@ -632,7 +634,8 @@ void GameFramework::FrameAdvance()
 		m_pPlayer->GetComponent<PlayerMovementComponent>()->SetWindowPos(rect);
 	}
 
-	NetworkMGR::Tick();
+	if (NetworkMGR::b_isNet)
+		NetworkMGR::Tick();
 
 	ProcessInput();
 	AnimateObjects();
