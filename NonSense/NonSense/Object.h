@@ -38,7 +38,7 @@ enum OBJECT_TYPE
 	DEFAULT_OBJECT = 1,
 	BLEND_OBJECT = 2,
 	UI_OBJECT = 3,
-	BOUNDING_OBJECT = 4
+	BOUNDING_OBJECT = 4,
 };
 
 struct MATERIAL
@@ -372,7 +372,7 @@ public:
 protected:
 	Mesh* m_pMesh = NULL;
 	Material* m_pMaterial = NULL;
-	Monster_HP_UI* m_pHP = NULL;
+
 public:
 	UINT GetMeshType(); 
 

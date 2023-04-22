@@ -11,18 +11,20 @@ enum MonsterType
 };
 
 
-class Character : public ModelObject
+class Character : public Object
 {
 protected:
 	float m_Health = 100;
 	float m_Defense = 100;
 	float m_Attack = 100;
-	float m_HP = 100;
+	float m_RemainHP = 100;
+	Monster_HP_UI* m_pHP = NULL;
 public:
 
 	Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel);
 	virtual ~Character() {}
 	virtual void OnPrepareRender();
+	virtual void GetHit(float damage) { m_RemainHP -= damage; }
 };
 
 class Goblin : public Character

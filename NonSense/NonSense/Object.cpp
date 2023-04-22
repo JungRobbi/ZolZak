@@ -641,6 +641,7 @@ Object::Object(OBJECT_TYPE type)
 	case BOUNDING_OBJECT:
 		GameScene::MainScene->creationBoundingQueue.push(this);
 		break;
+
 	}
 }
 
@@ -1372,10 +1373,6 @@ void Object::Animate(float fTimeElapsed)
 }
 void Object::OnPrepareRender()
 {
-	if (m_pHP)
-	{
-		m_pHP->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, GetComponent<BoxCollideComponent>()->GetBoundingObject()->Extents.y*2+0.5, 0)));
-	}
 }
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
