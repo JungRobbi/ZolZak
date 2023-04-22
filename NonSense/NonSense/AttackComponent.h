@@ -1,6 +1,9 @@
 #pragma once
 #include "Component.h"
 #include "Timer.h"
+#include "Object.h"
+
+class BoundBox;
 
 enum AttackCombo
 {
@@ -16,6 +19,7 @@ private:
 
 public:
 	bool During_Attack = false;
+	BoundBox* AttackRange;
 private:
 	float NextAttackInputTime = 0.5;
 	float AttackDuration = 1.56;
@@ -28,5 +32,6 @@ public:
 	void update();
 
 	void Attack();
+	void SetBoundingObject(BoundBox* bd) { AttackRange = bd; }
 };
 

@@ -38,7 +38,7 @@ enum OBJECT_TYPE
 	DEFAULT_OBJECT = 1,
 	BLEND_OBJECT = 2,
 	UI_OBJECT = 3,
-	BOUNDING_OBJECT = 4
+	BOUNDING_OBJECT = 4,
 };
 
 struct MATERIAL
@@ -375,7 +375,7 @@ public:
 protected:
 	Mesh* m_pMesh = NULL;
 	Material* m_pMaterial = NULL;
-	Monster_HP_UI* m_pHP = NULL;
+
 public:
 	UINT GetMeshType(); 
 
@@ -403,7 +403,7 @@ public:
 	void FindAndSetSkinnedMesh(SkinnedMesh** ppSkinnedMeshes, int* pnSkinnedMesh);
 
 	// 맵 로드
-	static void LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName);
+	static void LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, Shader* boundshader);
 	static void LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, Shader* pBlendShader);
 
 	// 모델 & 애니메이션 로드
@@ -486,7 +486,7 @@ public:
 	XMFLOAT3 Center = { 0,0,0 };        
 	XMFLOAT3 Extents = { 1,1,1 };       
 	XMFLOAT4 Orientation = { 0,0,0,1 }; 
-	BoundBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	BoundBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CubeMesh* BoundMesh, Shader* pBoundingShader);
 	virtual ~BoundBox();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 	virtual void Transform(_Out_ BoundBox& Out, _In_ FXMMATRIX M);

@@ -1,4 +1,6 @@
 ﻿#include "Characters.h"
+#include "BoxCollideComponent.h"
+#include "GameScene.h"
 #include "CloseTypeFSMComponent.h"
 
 
@@ -6,14 +8,18 @@
 Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) :
 	ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
-
+	LoadedModelInfo* pLoadedModel = pModel;
+	if (pLoadedModel)
+	{
+		SetChild(pLoadedModel->m_pRoot, true);
+	}
 	m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 3, pModel);
 	m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_pSkinnedAnimationController->SetTrackAnimationSet(1, 0);
 	m_pSkinnedAnimationController->SetTrackAnimationSet(2, 0);
 	m_pSkinnedAnimationController->SetTrackEnable(1, false);
 	m_pSkinnedAnimationController->SetTrackEnable(2, false);
-
+	GameScene::MainScene->creationMonsterQueue.push((Character*)this);
 }
 Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) :
 	Character(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
@@ -23,25 +29,25 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	case MONSTER_TYPE_CLOSE:
 		AddComponent<CloseTypeFSMComponent>();
 		m_Health = 965;
-		m_HP = 965;
+		m_RemainHP = 965;
 		m_Attack = 200;
 		m_Defense = 90;
 		break;
 	case MONSTER_TYPE_FAR:
 		m_Health = 675;
-		m_HP = 675;
+		m_RemainHP = 675;
 		m_Attack = 180;
 		m_Defense = 80;
 		break;
 	case MONSTER_TYPE_RUSH:
 		m_Health = 1130;
-		m_HP = 1130;
+		m_RemainHP = 1130;
 		m_Attack = 460;
 		m_Defense = 110;
 		break;
 	case MONSTER_TYPE_BOSS:
 		m_Health = 20000;
-		m_HP = 20000;
+		m_RemainHP = 20000;
 		m_Attack = 200;
 		m_Defense = 90;
 		break;
@@ -64,10 +70,12 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 
 		}
 	}
+
 }
 
 void Character::OnPrepareRender()
 {
 	Object::OnPrepareRender();
-	m_pHP->HP = m_HP / m_Health;
+	m_pHP->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, GetComponent<BoxCollideComponent>()->GetBoundingObject()->Extents.y * 2 + 0.3, 0)));
+	m_pHP->HP = m_RemainHP / m_Health;
 }

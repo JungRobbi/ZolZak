@@ -83,7 +83,15 @@ VS_BoundingOUTPUT VSBounding(VS_BoundingINPUT input)
 
 float4 PSBounding(VS_BoundingOUTPUT input) : SV_TARGET
 {
-	return(float4(1,0,0,1));
+	if (objectID == 0) // 맵 오브젝트
+	return(float4(1,1,1,1));
+	if (objectID == 1) // 아군 플레이어
+	return(float4(0, 1, 0, 1));
+	if (objectID == 2) // 적
+	return(float4(1, 0, 0, 1));
+	if (objectID == 3) // 아군 공격
+		return(float4(0, 0, 1, 1));
+	else return(float4(0, 0, 0, 1));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -102,10 +110,10 @@ struct VS_BillboardOUTPUT
 VS_BillboardOUTPUT VSBillboard(VS_BillboardINPUT input, uint nVertexID : SV_VertexID)
 {
 	VS_BillboardOUTPUT output;
-	if (nVertexID == 0)		 { output.uv = float2(-10.0f, 0.0f); }
+	if (nVertexID == 0)		 { output.uv = float2(-(1/value-1), 0.0f); }
 	else if (nVertexID == 1) { output.uv = float2(1.0f, 0.0f); }
-	else if (nVertexID == 2) { output.uv = float2(-10.0f, 1.0f); }
-	else if (nVertexID == 3) { output.uv = float2(-10.0f, 1.0f); }
+	else if (nVertexID == 2) { output.uv = float2(-(1 / value - 1), 1.0f); }
+	else if (nVertexID == 3) { output.uv = float2(-(1 / value - 1), 1.0f); }
 	else if (nVertexID == 4) { output.uv = float2(1.0f, 0.0f); }
 	else if (nVertexID == 5) { output.uv = float2(1.0f, 1.0f); }
 

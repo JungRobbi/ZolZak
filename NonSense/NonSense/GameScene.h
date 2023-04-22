@@ -44,6 +44,10 @@ public:
 	std::deque<Object*> deletionQueue;
 	std::list<Object*> gameObjects;
 
+	std::queue<Character*> creationMonsterQueue;
+	std::deque<Character*> deletionMonsterQueue;
+	std::list<Character*> MonsterObjects;
+
 	std::queue<Object*> creationBlendQueue;
 	std::deque<Object*> deletionBlendQueue;
 	std::list<Object*> blendGameObjects;
@@ -130,6 +134,9 @@ protected:
 	int m_nBlendObjects = 0;
 	Object** m_ppBlendObjects = NULL;
 	Shader* m_pBlendShader = NULL;
+
+	Shader* m_pBoundingShader = NULL;
+	CubeMesh* m_pBoundMesh = NULL;
 
 	Object* TempObject = NULL;
 	HeightMapTerrain* m_pTerrain = NULL;

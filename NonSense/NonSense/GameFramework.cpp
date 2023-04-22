@@ -679,7 +679,7 @@ void GameFramework::FrameAdvance()
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
 	// Debug È­¸é
-	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
+	//if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
 	///////////////////////////////////
 

@@ -36,6 +36,9 @@ GameScene::~GameScene()
 	for (auto object : BoundingGameObjects)
 		delete object;
 	BoundingGameObjects.clear();
+	for (auto object : MonsterObjects)
+		delete object;
+	MonsterObjects.clear();
 }
 
 Object* GameScene::CreateEmpty()
@@ -73,6 +76,13 @@ void GameScene::update()
 		BoundingGameObjects.push_back(gameObject);
 		creationBoundingQueue.pop();
 	}
+	while (!creationMonsterQueue.empty()) //Monster Object
+	{
+		auto gameObject = creationMonsterQueue.front();
+		gameObject->start();
+		MonsterObjects.push_back(gameObject);
+		creationMonsterQueue.pop();
+	}
 
 
 	for (auto gameObject : gameObjects)
@@ -84,6 +94,8 @@ void GameScene::update()
 	for (auto gameObject : UIGameObjects) //UI Object
 		gameObject->update();
 	for (auto gameObject : BoundingGameObjects) //Bounding Object
+		gameObject->update();
+	for (auto gameObject : MonsterObjects) //Monster Object
 		gameObject->update();
 
 
@@ -120,17 +132,34 @@ void GameScene::update()
 
 		delete gameObject;
 	}
-}
+	while (!deletionMonsterQueue.empty()) //Monster Object
+	{
+		auto gameObject = deletionMonsterQueue.front();
+		MonsterObjects.erase(std::find(MonsterObjects.begin(), MonsterObjects.end(), gameObject));
+		deletionMonsterQueue.pop_front();
 
-void GameScene::render()
-{
+		delete gameObject;
+	}
 }
 
 void GameScene::PushDelete(Object* gameObject)
 {
 	if (std::find(deletionQueue.begin(), deletionQueue.end(), gameObject) == deletionQueue.end())
 		deletionQueue.push_back(gameObject);
+	if (std::find(deletionBlendQueue.begin(), deletionBlendQueue.end(), gameObject) == deletionBlendQueue.end())
+		deletionBlendQueue.push_back(gameObject);
+	if (std::find(deletionUIQueue.begin(), deletionUIQueue.end(), gameObject) == deletionUIQueue.end())
+		deletionUIQueue.push_back(gameObject);
+	if (std::find(deletionBoundingQueue.begin(), deletionBoundingQueue.end(), gameObject) == deletionBoundingQueue.end())
+		deletionBoundingQueue.push_back(gameObject);
+	if (std::find(deletionMonsterQueue.begin(), deletionMonsterQueue.end(), (Character*)gameObject) == deletionMonsterQueue.end())
+		deletionMonsterQueue.push_back((Character*)gameObject);
 }
+
+void GameScene::render()
+{
+}
+
 
 void GameScene::BuildLightsAndMaterials()
 {
@@ -192,9 +221,14 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_Game_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Graphic_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Sound_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
-	
+	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
 
-	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	m_pBoundingShader = new BoundingShader();
+	m_pBoundingShader->CreateShader(pd3dDevice, m_pGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pBoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, m_pBoundMesh, m_pBoundingShader);
+
+	bb->SetNum(2);
 	Object* TempObject = NULL;
 	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
 	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_CLOSE);
@@ -224,7 +258,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_pBlendShader = new BlendShader();
 	m_pBlendShader->CreateShader(pd3dDevice, m_pGraphicsRootSignature, MRT, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-//	Object::LoadMapData(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/NonBlend_Props_Map.bin");
+//	Object::LoadMapData(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/NonBlend_Props_Map.bin", m_pBoundingShader);
 //	Object::LoadMapData_Blend(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Blend_Objects_Map.bin", m_pBlendShader);
 
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
@@ -611,6 +645,13 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 			m_pHP_UI->HP -= 0.2;
 			m_pHP_Dec_UI->Dec_HP -= 0.2;
 			m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+ 			 break;
+		case 'T':
+			for (auto& o : MonsterObjects)
+			{
+				o->GetHit(100);
+			}
+			
 			break;
 		default:
 			break;
@@ -628,6 +669,11 @@ void GameScene::AnimateObjects(float fTimeElapsed)
 	{
 		object->Animate(fTimeElapsed);
 	}
+	for (auto& object : MonsterObjects)
+	{
+		object->Animate(fTimeElapsed);
+	}
+	if (m_pPlayer) m_pPlayer->Animate(fTimeElapsed);
 }
 
 void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -650,6 +696,13 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
 	}
+
+	for (auto& object : MonsterObjects)
+	{
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
+	}
+
 }
 
 void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
