@@ -1,6 +1,6 @@
 #include "CloseTypeFSMComponent.h"
 #include "Characters.h"
-#include "GameScene.h"
+#include "GameFramework.h"
 #include "CloseTypeState.h"
 void CloseTypeFSMComponent::start()
 {
@@ -21,7 +21,7 @@ FSM<CloseTypeFSMComponent>* CloseTypeFSMComponent::GetFSM()
 bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 {
 	XMFLOAT3 OwnerPos = gameObject->GetPosition();
-	XMFLOAT3 PlayerPos = GameScene::MainScene->m_pPlayer->GetPosition();
+	XMFLOAT3 PlayerPos = GameFramework::MainGameFramework->m_pPlayer->GetPosition();
 	float Distance = Vector3::Length(Vector3::Subtract(OwnerPos, PlayerPos));
 	if (Distance < ChangeStateDistance)
 		return true;

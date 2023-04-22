@@ -587,17 +587,18 @@ bool GameScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 
 		break;
 	}
+	return(false);
+}
 
-		break;
-	case WM_RBUTTONDOWN:
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
+bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
 	switch (nMessageID)
 	{
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
 		case VK_SPACE:
-			
+
 			break;
 		default:
 			break;
@@ -610,36 +611,23 @@ bool GameScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 			m_pHP_UI->HP -= 0.2;
 			m_pHP_Dec_UI->Dec_HP -= 0.2;
 			m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
- 			 break;
+			break;
 		default:
 			break;
 		}
 
-	default:
-		break;
-	}
-		case 'D':
-			m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
-			break;
-		default:
-			break;
-		}
 	default:
 		break;
 	}
 	return(false);
 }
 
-	if (m_pPlayer) m_pPlayer->Animate(fTimeElapsed);
+void GameScene::AnimateObjects(float fTimeElapsed)
+{
+	for (auto& object : gameObjects)
+	{
+		object->Animate(fTimeElapsed);
 	}
-	//for (int i = 0; i < m_nObjects; i++)
-	//{
-	//	m_GameObjects[i]->Animate(fTimeElapsed);
-	//}
-
-	if (m_pPlayer) m_pPlayer->Animate(fTimeElapsed);
-
-	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].AnimateObjects(fTimeElapsed);
 }
 
 void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -650,11 +638,10 @@ void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Came
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
 	UpdateShaderVariables(pd3dCommandList);
-		object->UpdateTransform(NULL);
-		object->Render(pd3dCommandList, pCamera);
-	}
-
 }
+
+void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 

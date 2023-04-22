@@ -20,7 +20,6 @@ public:
 	static char keys[300];
 	static char keyUp[300];
 	static char keyDown[300];
-};
 	static UCHAR InputKeyBuffer[256];
 	static void update();
 };
