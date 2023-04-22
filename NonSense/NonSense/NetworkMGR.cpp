@@ -203,11 +203,11 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		player->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3RightVector, true));
 		xmf3UpVector = player->GetUpVector();
 
-		if (player == GameFramework::MainGameFramework->m_pPlayer) {
+		/*if (player == GameFramework::MainGameFramework->m_pPlayer) {
 			player->GetCamera()->SetLookVector(Vector3::Normalize(xmf3Look));
 			player->GetCamera()->SetRightVector(Vector3::CrossProduct(xmf3UpVector, xmf3Look, true));
 			player->GetCamera()->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3RightVector, true));
-		}
+		}*/
 		break;
 	}
 	default:

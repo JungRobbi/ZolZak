@@ -139,13 +139,16 @@ void Player::Rotate(float x, float y, float z)
 		}
 	}
 
-	/*m_xmf3Look = Vector3::Normalize(xmf3Look);
-	m_xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
-	m_xmf3Up = Vector3::CrossProduct(xmf3Look, xmf3Right, true);*/
+	xmf3Look = Vector3::Normalize(xmf3Look);
+	xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
+	xmf3Up = Vector3::CrossProduct(xmf3Look, xmf3Right, true);
 
 	//m_pCamera->SetLookVector(Vector3::Normalize(xmf3Look));
 	//m_pCamera->SetRightVector(Vector3::CrossProduct(xmf3Up, xmf3Look, true));
 	//m_pCamera->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3Right, true));
+	std::cout << "xmf3Look.x - " << xmf3Look.x << std::endl;
+	std::cout << "xmf3Look.y - " << xmf3Look.y << std::endl;
+	std::cout << "xmf3Look.z - " << xmf3Look.z << std::endl;
 
 	CS_LOOK_PACKET send_packet;
 	send_packet.size = sizeof(CS_LOOK_PACKET);
