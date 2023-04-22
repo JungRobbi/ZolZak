@@ -57,14 +57,7 @@ void BoxCollideComponent::update()
 			/// 그리기 위한 코드
 			m_BoundingObject->m_xmf4x4ToParent = gameObject->GetWorld();
 			m_BoundingObject->SetScale(m_BoundingObject->Extents.x, m_BoundingObject->Extents.y, m_BoundingObject->Extents.z);
-			if (Extents.x == 0 && Extents.y == 0 && Extents.z == 0)
-			{
-				m_BoundingObject->SetPosition(m_BoundingObject->GetPosition().x + gameObject->FindFirstMesh()->GetBoundingBox().Center.x, m_BoundingObject->GetPosition().y + gameObject->FindFirstMesh()->GetBoundingBox().Center.y, m_BoundingObject->GetPosition().z + gameObject->FindFirstMesh()->GetBoundingBox().Center.z);
-			}
-			else
-			{
-				m_BoundingObject->SetPosition(m_BoundingObject->GetPosition().x + Center.x, m_BoundingObject->GetPosition().y + Center.y, m_BoundingObject->GetPosition().z + Center.z);
-			}
+			m_BoundingObject->SetPosition(m_BoundingObject->Center.x, m_BoundingObject->Center.y, m_BoundingObject->Center.z);
 		}
 	}
 }

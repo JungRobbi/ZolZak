@@ -160,7 +160,7 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 	if (Edge)
 		return(float4(LineColor));
 	else
-		return(cColor* RenderInfor[2][int2(input.position.xy)].r);
+		return(cColor);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

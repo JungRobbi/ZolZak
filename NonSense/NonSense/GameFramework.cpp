@@ -286,11 +286,9 @@ void GameFramework::BuildObjects()
 	auto m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
 
-	BoundSphere* bs = new BoundSphere(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->GetTerrain());
-	m_pPlayer->AddComponent<SphereCollideComponent>();
-	m_pPlayer->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
-	m_pPlayer->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
+
 
 	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
@@ -565,7 +563,7 @@ void GameFramework::FrameAdvance()
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
 	// Debug È­¸é
-	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
+	//if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
 	///////////////////////////////////
 

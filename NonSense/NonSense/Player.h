@@ -92,6 +92,8 @@ class MagePlayer : public Player
 {
 public:
 	Object* pWeaponObject;
+	Shader* m_pBoundingShader = NULL;
+	CubeMesh* m_pBoundMesh = NULL;
 
 	MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext);
 	virtual ~MagePlayer() {}
