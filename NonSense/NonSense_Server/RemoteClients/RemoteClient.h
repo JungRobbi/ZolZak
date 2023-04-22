@@ -4,6 +4,7 @@
 #include <thread>
 #include <memory>
 #include <mutex>
+#include <unordered_map>
 
 #include "../Input.h"
 
@@ -12,6 +13,9 @@
 using namespace std;
 
 class RemoteClient {
+public:
+	static unordered_map<RemoteClient*, shared_ptr<RemoteClient>> remoteClients;
+	static recursive_mutex mx_rc;
 public:
 	shared_ptr<thread> thread; // 클라이언트 스레드
 	Socket tcpConnection;		// accept한 TCP 연결

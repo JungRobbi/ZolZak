@@ -15,7 +15,7 @@
 #include "Input.h"
 #include "Timer.h"
 
-#include "RemoteClients/RemoteClient.h"
+#include "remoteClients/RemoteClient.h"
 #include "Scene.h"
 
 #include "Components/PlayerMovementComponent.h"
@@ -39,10 +39,6 @@ void ProcessSignalAction(int sig_number)
 		stopWorking = true;
 }
 
-unordered_map<RemoteClient*, shared_ptr<RemoteClient>> remoteClients;
-//vector<RemoteClient*> remoteClients_ptr_v; // 클라이언트들은 0부터 시작하는 양수의 id를 갖는다. id는 클라이언트 포인터를 담는 벡터의 인덱스를 의미한다.
-recursive_mutex mx_rc;
-
 list<shared_ptr<RemoteClient>> deleteClinets;
 
 void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
@@ -52,9 +48,9 @@ void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
 	remoteClient->tcpConnection.Close();
 	{
 		lock_guard<recursive_mutex> lock_rc(mx_rc);
-		remoteClients.erase(remoteClient.get());
+		RemoteClient::remoteClients.erase(remoteClient.get());
 
-		cout << "Client left. There are " << remoteClients.size() << " connections.\n";
+		cout << "Client left. There are " << RemoteClient::remoteClients.size() << " connections.\n";
 	}
 }
 
@@ -103,7 +99,7 @@ void Worker_Thread()
 					shared_ptr<RemoteClient> remoteClient;
 					{
 						lock_guard<recursive_mutex> lock_rc(mx_rc);
-						remoteClient = remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
+						remoteClient = RemoteClient::remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
 					}
 
 					//
@@ -210,11 +206,11 @@ int main(int argc, char* argv[])
 	//	/*{
 	//		lock_guard<recursive_mutex> lock_rc(mx_rc);
 
-	//		for (auto& rc : remoteClients) {
+	//		for (auto& rc : RemoteClient::remoteClients) {
 	//			if (!rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>())
 	//				continue;
 	//			auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
-	//			for (auto& rc_to : remoteClients) {
+	//			for (auto& rc_to : RemoteClient::remoteClients) {
 	//				SC_MOVE_PLAYER_PACKET send_packet;
 	//				send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
 	//				send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
@@ -242,7 +238,7 @@ void CloseServer()
 	{
 		lock_guard<recursive_mutex> lock_rc(mx_rc);
 
-		for (auto i : remoteClients)
+		for (auto i : RemoteClient::remoteClients)
 		{
 			i.second->tcpConnection.Close();
 		}
@@ -250,13 +246,13 @@ void CloseServer()
 
 		// 서버를 종료하기 위한 정리중
 		cout << "서버를 종료하고 있습니다...\n";
-		while (remoteClients.size() > 0)
+		while (RemoteClient::remoteClients.size() > 0)
 		{
 			// I/O completion이 없는 상태의 RemoteClient를 제거한다.
-			for (auto i = remoteClients.begin(); i != remoteClients.end(); ++i)
+			for (auto i = RemoteClient::remoteClients.begin(); i != RemoteClient::remoteClients.end(); ++i)
 			{
 				if (!i->second->tcpConnection.m_isReadOverlapped)
-					remoteClients.erase(i);
+					RemoteClient::remoteClients.erase(i);
 			}
 
 			// I/O completion이 발생하면 더 이상 Overlapped I/O를 걸지 말고 '이제 정리해도 돼...'를 플래깅한다.
@@ -273,7 +269,7 @@ void CloseServer()
 				}
 				else
 				{
-					shared_ptr<RemoteClient> remoteClient = remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
+					shared_ptr<RemoteClient> remoteClient = RemoteClient::remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
 					if (remoteClient)
 					{
 						remoteClient->tcpConnection.m_isReadOverlapped = false;
@@ -299,8 +295,9 @@ void ProcessAccept()
 		shared_ptr<RemoteClient> remoteClient = remoteClientCandidate;
 		remoteClient->m_id = N_CLIENT_ID++;
 		remoteClient->m_pPlayer = make_shared<Player>();
+		remoteClient->m_pPlayer->start();
 		remoteClient->m_pPlayer->remoteClient = remoteClient.get();
-	//	remoteClients_ptr_v.emplace_back(remoteClient.get());
+	//	RemoteClient::remoteClients_ptr_v.emplace_back(remoteClient.get());
 
 		// 새 TCP 소켓도 IOCP에 추가한다.
 		iocp.Add(remoteClient->tcpConnection, remoteClient.get());
@@ -320,9 +317,9 @@ void ProcessAccept()
 			// 새 클라이언트를 목록에 추가.
 			{
 				lock_guard<recursive_mutex> lock_rc(mx_rc);
-				remoteClients.insert({ remoteClient.get(), remoteClient });
+				RemoteClient::remoteClients.insert({ remoteClient.get(), remoteClient });
 
-				cout << "Client joined. There are " << remoteClients.size() << " connections.\n";
+				cout << "Client joined. There are " << RemoteClient::remoteClients.size() << " connections.\n";
 			}
 		}
 
@@ -366,7 +363,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		}
 
 		// 접속한 클라이언트에게 모든 플레이어 정보 송신
-		for (auto& rc : remoteClients) {
+		for (auto& rc : RemoteClient::remoteClients) {
 			if (rc.second->m_id == p_Client->m_id) 
 				continue;
 			SC_ADD_PLAYER_PACKET send_packet;
@@ -378,7 +375,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		}
 
 		// 다른 클라이언트들에게 접속한 클라이언트 정보 송신
-		for (auto& rc : remoteClients) {
+		for (auto& rc : RemoteClient::remoteClients) {
 			if (rc.second->m_id == p_Client->m_id)
 				continue;
 			SC_ADD_PLAYER_PACKET send_packet;
@@ -409,7 +406,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		auto pm = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>();
 		pm->Move(xmf3Dir, false);
 
-		for (auto& rc_to : remoteClients) {
+		for (auto& rc_to : RemoteClient::remoteClients) {
 			SC_MOVE_PLAYER_PACKET send_packet;
 			send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
@@ -438,7 +435,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		cout << "xmf3Look.y - " << xmf3Look.y << endl;
 		cout << "xmf3Look.z - " << xmf3Look.z << endl;
 
-		for (auto& rc_to : remoteClients) {
+		for (auto& rc_to : RemoteClient::remoteClients) {
 			SC_LOOK_PLAYER_PACKET send_packet;
 			send_packet.size = sizeof(SC_LOOK_PLAYER_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_LOOK_PLAYER;
