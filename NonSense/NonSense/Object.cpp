@@ -988,6 +988,7 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 			if (!strcmp(pstrToken, "<Position>:"))
 			{
 				BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, boundshader);
+				bb->SetNum(0);
 				nReads = (UINT)::fread(&pObject->m_xmf4x4ToParent, sizeof(float), 16, OpenedFile);
 				pObject->UpdateTransform(NULL);
 				pObject->AddComponent<BoxCollideComponent>();

@@ -83,7 +83,15 @@ VS_BoundingOUTPUT VSBounding(VS_BoundingINPUT input)
 
 float4 PSBounding(VS_BoundingOUTPUT input) : SV_TARGET
 {
-	return(float4(1,0,0,1));
+	if (objectID == 0) // 맵 오브젝트
+	return(float4(1,1,1,1));
+	if (objectID == 1) // 아군 플레이어
+	return(float4(0, 1, 0, 1));
+	if (objectID == 2) // 적
+	return(float4(1, 0, 0, 1));
+	if (objectID == 3) // 아군 공격
+		return(float4(0, 0, 1, 1));
+	else return(float4(0, 0, 0, 1));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

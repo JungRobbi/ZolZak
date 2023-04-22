@@ -57,7 +57,6 @@ void AttackComponent::update()
 
 	if (AttackRange)
 	{
-
 		AttackRange->Center = XMFLOAT3(0, 0.3, 1.0);
 		AttackRange->Extents = XMFLOAT3(1,0.3,0.5);
 		AttackRange->Orientation = XMFLOAT4(0,0,0,1);
