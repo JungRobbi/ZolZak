@@ -136,6 +136,9 @@ protected:
 	Object** m_ppBlendObjects = NULL;
 	Shader* m_pBlendShader = NULL;
 
+	Shader* m_pBoundingShader = NULL;
+	CubeMesh* m_pBoundMesh = NULL;
+
 	Object* TempObject = NULL;
 	HeightMapTerrain* m_pTerrain = NULL;
 

@@ -944,9 +944,10 @@ BYTE ReadStringFromFile(FILE* OpenedFile, char* pstrToken)
 	return(nStrLength);
 }
 
-void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName)
+void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, Shader* boundshader)
 {
 	char pstrToken[64] = { '\0' };
+	CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
 	int nMesh = 0;
 	UINT nReads = 0;
 	Object* pObject = NULL;
@@ -986,7 +987,7 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 			}
 			if (!strcmp(pstrToken, "<Position>:"))
 			{
-				BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+				BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, boundshader);
 				nReads = (UINT)::fread(&pObject->m_xmf4x4ToParent, sizeof(float), 16, OpenedFile);
 				pObject->UpdateTransform(NULL);
 				pObject->AddComponent<BoxCollideComponent>();
@@ -1608,14 +1609,9 @@ bool HeightMapTerrain::IsVisible(Camera* pCamera)
 
 /////////////////////////////////////////////////////////////////////////////
 
-BoundBox::BoundBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BOUNDING_OBJECT)
+BoundBox::BoundBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CubeMesh* BoundMesh, Shader* pBoundingShader) : Object(BOUNDING_OBJECT)
 {
-	CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
 	SetMesh(BoundMesh);
-
-	BoundingShader* pBoundingShader = new BoundingShader();
-	pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-
 	Material* pBoundingMaterial = new Material();
 	pBoundingMaterial->SetShader(pBoundingShader);
 
