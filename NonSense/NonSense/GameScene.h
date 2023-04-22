@@ -8,6 +8,8 @@
 #include "Player.h"
 #include "Camera.h"
 #include "Object.h"
+#include "Characters.h"
+#include "UI.h"
 
 struct LIGHT
 {
@@ -37,6 +39,7 @@ struct MATERIALS
 
 class GameScene
 {
+public:
 	std::queue<Object*> creationQueue;
 	std::deque<Object*> deletionQueue;
 	std::list<Object*> gameObjects;
@@ -48,6 +51,10 @@ class GameScene
 	std::queue<Object*> creationUIQueue;
 	std::deque<Object*> deletionUIQueue;
 	std::list<Object*> UIGameObjects;
+
+	std::queue<Object*> creationBoundingQueue;
+	std::deque<Object*> deletionBoundingQueue;
+	std::list<Object*> BoundingGameObjects;
 
 public:
 	static GameScene* MainScene;
@@ -62,7 +69,7 @@ public:
 	void PushDelete(Object* gameObject);
 
 	friend Object;
-	friend ObjectsShader;
+
 public:
 	GameScene();
 	virtual ~GameScene();
@@ -84,6 +91,7 @@ public:
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	void RenderBoundingBox(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void ReleaseUploadBuffers();
 	HeightMapTerrain* GetTerrain() { return(m_pTerrain); }
 	//그래픽 루트 시그너쳐를 생성한다.
@@ -92,6 +100,9 @@ public:
 	//씬의 모든 게임 객체들에 대한 마우스 픽킹을 수행한다.
 	Object* PickObjectPointedByCursor(int xClient, int yClient, Camera* pCamera);
 	SkyBox* m_pSkyBox = NULL;
+	Player_State_UI* m_pUI = NULL;
+	Player_HP_UI* m_pHP_UI = NULL;
+	Player_HP_DEC_UI* m_pHP_Dec_UI =NULL;
 
 	void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
 	static D3D12_GPU_DESCRIPTOR_HANDLE CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nRootParameter, bool bAutoIncrement);
@@ -99,7 +110,7 @@ public:
 	static ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap;
 
 protected:
-	ObjectsShader* m_pShaders = NULL;
+
 	int m_nShaders = 0;
 	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
 

@@ -27,8 +27,7 @@ protected:
 	float m_fMaxVelocityXZ;
 	float m_fMaxVelocityY;
 	float m_fFriction;
-	LPVOID m_pPlayerUpdatedContext;
-	LPVOID m_pCameraUpdatedContext;
+
 	Camera* m_pCamera = NULL;
 	bool IsWalk = false;
 
@@ -37,6 +36,10 @@ public:
 	unsigned int id = 0;
 	std::string m_name;
 public:
+
+	LPVOID m_pPlayerUpdatedContext;
+	LPVOID m_pCameraUpdatedContext;
+
 	Player();
 	virtual ~Player();
 
@@ -95,10 +98,12 @@ public:
 class MagePlayer : public Player
 {
 public:
+	Object* pWeaponObject;
+
 	MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext);
 	virtual ~MagePlayer() {}
 
 	virtual Camera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void Update(float fTimeElapsed);
-
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 };

@@ -121,6 +121,7 @@ public:
 	FirstPersonCamera(Camera* pCamera);
 	virtual ~FirstPersonCamera() { }
 	virtual void Rotate(float fPitch = 0.0f, float fYaw = 0.0f, float fRoll = 0.0f);
+	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed);
 };
 
 class ThirdPersonCamera : public Camera

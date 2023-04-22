@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameScene.h"
+#include "BoxCollideComponent.h"
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 
 ID3D12DescriptorHeap* GameScene::m_pd3dCbvSrvDescriptorHeap = NULL;
@@ -26,6 +27,15 @@ GameScene::~GameScene()
 	for (auto object : gameObjects)
 		delete object;
 	gameObjects.clear();
+	for (auto object : blendGameObjects)
+		delete object;
+	blendGameObjects.clear();
+	for (auto object : UIGameObjects)
+		delete object;
+	UIGameObjects.clear();
+	for (auto object : BoundingGameObjects)
+		delete object;
+	BoundingGameObjects.clear();
 }
 
 Object* GameScene::CreateEmpty()
@@ -56,6 +66,13 @@ void GameScene::update()
 		UIGameObjects.push_back(gameObject);
 		creationUIQueue.pop();
 	}
+	while (!creationBoundingQueue.empty()) //Bounding Object
+	{
+		auto gameObject = creationBoundingQueue.front();
+		gameObject->start();
+		BoundingGameObjects.push_back(gameObject);
+		creationBoundingQueue.pop();
+	}
 
 
 	for (auto gameObject : gameObjects)
@@ -65,6 +82,8 @@ void GameScene::update()
 		gameObject->update();
 
 	for (auto gameObject : UIGameObjects) //UI Object
+		gameObject->update();
+	for (auto gameObject : BoundingGameObjects) //Bounding Object
 		gameObject->update();
 
 
@@ -90,6 +109,14 @@ void GameScene::update()
 		auto gameObject = deletionUIQueue.front();
 		UIGameObjects.erase(std::find(UIGameObjects.begin(), UIGameObjects.end(), gameObject));
 		deletionUIQueue.pop_front();
+
+		delete gameObject;
+	}
+	while (!deletionBoundingQueue.empty()) //Bounding Object
+	{
+		auto gameObject = deletionBoundingQueue.front();
+		BoundingGameObjects.erase(std::find(BoundingGameObjects.begin(), BoundingGameObjects.end(), gameObject));
+		deletionBoundingQueue.pop_front();
 
 		delete gameObject;
 	}
@@ -155,9 +182,9 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	Sound_Option_UI* m_Sound_Option_Dec_UI = new Sound_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Option_UI* m_Option_Dec_UI = new Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
-	Player_State_UI* m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	Player_HP_UI* m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	Player_HP_DEC_UI* m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
 	m_pHP_UI->SetParentUI(m_pUI);
 	m_pHP_Dec_UI->SetParentUI(m_pUI);
@@ -165,48 +192,32 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_Game_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Graphic_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Sound_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
+	
+
+	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Object* TempObject = NULL;
+	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
+	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_CLOSE);
+	TempObject->SetNum(1);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
+	TempObject->SetPosition(1.0f, 1.0f, 3.0f);
+	TempObject->AddComponent<BoxCollideComponent>();
+	TempObject->GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
+	TempObject->GetComponent<BoxCollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(0.3, 0.5, 0.3));
+	TempObject->GetComponent<BoxCollideComponent>()->SetMoveAble(true);
+
+	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far.bin", NULL);
+	//LoadedModelInfo* pRW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far_Weapon_R.bin", NULL);
+	//LoadedModelInfo* pLW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far_Weapon_L.bin", NULL);
+	//Object* pObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pLW, pRW, MONSTER_TYPE_FAR);
+	//pObject->SetPosition(0.0, 2.0, 0.0);
+	//pObject->SetNum(55);
+	//pObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
+
 
 	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, xmf3Scale, xmf4Color);
 	terrain->SetPosition(-400, 0, -400);
 	m_pTerrain = terrain;
-	//LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Map_Afternoon_Gorge.bin", NULL);
-	//LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
-
-	//Object* TempObject = NULL;
-
-	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pWeaponModel, 0,false);
-	//TempObject->SetNum(0);
-	////TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
-	//TempObject->SetPosition(0.0f, 0.0f, 0.0f);
-	//m_nObjects = 1;
-	//m_GameObjects = new Object*[m_nObjects];
-
-	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
-	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
-	//TempObject->SetNum(1);
-	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
-	//TempObject->SetPosition(1.0f, 0.0f, 0.0f);
-	//
-	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Close.bin", NULL);
-	//
-	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
-	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
-	//TempObject->SetNum(2);
-	//TempObject->SetPosition(2.0f, 0.0f, 0.0f);
-	//
-	////pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Rush.bin", NULL);
-	//
-	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
-	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 2);
-	//TempObject->SetNum(3);
-	//TempObject->SetPosition(-1.0f, 0.0f, 0.0f);
-	//
-	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/ent.bin", NULL);
-	//
-	//TempObject = new ModelObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, 1, false);
-	//TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
-	//TempObject->SetNum(4);
-	//TempObject->SetPosition(-3.0f, 0.0f, 0.0f);
 
 	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
 
@@ -224,12 +235,6 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 void GameScene::ReleaseObjects()
 {
 	if (m_pGraphicsRootSignature) m_pGraphicsRootSignature->Release();
-	for (int i = 0; i < m_nShaders; i++)
-	{
-		m_pShaders[i].ReleaseShaderVariables();
-		m_pShaders[i].ReleaseObjects();
-	}
-	if (m_pShaders) delete[] m_pShaders;
 	if (m_pLights) delete m_pLights;
 	if (m_pMaterials) delete m_pMaterials;
 	if (m_pSkyBox) delete m_pSkyBox;
@@ -237,7 +242,6 @@ void GameScene::ReleaseObjects()
 
 void GameScene::ReleaseUploadBuffers()
 {
-	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].ReleaseUploadBuffers();
 	if (m_pSkyBox) m_pSkyBox->ReleaseUploadBuffers();
 }
 
@@ -428,38 +432,52 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[19].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 
+	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
+	::ZeroMemory(d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
+	d3dSamplerDesc[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	d3dSamplerDesc[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	d3dSamplerDesc[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	d3dSamplerDesc[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	d3dSamplerDesc[0].MipLODBias = 0;
+	d3dSamplerDesc[0].MaxAnisotropy = 1;
+	d3dSamplerDesc[0].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	d3dSamplerDesc[0].MinLOD = 0;
+	d3dSamplerDesc[0].MaxLOD = 0;
+	d3dSamplerDesc[0].ShaderRegister = 0;
+	d3dSamplerDesc[0].RegisterSpace = 0;
+	d3dSamplerDesc[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc;
-	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
-	d3dSamplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-	d3dSamplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	d3dSamplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	d3dSamplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	d3dSamplerDesc.MipLODBias = 0;
-	d3dSamplerDesc.MaxAnisotropy = 1;
-	d3dSamplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-	d3dSamplerDesc.MinLOD = 0;
-	d3dSamplerDesc.MaxLOD = 0;
-	d3dSamplerDesc.ShaderRegister = 0;
-	d3dSamplerDesc.RegisterSpace = 0;
-	d3dSamplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	d3dSamplerDesc[1].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	d3dSamplerDesc[1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	d3dSamplerDesc[1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	d3dSamplerDesc[1].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	d3dSamplerDesc[1].MipLODBias = 0;
+	d3dSamplerDesc[1].MaxAnisotropy = 1;
+	d3dSamplerDesc[1].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
+	d3dSamplerDesc[1].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	d3dSamplerDesc[1].MinLOD = 0;
+	d3dSamplerDesc[1].MaxLOD = 0;
+	d3dSamplerDesc[1].ShaderRegister = 1;
+	d3dSamplerDesc[1].RegisterSpace = 0;
+	d3dSamplerDesc[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
-
 	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
 	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
+
 	d3dRootSignatureDesc.NumParameters = _countof(pd3dRootParameters);
 	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
-	d3dRootSignatureDesc.NumStaticSamplers = 1;
-	d3dRootSignatureDesc.pStaticSamplers = &d3dSamplerDesc;
+	d3dRootSignatureDesc.NumStaticSamplers = _countof(d3dSamplerDesc);
+	d3dRootSignatureDesc.pStaticSamplers = d3dSamplerDesc;
 	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
 	ID3DBlob* pd3dSignatureBlob = NULL;
 	ID3DBlob* pd3dErrorBlob = NULL;
-	::D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
+	HRESULT hp;
+	hp = ::D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
 	pd3dDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), __uuidof(ID3D12RootSignature), (void**)&pd3dGraphicsRootSignature);
 	if (pd3dSignatureBlob) pd3dSignatureBlob->Release();
 	if (pd3dErrorBlob) pd3dErrorBlob->Release();
@@ -563,28 +581,63 @@ D3D12_GPU_DESCRIPTOR_HANDLE GameScene::CreateShaderResourceViews(ID3D12Device* p
 
 bool GameScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-
-	return(false);
-}
-bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
-{
-
-	return(false);
-}
-
-void GameScene::AnimateObjects(float fTimeElapsed)
-{
-	for (auto& object : gameObjects)
+	switch (nMessageID)
 	{
-		if (object->GetUsed()) {
-			object->Animate(fTimeElapsed);
+	default:
+
+		break;
+	}
+
+		break;
+	case WM_RBUTTONDOWN:
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
+	switch (nMessageID)
+	{
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_SPACE:
+			
+			break;
+		default:
+			break;
+		}
+		break;
+	case WM_KEYUP:
+		switch (wParam)
+		{
+		case 'E':
+			m_pHP_UI->HP -= 0.2;
+			m_pHP_Dec_UI->Dec_HP -= 0.2;
+			m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+ 			 break;
+		default:
+			break;
 		}
 
+	default:
+		break;
+	}
+		case 'D':
+			m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
+			break;
+		default:
+			break;
+		}
+	default:
+		break;
+	}
+	return(false);
+}
+
+	if (m_pPlayer) m_pPlayer->Animate(fTimeElapsed);
 	}
 	//for (int i = 0; i < m_nObjects; i++)
 	//{
 	//	m_GameObjects[i]->Animate(fTimeElapsed);
 	//}
+
+	if (m_pPlayer) m_pPlayer->Animate(fTimeElapsed);
 
 	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].AnimateObjects(fTimeElapsed);
 }
@@ -597,19 +650,18 @@ void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Came
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
 	UpdateShaderVariables(pd3dCommandList);
-}
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
+	}
 
-void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
-{
+}
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 	for (auto& object : gameObjects)
 	{
-		if (object->GetUsed()) {
-			object->UpdateTransform(NULL);
-			object->Render(pd3dCommandList, pCamera);
-		}
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
 	}
 }
 
@@ -629,6 +681,17 @@ void GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCa
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 	for (auto& object : UIGameObjects)
+	{
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
+	}
+}
+
+void GameScene::RenderBoundingBox(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	OnPrepareRender(pd3dCommandList, pCamera);
+	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	for (auto& object : BoundingGameObjects)
 	{
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
@@ -677,8 +740,7 @@ Object* GameScene::PickObjectPointedByCursor(int xClient, int yClient, Camera* p
 	//셰이더의 모든 게임 객체들에 대한 마우스 픽킹을 수행하여 카메라와 가장 가까운 게임 객체를 구한다.
 	for (int i = 0; i < m_nShaders; i++)
 	{
-		pIntersectedObject = m_pShaders[i].PickObjectByRayIntersection(xmf3PickPosition,
-			xmf4x4View, &fHitDistance);
+		//pIntersectedObject = m_pShaders[i].PickObjectByRayIntersection(xmf3PickPosition,xmf4x4View, &fHitDistance);
 		if (pIntersectedObject && (fHitDistance < fNearestHitDistance))
 		{
 			fNearestHitDistance = fHitDistance;

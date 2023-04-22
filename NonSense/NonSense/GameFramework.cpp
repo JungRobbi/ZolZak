@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include "GameFramework.h"
+#include "PlayerMovementComponent.h"
+#include "BoxCollideComponent.h"
+#include "SphereCollideComponent.h"
 
 #include "Input.h"
 
@@ -305,6 +308,13 @@ void GameFramework::BuildObjects()
 		gameScene->BuildObjects(m_pDevice, m_pCommandList);
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+	BoundSphere* bs = new BoundSphere(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature());
+	
+	m_pPlayer->AddComponent<SphereCollideComponent>();
+	m_pPlayer->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+	m_pPlayer->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
+
+	
 	m_pCamera = m_pPlayer->GetCamera();
 
 	char n_players = 3;
@@ -438,6 +448,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			(OptionMode) ? (OptionMode = 0) : (OptionMode = 1);
 			break;
 		case VK_RETURN:
+			PostQuitMessage(0);
 			break;
 		case VK_F8:
 			(DebugMode) ? (DebugMode = 0) : (DebugMode = 1);
@@ -520,6 +531,7 @@ void GameFramework::ProcessSelectedObject(DWORD dwDirection, float cxDelta, floa
 
 void GameFramework::ProcessInput()
 {
+	Input::update();
 	static UCHAR pKeyBuffer[256];
 	DWORD dwDirection = 0;
 	if (::GetKeyboardState(pKeyBuffer))
@@ -536,15 +548,15 @@ void GameFramework::ProcessInput()
 
 	if (::GetCapture() == m_hWnd)
 	{
-		//마우스 커서를 화면에서 없앤다(보이지 않게 한다).
-		::SetCursor(NULL);
-		//현재 마우스 커서의 위치를 가져온다.
-		::GetCursorPos(&ptCursorPos);
-		//마우스 버튼이 눌린 상태에서 마우스가 움직인 양을 구한다.
-		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-		//마우스 커서의 위치를 마우스가 눌려졌던 위치로 설정한다.
-		::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+		////마우스 커서를 화면에서 없앤다(보이지 않게 한다).
+		//::SetCursor(NULL);
+		////현재 마우스 커서의 위치를 가져온다.
+		//::GetCursorPos(&ptCursorPos);
+		////마우스 버튼이 눌린 상태에서 마우스가 움직인 양을 구한다.
+		//cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+		//cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+		////마우스 커서의 위치를 마우스가 눌려졌던 위치로 설정한다.
+		//::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 	}
 	//마우스 또는 키 입력이 있으면 플레이어를 이동하거나(dwDirection) 회전한다(cxDelta 또는 cyDelta).
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
@@ -555,14 +567,15 @@ void GameFramework::ProcessInput()
 		}
 		else
 		{
-			if (cxDelta || cyDelta)
-			{
-
-				if (pKeyBuffer[VK_RBUTTON] & 0xF0)
-					m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-				else
-					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-			}
+	
+			//if (cxDelta || cyDelta)
+			//{
+			//
+			//	if (pKeyBuffer[VK_RBUTTON] & 0xF0)
+			//		m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+			//	else
+			//		m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+			//}
 			if (dwDirection) {
 				/*if (pKeyBuffer[0x41] & 0xF0) {
 					m_pPlayer->Rotate(0.0f, -0.1f, 0.0f);
@@ -573,6 +586,7 @@ void GameFramework::ProcessInput()
 					pKeyBuffer[0x44] = false;
 				}*/
 				m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
+				m_pPlayer->SetWalk(true);
 			}
 		}
 	}
@@ -609,6 +623,14 @@ void GameFramework::MoveToNextFrame()
 void GameFramework::FrameAdvance()
 {
 	Timer::Tick(0.0f);
+	
+	if (!m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose)
+	{
+		::SetCapture(m_hWnd);
+		RECT rect;
+		::GetWindowRect(m_hWnd, &rect);
+		m_pPlayer->GetComponent<PlayerMovementComponent>()->SetWindowPos(rect);
+	}
 
 	NetworkMGR::Tick();
 
@@ -631,6 +653,7 @@ void GameFramework::FrameAdvance()
 		if (p->GetUsed())
 			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());
 	}
+	// 불투명 오브젝트, Terrain
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 	// 플레이어
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
@@ -651,11 +674,17 @@ void GameFramework::FrameAdvance()
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
 	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
+	// Bounding Box
+	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
 	// Debug 화면
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
+
 	///////////////////////////////////
+
+
+
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

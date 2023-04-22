@@ -136,14 +136,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Globals.h" />
+    <ClInclude Include="AttackComponent.h" />
+    <ClInclude Include="BillboardComponent.h" />
+    <ClInclude Include="BoxCollideComponent.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="CollideComponent.h" />
+    <ClInclude Include="Characters.h" />
+    <ClInclude Include="CloseTypeState.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
+    <ClInclude Include="FSM.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="GameState.h" />
-    <ClInclude Include="GoblinComponent.h" />
+    <ClInclude Include="CloseTypeFSMComponent.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Lobby_GameScene.h" />
     <ClInclude Include="Login_GameScene.h" />
@@ -157,21 +162,28 @@
     <ClInclude Include="NonSense.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Stage_GameScene.h" />
+    <ClInclude Include="SphereCollideComponent.h" />
+    <ClInclude Include="State.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Transform3DComponent.h" />
+    <ClInclude Include="UI.h" />
     <ClInclude Include="WICTextureLoader12.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AttackComponent.cpp" />
+    <ClCompile Include="BillboardComponent.cpp" />
+    <ClCompile Include="BoxCollideComponent.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CollideComponent.cpp" />
+    <ClCompile Include="Characters.cpp" />
+    <ClCompile Include="CloseTypeState.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="GameState.cpp" />
-    <ClCompile Include="GoblinComponent.cpp" />
+    <ClCompile Include="CloseTypeFSMComponent.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Lobby_GameScene.cpp" />
     <ClCompile Include="Login_GameScene.cpp" />
@@ -184,9 +196,11 @@
     <ClCompile Include="RotateComponent.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Stage_GameScene.cpp" />
+    <ClCompile Include="SphereCollideComponent.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Transform3DComponent.cpp" />
+    <ClCompile Include="UI.cpp" />
     <ClCompile Include="WICTextureLoader12.cpp" />
   </ItemGroup>
   <ItemGroup>

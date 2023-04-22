@@ -1,5 +1,10 @@
 #include "stdafx.h"
 #include "Player.h"
+#include "PlayerMovementComponent.h"
+#include "AttackComponent.h"
+#include "GameScene.h"
+#include "BoxCollideComponent.h"
+#include "SphereCollideComponent.h"
 #include "../ImaysNet/PacketQueue.h"
 
 Player::Player() : Object(false)
@@ -41,7 +46,8 @@ void Player::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	Object::UpdateShaderVariables(pd3dCommandList);
 }
 
-void Player::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
+
+void Player::Move(ULONG dwDirection, float fDistance, bool bUpdateVelocity)
 {
 	if (dwDirection)
 	{
@@ -94,17 +100,34 @@ void Player::Update(float fTimeElapsed)
 	float fMaxVelocityXZ = m_fMaxVelocityXZ * fTimeElapsed;
 	if (fLength > m_fMaxVelocityXZ)
 	{
-		m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
-		m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
+		m_xmf3Velocity.x *= (m_fMaxVelocityXZ / fLength);
+		m_xmf3Velocity.z *= (m_fMaxVelocityXZ / fLength);
 	}
 	float fMaxVelocityY = m_fMaxVelocityY * fTimeElapsed;
 	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-	Move(xmf3Velocity, false);
+	bool Iswall = false;
+	//if (GetComponent<SphereCollideComponent>())
+	//{
+	//	GetComponent<SphereCollideComponent>()->SetCenterRadius(Vector3::Add(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(xmf3Velocity.x*2, xmf3Velocity.y * 2, xmf3Velocity.z * 2)), 0.4);
+	//	GetComponent<SphereCollideComponent>()->update();
+	//	for (auto& o : GameScene::MainScene->gameObjects) {
+	//		if (o->GetComponent<BoxCollideComponent>()) {
+	//			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject())) {
+	//				Iswall = true;
+	//				break;
+	//			}
+	//		}
+	//	}
+	//	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
+	//	GetComponent<SphereCollideComponent>()->update();
+	//}
+	if(!Iswall)Move(xmf3Velocity, false);
 	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 	DWORD nCameraMode = m_pCamera->GetMode();
-	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
+	//if (nCameraMode == THIRD_PERSON_CAMERA) 
+	m_pCamera->Update(m_xmf3Position, fTimeElapsed);
 	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
 	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
 	m_pCamera->RegenerateViewMatrix();
@@ -114,6 +137,7 @@ void Player::Update(float fTimeElapsed)
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
 	Animate(fTimeElapsed);
+	Object::update();
 }
 
 void Player::OnPlayerUpdateCallback(float fTimeElapsed)
@@ -121,7 +145,7 @@ void Player::OnPlayerUpdateCallback(float fTimeElapsed)
 	XMFLOAT3 xmf3PlayerPosition = GetPosition();
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
 
-	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x+400.0f, xmf3PlayerPosition.z+400.0f)+1.5;
+	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x+400.0f, xmf3PlayerPosition.z+400.0f);
 	if (xmf3PlayerPosition.y < fHeight)
 	{
 		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
@@ -139,7 +163,7 @@ void Player::OnCameraUpdateCallback(float fTimeElapsed)
 	XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
 	int z = (int)(xmf3CameraPosition.z / xmf3Scale.z);
 	bool bReverseQuad = ((z % 2) != 0);
-	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z, bReverseQuad);
+	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x + 400.0f, xmf3CameraPosition.z + 400.0f, bReverseQuad);
 	if (xmf3CameraPosition.y <= fHeight)
 	{
 		xmf3CameraPosition.y = fHeight;
@@ -220,28 +244,26 @@ void Player::OnPrepareRender()
 }
 void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	
+
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 //	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
 		if (m_pMaterial) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
 		Object::Render(pd3dCommandList, pCamera);
-	}
-}
 
-void Player::SetAnimation() {
-	m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
-	if(IsWalk)
-	m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+	}
+
 }
 
 MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void *pContext)
 {
+	AddComponent<PlayerMovementComponent>();
+	AddComponent<AttackComponent>();
 	{
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-		XMFLOAT3 pos = XMFLOAT3(0.0f, 100.0f, -2.0f);
+		XMFLOAT3 pos = XMFLOAT3(0.0f, 2.0f, -2.0f);
 		SetPosition(pos);
 		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
 		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);
@@ -252,7 +274,9 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 			Object* Hand = FindFrame("Sword_parentR"); // 무기를 붙여줄 팔 찾기
 			if (Hand) {
 				Hand->SetChild(pWeaponModel->m_pRoot, true);
-
+				pWeaponObject = new Object(false);
+				pWeaponObject->SetChild(pWeaponModel->m_pRoot, true);
+				pWeaponObject->SetPosition(0, 5, 0);
 			}
 		}
 
@@ -290,13 +314,13 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	{
 	case FIRST_PERSON_CAMERA:
 		//플레이어의 특성을 1인칭 카메라 모드에 맞게 변경한다. 중력은 적용하지 않는다.
-		SetFriction(50.0f);
-		SetGravity(XMFLOAT3(0.0f, -100.0f, 0.0f));
-		SetMaxVelocityXZ(125.0f);
+		SetFriction(30.0f);
+		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
+		SetMaxVelocityXZ(5.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
-		m_pCamera->SetOffset(XMFLOAT3(0.0f, 1.0f, 0.0f));
+		m_pCamera->SetOffset(XMFLOAT3(0, 0.7f, 0.25));
 		m_pCamera->GenerateProjectionMatrix(0.01f, 100.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
@@ -316,14 +340,16 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		break;
 	case THIRD_PERSON_CAMERA:
 		//플레이어의 특성을 3인칭 카메라 모드에 맞게 변경한다. 지연 효과와 카메라 오프셋을 설정한다.
-		SetFriction(50.0f);
-		SetGravity(XMFLOAT3(0.0f, -100.0f, 0.0f));
+		SetFriction(30.0f);
+		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
 		SetMaxVelocityXZ(5.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 		//3인칭 카메라의 지연 효과를 설정한다. 값을 0.25f 대신에 0.0f와 1.0f로 설정한 결과를 비교하기 바란다.
 		m_pCamera->SetTimeLag(0.25f);
-		m_pCamera->SetOffset(XMFLOAT3(0.0f, 1.5f, -2.0f));
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 2.5f, -2.0f));
+		//m_pCamera->SetOffset(XMFLOAT3(0, 0.8f, 0.2));
+
 		m_pCamera->GenerateProjectionMatrix(0.01f, 100.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
@@ -339,9 +365,32 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 void MagePlayer::Update(float fTimeElapsed)
 {
+
+	Object::update();
 	Player::Update(fTimeElapsed);
-	if (m_pSkinnedAnimationController)
+	DWORD nCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
+	UpdateTransform(NULL);
+	if (nCameraMode == FIRST_PERSON_CAMERA && FindFrame("Face"))
 	{
 
+	}
+}
+
+void MagePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+
+	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
+	if (nCameraMode == FIRST_PERSON_CAMERA)
+	{
+		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
+	
+		FindFrame("Wand")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+		FindFrame("Body_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+		FindFrame("Arm_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+		FindFrame("Leg_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+	}
+	else
+	{
+		Player::Render(pd3dCommandList, pCamera);
 	}
 }

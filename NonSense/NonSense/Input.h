@@ -1,14 +1,6 @@
 #pragma once
-
 #include <conio.h>
-
-enum KeyCode
-{
-	Space = ' ',
-	Left = 0x25, Up, Right, Down,
-	Alpha0 = '0', Alpha1, Alpha2, Alpha3, Alpha4, Alpha5, Alpha6, Alpha7, Alpha8, Alpha9,
-	A = 'A', B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-};
+#include "stdafx.h"
 
 class Input
 {
@@ -28,4 +20,7 @@ public:
 	static char keys[300];
 	static char keyUp[300];
 	static char keyDown[300];
+};
+	static UCHAR InputKeyBuffer[256];
+	static void update();
 };
