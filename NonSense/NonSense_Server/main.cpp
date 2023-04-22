@@ -47,7 +47,7 @@ void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
 	// 해당 소켓은 제거해버리자. 
 	remoteClient->tcpConnection.Close();
 	{
-		lock_guard<recursive_mutex> lock_rc(mx_rc);
+		lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
 		RemoteClient::remoteClients.erase(remoteClient.get());
 
 		cout << "Client left. There are " << RemoteClient::remoteClients.size() << " connections.\n";
@@ -98,7 +98,7 @@ void Worker_Thread()
 					// 처리할 클라이언트 받아오기
 					shared_ptr<RemoteClient> remoteClient;
 					{
-						lock_guard<recursive_mutex> lock_rc(mx_rc);
+						lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
 						remoteClient = RemoteClient::remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
 					}
 
@@ -204,7 +204,7 @@ int main(int argc, char* argv[])
 	//	Scene::scene->update();
 
 	//	/*{
-	//		lock_guard<recursive_mutex> lock_rc(mx_rc);
+	//		lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
 
 	//		for (auto& rc : RemoteClient::remoteClients) {
 	//			if (!rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>())
@@ -236,7 +236,7 @@ void CloseServer()
 	// i/o 완료 체크
 	p_listenSocket->Close();
 	{
-		lock_guard<recursive_mutex> lock_rc(mx_rc);
+		lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
 
 		for (auto i : RemoteClient::remoteClients)
 		{
@@ -316,7 +316,7 @@ void ProcessAccept()
 
 			// 새 클라이언트를 목록에 추가.
 			{
-				lock_guard<recursive_mutex> lock_rc(mx_rc);
+				lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
 				RemoteClient::remoteClients.insert({ remoteClient.get(), remoteClient });
 
 				cout << "Client joined. There are " << RemoteClient::remoteClients.size() << " connections.\n";
@@ -343,7 +343,7 @@ void ProcessAccept()
 
 void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 {
-	lock_guard<recursive_mutex> lock_rc(mx_rc);
+	lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
 
 	switch (p_Packet[1]) // 패킷 타입
 	{
