@@ -79,83 +79,12 @@ void Player::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 }
 void Player::Rotate(float x, float y, float z)
 {
-	XMFLOAT3 xmf3Look = m_xmf3Look;
-	XMFLOAT3 xmf3Right = m_xmf3Right;
-	XMFLOAT3 xmf3Up = m_xmf3Up;
-
-	DWORD nCameraMode = m_pCamera->GetMode();
-	if ((nCameraMode == FIRST_PERSON_CAMERA) || (nCameraMode == THIRD_PERSON_CAMERA))
-	{
-		if (x != 0.0f)
-		{
-			m_fPitch += x;
-			if (m_fPitch > +89.0f) { x -= (m_fPitch - 89.0f); m_fPitch = +89.0f; }
-			if (m_fPitch < -89.0f) { x -= (m_fPitch + 89.0f); m_fPitch = -89.0f; }
-		}
-		if (y != 0.0f)
-		{
-			m_fYaw += y;
-			if (m_fYaw > 360.0f) m_fYaw -= 360.0f;
-			if (m_fYaw < 0.0f) m_fYaw += 360.0f;
-		}
-		if (z != 0.0f)
-		{
-			m_fRoll += z;
-			if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }
-			if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
-		}
-	//	m_pCamera->Rotate(x, y, z);
-
-		if (y != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(y));
-			xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
-			xmf3Right = Vector3::TransformNormal(xmf3Right, xmmtxRotate);
-		}
-	}
-	else if (nCameraMode == SPACESHIP_CAMERA)
-	{
-	//	m_pCamera->Rotate(x, y, z);
-		if (x != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Right),
-				XMConvertToRadians(x));
-			xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
-			xmf3Up = Vector3::TransformNormal(xmf3Up, xmmtxRotate);
-		}
-		if (y != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up),
-				XMConvertToRadians(y));
-			xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
-			xmf3Right = Vector3::TransformNormal(xmf3Right, xmmtxRotate);
-		}
-		if (z != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Look),
-				XMConvertToRadians(z));
-			xmf3Up = Vector3::TransformNormal(xmf3Up, xmmtxRotate);
-			xmf3Right = Vector3::TransformNormal(xmf3Right, xmmtxRotate);
-		}
-	}
-
-	xmf3Look = Vector3::Normalize(xmf3Look);
-	xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
-	xmf3Up = Vector3::CrossProduct(xmf3Look, xmf3Right, true);
-
-	//m_pCamera->SetLookVector(Vector3::Normalize(xmf3Look));
-	//m_pCamera->SetRightVector(Vector3::CrossProduct(xmf3Up, xmf3Look, true));
-	//m_pCamera->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3Right, true));
-	std::cout << "xmf3Look.x - " << xmf3Look.x << std::endl;
-	std::cout << "xmf3Look.y - " << xmf3Look.y << std::endl;
-	std::cout << "xmf3Look.z - " << xmf3Look.z << std::endl;
-
-	CS_LOOK_PACKET send_packet;
-	send_packet.size = sizeof(CS_LOOK_PACKET);
-	send_packet.type = E_PACKET::E_PACKET_CS_LOOK;
-	send_packet.x = xmf3Look.x;
-	send_packet.y = xmf3Look.y;
-	send_packet.z = xmf3Look.z;
+	CS_ROTATE_PACKET send_packet;
+	send_packet.size = sizeof(CS_ROTATE_PACKET);
+	send_packet.type = E_PACKET::E_PACKET_CS_ROTATE;
+	send_packet.Add_Pitch = x;
+	send_packet.Add_Yaw = y;
+	send_packet.Add_Roll = z;
 	PacketQueue::AddSendPacket(&send_packet);
 }
 void Player::Update(float fTimeElapsed)

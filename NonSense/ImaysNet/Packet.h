@@ -12,7 +12,7 @@ enum E_PACKET
 	E_PACKET_NONE = 0,
 
 	// Client -> Server packet
-	E_PACKET_CS_LOGIN, E_PACKET_CS_KEYDOWN, E_PACKET_CS_KEYUP, E_PACKET_CS_MOVE, E_PACKET_CS_LOOK,
+	E_PACKET_CS_LOGIN, E_PACKET_CS_KEYDOWN, E_PACKET_CS_KEYUP, E_PACKET_CS_MOVE, E_PACKET_CS_ROTATE,
 
 	// Server -> Client packet
 	E_PACKET_SC_LOGIN_INFO, E_PACKET_SC_ADD_PLAYER, E_PACKET_SC_REMOVE_PLAYER, 
@@ -40,9 +40,9 @@ public:
 	float	dirX, dirY, dirZ;
 };
 
-class CS_LOOK_PACKET : public PACKET_HEAD {
+class CS_ROTATE_PACKET : public PACKET_HEAD {
 public:
-	float	x, y, z;
+	float	Add_Pitch, Add_Yaw, Add_Roll;
 };
 
 class CS_KEYDOWN_PACKET : public PACKET_HEAD {

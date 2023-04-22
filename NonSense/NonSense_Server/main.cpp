@@ -418,31 +418,30 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		}
 		break;
 	}
-	case E_PACKET::E_PACKET_CS_LOOK: {
-		CS_LOOK_PACKET* recv_packet = reinterpret_cast<CS_LOOK_PACKET*>(p_Packet);
+	case E_PACKET::E_PACKET_CS_ROTATE: {
+		CS_ROTATE_PACKET* recv_packet = reinterpret_cast<CS_ROTATE_PACKET*>(p_Packet);
 		auto pm = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>();
-		XMFLOAT3 xmf3Look{ XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z) };
-		XMFLOAT3 xmf3RightVector = pm->GetRightVector();
-		XMFLOAT3 xmf3UpVector = pm->GetUpVector();
+		float RotX = recv_packet->Add_Pitch;
+		float RotY = recv_packet->Add_Yaw;
+		float RotZ = recv_packet->Add_Roll;
 
-		pm->SetLookVector(xmf3Look);
-		pm->SetRightVector(Vector3::CrossProduct(xmf3UpVector, xmf3Look, true));
-		xmf3RightVector = pm->GetRightVector();
-		pm->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3RightVector, true));
-		xmf3UpVector = pm->GetUpVector();
+		XMFLOAT3 xmf3Look = pm->GetLookVector();
+		XMFLOAT3 xmf3Up = pm->GetUpVector();
+		XMFLOAT3 xmf3Right = pm->GetRightVector();
 
-		cout << "xmf3Look.x - " << xmf3Look.x << endl;
-		cout << "xmf3Look.y - " << xmf3Look.y << endl;
-		cout << "xmf3Look.z - " << xmf3Look.z << endl;
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(RotY));
+		pm->SetLookVector(Vector3::TransformNormal(xmf3Look, xmmtxRotate));
+		pm->SetRightVector(Vector3::TransformNormal(xmf3Right, xmmtxRotate));
 
+		XMFLOAT3 xmf3FinalLook = pm->GetLookVector();
 		for (auto& rc_to : RemoteClient::remoteClients) {
 			SC_LOOK_PLAYER_PACKET send_packet;
 			send_packet.size = sizeof(SC_LOOK_PLAYER_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_LOOK_PLAYER;
 			send_packet.id = p_Client->m_id;
-			send_packet.x = xmf3Look.x;
-			send_packet.y = xmf3Look.y;
-			send_packet.z = xmf3Look.z;
+			send_packet.x = xmf3FinalLook.x;
+			send_packet.y = xmf3FinalLook.y;
+			send_packet.z = xmf3FinalLook.z;
 			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 		break;
