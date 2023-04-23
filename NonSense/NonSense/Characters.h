@@ -19,13 +19,13 @@ protected:
 	float m_RemainHP = 100;
 	Monster_HP_UI* m_pHP = NULL;
 	XMFLOAT3 m_xmf3Velocity = XMFLOAT3(0,0,0);
+	Shader* m_pBoundingShader = NULL;
+	CubeMesh* m_pBoundMesh = NULL;
 public:
 
 	Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel);
 	virtual ~Character() {}
 	virtual void OnPrepareRender();
-	virtual void update();
-	virtual void OnUpdateCallback(float fTimeElapsed);
 	virtual void GetHit(float damage) { m_RemainHP -= damage; }
 };
 

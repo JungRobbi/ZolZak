@@ -24,10 +24,21 @@ Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) :
 	Character(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
+	m_pBoundingShader = new BoundingShader();
+	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pBoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pBoundMesh, m_pBoundingShader);
 	switch (type)
 	{
 	case MONSTER_TYPE_CLOSE:
 		AddComponent<CloseTypeFSMComponent>();
+
+		bb->SetNum(2);
+		AddComponent<BoxCollideComponent>();
+		GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
+		GetComponent<BoxCollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(0.3, 0.5, 0.3));
+		GetComponent<BoxCollideComponent>()->SetMoveAble(true);
+
 		m_Health = 965;
 		m_RemainHP = 965;
 		m_Attack = 200;
@@ -78,26 +89,4 @@ void Character::OnPrepareRender()
 	Object::OnPrepareRender();
 	m_pHP->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, GetComponent<BoxCollideComponent>()->GetBoundingObject()->Extents.y * 2 + 0.3, 0)));
 	m_pHP->HP = m_RemainHP / m_Health;
-}
-
-void Character::update()
-{
-	//m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(XMFLOAT3(0.0f, -60.0f, 0.0f), fTimeElapsed, false));
-	//SetPosition(Vector3::Add(GetPosition(), m_xmf3Velocity));
-}
-
-void Character::OnUpdateCallback(float fTimeElapsed)
-{
-	//XMFLOAT3 xmf3PlayerPosition = GetPosition();
-	//HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
-
-	//float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x + 400.0f, xmf3PlayerPosition.z + 400.0f);
-	//if (xmf3PlayerPosition.y < fHeight)
-	//{
-	//	XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
-	//	xmf3PlayerVelocity.y = 0.0f;
-	//	SetVelocity(xmf3PlayerVelocity);
-	//	xmf3PlayerPosition.y = fHeight;
-	//	SetPosition(xmf3PlayerPosition);
-	//}
 }
