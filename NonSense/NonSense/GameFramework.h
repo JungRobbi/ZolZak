@@ -72,6 +72,7 @@ public:
 	DebugShader* m_pDebug = NULL;
 	Object* m_pSelectedObject = NULL;
 	POINT m_ptOldCursorPos;
+	SCENE_TYPE scene_type;
 
 	GameFramework();
 	~GameFramework();
