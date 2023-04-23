@@ -96,6 +96,7 @@ void Player::Rotate(float x, float y, float z)
 		send_packet.Add_Yaw = y;
 		send_packet.Add_Roll = z;
 		PacketQueue::AddSendPacket(&send_packet);
+		
 	}
 	else {
 		DWORD nCameraMode = m_pCamera->GetMode();
@@ -179,7 +180,7 @@ void Player::Update(float fTimeElapsed)
 		float fDeceleration = (m_fFriction * fTimeElapsed);
 		if (fDeceleration > fLength) fDeceleration = fLength;
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
-	//	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
+		if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 	}
 
 	DWORD nCameraMode = m_pCamera->GetMode();

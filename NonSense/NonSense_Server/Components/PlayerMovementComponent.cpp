@@ -118,20 +118,16 @@ void PlayerMovementComponent::updateValocity()
 
 void PlayerMovementComponent::Jump()
 {
-	std::cout << "JUMP!" << endl;
-	XMFLOAT3 pos = m_xmf3Position;
-	XMFLOAT3 vel = m_xmf3Velocity;
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
 
-	float fHeight = pTerrain->GetHeight(pos.x - pTerrain->GetPosition().x, pos.z - pTerrain->GetPosition().z);
-	if (pos.y <= fHeight) {
-		SetVelocity(XMFLOAT3(vel.x, 25.f, vel.z));
+	float fHeight = pTerrain->GetHeight(m_xmf3Position.x - pTerrain->GetPosition().x, m_xmf3Position.z - pTerrain->GetPosition().z);
+	if (m_xmf3Position.y <= fHeight) {
+		m_xmf3Velocity.y = 25.f;
 	}
 }
 
 void PlayerMovementComponent::Dash()
 {
-	std::cout << "Dash!" << endl;
 	Dashing = true;
 	CanDash = false;
 	DashTimeLeft = DashDuration;
@@ -140,17 +136,18 @@ void PlayerMovementComponent::Dash()
 	XMFLOAT3 look = GetLookVector();
 	float DistanceRatio = DashDistance / DashDuration;
 //	SetMaxVelocityXZ(6.5f);
-	m_xmf3Velocity = XMFLOAT3(look.x * DistanceRatio, look.y * DistanceRatio, look.z * DistanceRatio);
+	m_xmf3Velocity.x += look.x * DistanceRatio;
+	m_xmf3Velocity.y += look.y * DistanceRatio;
+	m_xmf3Velocity.z += look.z * DistanceRatio;
 }
-
 
 void PlayerMovementComponent::OnPlayerUpdateCallback()
 {
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
 
 	float fHeight = pTerrain->GetHeight(m_xmf3Position.x - pTerrain->GetPosition().x, m_xmf3Position.z - pTerrain->GetPosition().z);
-	if (m_xmf3Position.y < fHeight) {
-		m_xmf3Velocity.y = 0.0f;
+	if (m_xmf3Position.y <= fHeight) {
+		m_xmf3Velocity.y = -5.0f;
 		m_xmf3Position.y = fHeight;
 	}
 }

@@ -209,14 +209,12 @@ int main(int argc, char* argv[])
 		Timer::Tick(0.0f);
 		Scene::scene->update();
 
-		
-
 		for (auto rc : RemoteClient::remoteClients) {
 			auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
 
-			cout << "vel.y = " << vel.y << endl;
 			if (!Vector3::Length(vel))
 				continue;
+
 			auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
 			for (auto rc_to : RemoteClient::remoteClients) {
 				SC_MOVE_PLAYER_PACKET send_packet;
