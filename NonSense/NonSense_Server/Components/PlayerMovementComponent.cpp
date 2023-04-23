@@ -13,10 +13,10 @@ void PlayerMovementComponent::start()
 	m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	m_fMaxVelocityXZ = 0.0f;
+	m_xmf3Gravity = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	m_fMaxVelocityXZ = 100.0f;
 	m_fMaxVelocityY = 0.0f;
-	m_fFriction = 0.0f;
+	m_fFriction = 5.0f;
 	m_fPitch = 0.0f;
 	m_fRoll = 0.0f;
 	m_fYaw = 0.0f;

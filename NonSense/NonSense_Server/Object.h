@@ -1,12 +1,12 @@
 #pragma once
 #include <list>
-
+#include <memory>
 #include "Components/Component.h"
 
 class Object
 {
 protected:
-	std::list<Component*> components;
+	std::list<std::shared_ptr<Component>> components;
 
 public:
 	Object();
@@ -28,24 +28,25 @@ public:
 	}
 
 	template<typename T>
-	T* AddComponent();
+	std::shared_ptr<T> AddComponent();
 
 	template<typename T>
-	T* GetComponent()
+	std::shared_ptr<T> GetComponent()
 	{
 		for (auto component : components)
 		{
-			auto c = dynamic_cast<T*>(component);
-			if (c) return c;
+			std::shared_ptr<T> c = std::dynamic_pointer_cast<T>(component);
+			if (c) 
+				return c;
 		}
 		return nullptr;
 	}
 };
 
 template<typename T>
-T* Object::AddComponent()
+std::shared_ptr<T> Object::AddComponent()
 {
-	auto component = new T;
+	auto component = std::make_shared<T>();
 	component->gameObject = this;
 	components.push_back(component);
 	return component;

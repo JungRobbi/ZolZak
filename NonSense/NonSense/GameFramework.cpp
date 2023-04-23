@@ -310,7 +310,7 @@ void GameFramework::BuildObjects()
 	//	gameScene->BuildObjects(m_pDevice, m_pCommandList);
 	//}
 	//ChangeScene(2);
-	//m_GameScenes.back()->BuildObjects(m_pDevice, m_pCommandList);
+	m_GameScenes.back()->BuildObjects(m_pDevice, m_pCommandList);
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());	
 	m_pCamera = m_pPlayer->GetCamera();

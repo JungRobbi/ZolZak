@@ -201,28 +201,27 @@ int main(int argc, char* argv[])
 		worker_threads.emplace_back(make_shared<thread>(Worker_Thread));
 
 	while (true) {
-	//	Timer::Tick(0.0f);
-	//	Scene::scene->update();
+		Timer::Tick(0.0f);
+		Scene::scene->update();
 
-		/*{
-			lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
+		
 
-			for (auto& rc : RemoteClient::remoteClients) {
-				if (!rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>())
-					continue;
-				auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
-				for (auto& rc_to : RemoteClient::remoteClients) {
-					SC_MOVE_PLAYER_PACKET send_packet;
-					send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
-					send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
-					send_packet.id = rc.second->m_id;
-					send_packet.x = rc_pos.x;
-					send_packet.y = rc_pos.y;
-					send_packet.z = rc_pos.z;
-					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
-				}
+		for (auto rc : RemoteClient::remoteClients) {
+			auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
+			if (!Vector3::Length(vel))
+				continue;
+			auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
+			for (auto rc_to : RemoteClient::remoteClients) {
+				SC_MOVE_PLAYER_PACKET send_packet;
+				send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
+				send_packet.id = rc.second->m_id;
+				send_packet.x = rc_pos.x;
+				send_packet.y = rc_pos.y;
+				send_packet.z = rc_pos.z;
+				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
-		}*/
+		}
 	}
 
 	for (auto& th : worker_threads) th->join();
@@ -296,7 +295,7 @@ void ProcessAccept()
 		shared_ptr<RemoteClient> remoteClient = remoteClientCandidate;
 		remoteClient->m_id = N_CLIENT_ID++;
 		remoteClient->m_pPlayer = make_shared<Player>();
-//		remoteClient->m_pPlayer->start();
+		remoteClient->m_pPlayer->start();
 		remoteClient->m_pPlayer->remoteClient = remoteClient.get();
 
 		// 새 TCP 소켓도 IOCP에 추가한다.
@@ -404,9 +403,10 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		CS_MOVE_PACKET* recv_packet = reinterpret_cast<CS_MOVE_PACKET*>(p_Packet);
 		XMFLOAT3 xmf3Dir{ XMFLOAT3(recv_packet->dirX, recv_packet->dirY, recv_packet->dirZ) };
 		auto pm = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>();
-		pm->Move(xmf3Dir, false);
+		pm->Move(xmf3Dir, true);
 
-		for (auto& rc_to : RemoteClient::remoteClients) {
+
+		/*for (auto& rc_to : RemoteClient::remoteClients) {
 			SC_MOVE_PLAYER_PACKET send_packet;
 			send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
@@ -415,7 +415,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 			send_packet.y = pm->GetPosition().y;
 			send_packet.z = pm->GetPosition().z;
 			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
-		}
+		}*/
 		break;
 	}
 	case E_PACKET::E_PACKET_CS_ROTATE: {
