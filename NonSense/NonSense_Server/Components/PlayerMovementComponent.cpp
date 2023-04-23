@@ -13,10 +13,10 @@ void PlayerMovementComponent::start()
 	m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	m_xmf3Gravity = XMFLOAT3(0.0f, -1.0f, 0.0f);
-	m_fMaxVelocityXZ = 100.0f;
-	m_fMaxVelocityY = 0.0f;
-	m_fFriction = 5.0f;
+	m_xmf3Gravity = XMFLOAT3(0.0f, -60.0f, 0.0f);
+	m_fMaxVelocityXZ = 6.5f;
+	m_fMaxVelocityY = 400.0f;
+	m_fFriction = 30.0f;
 	m_fPitch = 0.0f;
 	m_fRoll = 0.0f;
 	m_fYaw = 0.0f;
@@ -24,7 +24,6 @@ void PlayerMovementComponent::start()
 
 void PlayerMovementComponent::update()
 {
-	auto& keyboard = dynamic_cast<Player*>(gameObject)->remoteClient->m_KeyInput.keys;
 	DWORD direction = 0;
 
 	/*if (keyboard['W'] || keyboard['w']) 
@@ -40,6 +39,30 @@ void PlayerMovementComponent::update()
 		Move(direction, 50.0f * Timer::GetTimeElapsed(), false);
 	}
 	updateValocity();
+
+	if (Dashing)
+	{
+		if (DashTimeLeft > 0.0f)
+		{
+			DashTimeLeft -= Timer::GetTimeElapsed();
+		}
+		else
+		{
+			Dashing = false;
+			SetVelocity(XMFLOAT3(0, 0, 0));
+		}
+	}
+	if (!CanDash)
+	{
+		if (DashCoolTimeLeft > 0.0f)
+		{
+			DashCoolTimeLeft -= Timer::GetTimeElapsed();
+		}
+		else
+		{
+			CanDash = true;
+		}
+	}
 }
 
 void PlayerMovementComponent::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
@@ -89,4 +112,32 @@ void PlayerMovementComponent::updateValocity()
 	float fDeceleration = (m_fFriction * fTimeElapsed);
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+
+}
+
+void PlayerMovementComponent::Jump()
+{
+	std::cout << "JUMP!" << endl;
+	XMFLOAT3 pos = m_xmf3Position;
+	XMFLOAT3 vel = m_xmf3Velocity;
+	//HeightMapTerrain* pTerrain = (HeightMapTerrain*)(((Player*)gameObject)->m_pPlayerUpdatedContext);
+
+	//float fHeight = pTerrain->GetHeight(pos.x + 400.0f, pos.z + 400.0f);
+	//if (pos.y <= fHeight) {
+		SetVelocity(XMFLOAT3(vel.x, 25.f, vel.z));
+	//}
+}
+
+void PlayerMovementComponent::Dash()
+{
+	std::cout << "Dash!" << endl;
+	Dashing = true;
+	CanDash = false;
+	DashTimeLeft = DashDuration;
+	DashCoolTimeLeft = DashCoolTime;
+
+	XMFLOAT3 look = GetLookVector();
+	float DistanceRatio = DashDistance / DashDuration;
+//	SetMaxVelocityXZ(6.5f);
+	m_xmf3Velocity = XMFLOAT3(look.x * DistanceRatio, look.y * DistanceRatio, look.z * DistanceRatio);
 }

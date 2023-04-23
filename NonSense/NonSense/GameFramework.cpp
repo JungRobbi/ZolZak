@@ -355,6 +355,24 @@ void GameFramework::ReleaseObjects()
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	LPARAM lParam)
 {
+	if (NetworkMGR::b_isNet) {
+		if (nMessageID == WM_RBUTTONDOWN) {
+			CS_KEYDOWN_PACKET send_packet;
+			send_packet.size = sizeof(CS_KEYDOWN_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_KEYDOWN;
+			send_packet.key = wParam;
+			PacketQueue::AddSendPacket(&send_packet);
+
+		}
+		else if (nMessageID == WM_RBUTTONUP) {
+			CS_KEYUP_PACKET send_packet;
+			send_packet.size = sizeof(CS_KEYUP_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_KEYUP;
+			send_packet.key = wParam;
+			PacketQueue::AddSendPacket(&send_packet);
+		}
+	}
+
 	GameScene::MainScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
 	{

@@ -12,7 +12,7 @@ void PlayerMovementComponent::Jump()
 	float fHeight = pTerrain->GetHeight(pos.x + 400.0f, pos.z + 400.0f);
 	if (pos.y <= fHeight) {
 		XMFLOAT3 vel = ((Player*)gameObject)->GetVelocity();
-		((Player*)gameObject)->SetVelocity(XMFLOAT3(vel.x, 25.0f, vel.z));
+//		((Player*)gameObject)->SetVelocity(XMFLOAT3(vel.x, 25.0f, vel.z));
 		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
 		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 4);
 		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 4);
@@ -29,8 +29,8 @@ void PlayerMovementComponent::Dash()
 	XMFLOAT3 look = ((Player*)gameObject)->GetLook();
 	float DistanceRatio = DashDistance / DashDuration;
 	XMFLOAT3 vel = XMFLOAT3(look.x * DistanceRatio, look.y * DistanceRatio, look.z * DistanceRatio);
-	((Player*)gameObject)->SetMaxVelocityXZ(6.5f);
-	((Player*)gameObject)->SetVelocity(vel);
+//	((Player*)gameObject)->SetMaxVelocityXZ(6.5f);
+//	((Player*)gameObject)->SetVelocity(vel);
 	((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
 	((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 3);
 	((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 3);

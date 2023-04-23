@@ -167,9 +167,9 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET::E_PACKET_SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(p_Packet);
-	
+		Player* player = GameFramework::MainGameFramework->m_pPlayer;
 		if (recv_packet->id == GameFramework::MainGameFramework->m_pPlayer->id) {
-			GameFramework::MainGameFramework->m_pPlayer->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
+			player = GameFramework::MainGameFramework->m_pPlayer;
 		}
 		else {
 			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
@@ -181,8 +181,12 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
 				break;
 
+			player = dynamic_cast<Player*>(*p);
 			dynamic_cast<Player*>(*p)->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
 		}
+
+		player->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
+
 		break;
 	}
 	case E_PACKET::E_PACKET_SC_LOOK_PLAYER: {

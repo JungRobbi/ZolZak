@@ -122,8 +122,7 @@ void Worker_Thread()
 							char* recv_buf = remoteClient->tcpConnection.m_recvOverlapped._buf;
 							int recv_buf_Length = ec;
 
-							cout << " recv! - recv_buf_Length : " << recv_buf_Length << endl;
-
+		
 							{ // 패킷 처리
 								int remain_data = recv_buf_Length + remoteClient->tcpConnection.m_prev_remain;
 								while (remain_data > 0) {
@@ -391,6 +390,18 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		CS_KEYDOWN_PACKET* recv_packet = reinterpret_cast<CS_KEYDOWN_PACKET*>(p_Packet);
 		p_Client->m_KeyInput.keys[recv_packet->key] = TRUE;
 		cout << recv_packet->key << " E_PACKET_CS_KEYDOWN" << endl;
+
+		switch (recv_packet->key)
+		{
+		case VK_SPACE:
+			p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->Jump();
+			break;
+		case VK_RBUTTON:
+			p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->Dash();
+			break;
+		default:
+			break;
+		}
 		break;
 	}
 	case E_PACKET::E_PACKET_CS_KEYUP: {
@@ -404,18 +415,6 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		XMFLOAT3 xmf3Dir{ XMFLOAT3(recv_packet->dirX, recv_packet->dirY, recv_packet->dirZ) };
 		auto pm = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>();
 		pm->Move(xmf3Dir, true);
-
-
-		/*for (auto& rc_to : RemoteClient::remoteClients) {
-			SC_MOVE_PLAYER_PACKET send_packet;
-			send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
-			send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
-			send_packet.id = p_Client->m_id;
-			send_packet.x = pm->GetPosition().x;
-			send_packet.y = pm->GetPosition().y;
-			send_packet.z = pm->GetPosition().z;
-			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
-		}*/
 		break;
 	}
 	case E_PACKET::E_PACKET_CS_ROTATE: {

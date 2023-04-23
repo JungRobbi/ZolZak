@@ -20,7 +20,19 @@ class PlayerMovementComponent :
 	float m_fMaxVelocityY;
 	float m_fFriction;
 
+	float CursorCoolTime = 1.0f;
+	float MaxCursorCoolTime = 1.0f;
+
+	float DashDistance = 3.5f;
+	float DashDuration = 0.5f;
+	float DashTimeLeft = 0.0f;
+	float DashCoolTime = 5.0f;
+	float DashCoolTimeLeft = 0.0f;
+	bool Dashing = false;
+	bool CanDash = true;
+
 public:
+
     void start();
     void update();
 
@@ -50,5 +62,8 @@ public:
 	void Move(XMFLOAT3& xmf3Shift, bool bVelocity = false);
 
 	void updateValocity();
+
+	void Jump();
+	void Dash();
 };
 
