@@ -2,7 +2,7 @@
 #include "BoxCollideComponent.h"
 #include "GameScene.h"
 #include "CloseTypeFSMComponent.h"
-
+#include "AttackComponent.h"
 
 
 Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) :
@@ -38,7 +38,10 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	{
 	case MONSTER_TYPE_CLOSE:
 		AddComponent<CloseTypeFSMComponent>();
-
+		AddComponent<AttackComponent>();
+		GetComponent<AttackComponent>()->SetAttackSpeed(3.0f);
+		GetComponent<AttackComponent>()->AttackCombo1_AnineSetNum = 4;
+		GetComponent<AttackComponent>()->Type_ComboAttack = false;
 		bb->SetNum(2);
 		AddComponent<BoxCollideComponent>();
 		GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);

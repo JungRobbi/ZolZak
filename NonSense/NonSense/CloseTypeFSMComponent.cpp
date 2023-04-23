@@ -2,6 +2,7 @@
 #include "Characters.h"
 #include "GameFramework.h"
 #include "CloseTypeState.h"
+#include "AttackComponent.h"
 void CloseTypeFSMComponent::start()
 {
 	m_pFSM = new FSM<CloseTypeFSMComponent>(this);
@@ -22,6 +23,7 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 {
 	XMFLOAT3 OwnerPos = gameObject->GetPosition();
 	XMFLOAT3 PlayerPos = GameFramework::MainGameFramework->m_pPlayer->GetPosition();
+	TargetPlayer = GameFramework::MainGameFramework->m_pPlayer;
 	float Distance = Vector3::Length(Vector3::Subtract(OwnerPos, PlayerPos));
 	if (Distance < ChangeStateDistance)
 		return true;
@@ -29,28 +31,48 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 		return false;
 }
 
-void CloseTypeFSMComponent::Move_Walk()
+void CloseTypeFSMComponent::Stop()
+{
+	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
+}
+
+void CloseTypeFSMComponent::Move_Walk(float dist)
 {
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
 }
-void CloseTypeFSMComponent::Move_Run()
+void CloseTypeFSMComponent::Move_Run(float dist)
 {
+	gameObject->MoveForward(dist);
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(2);
 }
 void CloseTypeFSMComponent::Attack()
 {
-	gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 5);
-	gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 5);
-	gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 5);
-	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+	if (!gameObject->GetComponent<AttackComponent>()->During_Attack)
+		gameObject->GetComponent<AttackComponent>()->Attack();
 }
 
 void CloseTypeFSMComponent::Track()
 {
-	Move_Run();
+	XMFLOAT3 TargetPos = TargetPlayer->GetPosition();
+	XMFLOAT3 CurrentPos = gameObject->GetPosition();
+	XMFLOAT3 Direction = Vector3::Normalize(Vector3::Subtract(TargetPos, CurrentPos));
+	XMFLOAT3 Look = gameObject->GetLook();
+	XMFLOAT3 CrossProduct = Vector3::CrossProduct(Look, Direction);
+	float Dot = Vector3::DotProduct(Look, Direction);
+	float ToTargetAngle = XMConvertToDegrees(acos(Dot));
+	float Angle = (CrossProduct.y > 0.0f) ? 180.0f : -180.0f;
+	if (ToTargetAngle > 7.0f)
+		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
+	float Distance = Vector3::Length(Vector3::Subtract(TargetPos, CurrentPos));
+	if (Distance > 1.5f)
+		Move_Run(2.0f * Timer::GetTimeElapsed());
+	else
+	{
+		Stop();
+		Attack();
+	}
 }
-
 void CloseTypeFSMComponent::Wander()
 {
-	Move_Walk();
+
 }
