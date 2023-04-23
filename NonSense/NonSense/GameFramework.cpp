@@ -294,21 +294,17 @@ void GameFramework::CreateDepthStencilView()
 
 void GameFramework::BuildObjects()
 {
-	//m_pCommandList->Reset(m_pCommandAllocator, NULL);
-
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
 	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Stage
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
-	m_GameScenes.emplace_back(new GameScene());
+	m_GameScenes.emplace_back(new Stage_GameScene());
 	
 	ChangeScene(LOGIN_SCENE);
-	m_pCommandList->Reset(m_pCommandAllocator, NULL);
-	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());	
-	m_pCamera = m_pPlayer->GetCamera();
 
+	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 	char n_players = 3;
 	for (int i{}; i < n_players; ++i) {
 		m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
@@ -508,7 +504,9 @@ void GameFramework::ChangeScene(unsigned char num)
 	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->ReleaseObjects();
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
+	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 	scene_type = (SCENE_TYPE)num;
+	m_pCamera = m_pPlayer->GetCamera();
 
 	m_pCommandList->Close();
 
@@ -516,6 +514,7 @@ void GameFramework::ChangeScene(unsigned char num)
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 }
+
 void GameFramework::ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta)
 {
 	//픽킹으로 선택한 게임 객체가 있으면 키보드를 누르거나 마우스를 움직이면 게임 개체를 이동 또는 회전한다.

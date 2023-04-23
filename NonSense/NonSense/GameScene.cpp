@@ -273,21 +273,31 @@ void GameScene::ReleaseObjects()
 	if (m_pMaterials) delete m_pMaterials;
 	if (m_pSkyBox) delete m_pSkyBox;
 
-	for (auto object : gameObjects)
-		delete object;
-	gameObjects.clear();
-	for (auto object : blendGameObjects)
-		delete object;
-	blendGameObjects.clear();
-	for (auto object : UIGameObjects)
-		delete object;
-	UIGameObjects.clear();
-	for (auto object : BoundingGameObjects)
-		delete object;
-	BoundingGameObjects.clear();
-	for (auto object : MonsterObjects)
-		delete object;
-	MonsterObjects.clear();
+	if (&gameObjects) {
+		for (auto object : gameObjects)
+			delete object;
+		gameObjects.clear();
+	}
+	if (&blendGameObjects) {
+		for (auto object : blendGameObjects)
+			delete object;
+		blendGameObjects.clear();
+	}
+	if (&UIGameObjects) {
+		for (auto object : UIGameObjects)
+			delete object;
+		UIGameObjects.clear();
+	}
+	if (&BoundingGameObjects) {
+		for (auto object : BoundingGameObjects)
+			delete object;
+		BoundingGameObjects.clear();
+	}
+	if (&MonsterObjects) {
+		for (auto object : MonsterObjects)
+			delete object;
+		MonsterObjects.clear();
+	}
 }
 
 void GameScene::ReleaseUploadBuffers()
