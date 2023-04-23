@@ -304,17 +304,11 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new GameScene());
 
-	for (auto& gameScene : m_GameScenes)
-		gameScene->BuildObjects(m_pDevice, m_pCommandList);
+	//for (auto& gameScene : m_GameScenes)
+	//	gameScene->BuildObjects(m_pDevice, m_pCommandList);
+	m_GameScenes.back()->BuildObjects(m_pDevice, m_pCommandList);
 
-	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
-	BoundSphere* bs = new BoundSphere(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature());
-	
-	m_pPlayer->AddComponent<SphereCollideComponent>();
-	m_pPlayer->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
-	m_pPlayer->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
-
-	
+	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());	
 	m_pCamera = m_pPlayer->GetCamera();
 
 	char n_players = 3;

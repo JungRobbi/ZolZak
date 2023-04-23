@@ -77,7 +77,6 @@ public:
 	void Rotate(float x, float y, float z);
 
 	virtual void Update(float fTimeElapsed);
-	virtual void SetTerrain(void* pContext);
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	void SetPlayerUpdatedContext(LPVOID pContext) { m_pPlayerUpdatedContext = pContext; }
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
@@ -100,7 +99,7 @@ public:
 	CubeMesh* m_pBoundMesh = NULL;
 	SphereMesh* m_pSphereMesh = NULL;
 
-	MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext);
 	virtual ~MagePlayer() {}
 
 	virtual Camera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
