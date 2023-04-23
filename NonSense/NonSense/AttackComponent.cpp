@@ -77,6 +77,7 @@ void AttackComponent::update()
 		{
 			if ((Input::InputKeyBuffer[VK_LBUTTON] & 0xF0))
 			{
+				printf("asdfa");
 				if (!During_Attack)
 				{
 					Attack();

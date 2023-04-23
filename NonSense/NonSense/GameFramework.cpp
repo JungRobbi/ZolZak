@@ -520,15 +520,8 @@ void GameFramework::ProcessInput()
 
 	if (::GetCapture() == m_hWnd)
 	{
-		////마우스 커서를 화면에서 없앤다(보이지 않게 한다).
-		//::SetCursor(NULL);
-		////현재 마우스 커서의 위치를 가져온다.
-		//::GetCursorPos(&ptCursorPos);
-		////마우스 버튼이 눌린 상태에서 마우스가 움직인 양을 구한다.
-		//cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-		//cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-		////마우스 커서의 위치를 마우스가 눌려졌던 위치로 설정한다.
-		//::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+		::GetCursorPos(&ptCursorPos);
+		printf("%f, %f\n", (float)ptCursorPos.x / FRAME_BUFFER_WIDTH, (float)ptCursorPos.y / FRAME_BUFFER_HEIGHT);
 	}
 	//마우스 또는 키 입력이 있으면 플레이어를 이동하거나(dwDirection) 회전한다(cxDelta 또는 cyDelta).
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
