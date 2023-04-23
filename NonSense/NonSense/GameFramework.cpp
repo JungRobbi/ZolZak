@@ -303,9 +303,13 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new GameScene());
-
-	for (auto& gameScene : m_GameScenes)
-		gameScene->BuildObjects(m_pDevice, m_pCommandList);
+	scene_type = LOGIN_SCENE;
+	//for (auto& gameScene : m_GameScenes)
+	//{
+	//	GameScene::MainScene = gameScene;
+	//	gameScene->BuildObjects(m_pDevice, m_pCommandList);
+	//}
+	//ChangeScene(2);
 	//m_GameScenes.back()->BuildObjects(m_pDevice, m_pCommandList);
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());	
