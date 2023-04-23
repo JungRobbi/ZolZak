@@ -308,14 +308,7 @@ void GameFramework::BuildObjects()
 //		gameScene->BuildObjects(m_pDevice, m_pCommandList);
 	m_GameScenes.back()->BuildObjects(m_pDevice, m_pCommandList);
 
-	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
-	BoundSphere* bs = new BoundSphere(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature());
-	
-	m_pPlayer->AddComponent<SphereCollideComponent>();
-	m_pPlayer->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
-	m_pPlayer->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
-
-	
+	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());	
 	m_pCamera = m_pPlayer->GetCamera();
 
 	char n_players = 3;
@@ -626,7 +619,7 @@ void GameFramework::MoveToNextFrame()
 void GameFramework::FrameAdvance()
 {
 	Timer::Tick(0.0f);
-	
+
 	if (!m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose)
 	{
 		::SetCapture(m_hWnd);
@@ -687,7 +680,13 @@ void GameFramework::FrameAdvance()
 
 	///////////////////////////////////
 
-
+	//for (auto& o : pScene->gameObjects)
+	//{
+	//	if (o->GetComponent<SphereCollideComponent>())
+	//		if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject())) printf("구체 충돌");
+	//	if (o->GetComponent<BoxCollideComponent>())
+	//		if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject())) printf("OBB 충돌");
+	//}
 
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
@@ -702,6 +701,6 @@ void GameFramework::FrameAdvance()
 
 	MoveToNextFrame();
 
-	Timer::GetFrameRate(m_FrameRate+9, 10);
+	Timer::GetFrameRate(m_FrameRate + 9, 10);
 	::SetWindowText(m_hWnd, m_FrameRate);
 }

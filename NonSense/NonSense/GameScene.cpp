@@ -645,13 +645,13 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 			m_pHP_UI->HP -= 0.2;
 			m_pHP_Dec_UI->Dec_HP -= 0.2;
 			m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
- 			 break;
+			break;
 		case 'T':
 			for (auto& o : MonsterObjects)
 			{
 				o->GetHit(100);
 			}
-			
+
 			break;
 		default:
 			break;

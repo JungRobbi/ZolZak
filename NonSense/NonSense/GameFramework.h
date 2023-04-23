@@ -11,11 +11,18 @@
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
+extern enum SCENE_TYPE
+{
+	LOGIN_SCENE = 1,
+	LOBBY_SCENE = 2,
+	GAME_SCENE = 3,
+};
 
 class GameFramework
 {
 private:
 	HINSTANCE m_hInstance;
+
 
 	int m_nWndClientWidth;
 	int m_nWndClientHeight;
@@ -49,6 +56,8 @@ private:
 	ID3D12Fence *m_pFence;
 	UINT64 m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE m_FenceEventHandle;
+
+
 public:
 	static GameFramework* MainGameFramework;
 public:
@@ -63,10 +72,6 @@ public:
 	DebugShader* m_pDebug = NULL;
 	Object* m_pSelectedObject = NULL;
 	POINT m_ptOldCursorPos;
-
-	UI* m_pUI = NULL;
-	Player_HP_UI* m_pHP_UI = NULL;
-	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;
 
 	GameFramework();
 	~GameFramework();
