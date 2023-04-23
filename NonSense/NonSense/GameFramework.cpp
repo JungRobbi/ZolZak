@@ -31,7 +31,7 @@ GameFramework::GameFramework()
 	m_pFence = NULL;
 	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
 	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
-	_tcscpy_s(m_FrameRate, _T("NonSense"));
+	_tcscpy_s(m_FrameRate, _T("NonSense("));
 	
 	MainGameFramework = this;
 
@@ -304,9 +304,9 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new GameScene());
 
-	//for (auto& gameScene : m_GameScenes)
-	//	gameScene->BuildObjects(m_pDevice, m_pCommandList);
-	m_GameScenes.back()->BuildObjects(m_pDevice, m_pCommandList);
+	for (auto& gameScene : m_GameScenes)
+		gameScene->BuildObjects(m_pDevice, m_pCommandList);
+	//m_GameScenes.back()->BuildObjects(m_pDevice, m_pCommandList);
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());	
 	m_pCamera = m_pPlayer->GetCamera();
@@ -680,13 +680,13 @@ void GameFramework::FrameAdvance()
 
 	///////////////////////////////////
 
-	//for (auto& o : pScene->gameObjects)
-	//{
-	//	if (o->GetComponent<SphereCollideComponent>())
-	//		if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject())) printf("备眉 面倒");
-	//	if (o->GetComponent<BoxCollideComponent>())
-	//		if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject())) printf("OBB 面倒");
-	//}
+	for (auto& o : GameScene::MainScene->gameObjects)
+	{
+		if (o->GetComponent<SphereCollideComponent>())
+			if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject())) printf("备眉 面倒");
+		if (o->GetComponent<BoxCollideComponent>())
+			if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject())) printf("OBB 面倒");
+	}
 
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
