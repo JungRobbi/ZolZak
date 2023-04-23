@@ -1,15 +1,19 @@
 #pragma once
 #include "Timer.h"
 #include "Camera.h"
-#include "Scene.h"
 #include "GameScene.h"
-#include "LoginScene.h"
 #include "Player.h"
 #include "Input.h"
 #include "UI.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
+extern enum SCENE_TYPE
+{
+	LOGIN_SCENE = 1,
+	LOBBY_SCENE = 2,
+	GAME_SCENE = 3,
+};
 
 class GameFramework
 {
@@ -71,7 +75,7 @@ public:
 	void CreateDirect3DDevice();
 	void CreateCommandQueueAndList();
 	void MoveToNextFrame();
-	Scene* GetScene() { return pScene; }
+
 	void CreateRenderTargetViews();
 	void CreateDepthStencilView();
 

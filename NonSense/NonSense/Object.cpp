@@ -266,7 +266,7 @@ void Material::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 			(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
 			if (*ppTexture) (*ppTexture)->AddRef();
 
-			pScene->CreateShaderResourceViews(pd3dDevice, *ppTexture, nRootParameter, false);
+			GameScene::CreateShaderResourceViews(pd3dDevice, *ppTexture, nRootParameter, false);
 		}
 		else
 		{
@@ -615,14 +615,14 @@ Object::Object()
 {
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_xmf4x4ToParent, XMMatrixIdentity());
-	pScene->creationQueue.push(this);
+	GameScene::MainScene->creationQueue.push(this);
 }
 Object::Object(bool Push_List)
 {
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_xmf4x4ToParent, XMMatrixIdentity());
 	if (Push_List) {
-		pScene->creationQueue.push(this);
+		GameScene::MainScene->creationQueue.push(this);
 	}
 }
 Object::Object(OBJECT_TYPE type)
@@ -632,16 +632,16 @@ Object::Object(OBJECT_TYPE type)
 	SetNum(OBJNum++);
 	switch (type) {
 	case DEFAULT_OBJECT:
-		pScene->creationQueue.push(this);
+		GameScene::MainScene->creationQueue.push(this);
 		break;
 	case BLEND_OBJECT:
-		pScene->creationBlendQueue.push(this);
+		GameScene::MainScene->creationBlendQueue.push(this);
 		break;
 	case UI_OBJECT:
-		pScene->creationUIQueue.push(this);
+		GameScene::MainScene->creationUIQueue.push(this);
 		break;
 	case BOUNDING_OBJECT:
-		pScene->creationBoundingQueue.push(this);
+		GameScene::MainScene->creationBoundingQueue.push(this);
 		break;
 
 	}
@@ -1512,7 +1512,7 @@ SkyBox::SkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 
 	SkyBoxShader* pSkyBoxShader = new SkyBoxShader();
 	pSkyBoxShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature,1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	pScene->CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 17, false);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 17, false);
 
 	Material* pSkyBoxMaterial = new Material();
 	pSkyBoxMaterial->SetTexture(pSkyBoxTexture);
@@ -1578,7 +1578,7 @@ HeightMapTerrain::HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	TerrainShader* pTerrainShader = new TerrainShader();
 	pTerrainShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, MRT, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-	pScene->CreateShaderResourceViews(pd3dDevice, Terrain_Texture, 18, false);
+	GameScene::CreateShaderResourceViews(pd3dDevice, Terrain_Texture, 18, false);
 
 	m_nMaterials = 1;
 	m_ppMaterials = new Material * [1];

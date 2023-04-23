@@ -149,14 +149,12 @@
     <ClInclude Include="GameState.h" />
     <ClInclude Include="GoblinComponent.h" />
     <ClInclude Include="Input.h" />
-    <ClInclude Include="LoginScene.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MSGQueue.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerMovementComponent.h" />
     <ClInclude Include="RotateComponent.h" />
-    <ClInclude Include="Scene.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="NonSense.h" />
     <ClInclude Include="Resource.h" />
@@ -182,7 +180,6 @@
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="GoblinComponent.cpp" />
     <ClCompile Include="Input.cpp" />
-    <ClCompile Include="LoginScene.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MSGQueue.cpp" />
     <ClCompile Include="NonSense.cpp" />
@@ -190,7 +187,6 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerMovementComponent.cpp" />
     <ClCompile Include="RotateComponent.cpp" />
-    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SphereCollideComponent.cpp" />
     <ClCompile Include="stdafx.cpp" />

@@ -276,25 +276,6 @@ void GameFramework::CreateDepthStencilView()
 	m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer, NULL, m_DSVDescriptorCPUHandle);
 }
 
-void GameFramework::ChangeScene(SCENE_TYPE type)
-{
-
-	switch (type)
-	{
-		case LOGIN_SCENE:
-			pScene = new LoginScene();
-			break;
-		case LOBBY_SCENE:
-			pScene = new GameScene();
-			break;
-		case GAME_SCENE:
-			pScene = new GameScene();
-			break;
-	}
-
-	pScene->BuildObjects(m_pDevice, m_pCommandList);
-}
-
 void GameFramework::BuildObjects()
 {
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
@@ -302,19 +283,20 @@ void GameFramework::BuildObjects()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
-	Scene_Type = GAME_SCENE;
-	pScene = new GameScene();
-	if (pScene) pScene->BuildObjects(m_pDevice, m_pCommandList);
+	auto m_pScene = new GameScene();
+	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
 
-	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, pScene->GetGraphicsRootSignature());
-	pScene->m_pPlayer = m_pPlayer;
+
+	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+
+
+	m_pScene-> m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
-	m_pPlayer->SetTerrain(dynamic_cast<GameScene*>(pScene)->GetTerrain());
-
+	m_pPlayer->SetTerrain(m_pScene->GetTerrain());
 	m_pDebug = new DebugShader();
 	m_pScreen = new ScreenShader();
-	m_pScreen->CreateShader(m_pDevice, pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	m_pDebug->CreateShader(m_pDevice, pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pScreen->CreateShader(m_pDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pDebug->CreateShader(m_pDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 	DXGI_FORMAT pdxgiResourceFormats[MRT - 1] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
 	m_pDebug->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT);
@@ -328,23 +310,27 @@ void GameFramework::BuildObjects()
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	if (pScene) pScene->ReleaseUploadBuffers();
+	if (m_pScene) m_pScene->ReleaseUploadBuffers();
 	if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
 	Timer::Reset();
 }
 
 void GameFramework::ReleaseObjects()
 {
-	pScene->ReleaseObjects();
+	GameScene::MainScene->ReleaseObjects();
 }
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	LPARAM lParam)
 {
-	pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+	GameScene::MainScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
+		//마우스가 눌려지면 마우스 픽킹을 하여 선택한 게임 객체를 찾는다.
+		m_pSelectedObject = GameScene::MainScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pCamera);
+		//마우스 캡쳐를 하고 현재 마우스 위치를 가져온다.
+
 		break;
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
@@ -354,7 +340,7 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 }
 void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+	GameScene::MainScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 
 	switch (nMessageID)
 	{
@@ -379,7 +365,9 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			ChangeSwapChainState();
 			break;
 		case '2':
-			ChangeScene(LOGIN_SCENE);
+			//m_pHP_UI->HP -= 0.05;
+			//m_pHP_Dec_UI->Dec_HP -= 0.05;
+			//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
 			break;
 		case '3':
 			//m_pHP_UI->HP -= 0.2;
@@ -417,6 +405,9 @@ LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessa
 		break;
 	}
 	return(0);
+}
+void GameFramework::ChangeScene(SCENE_TYPE type)
+{
 }
 void GameFramework::ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta)
 {
@@ -474,7 +465,7 @@ void GameFramework::ProcessInput()
 		}
 		else
 		{
-	
+
 			//if (cxDelta || cyDelta)
 			//{
 			//
@@ -492,7 +483,7 @@ void GameFramework::ProcessInput()
 					m_pPlayer->Rotate(0.0f, +0.1f, 0.0f);
 					pKeyBuffer[0x44] = false;
 				}
-			m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
+				m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
 				m_pPlayer->SetWalk(true);
 			}
 		}
@@ -502,7 +493,7 @@ void GameFramework::ProcessInput()
 
 void GameFramework::AnimateObjects()
 {
-	pScene->AnimateObjects(Timer::GetTimeElapsed());
+	GameScene::MainScene->AnimateObjects(Timer::GetTimeElapsed());
 }
 
 void GameFramework::WaitForGpuComplete()
@@ -531,64 +522,61 @@ void GameFramework::MoveToNextFrame()
 void GameFramework::FrameAdvance()
 {
 	Timer::Tick(0.0f);
+
+	if (!m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose)
+	{
+		::SetCapture(m_hWnd);
+		RECT rect;
+		::GetWindowRect(m_hWnd, &rect);
+		m_pPlayer->GetComponent<PlayerMovementComponent>()->SetWindowPos(rect);
+	}
+	ProcessInput();
+	GameScene::MainScene->AnimateObjects(Timer::GetTimeElapsed());
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
-	//Render
-	if (Scene_Type == GAME_SCENE) {
-		if (!m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose)
-		{
-			::SetCapture(m_hWnd);
-			RECT rect;
-			::GetWindowRect(m_hWnd, &rect);
-			m_pPlayer->GetComponent<PlayerMovementComponent>()->SetWindowPos(rect);
-		}
-		ProcessInput();
-		GameScene::MainScene->AnimateObjects(Timer::GetTimeElapsed());
+	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-		ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	GameScene::MainScene->OnPrepareRender(m_pCommandList, m_pCamera);
 
-		GameScene::MainScene->OnPrepareRender(m_pCommandList, m_pCamera);
+	m_pCommandList->ClearDepthStencilView(m_DSVDescriptorCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 
-		m_pCommandList->ClearDepthStencilView(m_DSVDescriptorCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-
-		//////////// MRT Render Target /////////////
-		m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
-		GameScene::MainScene->update();
-		// 불투명 오브젝트, Terrain
-		GameScene::MainScene->Render(m_pCommandList, m_pCamera);
-		// 플레이어
-		if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
-		///////////////////////////////////////////
+	//////////// MRT Render Target /////////////
+	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
+	GameScene::MainScene->update();
+	// 불투명 오브젝트, Terrain
+	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
+	// 플레이어
+	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
+	///////////////////////////////////////////
 
 
-		////////// Back Buffer ///////////
-		m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
+	////////// Back Buffer ///////////
+	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
 
-		// MRT 결과
-		m_pScreen->Render(m_pCommandList, m_pCamera);
-		m_pScreen->OnPostRenderTarget(m_pCommandList);
-		// 투명 오브젝트
-		GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
-		// Sky Box
-		GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
-		// Bounding Box
-		if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
-		// UI
-		GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
-		// Debug 화면
-		//if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
+	// MRT 결과
+	m_pScreen->Render(m_pCommandList, m_pCamera);
+	m_pScreen->OnPostRenderTarget(m_pCommandList);
+	// 투명 오브젝트
+	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
+	// Sky Box
+	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
+	// Bounding Box
+	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
+	// UI
+	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
+	// Debug 화면
+	//if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
-		///////////////////////////////////
-	}
+	///////////////////////////////////
 
-	for (auto& o : pScene->gameObjects)
-	{
-		if(o->GetComponent<SphereCollideComponent>())
-		if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject())) printf("구체 충돌");
-		if (o->GetComponent<BoxCollideComponent>())
-		if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject())) printf("OBB 충돌");
-	}
+	//for (auto& o : pScene->gameObjects)
+	//{
+	//	if (o->GetComponent<SphereCollideComponent>())
+	//		if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject())) printf("구체 충돌");
+	//	if (o->GetComponent<BoxCollideComponent>())
+	//		if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject())) printf("OBB 충돌");
+	//}
 
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
@@ -603,6 +591,6 @@ void GameFramework::FrameAdvance()
 
 	MoveToNextFrame();
 
-	Timer::GetFrameRate(m_FrameRate+9, 10);
+	Timer::GetFrameRate(m_FrameRate + 9, 10);
 	::SetWindowText(m_hWnd, m_FrameRate);
 }

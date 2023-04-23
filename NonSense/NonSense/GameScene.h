@@ -10,10 +10,55 @@
 #include "Object.h"
 #include "Characters.h"
 #include "UI.h"
-#include "Scene.h"
 
-class GameScene : public Scene
+struct LIGHT
 {
+	XMFLOAT4 m_xmf4Ambient;
+	XMFLOAT4 m_xmf4Diffuse;
+	XMFLOAT4 m_xmf4Specular;
+	XMFLOAT3 m_xmf3Position;
+	float m_fFalloff;
+	XMFLOAT3 m_xmf3Direction;
+	float m_fTheta; //cos(m_fTheta)
+	XMFLOAT3 m_xmf3Attenuation;
+	float m_fPhi; //cos(m_fPhi)
+	bool m_bEnable;
+	int m_nType;
+	float m_fRange;
+	float padding;
+};
+struct LIGHTS
+{
+	LIGHT m_pLights[MAX_LIGHTS];
+	XMFLOAT4 m_xmf4GlobalAmbient;
+};
+struct MATERIALS
+{
+	MATERIAL m_pReflections[MAX_MATERIALS];
+};
+
+class GameScene
+{
+public:
+	std::queue<Object*> creationQueue;
+	std::deque<Object*> deletionQueue;
+	std::list<Object*> gameObjects;
+
+	std::queue<Character*> creationMonsterQueue;
+	std::deque<Character*> deletionMonsterQueue;
+	std::list<Character*> MonsterObjects;
+
+	std::queue<Object*> creationBlendQueue;
+	std::deque<Object*> deletionBlendQueue;
+	std::list<Object*> blendGameObjects;
+
+	std::queue<Object*> creationUIQueue;
+	std::deque<Object*> deletionUIQueue;
+	std::list<Object*> UIGameObjects;
+
+	std::queue<Object*> creationBoundingQueue;
+	std::deque<Object*> deletionBoundingQueue;
+	std::list<Object*> BoundingGameObjects;
 
 public:
 	static GameScene* MainScene;
@@ -58,9 +103,11 @@ public:
 	ID3D12RootSignature* GetGraphicsRootSignature();
 	//씬의 모든 게임 객체들에 대한 마우스 픽킹을 수행한다.
 	Object* PickObjectPointedByCursor(int xClient, int yClient, Camera* pCamera);
+	Player* m_pPlayer = NULL;
+	SkyBox* m_pSkyBox = NULL;
 	Player_State_UI* m_pUI = NULL;
 	Player_HP_UI* m_pHP_UI = NULL;
-	Player_HP_DEC_UI* m_pHP_Dec_UI =NULL;
+	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;
 
 	void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
 	static D3D12_GPU_DESCRIPTOR_HANDLE CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nRootParameter, bool bAutoIncrement);
