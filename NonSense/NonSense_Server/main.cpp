@@ -201,8 +201,8 @@ int main(int argc, char* argv[])
 		worker_threads.emplace_back(make_shared<thread>(Worker_Thread));
 
 	while (true) {
-		Timer::Tick(0.0f);
-		Scene::scene->update();
+	//	Timer::Tick(0.0f);
+	//	Scene::scene->update();
 
 		/*{
 			lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
