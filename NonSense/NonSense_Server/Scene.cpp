@@ -27,7 +27,6 @@ void Scene::update()
 	for (auto Object : gameObjects)
 		Object->update();
 
-	auto t = deletionQueue;
 	while (!deletionQueue.empty())
 	{
 		auto Object = deletionQueue.front();

@@ -58,6 +58,7 @@ void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
 Iocp iocp(N_THREAD); // 5개의 스레드 사용을 API에 힌트로 준다.
 
 recursive_mutex mx_accept;
+recursive_mutex mx_scene;
 
 shared_ptr<Socket> p_listenSocket;
 shared_ptr<RemoteClient> remoteClientCandidate;
@@ -199,30 +200,30 @@ int main(int argc, char* argv[])
 	for (int i{}; i < N_THREAD; ++i)
 		worker_threads.emplace_back(make_shared<thread>(Worker_Thread));
 
-	//while (true) {
-	//	Timer::Tick(0.0f);
-	//	Scene::scene->update();
+	while (true) {
+		Timer::Tick(0.0f);
+		Scene::scene->update();
 
-	//	/*{
-	//		lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
+		/*{
+			lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
 
-	//		for (auto& rc : RemoteClient::remoteClients) {
-	//			if (!rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>())
-	//				continue;
-	//			auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
-	//			for (auto& rc_to : RemoteClient::remoteClients) {
-	//				SC_MOVE_PLAYER_PACKET send_packet;
-	//				send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
-	//				send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
-	//				send_packet.id = rc.second->m_id;
-	//				send_packet.x = rc_pos.x;
-	//				send_packet.y = rc_pos.y;
-	//				send_packet.z = rc_pos.z;
-	//				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
-	//			}
-	//		}
-	//	}*/
-	//}
+			for (auto& rc : RemoteClient::remoteClients) {
+				if (!rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>())
+					continue;
+				auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
+				for (auto& rc_to : RemoteClient::remoteClients) {
+					SC_MOVE_PLAYER_PACKET send_packet;
+					send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
+					send_packet.id = rc.second->m_id;
+					send_packet.x = rc_pos.x;
+					send_packet.y = rc_pos.y;
+					send_packet.z = rc_pos.z;
+					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				}
+			}
+		}*/
+	}
 
 	for (auto& th : worker_threads) th->join();
 
@@ -295,9 +296,8 @@ void ProcessAccept()
 		shared_ptr<RemoteClient> remoteClient = remoteClientCandidate;
 		remoteClient->m_id = N_CLIENT_ID++;
 		remoteClient->m_pPlayer = make_shared<Player>();
-		remoteClient->m_pPlayer->start();
+//		remoteClient->m_pPlayer->start();
 		remoteClient->m_pPlayer->remoteClient = remoteClient.get();
-	//	RemoteClient::remoteClients_ptr_v.emplace_back(remoteClient.get());
 
 		// 새 TCP 소켓도 IOCP에 추가한다.
 		iocp.Add(remoteClient->tcpConnection, remoteClient.get());

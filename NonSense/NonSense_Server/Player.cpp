@@ -5,7 +5,6 @@
 
 Player::Player() : Object()
 {
-	AddComponent<PlayerMovementComponent>();
 }
 
 Player::~Player()
@@ -15,6 +14,7 @@ Player::~Player()
 
 void Player::start()
 {
+	AddComponent<PlayerMovementComponent>();
 	Object::start();
 }
 
