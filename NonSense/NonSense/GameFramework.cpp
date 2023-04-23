@@ -294,7 +294,7 @@ void GameFramework::CreateDepthStencilView()
 
 void GameFramework::BuildObjects()
 {
-	m_pCommandList->Reset(m_pCommandAllocator, NULL);
+	//m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
@@ -303,15 +303,9 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new GameScene());
-	scene_type = LOGIN_SCENE;
-	//for (auto& gameScene : m_GameScenes)
-	//{
-	//	GameScene::MainScene = gameScene;
-	//	gameScene->BuildObjects(m_pDevice, m_pCommandList);
-	//}
-	//ChangeScene(2);
-	//m_GameScenes.back()->BuildObjects(m_pDevice, m_pCommandList);
-
+	
+	ChangeScene(LOGIN_SCENE);
+	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());	
 	m_pCamera = m_pPlayer->GetCamera();
 
@@ -509,7 +503,18 @@ LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessa
 }
 void GameFramework::ChangeScene(unsigned char num)
 {
+	m_pCommandList->Reset(m_pCommandAllocator, NULL);
+
 	GameScene::MainScene = m_GameScenes.at(num);
+	GameScene::MainScene->ReleaseObjects();
+	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
+	scene_type = (SCENE_TYPE)num;
+
+	m_pCommandList->Close();
+
+	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
+	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+	WaitForGpuComplete();
 }
 void GameFramework::ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta)
 {
