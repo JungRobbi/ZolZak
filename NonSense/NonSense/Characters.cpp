@@ -85,3 +85,25 @@ void Character::OnPrepareRender()
 	m_pHP->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, GetComponent<BoxCollideComponent>()->GetBoundingObject()->Extents.y * 2 + 0.3, 0)));
 	m_pHP->HP = m_RemainHP / m_Health;
 }
+
+void Character::update()
+{
+	//m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(XMFLOAT3(0.0f, -60.0f, 0.0f), fTimeElapsed, false));
+	//SetPosition(Vector3::Add(GetPosition(), m_xmf3Velocity));
+}
+
+void Character::OnUpdateCallback(float fTimeElapsed)
+{
+	//XMFLOAT3 xmf3PlayerPosition = GetPosition();
+	//HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
+
+	//float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x + 400.0f, xmf3PlayerPosition.z + 400.0f);
+	//if (xmf3PlayerPosition.y < fHeight)
+	//{
+	//	XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
+	//	xmf3PlayerVelocity.y = 0.0f;
+	//	SetVelocity(xmf3PlayerVelocity);
+	//	xmf3PlayerPosition.y = fHeight;
+	//	SetPosition(xmf3PlayerPosition);
+	//}
+}

@@ -16,13 +16,6 @@ class HeightMapTerrain;
 class BoundSphere;
 class Monster_HP_UI;
 
-#define RESOURCE_TEXTURE2D			0x01
-#define RESOURCE_TEXTURE2D_ARRAY	0x02	//[]
-#define RESOURCE_TEXTURE2DARRAY		0x03
-#define RESOURCE_TEXTURE_CUBE		0x04
-#define RESOURCE_BUFFER				0x05
-
-
 #define MATERIAL_ALBEDO_MAP				0x01
 #define MATERIAL_SPECULAR_MAP			0x02
 #define MATERIAL_NORMAL_MAP				0x04
@@ -500,11 +493,12 @@ class BoundSphere : public Object
 public:
 	XMFLOAT3 Center = { 0,0,0 };
 	float Radius = 1.f;           
-	BoundSphere(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	BoundSphere(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, SphereMesh* SphereMesh, Shader* pBoundingShader);
 	virtual ~BoundSphere() {};
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 	virtual void Transform(_Out_ BoundSphere& Out, _In_ FXMMATRIX M);
 	virtual bool Intersects(BoundBox& box);
+	virtual bool Intersects(BoundSphere& box);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

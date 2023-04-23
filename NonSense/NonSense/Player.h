@@ -74,13 +74,10 @@ public:
 
 	Camera* GetCamera() { return(m_pCamera); }
 	void SetCamera(Camera* pCamera) { m_pCamera = pCamera; }
-
-
-
 	void Rotate(float x, float y, float z);
 
 	virtual void Update(float fTimeElapsed);
-
+	virtual void SetTerrain(void* pContext);
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	void SetPlayerUpdatedContext(LPVOID pContext) { m_pPlayerUpdatedContext = pContext; }
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
@@ -101,11 +98,13 @@ public:
 	Object* pWeaponObject;
 	Shader* m_pBoundingShader = NULL;
 	CubeMesh* m_pBoundMesh = NULL;
+	SphereMesh* m_pSphereMesh = NULL;
 
-	MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext);
+	MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~MagePlayer() {}
 
 	virtual Camera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
+
 	virtual void Update(float fTimeElapsed);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 };

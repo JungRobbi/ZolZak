@@ -625,7 +625,7 @@ void GameFramework::MoveToNextFrame()
 void GameFramework::FrameAdvance()
 {
 	Timer::Tick(0.0f);
-	
+
 	if (!m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose)
 	{
 		::SetCapture(m_hWnd);
@@ -686,7 +686,13 @@ void GameFramework::FrameAdvance()
 
 	///////////////////////////////////
 
-
+	//for (auto& o : pScene->gameObjects)
+	//{
+	//	if (o->GetComponent<SphereCollideComponent>())
+	//		if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject())) printf("구체 충돌");
+	//	if (o->GetComponent<BoxCollideComponent>())
+	//		if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject())) printf("OBB 충돌");
+	//}
 
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
@@ -701,6 +707,6 @@ void GameFramework::FrameAdvance()
 
 	MoveToNextFrame();
 
-	Timer::GetFrameRate(m_FrameRate+9, 10);
+	Timer::GetFrameRate(m_FrameRate + 9, 10);
 	::SetWindowText(m_hWnd, m_FrameRate);
 }

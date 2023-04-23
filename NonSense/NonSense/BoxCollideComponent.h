@@ -14,7 +14,7 @@ public:
     void start();
     void update();
 
-    BoundBox* GetBoundingObject() { return m_BoundingObject; }
+    BoundBox* GetBoundingObject() { if (m_BoundingObject) return m_BoundingObject; }
     void SetBoundingObject(BoundBox* bd) { m_BoundingObject = bd; }
     void SetCenterExtents(XMFLOAT3 ct, XMFLOAT3 ex);
     void SetMoveAble(bool ma) { MoveAble = ma; }

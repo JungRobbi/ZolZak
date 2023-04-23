@@ -91,6 +91,8 @@ float4 PSBounding(VS_BoundingOUTPUT input) : SV_TARGET
 	return(float4(1, 0, 0, 1));
 	if (objectID == 3) // 아군 공격
 		return(float4(0, 0, 1, 1));
+	if (objectID == 4) // 맵 Sphere 오브젝트
+		return(float4(0.5, 0.5, 0.5, 1));
 	else return(float4(0, 0, 0, 1));
 }
 
@@ -376,7 +378,6 @@ float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 
 	return(cColor);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

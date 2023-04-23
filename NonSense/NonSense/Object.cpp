@@ -3,6 +3,8 @@
 #include "GameScene.h"
 #include "stdafx.h"
 #include "BoxCollideComponent.h"
+#include "SphereCollideComponent.h"
+#include "GameFramework.h"
 
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters)
 {
@@ -948,6 +950,8 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 {
 	char pstrToken[64] = { '\0' };
 	CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+
 	int nMesh = 0;
 	UINT nReads = 0;
 	Object* pObject = NULL;
@@ -988,11 +992,19 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 			if (!strcmp(pstrToken, "<Position>:"))
 			{
 				BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, boundshader);
+				BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, boundshader);
 				bb->SetNum(0);
+				bs->SetNum(4);
 				nReads = (UINT)::fread(&pObject->m_xmf4x4ToParent, sizeof(float), 16, OpenedFile);
 				pObject->UpdateTransform(NULL);
 				pObject->AddComponent<BoxCollideComponent>();
 				pObject->GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
+
+				float rd = pObject->FindFirstMesh()->GetBoundingBox().Extents.x > pObject->FindFirstMesh()->GetBoundingBox().Extents.y ? (pObject->FindFirstMesh()->GetBoundingBox().Extents.x > pObject->FindFirstMesh()->GetBoundingBox().Extents.z) ? pObject->FindFirstMesh()->GetBoundingBox().Extents.x : pObject->FindFirstMesh()->GetBoundingBox().Extents.z : (pObject->FindFirstMesh()->GetBoundingBox().Extents.y > pObject->FindFirstMesh()->GetBoundingBox().Extents.z) ? pObject->FindFirstMesh()->GetBoundingBox().Extents.y : pObject->FindFirstMesh()->GetBoundingBox().Extents.z;
+
+				pObject->AddComponent<SphereCollideComponent>();
+				pObject->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+				pObject->GetComponent<SphereCollideComponent>()->SetCenterRadius(pObject->FindFirstMesh()->GetBoundingBox().Center, rd);
 			}
 			if (!strcmp(pstrToken, "</Objects>"))
 			{
@@ -1911,13 +1923,10 @@ bool BoundBox::Intersects(BoundSphere& sh)
 	return XMVector4LessOrEqual(d2, XMVectorMultiply(SphereRadius, SphereRadius)) ? true : false;
 }
 
-BoundSphere::BoundSphere(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BOUNDING_OBJECT)
+BoundSphere::BoundSphere(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, SphereMesh* SphereMesh, Shader* pBoundingShader) : Object(BOUNDING_OBJECT)
 {
-	SphereMesh* BoundMesh = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
-	SetMesh(BoundMesh);
 
-	BoundingShader* pBoundingShader = new BoundingShader();
-	pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	SetMesh(SphereMesh);
 
 	Material* pBoundingMaterial = new Material();
 	pBoundingMaterial->SetShader(pBoundingShader);
@@ -1938,7 +1947,7 @@ void BoundSphere::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCa
 	}
 }
 
-void BoundSphere::Transform(BoundSphere& Out, FXMMATRIX M)
+void BoundSphere::Transform(_Out_ BoundSphere& Out, _In_ FXMMATRIX M)
 {
 	// Load the center of the sphere.
 	XMVECTOR vCenter = XMLoadFloat3(&Center);
@@ -1963,4 +1972,21 @@ void BoundSphere::Transform(BoundSphere& Out, FXMMATRIX M)
 bool BoundSphere::Intersects(BoundBox& box)
 {
 	return box.Intersects(*this);
+}
+bool BoundSphere::Intersects(BoundSphere& sh)
+{
+	XMVECTOR vCenterA = XMLoadFloat3(&Center);
+	XMVECTOR vRadiusA = XMVectorReplicatePtr(&Radius);
+
+
+	XMVECTOR vCenterB = XMLoadFloat3(&sh.Center);
+	XMVECTOR vRadiusB = XMVectorReplicatePtr(&sh.Radius);
+
+	XMVECTOR Delta = XMVectorSubtract(vCenterB, vCenterA);
+	XMVECTOR DistanceSquared = XMVector3LengthSq(Delta);
+
+	XMVECTOR RadiusSquared = XMVectorAdd(vRadiusA, vRadiusB);
+	RadiusSquared = XMVectorMultiply(RadiusSquared, RadiusSquared);
+
+	return XMVector3LessOrEqual(DistanceSquared, RadiusSquared);
 }
