@@ -349,10 +349,6 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 6);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 6);
-
 		//마우스가 눌려지면 마우스 픽킹을 하여 선택한 게임 객체를 찾는다.
 		m_pSelectedObject = GameScene::MainScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pCamera);
 		//마우스 캡쳐를 하고 현재 마우스 위치를 가져온다.
@@ -361,9 +357,6 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 
 		break;
 	case WM_RBUTTONDOWN:
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 3);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 3);
 		break;
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
@@ -400,35 +393,10 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 	
 	switch (nMessageID)
 	{
-	case WM_KEYDOWN:
-		switch (wParam)
-		{
-		case 'W':
-		case 'A':
-		case 'S':
-		case 'D':
-			if (m_pPlayer) m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
-			break;
-		case VK_SPACE:
-			if (m_pPlayer) {
-				m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
-				m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 4);
-				m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 4);
-			}
-			break;
-		default:
-			break;
-		}
-		break;
 	case WM_KEYUP:
 		switch (wParam)
 		{
-		case 'W':
-		case 'A':
-		case 'S':
-		case 'D':
-			if (m_pPlayer) m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
-			break;
+
 		case VK_F1:
 		case VK_F2:
 		case VK_F3:
