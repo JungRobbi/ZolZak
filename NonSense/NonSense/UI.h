@@ -100,3 +100,24 @@ public:
 	Sound_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~Sound_Option_UI() {};
 };
+
+class Login_BackGround_UI : public UI
+{
+public:
+	Login_BackGround_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Login_BackGround_UI() {};
+};
+
+class WhiteRect_UI : public UI
+{
+public:
+	WhiteRect_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~WhiteRect_UI() {};
+};
+
+class Login_UI : public UI
+{
+public:
+	Login_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Login_UI() {};
+};
