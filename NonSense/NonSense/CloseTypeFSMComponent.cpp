@@ -28,3 +28,29 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 	else 
 		return false;
 }
+
+void CloseTypeFSMComponent::Move_Walk()
+{
+	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+}
+void CloseTypeFSMComponent::Move_Run()
+{
+	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(2);
+}
+void CloseTypeFSMComponent::Attack()
+{
+	gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 5);
+	gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 5);
+	gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 5);
+	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+}
+
+void CloseTypeFSMComponent::Track()
+{
+	Move_Run();
+}
+
+void CloseTypeFSMComponent::Wander()
+{
+	Move_Walk();
+}
