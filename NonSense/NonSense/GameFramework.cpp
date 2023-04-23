@@ -276,6 +276,47 @@ void GameFramework::CreateDepthStencilView()
 	m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer, NULL, m_DSVDescriptorCPUHandle);
 }
 
+void GameFramework::ChangeScene(SCENE_TYPE type)
+{
+	m_pCommandList->Reset(m_pCommandAllocator, NULL);
+	switch (type)
+	{
+		case LOGIN_SCENE:
+			m_pScene = new LoginScene();
+			break;
+		case LOBBY_SCENE:
+			m_pScene = new GameScene();
+			break;
+		case GAME_SCENE:
+			m_pScene = new GameScene();
+			break;
+		//case eSceneType::GAME:
+		//{
+		//	// 로비 씬에서 만든 플레이어와 멀티플레이어를 게임씬으로 옮김
+		//	auto lobbyScene{ reinterpret_cast<LobbyScene*>(m_scene.get()) };
+		//	auto gameScene{ make_unique<GameScene>() };
+		//	auto& player{ lobbyScene->GetPlayer() };
+		//	player->SetIsMultiplayer(FALSE);
+		//	gameScene->SetPlayer(player);
+		//	gameScene->SetMultiPlayers(lobbyScene->GetMultiPlayers());
+		//	m_scene = move(gameScene);
+		//	g_audioEngine.ChangeMusic("INGAME");
+		//	break;
+		//}
+	}
+
+	m_pScene->BuildObjects(m_pDevice, m_pCommandList);
+
+	m_pCommandList->Close();
+	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
+	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+	WaitForGpuComplete();
+
+	if (m_pScene) m_pScene->ReleaseUploadBuffers();
+	if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
+	Timer::Reset();
+}
+
 void GameFramework::BuildObjects()
 {
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
@@ -283,13 +324,11 @@ void GameFramework::BuildObjects()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
-	auto m_pScene = new GameScene();
+	m_Scene_Type = GAME_SCENE;
+	m_pScene = new GameScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
 
-
-	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->GetTerrain());
-
-
+	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
 	m_pScene->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
@@ -365,9 +404,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			ChangeSwapChainState();
 			break;
 		case '2':
-			//m_pHP_UI->HP -= 0.05;
-			//m_pHP_Dec_UI->Dec_HP -= 0.05;
-			//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+			ChangeScene(LOGIN_SCENE);
 			break;
 		case '3':
 			//m_pHP_UI->HP -= 0.2;
@@ -555,13 +592,13 @@ void GameFramework::FrameAdvance()
 	m_pScreen->Render(m_pCommandList, m_pCamera);
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
 	// 투명 오브젝트
-	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
+	//GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
 	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
 	// Bounding Box
-	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
+	//if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
 	// UI
-	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
+	//GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
 	// Debug 화면
 	//if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 

@@ -149,8 +149,7 @@ void Player::Update(float fTimeElapsed)
 	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-	bool Iswall = false;
-	if(!Iswall)Move(xmf3Velocity, false);
+	Move(xmf3Velocity, false);
 	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 	DWORD nCameraMode = m_pCamera->GetMode();
 	//if (nCameraMode == THIRD_PERSON_CAMERA) 
@@ -280,8 +279,14 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 
 }
 
+void Player::SetTerrain(void *pContext)
+{
+	HeightMapTerrain* pTerrain = (HeightMapTerrain*)pContext;
+	SetPlayerUpdatedContext(pTerrain);
+	SetCameraUpdatedContext(pTerrain);
+}
 
-MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void *pContext)
+MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 
 	m_pBoundingShader = new BoundingShader();
@@ -341,9 +346,6 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[14]->m_nType = ANIMATION_TYPE_ONCE;
 
 	}
-	HeightMapTerrain* pTerrain = (HeightMapTerrain*)pContext;
-	SetPlayerUpdatedContext(pTerrain);
-	SetCameraUpdatedContext(pTerrain);
 }
 
 

@@ -1,13 +1,20 @@
 #pragma once
 #include "Timer.h"
 #include "Camera.h"
+#include "Scene.h"
 #include "GameScene.h"
+#include "LoginScene.h"
 #include "Player.h"
 #include "Input.h"
 #include "UI.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
-
+enum SCENE_TYPE
+{
+	LOGIN_SCENE = 1,
+	LOBBY_SCENE = 2,
+	GAME_SCENE = 3,
+};
 
 class GameFramework
 {
@@ -46,6 +53,8 @@ private:
 	ID3D12Fence *m_pFence;
 	UINT64 m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE m_FenceEventHandle;
+
+
 public:
 	HWND m_hWnd;
 	Camera* m_pCamera = NULL;
@@ -54,7 +63,8 @@ public:
 	DebugShader* m_pDebug = NULL;
 	Object* m_pSelectedObject = NULL;
 	POINT m_ptOldCursorPos;
-
+	Scene* m_pScene;
+	SCENE_TYPE m_Scene_Type;
 	UI* m_pUI = NULL;
 	Player_HP_UI* m_pHP_UI = NULL;
 	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;
@@ -86,6 +96,8 @@ public:
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,LPARAM lParam);
+
+	void ChangeScene(SCENE_TYPE type);
 
 };
 

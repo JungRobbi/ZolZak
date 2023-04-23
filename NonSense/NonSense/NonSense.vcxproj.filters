@@ -90,6 +90,12 @@
     <ClCompile Include="BillboardComponent.cpp">
       <Filter>SourceFile\Component</Filter>
     </ClCompile>
+    <ClCompile Include="LoginScene.cpp">
+      <Filter>SourceFile\DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>SourceFile\DirectX12</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AttackComponent.h">
@@ -181,6 +187,12 @@
     </ClInclude>
     <ClInclude Include="BillboardComponent.h">
       <Filter>SourceFile\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="LoginScene.h">
+      <Filter>SourceFile\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>SourceFile\DirectX12</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -12,7 +12,7 @@
 #include "UI.h"
 #include "Scene.h"
 
-class GameScene : public Scene
+class LoginScene : public Scene
 {
 public:
 	std::queue<Object*> creationQueue;
@@ -36,7 +36,7 @@ public:
 	std::list<Object*> BoundingGameObjects;
 
 public:
-	static GameScene* MainScene;
+	static LoginScene* MainScene;
 
 protected:
 	Object* CreateEmpty();
@@ -50,8 +50,8 @@ public:
 	friend Object;
 
 public:
-	GameScene();
-	virtual ~GameScene();
+	LoginScene();
+	virtual ~LoginScene();
 	std::list<Object*> GetObjects() { return gameObjects; }
 	//씬의 모든 조명과 재질을 생성
 	void BuildLightsAndMaterials();
@@ -82,7 +82,7 @@ public:
 	SkyBox* m_pSkyBox = NULL;
 	Player_State_UI* m_pUI = NULL;
 	Player_HP_UI* m_pHP_UI = NULL;
-	Player_HP_DEC_UI* m_pHP_Dec_UI =NULL;
+	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;
 
 	void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
 	static D3D12_GPU_DESCRIPTOR_HANDLE CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nRootParameter, bool bAutoIncrement);
