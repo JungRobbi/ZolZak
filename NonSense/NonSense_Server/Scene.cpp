@@ -3,6 +3,7 @@
 #include <algorithm>
 
 Scene* Scene::scene{ nullptr };
+HeightMapTerrain* Scene::terrain{ nullptr };
 
 Scene::Scene()
 {

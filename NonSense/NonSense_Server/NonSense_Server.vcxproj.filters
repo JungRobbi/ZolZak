@@ -57,6 +57,9 @@
     <ClCompile Include="Timer.cpp">
       <Filter>소스 파일\System</Filter>
     </ClCompile>
+    <ClCompile Include="Terrain.cpp">
+      <Filter>소스 파일\Terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -88,6 +91,9 @@
     </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>소스 파일\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>소스 파일\Terrain</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

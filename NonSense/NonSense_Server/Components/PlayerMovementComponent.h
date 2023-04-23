@@ -31,6 +31,8 @@ class PlayerMovementComponent :
 	bool Dashing = false;
 	bool CanDash = true;
 
+	void* m_pPlayerUpdatedContext = nullptr;
+
 public:
 
     void start();
@@ -56,7 +58,7 @@ public:
 	void SetMaxVelocityXZ(float fMaxVelocity) { m_fMaxVelocityXZ = fMaxVelocity; }
 	void SetMaxVelocityY(float fMaxVelocity) { m_fMaxVelocityY = fMaxVelocity; }
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
-
+	void SetContext(void* pContext) { m_pPlayerUpdatedContext = pContext; }
 
 	void Move(DWORD nDirection, float fDistance, bool bVelocity = false);
 	void Move(XMFLOAT3& xmf3Shift, bool bVelocity = false);
@@ -65,5 +67,8 @@ public:
 
 	void Jump();
 	void Dash();
+
+	
+	void OnPlayerUpdateCallback();
 };
 

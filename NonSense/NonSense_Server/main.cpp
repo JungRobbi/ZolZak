@@ -17,6 +17,7 @@
 
 #include "remoteClients/RemoteClient.h"
 #include "Scene.h"
+#include "Terrain.h"
 
 #include "Components/PlayerMovementComponent.h"
 
@@ -177,6 +178,11 @@ int main(int argc, char* argv[])
 	signal(SIGINT, ProcessSignalAction);
 
 	scene = make_shared<Scene>();
+
+	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
+	Scene::terrain = new HeightMapTerrain(_T("Terrain/terrain.raw"), 800, 800, xmf3Scale);
+	Scene::terrain->SetPosition(-400, 0, -400);
+
 	Timer::Initialize();
 	Timer::Reset();
 
@@ -207,6 +213,8 @@ int main(int argc, char* argv[])
 
 		for (auto rc : RemoteClient::remoteClients) {
 			auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
+
+			cout << "vel.y = " << vel.y << endl;
 			if (!Vector3::Length(vel))
 				continue;
 			auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
@@ -295,6 +303,7 @@ void ProcessAccept()
 		remoteClient->m_id = N_CLIENT_ID++;
 		remoteClient->m_pPlayer = make_shared<Player>();
 		remoteClient->m_pPlayer->start();
+		remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
 		remoteClient->m_pPlayer->remoteClient = remoteClient.get();
 
 		// 새 TCP 소켓도 IOCP에 추가한다.

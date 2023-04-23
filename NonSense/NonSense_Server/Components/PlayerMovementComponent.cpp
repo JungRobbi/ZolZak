@@ -97,8 +97,7 @@ void PlayerMovementComponent::updateValocity()
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity, fTimeElapsed, false));
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	float fMaxVelocityXZ = m_fMaxVelocityXZ * fTimeElapsed;
-	if (fLength > m_fMaxVelocityXZ)
-	{
+	if (fLength > m_fMaxVelocityXZ) {
 		m_xmf3Velocity.x *= (m_fMaxVelocityXZ / fLength);
 		m_xmf3Velocity.z *= (m_fMaxVelocityXZ / fLength);
 	}
@@ -107,12 +106,14 @@ void PlayerMovementComponent::updateValocity()
 	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 	Move(xmf3Velocity, false);
+	
+	if (m_pPlayerUpdatedContext) 
+		OnPlayerUpdateCallback();
 
 	fLength = Vector3::Length(m_xmf3Velocity);
 	float fDeceleration = (m_fFriction * fTimeElapsed);
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
-
 }
 
 void PlayerMovementComponent::Jump()
@@ -120,12 +121,12 @@ void PlayerMovementComponent::Jump()
 	std::cout << "JUMP!" << endl;
 	XMFLOAT3 pos = m_xmf3Position;
 	XMFLOAT3 vel = m_xmf3Velocity;
-	//HeightMapTerrain* pTerrain = (HeightMapTerrain*)(((Player*)gameObject)->m_pPlayerUpdatedContext);
+	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
 
-	//float fHeight = pTerrain->GetHeight(pos.x + 400.0f, pos.z + 400.0f);
-	//if (pos.y <= fHeight) {
+	float fHeight = pTerrain->GetHeight(pos.x - pTerrain->GetPosition().x, pos.z - pTerrain->GetPosition().z);
+	if (pos.y <= fHeight) {
 		SetVelocity(XMFLOAT3(vel.x, 25.f, vel.z));
-	//}
+	}
 }
 
 void PlayerMovementComponent::Dash()
@@ -140,4 +141,16 @@ void PlayerMovementComponent::Dash()
 	float DistanceRatio = DashDistance / DashDuration;
 //	SetMaxVelocityXZ(6.5f);
 	m_xmf3Velocity = XMFLOAT3(look.x * DistanceRatio, look.y * DistanceRatio, look.z * DistanceRatio);
+}
+
+
+void PlayerMovementComponent::OnPlayerUpdateCallback()
+{
+	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
+
+	float fHeight = pTerrain->GetHeight(m_xmf3Position.x - pTerrain->GetPosition().x, m_xmf3Position.z - pTerrain->GetPosition().z);
+	if (m_xmf3Position.y < fHeight) {
+		m_xmf3Velocity.y = 0.0f;
+		m_xmf3Position.y = fHeight;
+	}
 }

@@ -179,11 +179,9 @@ void Player::Update(float fTimeElapsed)
 		float fDeceleration = (m_fFriction * fTimeElapsed);
 		if (fDeceleration > fLength) fDeceleration = fLength;
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+	//	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 	}
 
-	cout << "velocity.y - " << m_xmf3Velocity.y << endl;
-
-	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 	DWORD nCameraMode = m_pCamera->GetMode();
 	//if (nCameraMode == THIRD_PERSON_CAMERA) 
 	m_pCamera->Update(m_xmf3Position, fTimeElapsed);

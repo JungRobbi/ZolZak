@@ -4,6 +4,7 @@
 #include <deque>
 
 #include "Object.h"
+#include "Terrain.h"
 
 class Scene
 {
@@ -14,6 +15,7 @@ class Scene
 
 public:
 	static Scene* scene;
+	static HeightMapTerrain* terrain;
 
 protected:
 	Object* CreateEmpty();
