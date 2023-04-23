@@ -490,11 +490,12 @@ class BoundSphere : public Object
 public:
 	XMFLOAT3 Center = { 0,0,0 };
 	float Radius = 1.f;           
-	BoundSphere(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	BoundSphere(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, SphereMesh* SphereMesh, Shader* pBoundingShader);
 	virtual ~BoundSphere() {};
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 	virtual void Transform(_Out_ BoundSphere& Out, _In_ FXMMATRIX M);
 	virtual bool Intersects(BoundBox& box);
+	virtual bool Intersects(BoundSphere& box);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

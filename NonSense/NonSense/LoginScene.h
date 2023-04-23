@@ -14,26 +14,6 @@
 
 class LoginScene : public Scene
 {
-public:
-	std::queue<Object*> creationQueue;
-	std::deque<Object*> deletionQueue;
-	std::list<Object*> gameObjects;
-
-	std::queue<Character*> creationMonsterQueue;
-	std::deque<Character*> deletionMonsterQueue;
-	std::list<Character*> MonsterObjects;
-
-	std::queue<Object*> creationBlendQueue;
-	std::deque<Object*> deletionBlendQueue;
-	std::list<Object*> blendGameObjects;
-
-	std::queue<Object*> creationUIQueue;
-	std::deque<Object*> deletionUIQueue;
-	std::list<Object*> UIGameObjects;
-
-	std::queue<Object*> creationBoundingQueue;
-	std::deque<Object*> deletionBoundingQueue;
-	std::list<Object*> BoundingGameObjects;
 
 public:
 	static LoginScene* MainScene;
@@ -78,8 +58,6 @@ public:
 	ID3D12RootSignature* GetGraphicsRootSignature();
 	//씬의 모든 게임 객체들에 대한 마우스 픽킹을 수행한다.
 	Object* PickObjectPointedByCursor(int xClient, int yClient, Camera* pCamera);
-	Player* m_pPlayer = NULL;
-	SkyBox* m_pSkyBox = NULL;
 	Player_State_UI* m_pUI = NULL;
 	Player_HP_UI* m_pHP_UI = NULL;
 	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;

@@ -44,6 +44,22 @@ public:
 	std::deque<Object*> deletionQueue;
 	std::list<Object*> gameObjects;
 
+	std::queue<Character*> creationMonsterQueue;
+	std::deque<Character*> deletionMonsterQueue;
+	std::list<Character*> MonsterObjects;
+
+	std::queue<Object*> creationBlendQueue;
+	std::deque<Object*> deletionBlendQueue;
+	std::list<Object*> blendGameObjects;
+
+	std::queue<Object*> creationUIQueue;
+	std::deque<Object*> deletionUIQueue;
+	std::list<Object*> UIGameObjects;
+
+	std::queue<Object*> creationBoundingQueue;
+	std::deque<Object*> deletionBoundingQueue;
+	std::list<Object*> BoundingGameObjects;
+
 public:
 	static Scene* MainScene;
 

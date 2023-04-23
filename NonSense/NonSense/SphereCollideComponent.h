@@ -13,7 +13,7 @@ public:
     void start();
     void update();
 
-    BoundSphere* GetBoundingObject() { return m_BoundingObject; }
+    BoundSphere* GetBoundingObject() { if (m_BoundingObject) return m_BoundingObject; }
     void SetBoundingObject(BoundSphere* bd) { m_BoundingObject = bd; }
     void SetCenterRadius(XMFLOAT3 ct, float rs);
 };

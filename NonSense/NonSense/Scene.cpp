@@ -27,6 +27,18 @@ Scene::~Scene()
 	for (auto object : gameObjects)
 		delete object;
 	gameObjects.clear();
+	for (auto object : blendGameObjects)
+		delete object;
+	blendGameObjects.clear();
+	for (auto object : UIGameObjects)
+		delete object;
+	UIGameObjects.clear();
+	for (auto object : BoundingGameObjects)
+		delete object;
+	BoundingGameObjects.clear();
+	for (auto object : MonsterObjects)
+		delete object;
+	MonsterObjects.clear();
 }
 
 Object* Scene::CreateEmpty()
@@ -43,9 +55,49 @@ void Scene::update()
 		gameObjects.push_back(gameObject);
 		creationQueue.pop();
 	}
-	
+	while (!creationBlendQueue.empty()) //Blend Object
+	{
+		auto gameObject = creationBlendQueue.front();
+		gameObject->start();
+		blendGameObjects.push_back(gameObject);
+		creationBlendQueue.pop();
+	}
+	while (!creationUIQueue.empty()) //UI Object
+	{
+		auto gameObject = creationUIQueue.front();
+		gameObject->start();
+		UIGameObjects.push_back(gameObject);
+		creationUIQueue.pop();
+	}
+	while (!creationBoundingQueue.empty()) //Bounding Object
+	{
+		auto gameObject = creationBoundingQueue.front();
+		gameObject->start();
+		BoundingGameObjects.push_back(gameObject);
+		creationBoundingQueue.pop();
+	}
+	while (!creationMonsterQueue.empty()) //Monster Object
+	{
+		auto gameObject = creationMonsterQueue.front();
+		gameObject->start();
+		MonsterObjects.push_back(gameObject);
+		creationMonsterQueue.pop();
+	}
+
+
 	for (auto gameObject : gameObjects)
 		gameObject->update();
+
+	for (auto gameObject : blendGameObjects) //Blend Object
+		gameObject->update();
+
+	for (auto gameObject : UIGameObjects) //UI Object
+		gameObject->update();
+	for (auto gameObject : BoundingGameObjects) //Bounding Object
+		gameObject->update();
+	for (auto gameObject : MonsterObjects) //Monster Object
+		gameObject->update();
+
 
 	auto t = deletionQueue;
 	while (!deletionQueue.empty())
@@ -56,13 +108,52 @@ void Scene::update()
 
 		delete gameObject;
 	}
-	
+	while (!deletionBlendQueue.empty()) //Blend Object
+	{
+		auto gameObject = deletionBlendQueue.front();
+		blendGameObjects.erase(std::find(blendGameObjects.begin(), blendGameObjects.end(), gameObject));
+		deletionBlendQueue.pop_front();
+
+		delete gameObject;
+	}
+	while (!deletionUIQueue.empty()) //UI Object
+	{
+		auto gameObject = deletionUIQueue.front();
+		UIGameObjects.erase(std::find(UIGameObjects.begin(), UIGameObjects.end(), gameObject));
+		deletionUIQueue.pop_front();
+
+		delete gameObject;
+	}
+	while (!deletionBoundingQueue.empty()) //Bounding Object
+	{
+		auto gameObject = deletionBoundingQueue.front();
+		BoundingGameObjects.erase(std::find(BoundingGameObjects.begin(), BoundingGameObjects.end(), gameObject));
+		deletionBoundingQueue.pop_front();
+
+		delete gameObject;
+	}
+	while (!deletionMonsterQueue.empty()) //Monster Object
+	{
+		auto gameObject = deletionMonsterQueue.front();
+		MonsterObjects.erase(std::find(MonsterObjects.begin(), MonsterObjects.end(), gameObject));
+		deletionMonsterQueue.pop_front();
+
+		delete gameObject;
+	}
 }
 
 void Scene::PushDelete(Object* gameObject)
 {
 	if (std::find(deletionQueue.begin(), deletionQueue.end(), gameObject) == deletionQueue.end())
 		deletionQueue.push_back(gameObject);
+	if (std::find(deletionBlendQueue.begin(), deletionBlendQueue.end(), gameObject) == deletionBlendQueue.end())
+		deletionBlendQueue.push_back(gameObject);
+	if (std::find(deletionUIQueue.begin(), deletionUIQueue.end(), gameObject) == deletionUIQueue.end())
+		deletionUIQueue.push_back(gameObject);
+	if (std::find(deletionBoundingQueue.begin(), deletionBoundingQueue.end(), gameObject) == deletionBoundingQueue.end())
+		deletionBoundingQueue.push_back(gameObject);
+	if (std::find(deletionMonsterQueue.begin(), deletionMonsterQueue.end(), (Character*)gameObject) == deletionMonsterQueue.end())
+		deletionMonsterQueue.push_back((Character*)gameObject);
 }
 
 void Scene::render()

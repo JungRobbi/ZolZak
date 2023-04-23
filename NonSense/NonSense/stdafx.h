@@ -78,6 +78,18 @@ using Microsoft::WRL::ComPtr;
 inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE // 전체화면 default
 
+extern enum SCENE_TYPE
+{
+	LOGIN_SCENE = 1,
+	LOBBY_SCENE = 2,
+	GAME_SCENE = 3,
+};
+
+class Scene;
+
+extern Scene* pScene;
+extern SCENE_TYPE Scene_Type;
+
 extern UINT	CBVSRVDescriptorSize;
 extern UINT RTVDescriptorSize;
 extern bool DebugMode;
