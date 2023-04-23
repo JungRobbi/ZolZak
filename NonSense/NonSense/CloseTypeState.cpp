@@ -13,7 +13,7 @@ void WanderState::Enter(CloseTypeFSMComponent* pOwner)
 
 void WanderState::Execute(CloseTypeFSMComponent* pOwner)
 {
-	std::cout << "Wandering" << std::endl;
+
 	pOwner->Wander();
 	if (pOwner->CheckDistanceFromPlayer())
 	{
@@ -39,7 +39,7 @@ void TrackEnemyState::Enter(CloseTypeFSMComponent* pOwner)
 
 void TrackEnemyState::Execute(CloseTypeFSMComponent* pOwner)
 {
-	std::cout << "Tracking" << std::endl;
+
 	pOwner->Track();
 	if (!pOwner->CheckDistanceFromPlayer())
 	{
