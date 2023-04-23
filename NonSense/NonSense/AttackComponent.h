@@ -22,7 +22,7 @@ public:
 	BoundBox* AttackRange;
 private:
 	float NextAttackInputTime = 0.5;
-	float AttackDuration = 0.8;
+	float AttackDuration = 1.56;
 	float AttackTimeLeft = 0.0;
 	
 	AttackCombo type = Combo1;

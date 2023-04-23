@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{5126c243-c8aa-4dd8-8cea-50b3b299b583}</ProjectGuid>
-    <RootNamespace>NonSense</RootNamespace>
+    <ProjectGuid>{d967606b-2a33-4260-ae68-488f625cc25f}</ProjectGuid>
+    <RootNamespace>NonSenseServer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -73,15 +73,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\82107\OneDrive\바탕 화면\ZolZak\NonSense\x64\Debug;D:\ZolZak\ZolZak\NonSense\x64\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ImaysNet.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -90,29 +88,27 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\82107\OneDrive\바탕 화면\ZolZak\NonSense\x64\Release;D:\ZolZak\ZolZak\NonSense\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ImaysNet.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>false</ConformanceMode>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>ImaysNet.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -122,103 +118,39 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>false</ConformanceMode>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ImaysNet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ImaysNet.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Globals.h" />
-    <ClInclude Include="AttackComponent.h" />
-    <ClInclude Include="BillboardComponent.h" />
-    <ClInclude Include="BoxCollideComponent.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Characters.h" />
-    <ClInclude Include="CloseTypeState.h" />
-    <ClInclude Include="Component.h" />
-    <ClInclude Include="DDSTextureLoader12.h" />
-    <ClInclude Include="FSM.h" />
-    <ClInclude Include="GameFramework.h" />
-    <ClInclude Include="GameScene.h" />
-    <ClInclude Include="GameState.h" />
-    <ClInclude Include="CloseTypeFSMComponent.h" />
+    <ClCompile Include="Components\Component.cpp" />
+    <ClCompile Include="Components\PlayerMovementComponent.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="RemoteClients\RemoteClient.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Timer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Components\Component.h" />
+    <ClInclude Include="Components\PlayerMovementComponent.h" />
     <ClInclude Include="Input.h" />
-    <ClInclude Include="Lobby_GameScene.h" />
-    <ClInclude Include="Login_GameScene.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="NetworkMGR.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="PlayerMovementComponent.h" />
-    <ClInclude Include="RotateComponent.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="NonSense.h" />
-    <ClInclude Include="Resource.h" />
-    <ClInclude Include="Stage_GameScene.h" />
-    <ClInclude Include="SphereCollideComponent.h" />
-    <ClInclude Include="State.h" />
+    <ClInclude Include="RemoteClients\RemoteClient.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timer.h" />
-    <ClInclude Include="Transform3DComponent.h" />
-    <ClInclude Include="UI.h" />
-    <ClInclude Include="WICTextureLoader12.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="AttackComponent.cpp" />
-    <ClCompile Include="BillboardComponent.cpp" />
-    <ClCompile Include="BoxCollideComponent.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Characters.cpp" />
-    <ClCompile Include="CloseTypeState.cpp" />
-    <ClCompile Include="Component.cpp" />
-    <ClCompile Include="DDSTextureLoader12.cpp" />
-    <ClCompile Include="GameFramework.cpp" />
-    <ClCompile Include="GameScene.cpp" />
-    <ClCompile Include="GameState.cpp" />
-    <ClCompile Include="CloseTypeFSMComponent.cpp" />
-    <ClCompile Include="Input.cpp" />
-    <ClCompile Include="Lobby_GameScene.cpp" />
-    <ClCompile Include="Login_GameScene.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="NetworkMGR.cpp" />
-    <ClCompile Include="NonSense.cpp" />
-    <ClCompile Include="Object.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="PlayerMovementComponent.cpp" />
-    <ClCompile Include="RotateComponent.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Stage_GameScene.cpp" />
-    <ClCompile Include="SphereCollideComponent.cpp" />
-    <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="Transform3DComponent.cpp" />
-    <ClCompile Include="UI.cpp" />
-    <ClCompile Include="WICTextureLoader12.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="NonSense.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="NonSense.ico" />
-    <Image Include="small.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Light1.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Shaders.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

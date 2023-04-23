@@ -1,9 +1,12 @@
 ﻿#include "Characters.h"
 #include "BoxCollideComponent.h"
 #include "GameScene.h"
+#include "CloseTypeFSMComponent.h"
 
 
-Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Object(false)
+
+Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) :
+	Object(false)
 {
 	LoadedModelInfo* pLoadedModel = pModel;
 	if (pLoadedModel)
@@ -18,13 +21,13 @@ Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 	m_pSkinnedAnimationController->SetTrackEnable(2, false);
 	GameScene::MainScene->creationMonsterQueue.push((Character*)this);
 }
-
 Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) :
 	Character(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
 	switch (type)
 	{
 	case MONSTER_TYPE_CLOSE:
+		AddComponent<CloseTypeFSMComponent>();
 		m_Health = 965;
 		m_RemainHP = 965;
 		m_Attack = 200;

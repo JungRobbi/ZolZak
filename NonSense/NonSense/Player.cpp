@@ -5,7 +5,8 @@
 #include "GameScene.h"
 #include "BoxCollideComponent.h"
 #include "SphereCollideComponent.h"
-
+#include "../ImaysNet/PacketQueue.h"
+#include "NetworkMGR.h"
 
 Player::Player() : Object(false)
 {
@@ -58,7 +59,19 @@ void Player::Move(ULONG dwDirection, float fDistance, bool bUpdateVelocity)
 		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 		if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
 		if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
-		Move(xmf3Shift, bUpdateVelocity);
+
+		if (NetworkMGR::b_isNet) {
+			XMFLOAT3 xmf3Dir = Vector3::Normalize(xmf3Shift);
+			CS_MOVE_PACKET send_packet;
+			send_packet.size = sizeof(CS_MOVE_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_MOVE;
+			send_packet.dirX = xmf3Dir.x;
+			send_packet.dirY = xmf3Dir.y;
+			send_packet.dirZ = xmf3Dir.z;
+			PacketQueue::AddSendPacket(&send_packet);
+		}
+		else
+			Move(xmf3Shift, bUpdateVelocity);
 	}
 }
 void Player::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
@@ -75,65 +88,76 @@ void Player::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 }
 void Player::Rotate(float x, float y, float z)
 {
-	DWORD nCameraMode = m_pCamera->GetMode();
-	if ((nCameraMode == FIRST_PERSON_CAMERA) || (nCameraMode == THIRD_PERSON_CAMERA))
-	{
-		if (x != 0.0f)
-		{
-			m_fPitch += x;
-			if (m_fPitch > +89.0f) { x -= (m_fPitch - 89.0f); m_fPitch = +89.0f; }
-			if (m_fPitch < -89.0f) { x -= (m_fPitch + 89.0f); m_fPitch = -89.0f; }
-		}
-		if (y != 0.0f)
-		{
-			m_fYaw += y;
-			if (m_fYaw > 360.0f) m_fYaw -= 360.0f;
-			if (m_fYaw < 0.0f) m_fYaw += 360.0f;
-		}
-		if (z != 0.0f)
-		{
-			m_fRoll += z;
-			if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }
-			if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
-		}
-		m_pCamera->Rotate(x, y, z);
-
-		if (y != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
-			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-		}
+	if (NetworkMGR::b_isNet) {
+		CS_ROTATE_PACKET send_packet;
+		send_packet.size = sizeof(CS_ROTATE_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_CS_ROTATE;
+		send_packet.Add_Pitch = x;
+		send_packet.Add_Yaw = y;
+		send_packet.Add_Roll = z;
+		PacketQueue::AddSendPacket(&send_packet);
 	}
-	else if (nCameraMode == SPACESHIP_CAMERA)
-	{
-		m_pCamera->Rotate(x, y, z);
-		if (x != 0.0f)
+	else {
+		DWORD nCameraMode = m_pCamera->GetMode();
+		if ((nCameraMode == FIRST_PERSON_CAMERA) || (nCameraMode == THIRD_PERSON_CAMERA))
 		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Right),
-				XMConvertToRadians(x));
-			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-			m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
-		}
-		if (y != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up),
-				XMConvertToRadians(y));
-			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-		}
-		if (z != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Look),
-				XMConvertToRadians(z));
-			m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
-			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-		}
-	}
+			if (x != 0.0f)
+			{
+				m_fPitch += x;
+				if (m_fPitch > +89.0f) { x -= (m_fPitch - 89.0f); m_fPitch = +89.0f; }
+				if (m_fPitch < -89.0f) { x -= (m_fPitch + 89.0f); m_fPitch = -89.0f; }
+			}
+			if (y != 0.0f)
+			{
+				m_fYaw += y;
+				if (m_fYaw > 360.0f) m_fYaw -= 360.0f;
+				if (m_fYaw < 0.0f) m_fYaw += 360.0f;
+			}
+			if (z != 0.0f)
+			{
+				m_fRoll += z;
+				if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }
+				if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
+			}
+			m_pCamera->Rotate(x, y, z);
 
-	m_xmf3Look = Vector3::Normalize(m_xmf3Look);
-	m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
-	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
+			if (y != 0.0f)
+			{
+				XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
+				m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+				m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+			}
+		}
+		else if (nCameraMode == SPACESHIP_CAMERA)
+		{
+			m_pCamera->Rotate(x, y, z);
+			if (x != 0.0f)
+			{
+				XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Right),
+					XMConvertToRadians(x));
+				m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+				m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
+			}
+			if (y != 0.0f)
+			{
+				XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up),
+					XMConvertToRadians(y));
+				m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+				m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+			}
+			if (z != 0.0f)
+			{
+				XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Look),
+					XMConvertToRadians(z));
+				m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
+				m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+			}
+		}
+
+		m_xmf3Look = Vector3::Normalize(m_xmf3Look);
+		m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
+		m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
+	}
 }
 void Player::Update(float fTimeElapsed)
 {
@@ -161,6 +185,8 @@ void Player::Update(float fTimeElapsed)
 	float fDeceleration = (m_fFriction * fTimeElapsed);
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+
+	Animate(fTimeElapsed);
 	Object::update();
 }
 
@@ -270,7 +296,7 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
-	if (nCameraMode == THIRD_PERSON_CAMERA)
+//	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
 		if (m_pMaterial) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
 		Object::Render(pd3dCommandList, pCamera);
@@ -309,7 +335,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-		XMFLOAT3 pos = XMFLOAT3(0.0f, 100.0f, -2.0f);
+		XMFLOAT3 pos = XMFLOAT3(0.0f, 2.0f, -2.0f);
 		SetPosition(pos);
 		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
 		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);
@@ -348,8 +374,6 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 
 	}
 }
-
-
 
 Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 {

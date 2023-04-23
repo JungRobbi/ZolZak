@@ -4,6 +4,14 @@
 #include "BoxCollideComponent.h"
 #include "SphereCollideComponent.h"
 
+#include "Input.h"
+
+#include "Login_GameScene.h"
+#include "Lobby_GameScene.h"
+#include "Stage_GameScene.h"
+
+GameFramework* GameFramework::MainGameFramework;
+
 GameFramework::GameFramework()
 {
 	m_pFactory = NULL;
@@ -23,7 +31,9 @@ GameFramework::GameFramework()
 	m_pFence = NULL;
 	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
 	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
-	_tcscpy_s(m_FrameRate, _T("NonSense("));
+	_tcscpy_s(m_FrameRate, _T("NonSense"));
+	
+	MainGameFramework = this;
 
 	Timer::Initialize();
 }
@@ -45,6 +55,9 @@ bool GameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateRenderTargetViews();			// Render Target View 생성
 #endif
 	CreateDepthStencilView();			// Depth Stencil View 생성
+	
+	NetworkMGR::start();
+	
 	BuildObjects();						// Object 생성
 	return(true);
 }
@@ -70,6 +83,9 @@ void GameFramework::OnDestroy()
 	if (m_pSwapChain) m_pSwapChain->Release();
 	if (m_pDevice) m_pDevice->Release();
 	if (m_pFactory) m_pFactory->Release();
+
+	m_GameScenes.clear();
+
 #ifdef defined(_DEBUG)
 	IDXGIDebug1* pdxgiDebug = NULL;
 	DXGIGetDebugInterface1(0, __uuidof(IDXGIDebug1), (void**)&pdxgiDebug);
@@ -283,20 +299,34 @@ void GameFramework::BuildObjects()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
-	auto m_pScene = new GameScene();
-	if (m_pScene) m_pScene->BuildObjects(m_pDevice, m_pCommandList);
+	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Stage
+	m_GameScenes.emplace_back(new Login_GameScene());
+	m_GameScenes.emplace_back(new Lobby_GameScene());
+	m_GameScenes.emplace_back(new GameScene());
 
+	for (auto& gameScene : m_GameScenes)
+		gameScene->BuildObjects(m_pDevice, m_pCommandList);
 
-	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, m_pScene->GetGraphicsRootSignature());
+	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+	BoundSphere* bs = new BoundSphere(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature());
+	
+	m_pPlayer->AddComponent<SphereCollideComponent>();
+	m_pPlayer->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+	m_pPlayer->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
 
-
-	m_pScene-> m_pPlayer = m_pPlayer;
+	
 	m_pCamera = m_pPlayer->GetCamera();
-	m_pPlayer->SetTerrain(m_pScene->GetTerrain());
+
+	char n_players = 3;
+	for (int i{}; i < n_players; ++i) {
+		m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
+		m_OtherPlayersPool.back()->SetUsed(true);
+	}
+
 	m_pDebug = new DebugShader();
 	m_pScreen = new ScreenShader();
-	m_pScreen->CreateShader(m_pDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	m_pDebug->CreateShader(m_pDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pScreen->CreateShader(m_pDevice, GameScene::MainScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	m_pDebug->CreateShader(m_pDevice, GameScene::MainScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 	DXGI_FORMAT pdxgiResourceFormats[MRT - 1] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
 	m_pDebug->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT);
@@ -310,8 +340,13 @@ void GameFramework::BuildObjects()
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	if (m_pScene) m_pScene->ReleaseUploadBuffers();
-	if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
+	for (auto& gameScene : m_GameScenes) {
+		gameScene->ReleaseUploadBuffers();
+	}
+	if (m_pPlayer)
+		m_pPlayer->ReleaseUploadBuffers();
+	for(auto& p : m_OtherPlayersPool)
+		p->ReleaseUploadBuffers();
 	Timer::Reset();
 }
 
@@ -326,27 +361,86 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
-	case WM_RBUTTONDOWN:
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 6);
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 6);
+
 		//마우스가 눌려지면 마우스 픽킹을 하여 선택한 게임 객체를 찾는다.
 		m_pSelectedObject = GameScene::MainScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pCamera);
 		//마우스 캡쳐를 하고 현재 마우스 위치를 가져온다.
+		::SetCapture(hWnd);
+		::GetCursorPos(&m_ptOldCursorPos);
 
+		break;
+	case WM_RBUTTONDOWN:
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 3);
+		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 3);
 		break;
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 		::ReleaseCapture();
+
 		break;
 	}
 }
 void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	GameScene::MainScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-
+	if (NetworkMGR::b_isNet) {
+		if (nMessageID == WM_KEYDOWN) {
+			if (Input::keys[wParam] != TRUE) {
+				CS_KEYDOWN_PACKET send_packet;
+				send_packet.size = sizeof(CS_KEYDOWN_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_CS_KEYDOWN;
+				send_packet.key = wParam;
+				PacketQueue::AddSendPacket(&send_packet);
+				Input::keys[wParam] = TRUE;
+			}
+		}
+		else if (nMessageID == WM_KEYUP) {
+			if (Input::keys[wParam] != FALSE) {
+				CS_KEYUP_PACKET send_packet;
+				send_packet.size = sizeof(CS_KEYUP_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_CS_KEYUP;
+				send_packet.key = wParam;
+				PacketQueue::AddSendPacket(&send_packet);
+				Input::keys[wParam] = FALSE;
+			}
+		}
+	}
+	
 	switch (nMessageID)
 	{
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case 'W':
+		case 'A':
+		case 'S':
+		case 'D':
+			if (m_pPlayer) m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+			break;
+		case VK_SPACE:
+			if (m_pPlayer) {
+				m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
+				m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 4);
+				m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 4);
+			}
+			break;
+		default:
+			break;
+		}
+		break;
 	case WM_KEYUP:
 		switch (wParam)
 		{
+		case 'W':
+		case 'A':
+		case 'S':
+		case 'D':
+			if (m_pPlayer) m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
+			break;
 		case VK_F1:
 		case VK_F2:
 		case VK_F3:
@@ -373,6 +467,15 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			//m_pHP_UI->HP -= 0.2;
 			//m_pHP_Dec_UI->Dec_HP -= 0.2;
 			//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+			break;
+		case '7':
+			ChangeScene(0);
+			break;
+		case '8':
+			ChangeScene(1);
+			break;
+		case '9':
+			ChangeScene(2);
 			break;
 		default:
 			break;
@@ -406,8 +509,9 @@ LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessa
 	}
 	return(0);
 }
-void GameFramework::ChangeScene(SCENE_TYPE type)
+void GameFramework::ChangeScene(unsigned char num)
 {
+	GameScene::MainScene = m_GameScenes.at(num);
 }
 void GameFramework::ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta)
 {
@@ -465,30 +569,29 @@ void GameFramework::ProcessInput()
 		}
 		else
 		{
-
-			//if (cxDelta || cyDelta)
-			//{
-			//
-			//	if (pKeyBuffer[VK_RBUTTON] & 0xF0)
-			//		m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-			//	else
-			//		m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-			//}
+	
+			if (cxDelta || cyDelta)
+			{
+			
+				if (pKeyBuffer[VK_RBUTTON] & 0xF0)
+					m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+				else
+					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+			}
 			if (dwDirection) {
-				if (pKeyBuffer[0x41] & 0xF0) {
+				/*if (pKeyBuffer[0x41] & 0xF0) {
 					m_pPlayer->Rotate(0.0f, -0.1f, 0.0f);
 					pKeyBuffer[0x41] = false;
 				}
 				else if (pKeyBuffer[0x44] & 0xF0) {
 					m_pPlayer->Rotate(0.0f, +0.1f, 0.0f);
 					pKeyBuffer[0x44] = false;
-				}
+				}*/
 				m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
 				m_pPlayer->SetWalk(true);
 			}
 		}
 	}
-	m_pPlayer->Update(Timer::GetTimeElapsed());
 }
 
 void GameFramework::AnimateObjects()
@@ -530,8 +633,12 @@ void GameFramework::FrameAdvance()
 		::GetWindowRect(m_hWnd, &rect);
 		m_pPlayer->GetComponent<PlayerMovementComponent>()->SetWindowPos(rect);
 	}
+
+	if (NetworkMGR::b_isNet)
+		NetworkMGR::Tick();
+
 	ProcessInput();
-	GameScene::MainScene->AnimateObjects(Timer::GetTimeElapsed());
+	AnimateObjects();
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -544,10 +651,19 @@ void GameFramework::FrameAdvance()
 	//////////// MRT Render Target /////////////
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
 	GameScene::MainScene->update();
+	m_pPlayer->Update(Timer::GetTimeElapsed());
+	for (auto& p : m_OtherPlayers) {
+		if (p->GetUsed())
+			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());
+	}
 	// 불투명 오브젝트, Terrain
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 	// 플레이어
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
+	for (auto& p : m_OtherPlayers) {
+		if (p->GetUsed())
+			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
+	}
 	///////////////////////////////////////////
 
 

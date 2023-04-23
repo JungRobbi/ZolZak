@@ -1,237 +1,263 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="Shaders.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="Light1.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="소스 파일\DirectX 12">
+      <UniqueIdentifier>{e01b3cd7-4898-49e0-aa36-1cf3143ed41f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Components">
+      <UniqueIdentifier>{72921a05-7971-4c38-ac8c-6bb42cbf3860}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Network">
+      <UniqueIdentifier>{d494c99c-d001-445c-9fc8-097ad15ae3ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\PCH_AND_MISC">
+      <UniqueIdentifier>{f6a1218f-e56d-4c1b-8042-b88350e98143}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\System">
+      <UniqueIdentifier>{f5061bcb-6788-4774-b63d-e3d3e7f775ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Components\base">
+      <UniqueIdentifier>{487ddc59-b878-4807-a67e-1276b591e7df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\DirectX 12\TextureLoader">
+      <UniqueIdentifier>{c45f60a0-87bc-4768-bbf7-40726cd51c7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Framework">
+      <UniqueIdentifier>{f393ba7c-4471-4e70-9191-53066386f2dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\GameScenes">
+      <UniqueIdentifier>{8aeb62b5-91c3-4d89-998f-9b47b016df2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\FSM">
+      <UniqueIdentifier>{3a5ff787-6e6f-441b-b17d-d53f67f5447c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AttackComponent.cpp">
-      <Filter>SourceFile\Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component.cpp">
-      <Filter>SourceFile\Component\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="BoxCollideComponent.cpp">
-      <Filter>SourceFile\Component</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerMovementComponent.cpp">
-      <Filter>SourceFile\Component</Filter>
-    </ClCompile>
-    <ClCompile Include="RotateComponent.cpp">
-      <Filter>SourceFile\Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Transform3DComponent.cpp">
-      <Filter>SourceFile\Component</Filter>
-    </ClCompile>
-    <ClCompile Include="GoblinComponent.cpp">
-      <Filter>SourceFile\Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="Characters.cpp">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="GameScene.cpp">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="GameFramework.cpp">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp">
-      <Filter>SourceFile\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>SourceFile\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="WICTextureLoader12.cpp">
-      <Filter>SourceFile\DirectX12\TextureLoader</Filter>
-    </ClCompile>
-    <ClCompile Include="DDSTextureLoader12.cpp">
-      <Filter>SourceFile\DirectX12\TextureLoader</Filter>
-    </ClCompile>
-    <ClCompile Include="DataMSG.cpp">
-      <Filter>SourceFile\MSG</Filter>
-    </ClCompile>
-    <ClCompile Include="MSGQueue.cpp">
-      <Filter>SourceFile\MSG</Filter>
-    </ClCompile>
-    <ClCompile Include="GameState.cpp">
-      <Filter>SourceFile\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>SourceFile\PCH_AND_MISC</Filter>
-    </ClCompile>
-    <ClCompile Include="NonSense.cpp">
-      <Filter>SourceFile\System</Filter>
-    </ClCompile>
-    <ClCompile Include="UI.cpp">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="SphereCollideComponent.cpp">
-      <Filter>SourceFile\Component</Filter>
-    </ClCompile>
-    <ClCompile Include="BillboardComponent.cpp">
-      <Filter>SourceFile\Component</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="AttackComponent.h">
-      <Filter>SourceFile\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component.h">
-      <Filter>SourceFile\Component\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="BoxCollideComponent.h">
-      <Filter>SourceFile\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerMovementComponent.h">
-      <Filter>SourceFile\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="RotateComponent.h">
-      <Filter>SourceFile\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Transform3DComponent.h">
-      <Filter>SourceFile\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="GoblinComponent.h">
-      <Filter>SourceFile\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="Characters.h">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="GameScene.h">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="GameFramework.h">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>SourceFile\DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>SourceFile\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>SourceFile\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="WICTextureLoader12.h">
-      <Filter>SourceFile\DirectX12\TextureLoader</Filter>
-    </ClInclude>
-    <ClInclude Include="DDSTextureLoader12.h">
-      <Filter>SourceFile\DirectX12\TextureLoader</Filter>
-    </ClInclude>
-    <ClInclude Include="DataMSG.h">
-      <Filter>SourceFile\MSG</Filter>
-    </ClInclude>
-    <ClInclude Include="MSGQueue.h">
-      <Filter>SourceFile\MSG</Filter>
-    </ClInclude>
-    <ClInclude Include="GameState.h">
-      <Filter>SourceFile\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>SourceFile\PCH_AND_MISC</Filter>
-    </ClInclude>
-    <ClInclude Include="NonSense.h">
-      <Filter>SourceFile\System</Filter>
+    <ClInclude Include="targetver.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Header</Filter>
+      <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header</Filter>
+    <ClInclude Include="GameFramework.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScene.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="NonSense.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameState.h">
+      <Filter>소스 파일\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>소스 파일\PCH_AND_MISC</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>소스 파일\System</Filter>
     </ClInclude>
     <ClInclude Include="..\Globals.h">
-      <Filter>Header</Filter>
+      <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="UI.h">
-      <Filter>SourceFile\DirectX12</Filter>
+    <ClInclude Include="Component.h">
+      <Filter>소스 파일\Components\base</Filter>
     </ClInclude>
-    <ClInclude Include="SphereCollideComponent.h">
-      <Filter>SourceFile\Component</Filter>
+    <ClInclude Include="RotateComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerMovementComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>소스 파일\System</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader12.h">
+      <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="WICTextureLoader12.h">
+      <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Lobby_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Login_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Stage_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkMGR.h">
+      <Filter>소스 파일\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform3DComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="CloseTypeFSMComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Characters.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="AttackComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="FSM.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="State.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxCollideComponent.h">
+      <Filter>소스 파일\Components</Filter>
     </ClInclude>
     <ClInclude Include="BillboardComponent.h">
-      <Filter>SourceFile\Component</Filter>
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereCollideComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="CloseTypeState.h">
+      <Filter>소스 파일\FSM</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="small.ico">
-      <Filter>ResourceFile</Filter>
-    </Image>
-    <Image Include="NonSense.ico">
-      <Filter>ResourceFile</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="ResourceFile">
-      <UniqueIdentifier>{8cdeb9a8-c63c-4aa1-8249-a458083f181f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header">
-      <UniqueIdentifier>{17ea6dbe-b366-4399-808f-53e7b514fda0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hlsl">
-      <UniqueIdentifier>{22b77865-7e75-40f6-a4d9-1fdc6060c616}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SourceFile">
-      <UniqueIdentifier>{fc1c4453-2cb8-4b1c-8357-1c50f9191f34}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SourceFile\Component">
-      <UniqueIdentifier>{f46db714-c821-412c-a886-f9a28b84e23b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SourceFile\Component\Base">
-      <UniqueIdentifier>{29c630f5-d0e6-4775-8e8f-304371f7ae66}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SourceFile\DirectX12">
-      <UniqueIdentifier>{f602b625-f952-4e39-9793-a103da896eab}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SourceFile\DirectX12\TextureLoader">
-      <UniqueIdentifier>{3de8461e-cbdb-49c8-b708-8c81bfd7f691}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SourceFile\Framework">
-      <UniqueIdentifier>{fb9cc9d3-725c-4a4f-95a0-a9fb47a48761}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SourceFile\MSG">
-      <UniqueIdentifier>{fa9eb1cf-b6f0-4bb1-ba1c-958500c2e74f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SourceFile\PCH_AND_MISC">
-      <UniqueIdentifier>{268ca640-2309-4cb9-81d3-f5a6a00fa46c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SourceFile\System">
-      <UniqueIdentifier>{e1ba55b6-7a9c-480b-8f2d-717675544b5d}</UniqueIdentifier>
-    </Filter>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScene.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFramework.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="NonSense.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GameState.cpp">
+      <Filter>소스 파일\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>소스 파일\PCH_AND_MISC</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>소스 파일\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>소스 파일\Components\base</Filter>
+    </ClCompile>
+    <ClCompile Include="RotateComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerMovementComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>소스 파일\System</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader12.cpp">
+      <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="WICTextureLoader12.cpp">
+      <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Lobby_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Login_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkMGR.cpp">
+      <Filter>소스 파일\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform3DComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="CloseTypeFSMComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Characters.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="AttackComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxCollideComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="BillboardComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereCollideComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="CloseTypeState.cpp">
+      <Filter>소스 파일\FSM</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NonSense.rc">
-      <Filter>ResourceFile</Filter>
+      <Filter>리소스 파일</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="NonSense.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders.hlsl" />
+    <FxCompile Include="Light1.hlsl" />
   </ItemGroup>
 </Project>

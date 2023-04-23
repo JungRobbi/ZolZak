@@ -5,6 +5,7 @@
 #include "Poll.h"
 #include "Semaphore.h"
 #include "Exception.h"
+#include "Packet.h"
 
 #ifdef __linux__
 #include "Epoll.h"

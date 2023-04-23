@@ -1,10 +1,13 @@
 #pragma once
+#include <vector>
+
 #include "Timer.h"
 #include "Camera.h"
 #include "GameScene.h"
 #include "Player.h"
 #include "Input.h"
 #include "UI.h"
+#include "NetworkMGR.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
@@ -56,6 +59,12 @@ private:
 
 
 public:
+	static GameFramework* MainGameFramework;
+public:
+	std::vector<GameScene*> m_GameScenes;
+	std::list<Object*> m_OtherPlayersPool;
+	std::vector<Object*> m_OtherPlayers;
+public:
 	HWND m_hWnd;
 	Camera* m_pCamera = NULL;
 	Player* m_pPlayer = NULL;
@@ -92,7 +101,8 @@ public:
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,LPARAM lParam);
 
-	void ChangeScene(SCENE_TYPE type);
+	void ChangeScene(unsigned char num);
 
+	friend NetworkMGR;
 };
 
