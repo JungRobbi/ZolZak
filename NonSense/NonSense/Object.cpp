@@ -828,6 +828,12 @@ void Object::MoveForward(float fDistance)
 	XMFLOAT3 xmf3Look = GetLook();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	Object::SetPosition(xmf3Position);
+	if (GameScene::MainScene->GetTerrain())
+	{
+		float width = GameScene::MainScene->GetTerrain()->GetWidth();
+		float length = GameScene::MainScene->GetTerrain()->GetLength();
+		m_xmf4x4ToParent._42 = GameScene::MainScene->GetTerrain()->GetHeight(m_xmf4x4ToParent._41 + (width/2), m_xmf4x4ToParent._43 + (length /2));
+	}
 }
 
 void Object::Rotate(float fPitch, float fYaw, float fRoll)
