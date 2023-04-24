@@ -6,16 +6,20 @@
 
 void AttackComponent::Attack()
 {
-	for (auto& monster : GameScene::MainScene->MonsterObjects)
-	{
-		if(AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject()))monster->GetHit(100);
+	AttackTimeLeft = AttackDuration + NextAttackInputTime;
+	During_Attack = true;
+	if (AttackRange) {
+		for (auto& monster : GameScene::MainScene->MonsterObjects)
+		{
+			if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject()))monster->GetHit(100);
+		}
 	}
 	if (!Type_ComboAttack)
 	{
-		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
-		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 6);
-		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 6);
-		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo1_AnineSetNum);
+		gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo1_AnineSetNum);
+		gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo1_AnineSetNum);
+		gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 	}
 	else
 	{
@@ -23,24 +27,24 @@ void AttackComponent::Attack()
 		switch (type)
 		{
 		case Combo1:
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 6);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 6);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo1_AnineSetNum);
+			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo1_AnineSetNum);
+			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo1_AnineSetNum);
+			gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 			type = Combo2;
 			break;
 		case Combo2:
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 8);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 8);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 8);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo2_AnineSetNum);
+			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo2_AnineSetNum);
+			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo2_AnineSetNum);
+			gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 			type = Combo3;
 			break;
 		case Combo3:
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 9);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 9);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 9);
-			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackEnable(1, false);			
+			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo3_AnineSetNum);
+			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo3_AnineSetNum);
+			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo3_AnineSetNum);
+			gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);			
 			type = Combo1;
 			break;
 		}
@@ -68,18 +72,15 @@ void AttackComponent::update()
 		AttackRange->SetScale(AttackRange->Extents.x, AttackRange->Extents.y, AttackRange->Extents.z);
 		AttackRange->SetPosition(AttackRange->Center.x, AttackRange->Center.y, AttackRange->Center.z);
 	}
-
-	if (((Player*)gameObject)->m_pSkinnedAnimationController)
-	{
-		if ((Input::InputKeyBuffer[VK_LBUTTON] & 0xF0))
+	if (dynamic_cast<Player*>(gameObject)) {
+		if (((Player*)gameObject)->m_pSkinnedAnimationController)
 		{
-			if (!During_Attack)
+			if ((Input::InputKeyBuffer[VK_LBUTTON] & 0xF0))
 			{
-
-				Attack();
-				AttackTimeLeft = AttackDuration + NextAttackInputTime;
-				During_Attack = true;
-		
+				if (!During_Attack)
+				{
+					Attack();
+				}
 			}
 		}
 	}
@@ -99,6 +100,11 @@ void AttackComponent::update()
 	{
 		type = Combo1;
 	}
+}
+
+void AttackComponent::SetAttackSpeed(float speed)
+{
+	AttackDuration = speed;
 }
 
 

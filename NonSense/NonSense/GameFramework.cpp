@@ -294,27 +294,17 @@ void GameFramework::CreateDepthStencilView()
 
 void GameFramework::BuildObjects()
 {
-	m_pCommandList->Reset(m_pCommandAllocator, NULL);
-
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
 	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Stage
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
-	m_GameScenes.emplace_back(new GameScene());
-	scene_type = LOGIN_SCENE;
-	//for (auto& gameScene : m_GameScenes)
-	//{
-	//	GameScene::MainScene = gameScene;
-	//	gameScene->BuildObjects(m_pDevice, m_pCommandList);
-	//}
-	//ChangeScene(2);
-	m_GameScenes.back()->BuildObjects(m_pDevice, m_pCommandList);
+	m_GameScenes.emplace_back(new Stage_GameScene());
+	
+	ChangeScene(LOGIN_SCENE);
 
-	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());	
-	m_pCamera = m_pPlayer->GetCamera();
-
+	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 	char n_players = 3;
 	for (int i{}; i < n_players; ++i) {
 		m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
@@ -377,10 +367,6 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 6);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 6);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 6);
-
 		//마우스가 눌려지면 마우스 픽킹을 하여 선택한 게임 객체를 찾는다.
 		m_pSelectedObject = GameScene::MainScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pCamera);
 		//마우스 캡쳐를 하고 현재 마우스 위치를 가져온다.
@@ -389,9 +375,6 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 
 		break;
 	case WM_RBUTTONDOWN:
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 3);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 3);
-		m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 3);
 		break;
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
@@ -428,35 +411,10 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 	
 	switch (nMessageID)
 	{
-	case WM_KEYDOWN:
-		switch (wParam)
-		{
-		case 'W':
-		case 'A':
-		case 'S':
-		case 'D':
-			if (m_pPlayer) m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
-			break;
-		case VK_SPACE:
-			if (m_pPlayer) {
-				m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
-				m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 4);
-				m_pPlayer->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 4);
-			}
-			break;
-		default:
-			break;
-		}
-		break;
 	case WM_KEYUP:
 		switch (wParam)
 		{
-		case 'W':
-		case 'A':
-		case 'S':
-		case 'D':
-			if (m_pPlayer) m_pPlayer->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
-			break;
+
 		case VK_F1:
 		case VK_F2:
 		case VK_F3:
@@ -527,8 +485,22 @@ LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessa
 }
 void GameFramework::ChangeScene(unsigned char num)
 {
+	m_pCommandList->Reset(m_pCommandAllocator, NULL);
+
 	GameScene::MainScene = m_GameScenes.at(num);
+	GameScene::MainScene->ReleaseObjects();
+	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
+	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+	scene_type = (SCENE_TYPE)num;
+	m_pCamera = m_pPlayer->GetCamera();
+
+	m_pCommandList->Close();
+
+	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
+	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+	WaitForGpuComplete();
 }
+
 void GameFramework::ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta)
 {
 	//픽킹으로 선택한 게임 객체가 있으면 키보드를 누르거나 마우스를 움직이면 게임 개체를 이동 또는 회전한다.
