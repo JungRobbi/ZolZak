@@ -9,6 +9,7 @@ WanderState* WanderState::GetInstance()
 void WanderState::Enter(CloseTypeFSMComponent* pOwner)
 {
 	std::cout << "Start Wandering" << std::endl;
+	pOwner->Stop();
 }
 
 void WanderState::Execute(CloseTypeFSMComponent* pOwner)
