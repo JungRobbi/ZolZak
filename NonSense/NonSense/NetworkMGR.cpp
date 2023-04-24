@@ -209,20 +209,19 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 
 		XMFLOAT3 xmf3Look{ XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z) };
-		XMFLOAT3 xmf3RightVector = player->GetRightVector();
 		XMFLOAT3 xmf3UpVector = player->GetUpVector();
+		XMFLOAT3 xmf3RightVector = Vector3::CrossProduct(xmf3UpVector, xmf3Look, true);
 
 		player->SetLookVector(xmf3Look);
-		player->SetRightVector(Vector3::CrossProduct(xmf3UpVector, xmf3Look, true));
-		xmf3RightVector = player->GetRightVector();
+		player->SetRightVector(xmf3RightVector);
 		player->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3RightVector, true));
-		xmf3UpVector = player->GetUpVector();
 
 		if (player == GameFramework::MainGameFramework->m_pPlayer) {
-			/*player->GetCamera()->SetLookVector(Vector3::Normalize(xmf3Look));
-			player->GetCamera()->SetRightVector(Vector3::CrossProduct(xmf3UpVector, xmf3Look, true));
+			XMFLOAT3 xmf3newLook{xmf3Look};
+			player->GetCamera()->SetLookVector(xmf3Look);
+			player->GetCamera()->SetRightVector(xmf3RightVector);
 			player->GetCamera()->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3RightVector, true));
-			player->GetCamera()->Rotate(0, 0, player->GetRoll());*/
+			player->GetCamera()->Rotate(player->GetPitch(), 0, 0);
 		}
 		break;
 	}

@@ -561,10 +561,10 @@ void GameFramework::ProcessInput()
 			if (cxDelta || cyDelta)
 			{
 			
-				if (pKeyBuffer[VK_RBUTTON] & 0xF0)
+				/*if (pKeyBuffer[VK_RBUTTON] & 0xF0)
 					m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
 				else
-					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);*/
 			}
 			if (dwDirection) {
 				/*if (pKeyBuffer[0x41] & 0xF0) {
