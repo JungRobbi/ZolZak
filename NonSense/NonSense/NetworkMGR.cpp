@@ -217,7 +217,6 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		player->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3RightVector, true));
 
 		if (player == GameFramework::MainGameFramework->m_pPlayer) {
-			XMFLOAT3 xmf3newLook{xmf3Look};
 			player->GetCamera()->SetLookVector(xmf3Look);
 			player->GetCamera()->SetRightVector(xmf3RightVector);
 			player->GetCamera()->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3RightVector, true));
