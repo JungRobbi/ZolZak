@@ -2,14 +2,19 @@
 #include <list>
 #include <queue>
 #include <deque>
+#include <atomic>
+#include <concurrent_queue.h>
 
 #include "Object.h"
 #include "Terrain.h"
 
+
 class Scene
 {
-	std::queue<Object*> creationQueue;
-	std::deque<Object*> deletionQueue;
+	concurrency::concurrent_queue<Object*> creationQueue;
+//	std::queue<Object*> creationQueue;
+	concurrency::concurrent_queue<Object*> deletionQueue;
+//	std::deque<Object*> deletionQueue;
 
 	std::list<Object*> gameObjects;
 
@@ -32,8 +37,8 @@ public:
 
 	void PushDelete(Object* Object)
 	{
-		if (std::find(deletionQueue.begin(), deletionQueue.end(), Object) == deletionQueue.end());
-		deletionQueue.push_back(Object);
+	//	if (std::find(deletionQueue.unsafe_begin(), deletionQueue.unsafe_end(), Object) == deletionQueue.unsafe_end())
+		deletionQueue.push(Object);
 	}
 
 	friend Object;

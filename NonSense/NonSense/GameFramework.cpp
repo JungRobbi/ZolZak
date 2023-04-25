@@ -386,7 +386,7 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	GameScene::MainScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-	if (NetworkMGR::b_isNet) {
+	if (NetworkMGR::b_isNet && wParam != VK_RETURN) {
 		if (nMessageID == WM_KEYDOWN) {
 			if (Input::keys[wParam] != TRUE) {
 				CS_KEYDOWN_PACKET send_packet;

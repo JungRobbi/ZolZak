@@ -5,19 +5,20 @@
 #include <memory>
 #include <mutex>
 #include <unordered_map>
+#include <concurrent_unordered_map.h>
 
 #include "../Input.h"
 
 #include "../Player.h"
 
 using namespace std;
+using namespace concurrency;
 
 class RemoteClient {
 public:
-	static unordered_map<RemoteClient*, shared_ptr<RemoteClient>> remoteClients;
-	static recursive_mutex mx_rc;
+	static concurrent_unordered_map<RemoteClient*, shared_ptr<RemoteClient>> remoteClients;
 public:
-	shared_ptr<thread> thread; // 클라이언트 스레드
+	shared_ptr<thread> thread;	// 클라이언트 스레드
 	Socket tcpConnection;		// accept한 TCP 연결
 
 	unsigned long long m_id;

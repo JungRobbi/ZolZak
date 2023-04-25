@@ -5,7 +5,7 @@
 #include <list>
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <concurrent_unordered_map.h>
 
 #include <signal.h>
 #include <thread>
@@ -22,6 +22,7 @@
 #include "Components/PlayerMovementComponent.h"
 
 using namespace std;
+using namespace concurrency;
 
 volatile bool stopWorking = false;
 
@@ -44,15 +45,29 @@ list<shared_ptr<RemoteClient>> deleteClinets;
 
 void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
 {
+	unsigned long long leave_id = remoteClient->m_id;
+	//Scene의 ObjectList에서 떠난 Player 제거
+//	Scene::scene->PushDelete(remoteClient->m_pPlayer.get());
+
 	// 에러 혹은 소켓 종료이다.
 	// 해당 소켓은 제거해버리자. 
 	remoteClient->tcpConnection.Close();
+	
 	{
-		lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
-		RemoteClient::remoteClients.erase(remoteClient.get());
-
+//		lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
+//		RemoteClient::remoteClients.unsafe_erase(remoteClient.get());
 		cout << "Client left. There are " << RemoteClient::remoteClients.size() << " connections.\n";
 	}
+
+	//플레이어가 떠났다고 알림
+	for (auto rc : RemoteClient::remoteClients) {
+		SC_REMOVE_PLAYER_PACKET send_packet;
+		send_packet.size = sizeof(SC_REMOVE_PLAYER_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_SC_REMOVE_PLAYER;
+		send_packet.id = leave_id;
+		rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+	}
+
 }
 
 // IOCP를 준비한다.
@@ -99,10 +114,7 @@ void Worker_Thread()
 				{
 					// 처리할 클라이언트 받아오기
 					shared_ptr<RemoteClient> remoteClient;
-					{
-						lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
-						remoteClient = RemoteClient::remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
-					}
+					remoteClient = RemoteClient::remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
 
 					//
 					if (remoteClient)
@@ -240,49 +252,49 @@ void CloseServer()
 	lock_guard<recursive_mutex> lock_accept(mx_accept);
 	// i/o 완료 체크
 	p_listenSocket->Close();
-	{
-		lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
 
-		for (auto i : RemoteClient::remoteClients)
+
+	for (auto i : RemoteClient::remoteClients)
+	{
+		i.second->tcpConnection.Close();
+	}
+
+
+	// 서버를 종료하기 위한 정리중
+	cout << "서버를 종료하고 있습니다...\n";
+	while (RemoteClient::remoteClients.size() > 0)
+	{
+		// I/O completion이 없는 상태의 RemoteClient를 제거한다.
+		for (auto i = RemoteClient::remoteClients.begin(); i != RemoteClient::remoteClients.end(); ++i)
 		{
-			i.second->tcpConnection.Close();
+			if (!i->second->tcpConnection.m_isReadOverlapped) {
+				RemoteClient::remoteClients.unsafe_erase(i);
+			}
 		}
 
+		// I/O completion이 발생하면 더 이상 Overlapped I/O를 걸지 말고 '이제 정리해도 돼...'를 플래깅한다.
+		IocpEvents readEvents;
+		iocp.Wait(readEvents, 100);
 
-		// 서버를 종료하기 위한 정리중
-		cout << "서버를 종료하고 있습니다...\n";
-		while (RemoteClient::remoteClients.size() > 0)
+		// 받은 이벤트 각각을 처리합니다.
+		for (int i = 0; i < readEvents.m_eventCount; i++)
 		{
-			// I/O completion이 없는 상태의 RemoteClient를 제거한다.
-			for (auto i = RemoteClient::remoteClients.begin(); i != RemoteClient::remoteClients.end(); ++i)
+			auto& readEvent = readEvents.m_events[i];
+			if (readEvent.lpCompletionKey == 0) // 리슨소켓이면
 			{
-				if (!i->second->tcpConnection.m_isReadOverlapped)
-					RemoteClient::remoteClients.erase(i);
+				p_listenSocket->m_isReadOverlapped = false;
 			}
-
-			// I/O completion이 발생하면 더 이상 Overlapped I/O를 걸지 말고 '이제 정리해도 돼...'를 플래깅한다.
-			IocpEvents readEvents;
-			iocp.Wait(readEvents, 100);
-
-			// 받은 이벤트 각각을 처리합니다.
-			for (int i = 0; i < readEvents.m_eventCount; i++)
+			else
 			{
-				auto& readEvent = readEvents.m_events[i];
-				if (readEvent.lpCompletionKey == 0) // 리슨소켓이면
+				shared_ptr<RemoteClient> remoteClient = RemoteClient::remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
+				if (remoteClient)
 				{
-					p_listenSocket->m_isReadOverlapped = false;
-				}
-				else
-				{
-					shared_ptr<RemoteClient> remoteClient = RemoteClient::remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
-					if (remoteClient)
-					{
-						remoteClient->tcpConnection.m_isReadOverlapped = false;
-					}
+					remoteClient->tcpConnection.m_isReadOverlapped = false;
 				}
 			}
 		}
 	}
+	
 	cout << "서버 끝.\n";
 }
 void ProcessAccept()
@@ -320,12 +332,11 @@ void ProcessAccept()
 			remoteClient->tcpConnection.m_isReadOverlapped = true;
 
 			// 새 클라이언트를 목록에 추가.
-			{
-				lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
-				RemoteClient::remoteClients.insert({ remoteClient.get(), remoteClient });
 
-				cout << "Client joined. There are " << RemoteClient::remoteClients.size() << " connections.\n";
-			}
+			RemoteClient::remoteClients.insert({ remoteClient.get(), remoteClient });
+
+			cout << "Client joined. There are " << RemoteClient::remoteClients.size() << " connections.\n";
+			
 		}
 
 		// 계속해서 소켓 받기를 해야 하므로 리슨소켓도 overlapped I/O를 걸자.
@@ -348,8 +359,6 @@ void ProcessAccept()
 
 void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 {
-	lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
-
 	switch (p_Packet[1]) // 패킷 타입
 	{
 	case E_PACKET::E_PACKET_CS_LOGIN: {

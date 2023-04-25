@@ -19,10 +19,10 @@ void Scene::update()
 {
 	while (!creationQueue.empty())
 	{
-		auto Object = creationQueue.front();
-		Object->start();
-		gameObjects.push_back(Object);
-		creationQueue.pop();
+		auto Object = creationQueue.unsafe_begin();
+		(*Object)->start();
+		gameObjects.push_back(*Object);
+		creationQueue.try_pop(*Object);
 	}
 
 	for (auto Object : gameObjects)
@@ -30,10 +30,8 @@ void Scene::update()
 
 	while (!deletionQueue.empty())
 	{
-		auto Object = deletionQueue.front();
-		gameObjects.erase(std::find(gameObjects.begin(), gameObjects.end(), Object));
-		deletionQueue.pop_front();
-
-		delete Object;
+		auto Object = deletionQueue.unsafe_begin();
+		deletionQueue.try_pop(*Object);
+		delete *Object;
 	}
 }

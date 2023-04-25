@@ -165,6 +165,19 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		GameFramework::MainGameFramework->m_OtherPlayers.push_back(player);
 		break;
 	}
+	case E_PACKET::E_PACKET_SC_REMOVE_PLAYER: {
+		SC_REMOVE_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(p_Packet);
+		auto leave_id = recv_packet->id;
+		auto OtherPlayers = GameFramework::MainGameFramework->m_OtherPlayers;
+		auto leave_player = find_if(OtherPlayers.begin(), OtherPlayers.end(), [&leave_id](Object* lhs) {
+			return dynamic_cast<Player*>(lhs)->id == leave_id;
+			});
+		if (leave_player == OtherPlayers.end())
+			break;
+		OtherPlayers.erase(leave_player);
+		GameScene::MainScene->PushDelete(*leave_player);
+		break;
+	}
 	case E_PACKET::E_PACKET_SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(p_Packet);
 		Player* player = GameFramework::MainGameFramework->m_pPlayer;
