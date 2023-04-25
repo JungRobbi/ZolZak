@@ -10,6 +10,7 @@
 #include "Lobby_GameScene.h"
 #include "Stage_GameScene.h"
 
+#include "Sound.h"
 GameFramework* GameFramework::MainGameFramework;
 
 GameFramework::GameFramework()
@@ -57,7 +58,7 @@ bool GameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateDepthStencilView();			// Depth Stencil View 생성
 	
 	NetworkMGR::start();
-	
+	Sound::InitFmodSystem();			// FMOD System 초기화
 	BuildObjects();						// Object 생성
 	return(true);
 }
@@ -86,6 +87,7 @@ void GameFramework::OnDestroy()
 
 	m_GameScenes.clear();
 
+	Sound::ReleaseFmodSystem();		// FMOD System 해제
 #ifdef defined(_DEBUG)
 	IDXGIDebug1* pdxgiDebug = NULL;
 	DXGIGetDebugInterface1(0, __uuidof(IDXGIDebug1), (void**)&pdxgiDebug);
@@ -493,7 +495,7 @@ void GameFramework::ChangeScene(unsigned char num)
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 	scene_type = (SCENE_TYPE)num;
 	m_pCamera = m_pPlayer->GetCamera();
-
+	GameScene::MainScene->m_pPlayer = m_pPlayer;
 	m_pCommandList->Close();
 
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
@@ -538,15 +540,7 @@ void GameFramework::ProcessInput()
 
 	if (::GetCapture() == m_hWnd)
 	{
-		////마우스 커서를 화면에서 없앤다(보이지 않게 한다).
-		//::SetCursor(NULL);
-		////현재 마우스 커서의 위치를 가져온다.
-		//::GetCursorPos(&ptCursorPos);
-		////마우스 버튼이 눌린 상태에서 마우스가 움직인 양을 구한다.
-		//cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-		//cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-		////마우스 커서의 위치를 마우스가 눌려졌던 위치로 설정한다.
-		//::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+		::GetCursorPos(&ptCursorPos);
 	}
 	//마우스 또는 키 입력이 있으면 플레이어를 이동하거나(dwDirection) 회전한다(cxDelta 또는 cyDelta).
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
@@ -614,6 +608,8 @@ void GameFramework::FrameAdvance()
 {
 	Timer::Tick(0.0f);
 
+	Sound::SystemUpdate(); //FMOD System Update
+
 	if (!m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose)
 	{
 		::SetCapture(m_hWnd);
@@ -672,15 +668,6 @@ void GameFramework::FrameAdvance()
 	// Debug 화면
 	//if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
-	///////////////////////////////////
-
-	for (auto& o : GameScene::MainScene->gameObjects)
-	{
-		if (o->GetComponent<SphereCollideComponent>())
-			if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject())) printf("구체 충돌");
-		if (o->GetComponent<BoxCollideComponent>())
-			if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject())) printf("OBB 충돌");
-	}
 
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);

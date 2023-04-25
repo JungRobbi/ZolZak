@@ -1,6 +1,6 @@
 #include "Stage_GameScene.h"
 #include "BoxCollideComponent.h"
-
+class GameFramework;
 void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
@@ -27,10 +27,11 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_Game_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Graphic_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Sound_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
-	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
+	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close.bin", NULL);
 
 	Object* TempObject = NULL;
-
+	//LoadedModelInfo* pRW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_R.bin", NULL);
+	//LoadedModelInfo* pLW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_L.bin", NULL);
 	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(1.0f, 1.0f, 3.0f);
 	TempObject->SetNum(1);
@@ -51,4 +52,43 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	bgm = new Sound("Sound/TestMusic.mp3", true);
+	bgm->Play();
+	bgm->AddDsp();
+}
+
+void Stage_GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	m_pHP_UI->HP = m_pPlayer->GetRemainHP()/m_pPlayer->GetHealth();
+	m_pHP_Dec_UI->Dec_HP = m_pPlayer->GetRemainHP() / m_pPlayer->GetHealth();
+	m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+	GameScene::OnPrepareRender(pd3dCommandList, pCamera);
+}
+
+bool Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	switch (nMessageID)
+	{
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_SPACE:
+			
+			break;
+		default:
+			break;
+		}
+		break;
+	case WM_KEYUP:
+		switch (wParam)
+		{
+		default:
+			break;
+		}
+
+	default:
+		break;
+	}
+	return(false);
 }

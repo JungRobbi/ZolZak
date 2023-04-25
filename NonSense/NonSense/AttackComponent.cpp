@@ -1,19 +1,33 @@
 #include "AttackComponent.h"
 #include "Input.h"
-#include "Player.h"
 #include "GameFramework.h"
 #include "BoxCollideComponent.h"
+#include "SphereCollideComponent.h"
 
 void AttackComponent::Attack()
 {
 	AttackTimeLeft = AttackDuration + NextAttackInputTime;
 	During_Attack = true;
-	if (AttackRange) {
-		for (auto& monster : GameScene::MainScene->MonsterObjects)
-		{
-			if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject()))monster->GetHit(100);
+
+	if (dynamic_cast<Player*>(gameObject)) {
+		if (AttackRange) {
+			for (auto& monster : GameScene::MainScene->MonsterObjects)
+			{
+				if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject()))monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense()/(monster->GetDefense() + 100)));
+				printf("%f -> %f = %f", dynamic_cast<Player*>(gameObject)->GetAttack(), monster->GetDefense(), dynamic_cast<Goblin*>(monster)->GetRemainHP());
+			}
 		}
 	}
+	else {
+		if (AttackRange) {
+			if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
+			{
+				GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+				printf("%f -> %f = %f", dynamic_cast<Goblin*>(gameObject)->GetAttack(), GameFramework::MainGameFramework->m_pPlayer->GetDefense(), GameFramework::MainGameFramework->m_pPlayer->GetRemainHP());
+			}
+		}
+	}
+
 	if (!Type_ComboAttack)
 	{
 		gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo1_AnineSetNum);
@@ -58,12 +72,11 @@ void AttackComponent::start()
 
 void AttackComponent::update()
 {
-
 	if (AttackRange)
 	{
 		AttackRange->Center = XMFLOAT3(0, 0.3, 1.0);
-		AttackRange->Extents = XMFLOAT3(1,0.3,0.5);
-		AttackRange->Orientation = XMFLOAT4(0,0,0,1);
+		AttackRange->Extents = XMFLOAT3(1, 0.3, 0.5);
+		AttackRange->Orientation = XMFLOAT4(0, 0, 0, 1);
 
 		AttackRange->Transform(*AttackRange, XMLoadFloat4x4(&gameObject->GetWorld()));
 
@@ -72,6 +85,7 @@ void AttackComponent::update()
 		AttackRange->SetScale(AttackRange->Extents.x, AttackRange->Extents.y, AttackRange->Extents.z);
 		AttackRange->SetPosition(AttackRange->Center.x, AttackRange->Center.y, AttackRange->Center.z);
 	}
+
 	if (dynamic_cast<Player*>(gameObject)) {
 		if (((Player*)gameObject)->m_pSkinnedAnimationController)
 		{

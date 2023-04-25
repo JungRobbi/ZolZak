@@ -21,3 +21,13 @@ public:
 	virtual void Execute(CloseTypeFSMComponent* pOwner);
 	virtual void Exit(CloseTypeFSMComponent* pOwner);
 };
+
+class IdleState : public State<CloseTypeFSMComponent>
+{
+public:
+	~IdleState() {}
+	static IdleState* GetInstance();
+	virtual void Enter(CloseTypeFSMComponent* pOwner);
+	virtual void Execute(CloseTypeFSMComponent* pOwner);
+	virtual void Exit(CloseTypeFSMComponent* pOwner);
+};

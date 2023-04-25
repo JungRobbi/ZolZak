@@ -27,8 +27,46 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 	float Distance = Vector3::Length(Vector3::Subtract(OwnerPos, PlayerPos));
 	if (Distance < ChangeStateDistance)
 		return true;
-	else 
+	else
 		return false;
+}
+
+void CloseTypeFSMComponent::ResetWanderPosition(float posx, float posz)
+{
+	XMFLOAT3 pos;
+	if (GameScene::MainScene->GetTerrain())
+	{
+		float width = GameScene::MainScene->GetTerrain()->GetWidth();
+		float length = GameScene::MainScene->GetTerrain()->GetLength();
+		float height = GameScene::MainScene->GetTerrain()->GetHeight(posx + (width / 2), posz + (length / 2));
+
+		pos = { posx, height, posz };
+	}
+	else
+	{
+		pos = { posx,0.0f,posz };
+	}
+	WanderPosition = pos;
+}
+
+void CloseTypeFSMComponent::ResetIdleTime(float time)
+{
+	IdleLeftTime = time;
+}
+
+XMFLOAT3 CloseTypeFSMComponent::GetOwnerPosition()
+{
+	return gameObject->GetPosition();
+}
+
+bool CloseTypeFSMComponent::Idle()
+{
+	if (IdleLeftTime > 0.0f)
+	{
+		IdleLeftTime -= Timer::GetTimeElapsed();
+		return false;
+	}
+	return true;
 }
 
 void CloseTypeFSMComponent::Stop()
@@ -38,6 +76,7 @@ void CloseTypeFSMComponent::Stop()
 
 void CloseTypeFSMComponent::Move_Walk(float dist)
 {
+	gameObject->MoveForward(dist);
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
 }
 void CloseTypeFSMComponent::Move_Run(float dist)
@@ -72,7 +111,23 @@ void CloseTypeFSMComponent::Track()
 		Attack();
 	}
 }
-void CloseTypeFSMComponent::Wander()
+bool CloseTypeFSMComponent::Wander()
 {
+	XMFLOAT3 CurrentPos = gameObject->GetPosition();
+	XMFLOAT3 Direction = Vector3::Normalize(Vector3::Subtract(WanderPosition, CurrentPos));
+	XMFLOAT3 Look = gameObject->GetLook();
+	XMFLOAT3 CrossProduct = Vector3::CrossProduct(Look, Direction);
+	float Dot = Vector3::DotProduct(Look, Direction);
+	float ToTargetAngle = XMConvertToDegrees(acos(Dot));
+	float Angle = (CrossProduct.y > 0.0f) ? 180.0f : -180.0f;
+	if (ToTargetAngle > 7.0f)
+		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
+	float Distance = Vector3::Length(Vector3::Subtract(WanderPosition, CurrentPos));
+	if (Distance > 0.1f)
+	{
+		Move_Walk(0.5f * Timer::GetTimeElapsed());
+		return false;
+	}
+	return true;
 
 }
