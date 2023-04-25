@@ -13,7 +13,8 @@ void AttackComponent::Attack()
 		if (AttackRange) {
 			for (auto& monster : GameScene::MainScene->MonsterObjects)
 			{
-				if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject()))monster->GetHit(100);
+				if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject()))monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense()/(monster->GetDefense() + 100)));
+				printf("%f -> %f = %f", dynamic_cast<Player*>(gameObject)->GetAttack(), monster->GetDefense(), dynamic_cast<Goblin*>(monster)->GetRemainHP());
 			}
 		}
 	}
@@ -21,7 +22,8 @@ void AttackComponent::Attack()
 		if (AttackRange) {
 			if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
-				GameFramework::MainGameFramework->m_pPlayer->GetHit(100);
+				GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+				printf("%f -> %f = %f", dynamic_cast<Goblin*>(gameObject)->GetAttack(), GameFramework::MainGameFramework->m_pPlayer->GetDefense(), GameFramework::MainGameFramework->m_pPlayer->GetRemainHP());
 			}
 		}
 	}

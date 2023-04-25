@@ -57,8 +57,8 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 void Stage_GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	m_pHP_UI->HP = m_pPlayer->m_RemainHP/m_pPlayer->m_Health;
-	m_pHP_Dec_UI->Dec_HP = m_pPlayer->m_RemainHP / m_pPlayer->m_Health;
+	m_pHP_UI->HP = m_pPlayer->GetRemainHP()/m_pPlayer->GetHealth();
+	m_pHP_Dec_UI->Dec_HP = m_pPlayer->GetRemainHP() / m_pPlayer->GetHealth();
 	m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
 	GameScene::OnPrepareRender(pd3dCommandList, pCamera);
 }
@@ -80,18 +80,6 @@ bool Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WP
 	case WM_KEYUP:
 		switch (wParam)
 		{
-		case 'E':
-			m_pHP_UI->HP -= 0.2;
-			m_pHP_Dec_UI->Dec_HP -= 0.2;
-			m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
-			break;
-		case 'T':
-			for (auto& o : MonsterObjects)
-			{
-				o->GetHit(100);
-			}
-
-			break;
 		default:
 			break;
 		}

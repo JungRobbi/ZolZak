@@ -660,13 +660,6 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 	case WM_KEYUP:
 		switch (wParam)
 		{
-		case 'T':
-			for (auto& o : MonsterObjects)
-			{
-				o->GetHit(100);
-			}
-
-			break;
 		default:
 			break;
 		}
