@@ -28,6 +28,8 @@ void CloseTypeFSMComponent::update()
 }
 void CloseTypeFSMComponent::Attack()
 {
+	AttackTimeLeft = AttackDuration + NextAttackInputTime;
+	During_Attack = true;
 	if (AttackRange) {
 		if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 		{

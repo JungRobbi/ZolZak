@@ -62,3 +62,42 @@ void Stage_GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList
 	m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
 	GameScene::OnPrepareRender(pd3dCommandList, pCamera);
 }
+
+bool Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+{
+	switch (nMessageID)
+	{
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_SPACE:
+
+			break;
+		default:
+			break;
+		}
+		break;
+	case WM_KEYUP:
+		switch (wParam)
+		{
+		case 'E':
+			m_pHP_UI->HP -= 0.2;
+			m_pHP_Dec_UI->Dec_HP -= 0.2;
+			m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+			break;
+		case 'T':
+			for (auto& o : MonsterObjects)
+			{
+				o->GetHit(100);
+			}
+
+			break;
+		default:
+			break;
+		}
+
+	default:
+		break;
+	}
+	return(false);
+}
