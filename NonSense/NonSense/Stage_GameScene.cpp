@@ -27,11 +27,12 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_Game_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Graphic_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Sound_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
-	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
+	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close.bin", NULL);
 
 	Object* TempObject = NULL;
-
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_CLOSE);
+	LoadedModelInfo* pRW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_R.bin", NULL);
+	LoadedModelInfo* pLW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_L.bin", NULL);
+	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pLW, pRW, MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(1.0f, 1.0f, 3.0f);
 	TempObject->SetNum(1);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);

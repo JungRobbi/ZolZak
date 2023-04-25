@@ -79,12 +79,12 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	m_pHP = m_HP_UI;
 
 	if (pWeaponL && pWeaponR) {
-		Object* Hand = FindFrame("Weapon_Goblin_3_R_Dummy");
+		Object* Hand = FindFrame("Weapon_Goblin_2_R_Dummy");
 		if (Hand) {
 			Hand->SetChild(pWeaponR->m_pRoot, true);
 
 		}
-		Hand = FindFrame("Weapon_Goblin_3_L_Dummy");
+		Hand = FindFrame("Weapon_Goblin_2_L_Dummy");
 		if (Hand) {
 			Hand->SetChild(pWeaponL->m_pRoot, true);
 
