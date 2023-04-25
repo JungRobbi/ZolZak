@@ -53,6 +53,10 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	bgm = new Sound("Sound/TestMusic.mp3", true);
+	bgm->Play();
+	bgm->AddDsp();
 }
 
 void Stage_GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -71,7 +75,7 @@ bool Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WP
 		switch (wParam)
 		{
 		case VK_SPACE:
-
+			
 			break;
 		default:
 			break;
