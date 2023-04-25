@@ -2,16 +2,28 @@
 #include "Input.h"
 #include "GameFramework.h"
 #include "BoxCollideComponent.h"
+#include "SphereCollideComponent.h"
 
 void AttackComponent::Attack()
 {
 	AttackTimeLeft = AttackDuration + NextAttackInputTime;
 	During_Attack = true;
 
-	if (AttackRange) {
-		for (auto& monster : GameScene::MainScene->MonsterObjects)
-		{
-			if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject()))monster->GetHit(100);
+	if (dynamic_cast<Player*>(gameObject)) {
+		if (AttackRange) {
+			for (auto& monster : GameScene::MainScene->MonsterObjects)
+			{
+				if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject()))monster->GetHit(100);
+			}
+		}
+	}
+	else {
+		if (AttackRange) {
+			if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
+			{
+				GameFramework::MainGameFramework->m_pPlayer->GetHit(100);
+				printf("asdf");
+			}
 		}
 	}
 
@@ -59,12 +71,11 @@ void AttackComponent::start()
 
 void AttackComponent::update()
 {
-
 	if (AttackRange)
 	{
 		AttackRange->Center = XMFLOAT3(0, 0.3, 1.0);
-		AttackRange->Extents = XMFLOAT3(1,0.3,0.5);
-		AttackRange->Orientation = XMFLOAT4(0,0,0,1);
+		AttackRange->Extents = XMFLOAT3(1, 0.3, 0.5);
+		AttackRange->Orientation = XMFLOAT4(0, 0, 0, 1);
 
 		AttackRange->Transform(*AttackRange, XMLoadFloat4x4(&gameObject->GetWorld()));
 
@@ -73,6 +84,7 @@ void AttackComponent::update()
 		AttackRange->SetScale(AttackRange->Extents.x, AttackRange->Extents.y, AttackRange->Extents.z);
 		AttackRange->SetPosition(AttackRange->Center.x, AttackRange->Center.y, AttackRange->Center.z);
 	}
+
 	if (dynamic_cast<Player*>(gameObject)) {
 		if (((Player*)gameObject)->m_pSkinnedAnimationController)
 		{

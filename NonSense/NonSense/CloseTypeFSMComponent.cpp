@@ -1,8 +1,8 @@
 #include "CloseTypeFSMComponent.h"
+#include "Characters.h"
 #include "GameFramework.h"
 #include "CloseTypeState.h"
-#include "SphereCollideComponent.h"
-
+#include "AttackComponent.h"
 void CloseTypeFSMComponent::start()
 {
 	m_pFSM = new FSM<CloseTypeFSMComponent>(this);
@@ -11,58 +11,14 @@ void CloseTypeFSMComponent::start()
 
 void CloseTypeFSMComponent::update()
 {
-	if (AttackTimeLeft > 0.0f)
-	{
-		if (AttackTimeLeft > 0.0)
-		{
-			AttackTimeLeft -= Timer::GetTimeElapsed();
-		}
-
-		if (AttackTimeLeft < NextAttackInputTime)
-		{
-			During_Attack = false;
-		}
-	}
-	AttackRangeupdate();
 	m_pFSM->Update();
-}
-void CloseTypeFSMComponent::Attack()
-{
-	AttackTimeLeft = AttackDuration + NextAttackInputTime;
-	During_Attack = true;
-	if (AttackRange) {
-		if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
-		{
-			printf("공격");
-			GameFramework::MainGameFramework->m_pPlayer->GetHit(100);
-		};
-	}
-	gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 4);
-	gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 4);
-	gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 4);
-	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 }
 
 FSM<CloseTypeFSMComponent>* CloseTypeFSMComponent::GetFSM()
 {
 	return m_pFSM;
 }
-void CloseTypeFSMComponent::AttackRangeupdate()
-{
-	if (AttackRange)
-	{
-		AttackRange->Center = XMFLOAT3(0, 0.3, 1.0);
-		AttackRange->Extents = XMFLOAT3(0.3, 0.3, 0.5);
-		AttackRange->Orientation = XMFLOAT4(0, 0, 0, 1);
 
-		AttackRange->Transform(*AttackRange, XMLoadFloat4x4(&gameObject->GetWorld()));
-
-		/// 그리기 위한 코드
-		AttackRange->m_xmf4x4ToParent = gameObject->GetWorld();
-		AttackRange->SetScale(AttackRange->Extents.x, AttackRange->Extents.y, AttackRange->Extents.z);
-		AttackRange->SetPosition(AttackRange->Center.x, AttackRange->Center.y, AttackRange->Center.z);
-	}
-}
 bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 {
 	XMFLOAT3 OwnerPos = gameObject->GetPosition();
@@ -71,7 +27,7 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 	float Distance = Vector3::Length(Vector3::Subtract(OwnerPos, PlayerPos));
 	if (Distance < ChangeStateDistance)
 		return true;
-	else 
+	else
 		return false;
 }
 
@@ -82,7 +38,7 @@ void CloseTypeFSMComponent::ResetWanderPosition(float posx, float posz)
 	{
 		float width = GameScene::MainScene->GetTerrain()->GetWidth();
 		float length = GameScene::MainScene->GetTerrain()->GetLength();
-		float height = GameScene::MainScene->GetTerrain()->GetHeight(posx + (width/2), posz +(length/2));
+		float height = GameScene::MainScene->GetTerrain()->GetHeight(posx + (width / 2), posz + (length / 2));
 
 		pos = { posx, height, posz };
 	}
@@ -128,6 +84,11 @@ void CloseTypeFSMComponent::Move_Run(float dist)
 	gameObject->MoveForward(dist);
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(2);
 }
+void CloseTypeFSMComponent::Attack()
+{
+	if (!gameObject->GetComponent<AttackComponent>()->During_Attack)
+		gameObject->GetComponent<AttackComponent>()->Attack();
+}
 
 void CloseTypeFSMComponent::Track()
 {
@@ -142,16 +103,12 @@ void CloseTypeFSMComponent::Track()
 	if (ToTargetAngle > 7.0f)
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(TargetPos, CurrentPos));
-
 	if (Distance > 1.5f)
 		Move_Run(2.0f * Timer::GetTimeElapsed());
 	else
 	{
 		Stop();
-		if (!During_Attack)
-		{
-			Attack();
-		}
+		Attack();
 	}
 }
 bool CloseTypeFSMComponent::Wander()
