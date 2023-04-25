@@ -93,6 +93,8 @@ float4 PSBounding(VS_BoundingOUTPUT input) : SV_TARGET
 		return(float4(0, 0, 1, 1));
 	if (objectID == 4) // 맵 Sphere 오브젝트
 		return(float4(0.5, 0.5, 0.5, 1));
+	if (objectID == 5) // 적 공격
+		return(float4(0.0, 0.0, 0.0, 1));
 	else return(float4(0, 0, 0, 1));
 }
 

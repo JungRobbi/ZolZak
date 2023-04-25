@@ -33,6 +33,11 @@ protected:
 
 	XMFLOAT3 m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 public:
+	float m_Health = 1000;
+	float m_Defense = 100;
+	float m_Attack = 200;
+	float m_RemainHP = 1000;
+
 	unsigned int id = 0;
 	std::string m_name;
 public:
@@ -59,6 +64,7 @@ public:
 	void SetVelocity(XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
 	void SetPosition(XMFLOAT3& xmf3Position) { XMFLOAT3 pos = { xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z }; Move(pos, false); }
 	void SetAnimation();
+	void GetHit(float damage) { m_RemainHP -= damage; }
 
 	void SetLookVector(XMFLOAT3 xmf3Look) { m_xmf3Look = xmf3Look; }
 	void SetUpVector(XMFLOAT3 xmf3Up) { m_xmf3Up = xmf3Up; }

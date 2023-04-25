@@ -211,12 +211,6 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	Sound_Option_UI* m_Sound_Option_Dec_UI = new Sound_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Option_UI* m_Option_Dec_UI = new Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
-	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-
-	m_pHP_UI->SetParentUI(m_pUI);
-	m_pHP_Dec_UI->SetParentUI(m_pUI);
 
 	m_Game_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Graphic_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
@@ -668,9 +662,7 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 		switch (wParam)
 		{
 		case 'E':
-			m_pHP_UI->HP -= 0.2;
-			m_pHP_Dec_UI->Dec_HP -= 0.2;
-			m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+
 			break;
 		case 'T':
 			for (auto& o : MonsterObjects)
@@ -691,6 +683,9 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 
 void GameScene::AnimateObjects(float fTimeElapsed)
 {
+	
+
+
 	for (auto& object : gameObjects)
 	{
 		object->Animate(fTimeElapsed);

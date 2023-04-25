@@ -2,7 +2,6 @@
 #include "BoxCollideComponent.h"
 #include "GameScene.h"
 #include "CloseTypeFSMComponent.h"
-#include "AttackComponent.h"
 
 
 Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) :
@@ -34,14 +33,15 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 	m_pBoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
 	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pBoundMesh, m_pBoundingShader);
+	BoundBox* bb2 = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pBoundMesh, m_pBoundingShader);
 	switch (type)
 	{
 	case MONSTER_TYPE_CLOSE:
+		bb2->SetNum(5);
 		AddComponent<CloseTypeFSMComponent>();
-		AddComponent<AttackComponent>();
-		GetComponent<AttackComponent>()->SetAttackSpeed(3.0f);
-		GetComponent<AttackComponent>()->AttackCombo1_AnineSetNum = 4;
-		GetComponent<AttackComponent>()->Type_ComboAttack = false;
+		GetComponent<CloseTypeFSMComponent>()->SetBoundingObject(bb2);
+
+
 		bb->SetNum(2);
 		AddComponent<BoxCollideComponent>();
 		GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);

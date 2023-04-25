@@ -1,6 +1,5 @@
 #include "AttackComponent.h"
 #include "Input.h"
-#include "Player.h"
 #include "GameFramework.h"
 #include "BoxCollideComponent.h"
 
@@ -8,12 +7,14 @@ void AttackComponent::Attack()
 {
 	AttackTimeLeft = AttackDuration + NextAttackInputTime;
 	During_Attack = true;
+
 	if (AttackRange) {
 		for (auto& monster : GameScene::MainScene->MonsterObjects)
 		{
 			if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject()))monster->GetHit(100);
 		}
 	}
+
 	if (!Type_ComboAttack)
 	{
 		gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo1_AnineSetNum);
@@ -77,7 +78,6 @@ void AttackComponent::update()
 		{
 			if ((Input::InputKeyBuffer[VK_LBUTTON] & 0xF0))
 			{
-				printf("asdfa");
 				if (!During_Attack)
 				{
 					Attack();

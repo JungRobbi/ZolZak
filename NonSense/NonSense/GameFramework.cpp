@@ -475,7 +475,7 @@ void GameFramework::ChangeScene(unsigned char num)
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 	scene_type = (SCENE_TYPE)num;
 	m_pCamera = m_pPlayer->GetCamera();
-
+	GameScene::MainScene->m_pPlayer = m_pPlayer;
 	m_pCommandList->Close();
 
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
@@ -521,7 +521,6 @@ void GameFramework::ProcessInput()
 	if (::GetCapture() == m_hWnd)
 	{
 		::GetCursorPos(&ptCursorPos);
-		printf("%f, %f\n", (float)ptCursorPos.x / FRAME_BUFFER_WIDTH, (float)ptCursorPos.y / FRAME_BUFFER_HEIGHT);
 	}
 	//마우스 또는 키 입력이 있으면 플레이어를 이동하거나(dwDirection) 회전한다(cxDelta 또는 cyDelta).
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
@@ -647,15 +646,6 @@ void GameFramework::FrameAdvance()
 	// Debug 화면
 	//if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
-	///////////////////////////////////
-
-	for (auto& o : GameScene::MainScene->gameObjects)
-	{
-		if (o->GetComponent<SphereCollideComponent>())
-			if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject())) printf("구체 충돌");
-		if (o->GetComponent<BoxCollideComponent>())
-			if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject())) printf("OBB 충돌");
-	}
 
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
