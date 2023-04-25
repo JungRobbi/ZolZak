@@ -91,7 +91,7 @@ public:
 	void ReleaseObjects();
 	bool ProcessInput(UCHAR* pKeysBuffer);
 	void AnimateObjects(float fTimeElapsed);
-	void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);

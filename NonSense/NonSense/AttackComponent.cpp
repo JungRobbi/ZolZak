@@ -22,7 +22,6 @@ void AttackComponent::Attack()
 			if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
 				GameFramework::MainGameFramework->m_pPlayer->GetHit(100);
-				printf("asdf");
 			}
 		}
 	}
