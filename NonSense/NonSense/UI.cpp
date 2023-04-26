@@ -2,6 +2,7 @@
 #include "Shader.h"
 #include "GameScene.h"
 #include "BillboardComponent.h"
+#include "GameFramework.h"
 
 UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(UI_OBJECT)
 {
@@ -339,4 +340,10 @@ Login_UI::Login_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	SetMyPos(0.4, 0.2, 0.2, 0.15);
+}
+
+void Login_UI::OnClick()
+{
+	printf("로그인버튼");
+	GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
 }
