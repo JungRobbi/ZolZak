@@ -209,7 +209,6 @@ void Object::LoadMapData(char* pstrFileName)
 				if (pstrToken[0] == '@') // Mesh이름과 맞는 Mesh가 이미 로드가 되었다면 true -> 있는 모델 쓰면 됨
 				{
 					std::string str(pstrToken + 1);
-					pObject = new Object();
 				}
 				else
 				{
@@ -218,7 +217,10 @@ void Object::LoadMapData(char* pstrFileName)
 					strcpy_s(pstrFilePath, 64, "Model/");
 					strcpy_s(pstrFilePath + 6, 64 - 6, pstrToken);
 					strcpy_s(pstrFilePath + 6 + Length, 64 - 6 - Length, ".bin");
-					pObject = new Object();
+
+					LoadedModelInfo* pLoadedModel = LoadAnimationModel(pstrFilePath);
+
+					pObject = pLoadedModel->m_pRoot;
 				}
 			}
 			if (!strcmp(pstrToken, "<Position>:"))
@@ -312,7 +314,7 @@ Object* Object::LoadHierarchy(FILE* OpenedFile)
 
 	int nFrame = 0, nTextures = 0;
 
-	Object* pObject = new Object(false);
+	Object* pObject = new Object();
 
 	for (; ; )
 	{
@@ -324,11 +326,38 @@ Object* Object::LoadHierarchy(FILE* OpenedFile)
 
 			::ReadStringFromFile(OpenedFile, pObject->m_pFrameName);
 		}
+		else if (!strcmp(pstrToken, "<Transform>:"))
+		{
+			XMFLOAT3 xmf3Position, xmf3Rotation, xmf3Scale;
+			XMFLOAT4 xmf4Rotation;
+			nReads = (UINT)::fread(&xmf3Position, sizeof(float), 3, OpenedFile);
+			nReads = (UINT)::fread(&xmf3Rotation, sizeof(float), 3, OpenedFile); //Euler Angle
+			nReads = (UINT)::fread(&xmf3Scale, sizeof(float), 3, OpenedFile);
+			nReads = (UINT)::fread(&xmf4Rotation, sizeof(float), 4, OpenedFile); //Quaternion
+		}
+		else if (!strcmp(pstrToken, "<TransformMatrix>:"))
+		{
+			nReads = (UINT)::fread(&pObject->m_xmf4x4ToParent, sizeof(float), 16, OpenedFile);
+		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
 			LoadMesh* pMesh = new LoadMesh();
 			pMesh->LoadMeshFromFile(OpenedFile);
 			pObject->SetMesh(pMesh);
+		}
+		else if (!strcmp(pstrToken, "<SkinningInfo>:"))
+		{
+			::ReadStringFromFile(OpenedFile, pstrToken); //<Mesh>:
+			if (!strcmp(pstrToken, "<Mesh>:"));
+
+		}
+		else if (!strcmp(pstrToken, "<Materials>:"))
+		{
+
+		}
+		else if (!strcmp(pstrToken, "<Children>:"))
+		{
+	
 		}
 		else if (!strcmp(pstrToken, "</Frame>"))
 		{
@@ -356,6 +385,10 @@ LoadedModelInfo* Object::LoadAnimationModel(char* pstrFileName)
 				pLoadedModel->m_pRoot = Object::LoadHierarchy(OpenedFile);
 				::ReadStringFromFile(OpenedFile, pstrToken);
 
+			}
+			else if (!strcmp(pstrToken, "<Animation>:"))
+			{
+				pLoadedModel->PrepareSkinning();
 			}
 			else if (!strcmp(pstrToken, "</Animation>:"))
 			{
