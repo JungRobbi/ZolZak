@@ -522,16 +522,22 @@ void GameFramework::ProcessInput()
 
 	if (::GetCapture() == m_hWnd)
 	{
+		::SetCapture(m_hWnd);
+		RECT rect;
+		::GetWindowRect(m_hWnd, &rect);
 		::GetCursorPos(&ptCursorPos);
-		float px = ptCursorPos.x / (float)FRAME_BUFFER_WIDTH;
-		float py = ptCursorPos.y / (float)FRAME_BUFFER_HEIGHT;
-		printf("%f, %f\n", px, py);
-		for (auto& ui : GameScene::MainScene->UIGameObjects)
-		{
-			if (px >= dynamic_cast<UI*>(ui)->XYWH._41 && px <= dynamic_cast<UI*>(ui)->XYWH._41 + dynamic_cast<UI*>(ui)->XYWH._11 &&
-				py >= dynamic_cast<UI*>(ui)->XYWH._42 && py <= dynamic_cast<UI*>(ui)->XYWH._42 + dynamic_cast<UI*>(ui)->XYWH._22)
+		if (scene_type != GAME_SCENE) {
+			float px = (ptCursorPos.x - rect.left)/ (float)FRAME_BUFFER_WIDTH;
+			float py = (ptCursorPos.y - rect.top - 10)/ (float)FRAME_BUFFER_HEIGHT;
+			printf("%f, %f\n", px, py);
+
+			for (auto& ui : GameScene::MainScene->UIGameObjects)
 			{
-				dynamic_cast<UI*>(ui)->OnClick();
+				if (px >= dynamic_cast<UI*>(ui)->XYWH._41 && px <= dynamic_cast<UI*>(ui)->XYWH._41 + dynamic_cast<UI*>(ui)->XYWH._11 &&
+					py <= 1 - dynamic_cast<UI*>(ui)->XYWH._42 && py >= 1-(dynamic_cast<UI*>(ui)->XYWH._42 + dynamic_cast<UI*>(ui)->XYWH._22))
+				{
+					dynamic_cast<UI*>(ui)->OnClick();
+				}
 			}
 		}
 	}
