@@ -43,6 +43,9 @@
     <Filter Include="소스 파일\FSM">
       <UniqueIdentifier>{3a5ff787-6e6f-441b-b17d-d53f67f5447c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Sound">
+      <UniqueIdentifier>{7a1cf6f7-9fb2-41a3-ba71-473809a71987}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -150,6 +153,9 @@
     <ClInclude Include="CloseTypeState.h">
       <Filter>소스 파일\FSM</Filter>
     </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>소스 파일\Sound</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -241,6 +247,9 @@
     </ClCompile>
     <ClCompile Include="CloseTypeState.cpp">
       <Filter>소스 파일\FSM</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound.cpp">
+      <Filter>소스 파일\Sound</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

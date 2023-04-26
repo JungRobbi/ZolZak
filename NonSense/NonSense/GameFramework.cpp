@@ -10,6 +10,7 @@
 #include "Lobby_GameScene.h"
 #include "Stage_GameScene.h"
 
+#include "Sound.h"
 GameFramework* GameFramework::MainGameFramework;
 
 GameFramework::GameFramework()
@@ -57,7 +58,7 @@ bool GameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateDepthStencilView();			// Depth Stencil View 积己
 	
 	NetworkMGR::start();
-	
+	Sound::InitFmodSystem();			// FMOD System 檬扁拳
 	BuildObjects();						// Object 积己
 	return(true);
 }
@@ -86,6 +87,7 @@ void GameFramework::OnDestroy()
 
 	m_GameScenes.clear();
 
+	Sound::ReleaseFmodSystem();		// FMOD System 秦力
 #ifdef defined(_DEBUG)
 	IDXGIDebug1* pdxgiDebug = NULL;
 	DXGIGetDebugInterface1(0, __uuidof(IDXGIDebug1), (void**)&pdxgiDebug);
@@ -598,6 +600,8 @@ void GameFramework::MoveToNextFrame()
 void GameFramework::FrameAdvance()
 {
 	Timer::Tick(0.0f);
+
+	Sound::SystemUpdate(); //FMOD System Update
 
 	if (!m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose)
 	{
