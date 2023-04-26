@@ -190,6 +190,11 @@ int main(int argc, char* argv[])
 	signal(SIGINT, ProcessSignalAction);
 
 	scene = make_shared<Scene>();
+	char MapName[] = "Model/NonBlend_Props_Map.bin";
+//	char BlendMapName[] = "Model/Blend_Objects_Map.bin";
+	Object::LoadMapData(MapName);
+//	Object::LoadMapData_Blend(BlendMapName);
+
 
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	Scene::terrain = new HeightMapTerrain(_T("Terrain/terrain.raw"), 800, 800, xmf3Scale);

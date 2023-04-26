@@ -131,9 +131,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Components\BoxCollideComponent.cpp" />
     <ClCompile Include="Components\Component.cpp" />
     <ClCompile Include="Components\PlayerMovementComponent.cpp" />
+    <ClCompile Include="Components\SphereCollideComponent.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RemoteClients\RemoteClient.cpp" />
@@ -142,9 +145,12 @@
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Components\BoxCollideComponent.h" />
     <ClInclude Include="Components\Component.h" />
     <ClInclude Include="Components\PlayerMovementComponent.h" />
+    <ClInclude Include="Components\SphereCollideComponent.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RemoteClients\RemoteClient.h" />

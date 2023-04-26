@@ -1,3 +1,4 @@
+#include "../stdafx.h"
 #include "PlayerMovementComponent.h"
 #include "../Timer.h"
 #include "../RemoteClients/RemoteClient.h"
