@@ -521,6 +521,17 @@ void GameFramework::ProcessInput()
 	if (::GetCapture() == m_hWnd)
 	{
 		::GetCursorPos(&ptCursorPos);
+		float px = ptCursorPos.x / (float)FRAME_BUFFER_WIDTH;
+		float py = ptCursorPos.y / (float)FRAME_BUFFER_HEIGHT;
+		printf("%f, %f\n", px, py);
+		for (auto& ui : GameScene::MainScene->UIGameObjects)
+		{
+			if (px >= dynamic_cast<UI*>(ui)->XYWH._41 && px <= dynamic_cast<UI*>(ui)->XYWH._41 + dynamic_cast<UI*>(ui)->XYWH._11 &&
+				py >= dynamic_cast<UI*>(ui)->XYWH._42 && py <= dynamic_cast<UI*>(ui)->XYWH._42 + dynamic_cast<UI*>(ui)->XYWH._22)
+			{
+				dynamic_cast<UI*>(ui)->OnClick();
+			}
+		}
 	}
 	//마우스 또는 키 입력이 있으면 플레이어를 이동하거나(dwDirection) 회전한다(cxDelta 또는 cyDelta).
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))

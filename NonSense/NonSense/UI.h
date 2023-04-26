@@ -8,6 +8,7 @@ class UI : public Object
 public:
 	UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~UI();
+	XMFLOAT4X4 XYWH;
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
@@ -16,11 +17,11 @@ public:
 	virtual void SetParentUI(UI* Parent) { ParentUI = Parent; }
 	virtual void SetMyPos(float x, float y, float w, float h);
 	virtual void OnPreRender();
+	virtual void OnClick() {};
 private:
 	ID3D12Resource* m_pd3dcbUI = NULL;
 	CB_PLAYER_INFO* m_pcbMappedUI = NULL;
 	UI* ParentUI = NULL;
-	XMFLOAT4X4 XYWH;
 };
 
 class Monster_HP_UI : public Object
@@ -120,4 +121,5 @@ class Login_UI : public UI
 public:
 	Login_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~Login_UI() {};
+	virtual void OnClick();
 };
