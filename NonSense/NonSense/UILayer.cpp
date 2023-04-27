@@ -91,8 +91,9 @@ IDWriteTextFormat* UILayer::CreateTextFormat(WCHAR* pszFontName, float fFontSize
 {
     IDWriteTextFormat* pdwDefaultTextFormat = NULL;
     m_pd2dWriteFactory->CreateTextFormat(L"궁서체", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fFontSize, L"en-us", &pdwDefaultTextFormat);
-
-    pdwDefaultTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+    
+  //pdwDefaultTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
+    pdwDefaultTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); // 가운데 정렬
     pdwDefaultTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
     //m_pd2dWriteFactory->CreateTextFormat(L"Arial", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fSmallFontSize, L"en-us", &m_pdwDefaultTextFormat);
 
@@ -183,9 +184,10 @@ void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
     memset(m_textbuf, NULL, sizeof(m_textbuf));
     m_combtext = NULL;
 
-    pd2dBrush = m_pUILayer->CreateBrush(D2D1::ColorF(D2D1::ColorF::Purple, 1.0f));
-    pdwTextFormat = m_pUILayer->CreateTextFormat(L"Arial", WndClientHeight / 15.0f);
-    d2dRect = D2D1::RectF(0.0f, 0.0f, (float)WndClientWidth, (float)WndClientHeight);
+    pd2dBrush = m_pUILayer->CreateBrush(D2D1::ColorF(D2D1::ColorF::Aquamarine, 1.0f));
+    pdwTextFormat = m_pUILayer->CreateTextFormat(L"Arial", WndClientHeight / 25.0f);
+  //d2dRect = D2D1::RectF((float)WndClientWidth / 3.2f, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
+    d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
 }
 
 void ChatMGR::StoreText()

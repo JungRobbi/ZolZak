@@ -453,10 +453,12 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				ChatMGR::m_textbuf[ChatMGR::m_textindex] = NULL;
 				break;
 			case VK_HANGUL:
-				if (ChatMGR::m_HangulMode == E_MODE_HANGUL::E_MODE_ENGLISH)
+				if (ChatMGR::m_HangulMode == E_MODE_HANGUL::E_MODE_ENGLISH) {
 					ChatMGR::m_HangulMode = E_MODE_HANGUL::E_MODE_HANGUL;
-				else
+				}
+				else {
 					ChatMGR::m_HangulMode = E_MODE_HANGUL::E_MODE_ENGLISH;
+				}
 				break;
 			case ' ':
 				ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
