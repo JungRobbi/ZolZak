@@ -299,6 +299,9 @@ void GameFramework::BuildObjects()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
+	ChatMGR::m_pUILayer = new UILayer(m_nSwapChainBuffers, 1, m_pDevice, m_pCommandQueue, 
+		m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
+	ChatMGR::SetTextinfos(m_nWndClientWidth, m_nWndClientHeight);
 	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Stage
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
@@ -338,6 +341,9 @@ void GameFramework::BuildObjects()
 void GameFramework::ReleaseObjects()
 {
 	GameScene::MainScene->ReleaseObjects();
+
+	if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
+	if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
 }
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	LPARAM lParam)
@@ -405,55 +411,124 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			}
 		}
 	}
-	
-	switch (nMessageID)
-	{
-	case WM_KEYUP:
-		switch (wParam)
-		{
 
-		case VK_F1:
-		case VK_F2:
-		case VK_F3:
-			if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((wParam - VK_F1 + 1), Timer::GetTimeElapsed());
+	HIMC hIMC;
+	DWORD dwConversion, dwSentence;
+
+	hIMC = ImmGetContext(hWnd);
+	ImmGetConversionStatus(hIMC, &dwConversion, &dwSentence);
+
+	int len{};
+
+	if (ChatMGR::m_ChatMode == E_MODE_CHAT::E_MODE_CHAT) { // Chat Mode
+		switch (nMessageID)
+		{
+		case WM_IME_COMPOSITION:
+			if (ChatMGR::m_HangulMode == E_MODE_HANGUL::E_MODE_HANGUL) {
+				WCHAR ch;
+				if (lParam & GCS_COMPSTR) {
+					len = ImmGetCompositionString(hIMC, GCS_COMPSTR, NULL, 0);
+					ImmGetCompositionString(hIMC, GCS_COMPSTR, &ChatMGR::m_combtext, len);
+					memcpy(&ChatMGR::m_textbuf[ChatMGR::m_textindex], &ChatMGR::m_combtext, sizeof(ChatMGR::m_combtext));
+				}
+				if (lParam & GCS_RESULTSTR) {
+					len = ImmGetCompositionString(hIMC, GCS_RESULTSTR, NULL, 0);
+					ImmGetCompositionString(hIMC, GCS_RESULTSTR, &ch, len);
+					memcpy(&ChatMGR::m_textbuf[ChatMGR::m_textindex++], &ch, sizeof(ch));
+				}
+			}
 			break;
-		case VK_ESCAPE:
-			(OptionMode) ? (OptionMode = 0) : (OptionMode = 1);
+		case WM_KEYUP:
+			switch (wParam)
+			{
+			case VK_RETURN:
+				ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
+				ChatMGR::StoreText();
+				ChatMGR::m_textindex = 0;
+				ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
+				break;
+			case VK_BACK:
+				if (ChatMGR::m_textindex > 0)
+					--ChatMGR::m_textindex;
+				ChatMGR::m_textbuf[ChatMGR::m_textindex] = NULL;
+				break;
+			case VK_HANGUL:
+				if (ChatMGR::m_HangulMode == E_MODE_HANGUL::E_MODE_ENGLISH)
+					ChatMGR::m_HangulMode = E_MODE_HANGUL::E_MODE_HANGUL;
+				else
+					ChatMGR::m_HangulMode = E_MODE_HANGUL::E_MODE_ENGLISH;
+				break;
+			case ' ':
+				ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
+				break;
+			default:
+				if (ChatMGR::m_HangulMode == E_MODE_HANGUL::E_MODE_ENGLISH) {
+					if (isalpha(wParam)) {
+						ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
+					}
+				}
+				break;
+			}
 			break;
-		case VK_RETURN:
-			PostQuitMessage(0);
+
+		default:
 			break;
-		case VK_F8:
-			(DebugMode) ? (DebugMode = 0) : (DebugMode = 1);
-			break;
-		case VK_F9:
-			ChangeSwapChainState();
-			break;
-		case '2':
-			//m_pHP_UI->HP -= 0.05;
-			//m_pHP_Dec_UI->Dec_HP -= 0.05;
-			//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
-			break;
-		case '3':
-			//m_pHP_UI->HP -= 0.2;
-			//m_pHP_Dec_UI->Dec_HP -= 0.2;
-			//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
-			break;
-		case '7':
-			ChangeScene(0);
-			break;
-		case '8':
-			ChangeScene(1);
-			break;
-		case '9':
-			ChangeScene(2);
+		}
+	}
+	else {
+		switch (nMessageID)
+		{
+		case WM_KEYUP:
+			switch (wParam)
+			{
+
+			case VK_F1:
+			case VK_F2:
+			case VK_F3:
+				if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((wParam - VK_F1 + 1), Timer::GetTimeElapsed());
+				break;
+			case VK_ESCAPE:
+				(OptionMode) ? (OptionMode = 0) : (OptionMode = 1);
+				break;
+			case VK_RETURN:
+				PostQuitMessage(0);
+				break;
+			case VK_F8:
+				(DebugMode) ? (DebugMode = 0) : (DebugMode = 1);
+				break;
+			case VK_F9:
+				ChangeSwapChainState();
+				break;
+			case '2':
+				//m_pHP_UI->HP -= 0.05;
+				//m_pHP_Dec_UI->Dec_HP -= 0.05;
+				//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+				break;
+			case '3':
+				//m_pHP_UI->HP -= 0.2;
+				//m_pHP_Dec_UI->Dec_HP -= 0.2;
+				//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+				break;
+			case '7':
+				ChangeScene(0);
+				break;
+			case '8':
+				ChangeScene(1);
+				break;
+			case '9':
+				ChangeScene(2);
+				break;
+			case 't':
+			case 'T':
+				ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_CHAT;
+				break;
+			default:
+				break;
+			}
 			break;
 		default:
 			break;
 		}
-		break;
-	default:
-		break;
 	}
 }
 LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -649,6 +724,8 @@ void GameFramework::FrameAdvance()
 	if (NetworkMGR::b_isNet)
 		NetworkMGR::Tick();
 
+	ChatMGR::UpdateText();
+
 	ProcessInput();
 	AnimateObjects();
 	HRESULT hResult = m_pCommandAllocator->Reset();
@@ -714,6 +791,8 @@ void GameFramework::FrameAdvance()
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
+
+	ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 
 	m_pSwapChain->Present(0, 0);
 
