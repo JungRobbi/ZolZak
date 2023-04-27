@@ -346,4 +346,10 @@ void Login_UI::OnClick()
 {
 	printf("로그인버튼");
 	GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
+
+	CS_LOGIN_PACKET send_packet;
+	send_packet.size = sizeof(CS_LOGIN_PACKET);
+	send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
+	memcpy(send_packet.name, NetworkMGR::name.c_str(), NetworkMGR::name.size());
+	PacketQueue::AddSendPacket(&send_packet);
 }

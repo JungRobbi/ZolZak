@@ -52,6 +52,7 @@ void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
 	// 에러 혹은 소켓 종료이다.
 	// 해당 소켓은 제거해버리자. 
 	remoteClient->tcpConnection.Close();
+	remoteClient->b_Enable = false;
 	
 	{
 //		lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
@@ -61,6 +62,8 @@ void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
 
 	//플레이어가 떠났다고 알림
 	for (auto rc : RemoteClient::remoteClients) {
+		if (!rc.second->b_Enable)
+			continue;
 		SC_REMOVE_PLAYER_PACKET send_packet;
 		send_packet.size = sizeof(SC_REMOVE_PLAYER_PACKET);
 		send_packet.type = E_PACKET::E_PACKET_SC_REMOVE_PLAYER;
@@ -229,6 +232,9 @@ int main(int argc, char* argv[])
 		Scene::scene->update();
 
 		for (auto& rc : RemoteClient::remoteClients) {
+			if (!rc.second->b_Enable)
+				continue;
+
 			auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
 
 			if (!Vector3::Length(vel))
@@ -236,6 +242,8 @@ int main(int argc, char* argv[])
 
 			auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
 			for (auto& rc_to : RemoteClient::remoteClients) {
+				if (!rc_to.second->b_Enable)
+					continue;
 				SC_MOVE_PLAYER_PACKET send_packet;
 				send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
@@ -385,6 +393,8 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 
 		// 접속한 클라이언트에게 모든 플레이어 정보 송신
 		for (auto& rc : RemoteClient::remoteClients) {
+			if (!rc.second->b_Enable)
+				continue;
 			if (rc.second->m_id == p_Client->m_id) 
 				continue;
 			SC_ADD_PLAYER_PACKET send_packet;
@@ -397,6 +407,8 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 
 		// 다른 클라이언트들에게 접속한 클라이언트 정보 송신
 		for (auto& rc : RemoteClient::remoteClients) {
+			if (!rc.second->b_Enable)
+				continue;
 			if (rc.second->m_id == p_Client->m_id)
 				continue;
 			SC_ADD_PLAYER_PACKET send_packet;
@@ -457,6 +469,8 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 
 		XMFLOAT3 xmf3FinalLook = pm->GetLookVector();
 		for (auto& rc_to : RemoteClient::remoteClients) {
+			if (!rc_to.second->b_Enable)
+				continue;
 			SC_LOOK_PLAYER_PACKET send_packet;
 			send_packet.size = sizeof(SC_LOOK_PLAYER_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_LOOK_PLAYER;

@@ -310,6 +310,7 @@ void GameFramework::BuildObjects()
 	char n_players = 3;
 	for (int i{}; i < n_players; ++i) {
 		m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
+		dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 		m_OtherPlayersPool.back()->SetUsed(true);
 	}
 
