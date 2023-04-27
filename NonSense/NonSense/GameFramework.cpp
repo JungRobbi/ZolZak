@@ -658,7 +658,7 @@ void GameFramework::FrameAdvance()
 	// 투명 오브젝트
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
-	GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
+	if(GameScene::MainScene->m_pSkyBox)GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
 	// Bounding Box
 	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
 	// UI
