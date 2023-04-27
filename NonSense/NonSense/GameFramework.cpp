@@ -445,6 +445,15 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
 				ChatMGR::StoreText();
 				ChatMGR::m_textindex = 0;
+
+				if (NetworkMGR::b_isNet && scene_type == LOGIN_SCENE) {
+					char* p = ConvertWCtoC(ChatMGR::m_textbuf);
+					NetworkMGR::name = string{ p };
+					delete[] p;
+					NetworkMGR::do_connetion();
+					NetworkMGR::do_recv();
+					ChangeScene(GAME_SCENE);
+				}
 				ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
 				break;
 			case VK_BACK:

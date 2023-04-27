@@ -89,13 +89,9 @@ void NetworkMGR::start()
 		b_isNet = false;
 		return;
 	}
-	std::cout << "이름 입력 : ";
-	std::cin >> name;
 
 	tcpSocket->Bind(Endpoint::Any);
-	tcpSocket->Connect(Endpoint(SERVERIP, SERVERPORT));
 
-	do_recv();
 }
 
 void NetworkMGR::Tick()
@@ -121,6 +117,10 @@ void NetworkMGR::Tick()
 		do_send(send_buf, buf_size);
 		PacketQueue::PopSendPacket();
 	}
+}
+
+void NetworkMGR::do_connetion() {
+	tcpSocket->Connect(Endpoint(SERVERIP, SERVERPORT));
 }
 
 void NetworkMGR::do_recv() {
