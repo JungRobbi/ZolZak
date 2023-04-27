@@ -194,7 +194,7 @@ public:
 	int 			m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
 public:
 	bool SetPosition(float fTrackPosition);
-	XMFLOAT4X4 GetSRT(int nBone);
+	XMFLOAT4X4 GetSRT(int nBone, float fPosition);
 };
 
 class AnimationSets
@@ -232,6 +232,7 @@ public:
 	float 							m_fWeight = 1.0f;
 
 	int 							m_nAnimationSet = 0;
+	int 							m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
 
 public:
 	void SetAnimationSet(int nAnimationSet) { m_nAnimationSet = nAnimationSet; }
@@ -240,6 +241,8 @@ public:
 	void SetSpeed(float fSpeed) { m_fSpeed = fSpeed; }
 	void SetWeight(float fWeight) { m_fWeight = fWeight; }
 	void SetPosition(float fPosition) { m_fPosition = fPosition; }
+	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength);
+
 };
 class LoadedModelInfo
 {
