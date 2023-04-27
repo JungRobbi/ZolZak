@@ -101,8 +101,8 @@ void GameFramework::CreateSwapChain()
 {
 	RECT rcClient;
 	::GetClientRect(m_hWnd, &rcClient);
-	m_nWndClientWidth = rcClient.right - rcClient.left;
-	m_nWndClientHeight = rcClient.bottom - rcClient.top;
+	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
+	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
 
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(dxgiSwapChainDesc));
@@ -449,8 +449,8 @@ LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessa
 	{
 	case WM_SIZE:
 	{
-		m_nWndClientWidth = LOWORD(lParam);
-		m_nWndClientHeight = HIWORD(lParam);
+		m_nWndClientWidth = FRAME_BUFFER_WIDTH;
+		m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
 		break;
 	}
 	case WM_LBUTTONDOWN:
@@ -529,7 +529,6 @@ void GameFramework::ProcessInput()
 		if (scene_type != GAME_SCENE) {
 			float px = (ptCursorPos.x - rect.left)/ (float)FRAME_BUFFER_WIDTH;
 			float py = (ptCursorPos.y - rect.top - 10)/ (float)FRAME_BUFFER_HEIGHT;
-			printf("%f, %f\n", px, py);
 
 			for (auto& ui : GameScene::MainScene->UIGameObjects)
 			{
@@ -665,9 +664,18 @@ void GameFramework::FrameAdvance()
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
 	// Debug È­¸é
-	//if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
+	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
 
-
+	//for (auto& o : GameScene::MainScene->gameObjects)
+	//{
+	//	if (o->GetComponent<BoxCollideComponent>())
+	//	{
+	//		if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
+	//		{
+	//			m_pPlayer->Wallcollide(o->GetComponent<BoxCollideComponent>()->GetBoundingObject());
+	//		}
+	//	}
+	//}
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
