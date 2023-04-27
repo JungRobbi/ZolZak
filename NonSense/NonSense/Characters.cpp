@@ -39,7 +39,6 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	{
 	case MONSTER_TYPE_CLOSE:
 		AddComponent<CloseTypeFSMComponent>();
-
 		bb2->SetNum(5);
 		AddComponent<AttackComponent>();
 		GetComponent<AttackComponent>()->SetAttackSpeed(3.0f);
@@ -52,6 +51,11 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
 		GetComponent<BoxCollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(0.3, 0.5, 0.3));
 		GetComponent<BoxCollideComponent>()->SetMoveAble(true);
+
+
+		m_pSkinnedAnimationController->SetTrackSpeed(0, 0.5);
+		m_pSkinnedAnimationController->SetTrackSpeed(1, 0.5);
+		m_pSkinnedAnimationController->SetTrackSpeed(2, 0.5);
 
 		m_Health = 965;
 		m_RemainHP = 965;
