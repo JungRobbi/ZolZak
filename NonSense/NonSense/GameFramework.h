@@ -8,6 +8,7 @@
 #include "Input.h"
 #include "UI.h"
 #include "NetworkMGR.h"
+#include "UILayer.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
