@@ -6,7 +6,7 @@
 void CloseTypeFSMComponent::start()
 {
 	m_pFSM = new FSM<CloseTypeFSMComponent>(this);
-	m_pFSM->SetCurrentState(WanderState::GetInstance());
+	m_pFSM->SetCurrentState(IdleState::GetInstance());
 }
 
 void CloseTypeFSMComponent::update()
@@ -123,9 +123,9 @@ bool CloseTypeFSMComponent::Wander()
 	if (ToTargetAngle > 7.0f)
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(WanderPosition, CurrentPos));
-	if (Distance > 0.1f)
+	if (Distance > 0.5f)
 	{
-		Move_Walk(0.5f * Timer::GetTimeElapsed());
+		Move_Walk(2.0f * Timer::GetTimeElapsed());
 		return false;
 	}
 	return true;
