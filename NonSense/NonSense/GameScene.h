@@ -65,7 +65,7 @@ public:
 	Player* m_pPlayer = NULL;
 protected:
 	Object* CreateEmpty();
-
+	float elapseTime;
 public:
 	virtual void update();
 	virtual void render();
