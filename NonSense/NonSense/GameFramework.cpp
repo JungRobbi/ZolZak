@@ -307,12 +307,6 @@ void GameFramework::BuildObjects()
 	ChangeScene(LOGIN_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
-	char n_players = 3;
-	for (int i{}; i < n_players; ++i) {
-		m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
-		dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
-		m_OtherPlayersPool.back()->SetUsed(true);
-	}
 
 	m_pDebug = new DebugShader();
 	m_pScreen = new ScreenShader();
@@ -494,6 +488,23 @@ void GameFramework::ChangeScene(unsigned char num)
 	GameScene::MainScene->ReleaseObjects();
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+
+	if (num != LOGIN_SCENE) {
+		m_OtherPlayers.clear();
+		m_OtherPlayersPool.clear();
+		for (int i{}; i < 3; ++i) {
+			m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
+			dynamic_cast<Player*>(m_OtherPlayersPool.back())->
+				SetCamera(dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f));
+			m_OtherPlayersPool.back()->SetUsed(true);
+		}
+
+		CS_LOGIN_PACKET send_packet;
+		send_packet.size = sizeof(CS_LOGIN_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
+		memcpy(send_packet.name, NetworkMGR::name.c_str(), NetworkMGR::name.size());
+		PacketQueue::AddSendPacket(&send_packet);
+	}
 	scene_type = (SCENE_TYPE)num;
 	m_pCamera = m_pPlayer->GetCamera();
 	GameScene::MainScene->m_pPlayer = m_pPlayer;

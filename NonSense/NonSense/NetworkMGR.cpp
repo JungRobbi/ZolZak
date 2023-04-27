@@ -94,6 +94,7 @@ void NetworkMGR::start()
 
 	tcpSocket->Bind(Endpoint::Any);
 	tcpSocket->Connect(Endpoint(SERVERIP, SERVERPORT));
+
 	do_recv();
 }
 
@@ -149,12 +150,10 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	case E_PACKET::E_PACKET_SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(p_Packet);
 		if (!GameFramework::MainGameFramework->m_OtherPlayersPool.empty()) {
-			GameFramework::MainGameFramework->m_OtherPlayers.emplace_back(new MagePlayer(GameFramework::MainGameFramework->m_pDevice, GameFramework::MainGameFramework->m_pCommandList,
-				GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
-			auto player = GameFramework::MainGameFramework->m_OtherPlayers.back();
+			auto player = GameFramework::MainGameFramework->m_OtherPlayersPool.back();
 			dynamic_cast<Player*>(player)->id = recv_packet->id;
 			dynamic_cast<Player*>(player)->m_name = recv_packet->name;
-			dynamic_cast<Player*>(player)->SetUsed(true);
+			GameFramework::MainGameFramework->m_OtherPlayers.push_back(player);
 
 			GameFramework::MainGameFramework->m_OtherPlayersPool.pop_back();
 		}
