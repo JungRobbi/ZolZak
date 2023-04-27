@@ -477,23 +477,10 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class BoundBox : public Object
 {
-	XMVECTORF32 g_BoxOffset[8] =
-	{
-		{ { { -1.0f, -1.0f,  1.0f, 0.0f } } },
-		{ { {  1.0f, -1.0f,  1.0f, 0.0f } } },
-		{ { {  1.0f,  1.0f,  1.0f, 0.0f } } },
-		{ { { -1.0f,  1.0f,  1.0f, 0.0f } } },
-		{ { { -1.0f, -1.0f, -1.0f, 0.0f } } },
-		{ { {  1.0f, -1.0f, -1.0f, 0.0f } } },
-		{ { {  1.0f,  1.0f, -1.0f, 0.0f } } },
-		{ { { -1.0f,  1.0f, -1.0f, 0.0f } } },
-	};
-
 public:
 	XMFLOAT3 Center = { 0,0,0 };        
 	XMFLOAT3 Extents = { 1,1,1 };       
 	XMFLOAT4 Orientation = { 0,0,0,1 }; 
-	std::array<XMFLOAT3,8> Point;
 
 	BoundBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CubeMesh* BoundMesh, Shader* pBoundingShader);
 	virtual ~BoundBox();
@@ -501,7 +488,6 @@ public:
 	virtual void Transform(_Out_ BoundBox& Out, _In_ FXMMATRIX M);
 	virtual bool Intersects(BoundBox& box);
 	virtual bool Intersects(BoundSphere& box);
-	virtual void GetCorners();
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

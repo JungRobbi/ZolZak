@@ -30,7 +30,6 @@ void BoxCollideComponent::start()
 		{
 			m_BoundingObject->SetPosition(m_BoundingObject->GetPosition().x + Center.x, m_BoundingObject->GetPosition().y + Center.y, m_BoundingObject->GetPosition().z + Center.z);
 		}
-		m_BoundingObject->GetCorners();
 	}
 }
 
