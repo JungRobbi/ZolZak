@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Player.h"
+#include <algorithm>
 #include "PlayerMovementComponent.h"
 #include "AttackComponent.h"
 #include "GameScene.h"
@@ -326,6 +327,152 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 	}
 
 }
+void Player::Wallcollide(BoundBox* b)
+{
+	XMFLOAT3 CenterVector = Vector3::Subtract(GetComponent<SphereCollideComponent>()->GetBoundingObject()->Center,b->Center);
+	XMFLOAT3 p[3];
+	XMFLOAT3 v = b->Center;
+	XMFLOAT3 crossPoint;
+	vector<XMFLOAT3> cp;
+	vector<XMFLOAT3> NormalVector;
+
+	float A = 0;
+	float B = 0;
+	float C = 0;
+	float D = 0;
+	float t = 0;
+
+	float MaxX = (*max_element(b->Point.begin(), b->Point.end(), [](const XMFLOAT3& a, const XMFLOAT3& b) {return a.x < b.x; })).x;
+	float MaxY = (*max_element(b->Point.begin(), b->Point.end(), [](const XMFLOAT3& a, const XMFLOAT3& b) {return a.y < b.y; })).y;
+	float MaxZ = (*max_element(b->Point.begin(), b->Point.end(), [](const XMFLOAT3& a, const XMFLOAT3& b) {return a.z < b.z; })).z;
+	
+	float MinX = (*min_element(b->Point.begin(), b->Point.end(), [](const XMFLOAT3& a, const XMFLOAT3& b) {return a.x < b.x; })).x;
+	float MinY = (*min_element(b->Point.begin(), b->Point.end(), [](const XMFLOAT3& a, const XMFLOAT3& b) {return a.y < b.y; })).y;
+	float MinZ = (*min_element(b->Point.begin(), b->Point.end(), [](const XMFLOAT3& a, const XMFLOAT3& b) {return a.z < b.z; })).z;
+
+	p[0] = b->Point[2]; p[1] = b->Point[3];  p[2] = b->Point[6]; // 위
+
+	A = p[0].y * (p[1].z - p[2].z) + p[1].y * (p[2].z - p[0].z) + p[2].y * (p[0].z - p[1].z);
+	B = p[0].z * (p[1].x - p[2].x) + p[1].z * (p[2].x - p[0].x) + p[2].z * (p[0].x - p[1].x);
+	C = p[0].x * (p[1].y - p[2].y) + p[1].x * (p[2].y - p[0].y) + p[2].x * (p[0].y - p[1].y);
+	D = -1 * (p[0].x * (p[1].y * p[2].z - p[2].y * p[1].z) + p[1].x * (p[2].y * p[0].z - p[0].y * p[2].z) + p[2].x * (p[0].y * p[1].z - p[1].y * p[0].z));
+
+	t = -1 * ((D + A * v.x + B * v.y + C * v.z) / (A * CenterVector.x + B * CenterVector.y + C * CenterVector.z));
+	crossPoint.x = v.x + CenterVector.x * t;
+	crossPoint.y = v.y + CenterVector.y * t;
+	crossPoint.z = v.z + CenterVector.z * t;
+
+	if ((crossPoint.x <= MaxX) && (crossPoint.x >= MinX) && (crossPoint.y <= MaxY) && (crossPoint.y >= MinY) && (crossPoint.z <= MaxZ) && (crossPoint.z >= MinZ))
+	{
+		cp.emplace_back(crossPoint);
+		NormalVector.emplace_back(A, B, C);
+	}
+
+	p[0] = b->Point[1]; p[1] = b->Point[0];  p[2] = b->Point[5]; // 아래
+
+	A = p[0].y * (p[1].z - p[2].z) + p[1].y * (p[2].z - p[0].z) + p[2].y * (p[0].z - p[1].z);
+	B = p[0].z * (p[1].x - p[2].x) + p[1].z * (p[2].x - p[0].x) + p[2].z * (p[0].x - p[1].x);
+	C = p[0].x * (p[1].y - p[2].y) + p[1].x * (p[2].y - p[0].y) + p[2].x * (p[0].y - p[1].y);
+	D = -1 * (p[0].x * (p[1].y * p[2].z - p[2].y * p[1].z) + p[1].x * (p[2].y * p[0].z - p[0].y * p[2].z) + p[2].x * (p[0].y * p[1].z - p[1].y * p[0].z));
+
+	t = -1 * ((D + A * v.x + B * v.y + C * v.z) / (A * CenterVector.x + B * CenterVector.y + C * CenterVector.z));
+	crossPoint.x = v.x + CenterVector.x * t;
+	crossPoint.y = v.y + CenterVector.y * t;
+	crossPoint.z = v.z + CenterVector.z * t;
+
+	if ((crossPoint.x <= MaxX) && (crossPoint.x >= MinX) && (crossPoint.y <= MaxY) && (crossPoint.y >= MinY) && (crossPoint.z <= MaxZ) && (crossPoint.z >= MinZ))
+	{
+		cp.emplace_back(crossPoint);
+		NormalVector.emplace_back(A, B, C);
+	}
+
+	p[0] = b->Point[2]; p[1] = b->Point[6];  p[2] = b->Point[1]; // 오른쪽
+
+	A = p[0].y * (p[1].z - p[2].z) + p[1].y * (p[2].z - p[0].z) + p[2].y * (p[0].z - p[1].z);
+	B = p[0].z * (p[1].x - p[2].x) + p[1].z * (p[2].x - p[0].x) + p[2].z * (p[0].x - p[1].x);
+	C = p[0].x * (p[1].y - p[2].y) + p[1].x * (p[2].y - p[0].y) + p[2].x * (p[0].y - p[1].y);
+	D = -1 * (p[0].x * (p[1].y * p[2].z - p[2].y * p[1].z) + p[1].x * (p[2].y * p[0].z - p[0].y * p[2].z) + p[2].x * (p[0].y * p[1].z - p[1].y * p[0].z));
+
+	t = -1 * ((D + A * v.x + B * v.y + C * v.z) / (A * CenterVector.x + B * CenterVector.y + C * CenterVector.z));
+	crossPoint.x = v.x + CenterVector.x * t;
+	crossPoint.y = v.y + CenterVector.y * t;
+	crossPoint.z = v.z + CenterVector.z * t;
+
+	if ((crossPoint.x <= MaxX) && (crossPoint.x >= MinX) && (crossPoint.y <= MaxY) && (crossPoint.y >= MinY) && (crossPoint.z <= MaxZ) && (crossPoint.z >= MinZ))
+	{
+		cp.emplace_back(crossPoint);
+		NormalVector.emplace_back(A, B, C);
+	}
+
+	p[0] = b->Point[7]; p[1] = b->Point[3];  p[2] = b->Point[4]; // 왼쪽
+
+	A = p[0].y * (p[1].z - p[2].z) + p[1].y * (p[2].z - p[0].z) + p[2].y * (p[0].z - p[1].z);
+	B = p[0].z * (p[1].x - p[2].x) + p[1].z * (p[2].x - p[0].x) + p[2].z * (p[0].x - p[1].x);
+	C = p[0].x * (p[1].y - p[2].y) + p[1].x * (p[2].y - p[0].y) + p[2].x * (p[0].y - p[1].y);
+	D = -1 * (p[0].x * (p[1].y * p[2].z - p[2].y * p[1].z) + p[1].x * (p[2].y * p[0].z - p[0].y * p[2].z) + p[2].x * (p[0].y * p[1].z - p[1].y * p[0].z));
+
+	t = -1 * ((D + A * v.x + B * v.y + C * v.z) / (A * CenterVector.x + B * CenterVector.y + C * CenterVector.z));
+	crossPoint.x = v.x + CenterVector.x * t;
+	crossPoint.y = v.y + CenterVector.y * t;
+	crossPoint.z = v.z + CenterVector.z * t;
+
+	if ((crossPoint.x <= MaxX) && (crossPoint.x >= MinX) && (crossPoint.y <= MaxY) && (crossPoint.y >= MinY) && (crossPoint.z <= MaxZ) && (crossPoint.z >= MinZ))
+	{
+		cp.emplace_back(crossPoint);
+		NormalVector.emplace_back(A, B, C);
+	}
+
+	p[0] = b->Point[3]; p[1] = b->Point[2];  p[2] = b->Point[0]; // 앞
+
+	A = p[0].y * (p[1].z - p[2].z) + p[1].y * (p[2].z - p[0].z) + p[2].y * (p[0].z - p[1].z);
+	B = p[0].z * (p[1].x - p[2].x) + p[1].z * (p[2].x - p[0].x) + p[2].z * (p[0].x - p[1].x);
+	C = p[0].x * (p[1].y - p[2].y) + p[1].x * (p[2].y - p[0].y) + p[2].x * (p[0].y - p[1].y);
+	D = -1 * (p[0].x * (p[1].y * p[2].z - p[2].y * p[1].z) + p[1].x * (p[2].y * p[0].z - p[0].y * p[2].z) + p[2].x * (p[0].y * p[1].z - p[1].y * p[0].z));
+
+	t = -1 * ((D + A * v.x + B * v.y + C * v.z) / (A * CenterVector.x + B * CenterVector.y + C * CenterVector.z));
+	crossPoint.x = v.x + CenterVector.x * t;
+	crossPoint.y = v.y + CenterVector.y * t;
+	crossPoint.z = v.z + CenterVector.z * t;
+
+	if ((crossPoint.x <= MaxX) && (crossPoint.x >= MinX) && (crossPoint.y <= MaxY) && (crossPoint.y >= MinY) && (crossPoint.z <= MaxZ) && (crossPoint.z >= MinZ))
+	{
+		cp.emplace_back(crossPoint);
+		NormalVector.emplace_back(A, B, C);
+	}
+
+	p[0] = b->Point[6]; p[1] = b->Point[7];  p[2] = b->Point[5]; // 뒤
+
+	A = p[0].y * (p[1].z - p[2].z) + p[1].y * (p[2].z - p[0].z) + p[2].y * (p[0].z - p[1].z);
+	B = p[0].z * (p[1].x - p[2].x) + p[1].z * (p[2].x - p[0].x) + p[2].z * (p[0].x - p[1].x);
+	C = p[0].x * (p[1].y - p[2].y) + p[1].x * (p[2].y - p[0].y) + p[2].x * (p[0].y - p[1].y);
+	D = -1 * (p[0].x * (p[1].y * p[2].z - p[2].y * p[1].z) + p[1].x * (p[2].y * p[0].z - p[0].y * p[2].z) + p[2].x * (p[0].y * p[1].z - p[1].y * p[0].z));
+
+	t = -1 * ((D + A * v.x + B * v.y + C * v.z) / (A * CenterVector.x + B * CenterVector.y + C * CenterVector.z));
+	crossPoint.x = v.x + CenterVector.x * t;
+	crossPoint.y = v.y + CenterVector.y * t;
+	crossPoint.z = v.z + CenterVector.z * t;
+
+	if ((crossPoint.x <= MaxX) && (crossPoint.x >= MinX) && (crossPoint.y <= MaxY) && (crossPoint.y >= MinY) && (crossPoint.z <= MaxZ) && (crossPoint.z >= MinZ))
+	{
+		cp.emplace_back(crossPoint);
+		NormalVector.emplace_back(A, B, C);
+	}
+
+	float size = 0;
+	if (Vector3::Length(Vector3::Subtract(cp[0], GetComponent<SphereCollideComponent>()->GetBoundingObject()->Center)) < Vector3::Length(Vector3::Subtract(cp[1], GetComponent<SphereCollideComponent>()->GetBoundingObject()->Center)))
+	{
+			NormalVector[0] = Vector3::Normalize(NormalVector[0]);
+			SetPosition(XMFLOAT3(GetPosition().x + NormalVector[0].x, GetPosition().y+ NormalVector[0].y, GetPosition().z + NormalVector[0].z));
+			printf("asdf");
+	}
+	else
+	{
+			NormalVector[1] = Vector3::Normalize(NormalVector[1]);
+			SetPosition(XMFLOAT3(GetPosition().x + NormalVector[1].x, GetPosition().y + NormalVector[1].y, GetPosition().z + NormalVector[1].z));
+			printf("asdf");
+	}
+	
+}
 
 
 MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
@@ -355,7 +502,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-		XMFLOAT3 pos = XMFLOAT3(0.0f, 2.0f, -2.0f);
+		XMFLOAT3 pos = XMFLOAT3(0.0f, 100.0f, -2.0f);
 		SetPosition(pos);
 		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
 		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);
