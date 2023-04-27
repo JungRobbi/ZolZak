@@ -228,14 +228,14 @@ int main(int argc, char* argv[])
 		Timer::Tick(0.0f);
 		Scene::scene->update();
 
-		for (auto rc : RemoteClient::remoteClients) {
+		for (auto& rc : RemoteClient::remoteClients) {
 			auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
 
 			if (!Vector3::Length(vel))
 				continue;
 
 			auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
-			for (auto rc_to : RemoteClient::remoteClients) {
+			for (auto& rc_to : RemoteClient::remoteClients) {
 				SC_MOVE_PLAYER_PACKET send_packet;
 				send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;

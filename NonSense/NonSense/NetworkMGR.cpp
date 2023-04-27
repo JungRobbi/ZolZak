@@ -150,8 +150,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	case E_PACKET::E_PACKET_SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* recv_packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(p_Packet);
 
-		GameFramework::MainGameFramework->m_pPlayer->id = recv_packet->id;
-
+		NetworkMGR::id = recv_packet->id;
 		break;
 	}
 	case E_PACKET::E_PACKET_SC_ADD_PLAYER: {
@@ -181,7 +180,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	case E_PACKET::E_PACKET_SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(p_Packet);
 		Player* player = GameFramework::MainGameFramework->m_pPlayer;
-		if (recv_packet->id == GameFramework::MainGameFramework->m_pPlayer->id) {
+		if (recv_packet->id == NetworkMGR::id) {
 			player = GameFramework::MainGameFramework->m_pPlayer;
 		}
 		else {
@@ -204,8 +203,9 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET::E_PACKET_SC_LOOK_PLAYER: {
 		SC_LOOK_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_LOOK_PLAYER_PACKET*>(p_Packet);
+		cout << "recv E_PACKET_SC_LOOK_PLAYER" << endl;
 		Player* player = GameFramework::MainGameFramework->m_pPlayer;
-		if (recv_packet->id == GameFramework::MainGameFramework->m_pPlayer->id) {
+		if (recv_packet->id == NetworkMGR::id) {
 			player = GameFramework::MainGameFramework->m_pPlayer;
 		}
 		else {
