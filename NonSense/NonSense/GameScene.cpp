@@ -697,17 +697,16 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
-	for (auto& object : MonsterObjects)
-	{
-		object->UpdateTransform(NULL);
-		object->Render(pd3dCommandList, pCamera);
-	}
 	for (auto& object : gameObjects)
 	{
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
 	}
-
+	for (auto& object : MonsterObjects)
+	{
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
+	}
 
 }
 
