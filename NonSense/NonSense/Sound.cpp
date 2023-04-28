@@ -13,9 +13,9 @@ Sound::Sound(char* SoundFilePath, bool IsLoop)
 	}
 
 	FMOD_System_CreateDSPByType(FMODSystem, FMOD_DSP_TYPE_LOWPASS, &Lowpass);
-	FMOD_DSP_SetParameterFloat(Lowpass, FMOD_DSP_LOWPASS_CUTOFF, 300.0f);
+	FMOD_DSP_SetParameterFloat(Lowpass, FMOD_DSP_LOWPASS_CUTOFF, 250.0f);
 	FMOD_System_CreateDSPByType(FMODSystem, FMOD_DSP_TYPE_HIGHPASS, &Highpass);
-	FMOD_DSP_SetParameterFloat(Highpass, FMOD_DSP_HIGHPASS_CUTOFF, 150.0f);
+	FMOD_DSP_SetParameterFloat(Highpass, FMOD_DSP_HIGHPASS_CUTOFF, 20.0f);
 	FMOD_System_CreateDSPByType(FMODSystem, FMOD_DSP_TYPE_TREMOLO, &Tremolo);
 	FMOD_DSP_SetParameterFloat(Tremolo, 0, 0.5f);
 }
@@ -55,14 +55,15 @@ void Sound::Stop()
 void Sound::AddDsp()
 {
 	FMOD_Channel_AddDSP(m_Channel, 0, Lowpass);
-	FMOD_Channel_AddDSP(m_Channel, 0, Tremolo);
+	//FMOD_Channel_AddDSP(m_Channel, 0, Tremolo);
 	FMOD_Channel_AddDSP(m_Channel, 0, Highpass);
 }
 
 void Sound::RemoveDsp()
 {
 	FMOD_Channel_RemoveDSP(m_Channel, Lowpass);
-	FMOD_Channel_RemoveDSP(m_Channel, Tremolo);
+	//FMOD_Channel_RemoveDSP(m_Channel, Tremolo);
+	FMOD_Channel_RemoveDSP(m_Channel, Highpass);
 }
 
 void Sound::VolumeUp()

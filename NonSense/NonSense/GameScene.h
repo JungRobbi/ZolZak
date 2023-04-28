@@ -10,6 +10,7 @@
 #include "Object.h"
 #include "Characters.h"
 #include "UI.h"
+#include "Sound.h"
 
 struct LIGHT
 {
@@ -66,6 +67,7 @@ public:
 protected:
 	Object* CreateEmpty();
 	float elapseTime;
+	Sound* bgm;
 public:
 	virtual void update();
 	virtual void render();
