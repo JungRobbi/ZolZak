@@ -28,6 +28,9 @@
     <Filter Include="소스 파일\System">
       <UniqueIdentifier>{3f605a84-8e1c-44ed-b296-f3d001908733}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Terrain">
+      <UniqueIdentifier>{9ed3d800-42aa-479b-b984-34791284917b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -53,6 +56,18 @@
     </ClCompile>
     <ClCompile Include="Timer.cpp">
       <Filter>소스 파일\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Terrain.cpp">
+      <Filter>소스 파일\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>소스 파일\GameFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\BoxCollideComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\SphereCollideComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -85,6 +100,18 @@
     </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>소스 파일\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>소스 파일\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>소스 파일\GameFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\BoxCollideComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\SphereCollideComponent.h">
+      <Filter>소스 파일\Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

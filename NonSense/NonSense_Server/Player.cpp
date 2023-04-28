@@ -3,6 +3,8 @@
 #include "Components/PlayerMovementComponent.h"
 #include "RemoteClients/RemoteClient.h"
 
+#include <iostream>
+
 Player::Player() : Object()
 {
 	AddComponent<PlayerMovementComponent>();

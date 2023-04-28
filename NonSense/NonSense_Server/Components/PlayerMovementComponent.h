@@ -1,5 +1,4 @@
 #pragma once
-#include "../stdafx.h"
 #include "Component.h"
 
 class PlayerMovementComponent :
@@ -20,7 +19,21 @@ class PlayerMovementComponent :
 	float m_fMaxVelocityY;
 	float m_fFriction;
 
+	float CursorCoolTime = 1.0f;
+	float MaxCursorCoolTime = 1.0f;
+
+	float DashDistance = 3.5f;
+	float DashDuration = 0.5f;
+	float DashTimeLeft = 0.0f;
+	float DashCoolTime = 5.0f;
+	float DashCoolTimeLeft = 0.0f;
+	bool Dashing = false;
+	bool CanDash = true;
+
+	void* m_pPlayerUpdatedContext = nullptr;
+
 public:
+
     void start();
     void update();
 
@@ -44,11 +57,17 @@ public:
 	void SetMaxVelocityXZ(float fMaxVelocity) { m_fMaxVelocityXZ = fMaxVelocity; }
 	void SetMaxVelocityY(float fMaxVelocity) { m_fMaxVelocityY = fMaxVelocity; }
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
-
+	void SetContext(void* pContext) { m_pPlayerUpdatedContext = pContext; }
 
 	void Move(DWORD nDirection, float fDistance, bool bVelocity = false);
 	void Move(XMFLOAT3& xmf3Shift, bool bVelocity = false);
 
 	void updateValocity();
+
+	void Jump();
+	void Dash();
+
+	
+	void OnPlayerUpdateCallback();
 };
 

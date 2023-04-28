@@ -33,12 +33,8 @@ public:
 	};
 
 	char keys[300];
-	char keyUp[300];
-	char keyDown[300];
 
 	Input() {
 		memset(keys, 0, 300);
-		memset(keyUp, 0, 300);
-		memset(keyDown, 0, 300);
 	}
 };

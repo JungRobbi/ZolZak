@@ -347,6 +347,24 @@ void GameFramework::ReleaseObjects()
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	LPARAM lParam)
 {
+	if (NetworkMGR::b_isNet) {
+		if (nMessageID == WM_RBUTTONDOWN) {
+			CS_KEYDOWN_PACKET send_packet;
+			send_packet.size = sizeof(CS_KEYDOWN_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_KEYDOWN;
+			send_packet.key = wParam;
+			PacketQueue::AddSendPacket(&send_packet);
+
+		}
+		else if (nMessageID == WM_RBUTTONUP) {
+			CS_KEYUP_PACKET send_packet;
+			send_packet.size = sizeof(CS_KEYUP_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_KEYUP;
+			send_packet.key = wParam;
+			PacketQueue::AddSendPacket(&send_packet);
+		}
+	}
+
 	GameScene::MainScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
 	{
@@ -370,7 +388,7 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	GameScene::MainScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-	if (NetworkMGR::b_isNet) {
+	if (NetworkMGR::b_isNet && wParam != VK_RETURN) {
 		if (nMessageID == WM_KEYDOWN) {
 			if (Input::keys[wParam] != TRUE) {
 				CS_KEYDOWN_PACKET send_packet;
@@ -553,10 +571,10 @@ void GameFramework::ProcessInput()
 			if (cxDelta || cyDelta)
 			{
 			
-				if (pKeyBuffer[VK_RBUTTON] & 0xF0)
+				/*if (pKeyBuffer[VK_RBUTTON] & 0xF0)
 					m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
 				else
-					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);*/
 			}
 			if (dwDirection) {
 				/*if (pKeyBuffer[0x41] & 0xF0) {

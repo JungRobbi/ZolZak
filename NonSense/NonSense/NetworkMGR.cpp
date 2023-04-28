@@ -150,8 +150,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	case E_PACKET::E_PACKET_SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* recv_packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(p_Packet);
 
-		GameFramework::MainGameFramework->m_pPlayer->id = recv_packet->id;
-
+		NetworkMGR::id = recv_packet->id;
 		break;
 	}
 	case E_PACKET::E_PACKET_SC_ADD_PLAYER: {
@@ -165,11 +164,24 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		GameFramework::MainGameFramework->m_OtherPlayers.push_back(player);
 		break;
 	}
+	case E_PACKET::E_PACKET_SC_REMOVE_PLAYER: {
+		SC_REMOVE_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(p_Packet);
+		auto leave_id = recv_packet->id;
+		auto OtherPlayers = GameFramework::MainGameFramework->m_OtherPlayers;
+		auto leave_player = find_if(OtherPlayers.begin(), OtherPlayers.end(), [&leave_id](Object* lhs) {
+			return dynamic_cast<Player*>(lhs)->id == leave_id;
+			});
+		if (leave_player == OtherPlayers.end())
+			break;
+		OtherPlayers.erase(leave_player);
+		GameScene::MainScene->PushDelete(*leave_player);
+		break;
+	}
 	case E_PACKET::E_PACKET_SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(p_Packet);
-	
-		if (recv_packet->id == GameFramework::MainGameFramework->m_pPlayer->id) {
-			GameFramework::MainGameFramework->m_pPlayer->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
+		Player* player = GameFramework::MainGameFramework->m_pPlayer;
+		if (recv_packet->id == NetworkMGR::id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
 		}
 		else {
 			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
@@ -181,14 +193,18 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
 				break;
 
+			player = dynamic_cast<Player*>(*p);
 			dynamic_cast<Player*>(*p)->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
 		}
+
+		player->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
+
 		break;
 	}
 	case E_PACKET::E_PACKET_SC_LOOK_PLAYER: {
 		SC_LOOK_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_LOOK_PLAYER_PACKET*>(p_Packet);
 		Player* player = GameFramework::MainGameFramework->m_pPlayer;
-		if (recv_packet->id == GameFramework::MainGameFramework->m_pPlayer->id) {
+		if (recv_packet->id == NetworkMGR::id) {
 			player = GameFramework::MainGameFramework->m_pPlayer;
 		}
 		else {
@@ -205,19 +221,18 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 
 		XMFLOAT3 xmf3Look{ XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z) };
-		XMFLOAT3 xmf3RightVector = player->GetRightVector();
 		XMFLOAT3 xmf3UpVector = player->GetUpVector();
+		XMFLOAT3 xmf3RightVector = Vector3::CrossProduct(xmf3UpVector, xmf3Look, true);
 
 		player->SetLookVector(xmf3Look);
-		player->SetRightVector(Vector3::CrossProduct(xmf3UpVector, xmf3Look, true));
-		xmf3RightVector = player->GetRightVector();
+		player->SetRightVector(xmf3RightVector);
 		player->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3RightVector, true));
-		xmf3UpVector = player->GetUpVector();
 
 		if (player == GameFramework::MainGameFramework->m_pPlayer) {
-			player->GetCamera()->SetLookVector(Vector3::Normalize(xmf3Look));
-			player->GetCamera()->SetRightVector(Vector3::CrossProduct(xmf3UpVector, xmf3Look, true));
+			player->GetCamera()->SetLookVector(xmf3Look);
+			player->GetCamera()->SetRightVector(xmf3RightVector);
 			player->GetCamera()->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3RightVector, true));
+			player->GetCamera()->Rotate(player->GetPitch(), 0, 0);
 		}
 		break;
 	}

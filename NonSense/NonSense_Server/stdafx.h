@@ -1,13 +1,13 @@
-// header.h: Ç¥ÁØ ½Ã½ºÅÛ Æ÷ÇÔ ÆÄÀÏ
-// ¶Ç´Â ÇÁ·ÎÁ§Æ® Æ¯Á¤ Æ÷ÇÔ ÆÄÀÏÀÌ µé¾î ÀÖ´Â Æ÷ÇÔ ÆÄÀÏÀÔ´Ï´Ù.
+ï»¿// header.h: í‘œì¤€ ì‹œìŠ¤í…œ í¬í•¨ íŒŒì¼
+// ë˜ëŠ” í”„ë¡œì íŠ¸ íŠ¹ì • í¬í•¨ íŒŒì¼ì´ ë“¤ì–´ ìˆëŠ” í¬í•¨ íŒŒì¼ì…ë‹ˆë‹¤.
 //
 
 #pragma once
 #include "targetver.h"
-#define WIN32_LEAN_AND_MEAN             // °ÅÀÇ »ç¿ëµÇÁö ¾Ê´Â ³»¿ëÀ» Windows Çì´õ¿¡¼­ Á¦¿ÜÇÕ´Ï´Ù.
-// Windows Çì´õ ÆÄÀÏ
+#define WIN32_LEAN_AND_MEAN             // ê±°ì˜ ì‚¬ìš©ë˜ì§€ ì•ŠëŠ” ë‚´ìš©ì„ Windows í—¤ë”ì—ì„œ ì œì™¸í•©ë‹ˆë‹¤.
+// Windows í—¤ë” íŒŒì¼
 #include <windows.h>
-// C ·±Å¸ÀÓ Çì´õ ÆÄÀÏÀÔ´Ï´Ù.
+// C ëŸ°íƒ€ì„ í—¤ë” íŒŒì¼ì…ë‹ˆë‹¤.
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
@@ -39,7 +39,7 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
 
-#define MRT 4 // Multie Render TargetÀÇ ¼ö
+#define MRT 4 // Multie Render Targetì˜ ìˆ˜
 
 #define FRAME_BUFFER_WIDTH 1240
 #define FRAME_BUFFER_HEIGHT 720
@@ -66,10 +66,17 @@ using Microsoft::WRL::ComPtr;
 #define ROOT_PARAMETER_MATERIAL			3
 #define ROOT_PARAMETER_LIGHT			4
 
+
+#define RESOURCE_TEXTURE2D			0x01
+#define RESOURCE_TEXTURE2D_ARRAY	0x02	//[]
+#define RESOURCE_TEXTURE2DARRAY		0x03
+#define RESOURCE_TEXTURE_CUBE		0x04
+#define RESOURCE_BUFFER				0x05
+
 #define EPSILON					1.0e-10f
 
 inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
-//#define _WITH_SWAPCHAIN_FULLSCREEN_STATE // ÀüÃ¼È­¸é default
+//#define _WITH_SWAPCHAIN_FULLSCREEN_STATE // ì „ì²´í™”ë©´ default
 
 extern UINT	CBVSRVDescriptorSize;
 extern UINT RTVDescriptorSize;
@@ -86,10 +93,9 @@ extern BYTE ReadStringFromFile(FILE* OpenedFile, char* pstrToken);
 extern int ReadIntegerFromFile(FILE* OpenedFile);
 extern float ReadFloatFromFile(FILE* OpenedFile);
 
-extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer = NULL);
+extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer = NULL);
 extern ID3D12Resource* CreateTextureResourceFromDDSFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 extern ID3D12Resource* CreateTexture2DResource(ID3D12Device* pd3dDevice, UINT nWidth, UINT nHeight, UINT nElements, UINT nMipLevels, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags, D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE* pd3dClearValue);
-
 extern void ResourceTransition(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Resource* pd3dResource, D3D12_RESOURCE_STATES d3dStateBefore, D3D12_RESOURCE_STATES d3dStateAfter);
 
 namespace Vector3
@@ -151,7 +157,7 @@ namespace Vector3
 				XMLoadFloat3(&xmf3Vector2)));
 		return(xmf3Result);
 	}
-	inline XMFLOAT3 Normalize(XMFLOAT3& xmf3Vector)
+	inline XMFLOAT3 Normalize(XMFLOAT3 xmf3Vector)
 	{
 		XMFLOAT3 m_xmf3Normal;
 		XMStoreFloat3(&m_xmf3Normal, XMVector3Normalize(XMLoadFloat3(&xmf3Vector)));
@@ -191,7 +197,7 @@ namespace Vector3
 		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
 	}
 }
-//4Â÷¿ø º¤ÅÍÀÇ ¿¬»ê
+//4ì°¨ì› ë²¡í„°ì˜ ì—°ì‚°
 namespace Vector4
 {
 	inline XMFLOAT4 Add(XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)
@@ -215,7 +221,7 @@ namespace Vector4
 		return(xmf4Result);
 	}
 }
-//Çà·ÄÀÇ ¿¬»ê
+//í–‰ë ¬ì˜ ì—°ì‚°
 namespace Matrix4x4
 {
 	inline XMFLOAT4X4 Identity()

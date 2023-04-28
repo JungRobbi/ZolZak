@@ -1,3 +1,4 @@
+#include "../stdafx.h"
 #include "PlayerMovementComponent.h"
 #include "../Timer.h"
 #include "../RemoteClients/RemoteClient.h"
@@ -13,10 +14,10 @@ void PlayerMovementComponent::start()
 	m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	m_fMaxVelocityXZ = 0.0f;
-	m_fMaxVelocityY = 0.0f;
-	m_fFriction = 0.0f;
+	m_xmf3Gravity = XMFLOAT3(0.0f, -60.0f, 0.0f);
+	m_fMaxVelocityXZ = 6.5f;
+	m_fMaxVelocityY = 400.0f;
+	m_fFriction = 30.0f;
 	m_fPitch = 0.0f;
 	m_fRoll = 0.0f;
 	m_fYaw = 0.0f;
@@ -24,7 +25,6 @@ void PlayerMovementComponent::start()
 
 void PlayerMovementComponent::update()
 {
-	auto& keyboard = dynamic_cast<Player*>(gameObject)->remoteClient->m_KeyInput.keys;
 	DWORD direction = 0;
 
 	/*if (keyboard['W'] || keyboard['w']) 
@@ -40,6 +40,30 @@ void PlayerMovementComponent::update()
 		Move(direction, 50.0f * Timer::GetTimeElapsed(), false);
 	}
 	updateValocity();
+
+	if (Dashing)
+	{
+		if (DashTimeLeft > 0.0f)
+		{
+			DashTimeLeft -= Timer::GetTimeElapsed();
+		}
+		else
+		{
+			Dashing = false;
+			SetVelocity(XMFLOAT3(0, 0, 0));
+		}
+	}
+	if (!CanDash)
+	{
+		if (DashCoolTimeLeft > 0.0f)
+		{
+			DashCoolTimeLeft -= Timer::GetTimeElapsed();
+		}
+		else
+		{
+			CanDash = true;
+		}
+	}
 }
 
 void PlayerMovementComponent::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
@@ -70,19 +94,61 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 
 void PlayerMovementComponent::updateValocity()
 {
-	float timeElapsed = 0.01;
-
-	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity, timeElapsed, false));
+	auto fTimeElapsed = Timer::GetTimeElapsed();
+	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity, fTimeElapsed, false));
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
-	float fMaxVelocityXZ = m_fMaxVelocityXZ * timeElapsed;
-	if (fLength > m_fMaxVelocityXZ)
-	{
-		m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
-		m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
+	float fMaxVelocityXZ = m_fMaxVelocityXZ * fTimeElapsed;
+	if (fLength > m_fMaxVelocityXZ) {
+		m_xmf3Velocity.x *= (m_fMaxVelocityXZ / fLength);
+		m_xmf3Velocity.z *= (m_fMaxVelocityXZ / fLength);
 	}
-	float fMaxVelocityY = m_fMaxVelocityY * timeElapsed;
+	float fMaxVelocityY = m_fMaxVelocityY * fTimeElapsed;
 	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
-	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, timeElapsed, false);
+	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 	Move(xmf3Velocity, false);
+	
+	if (m_pPlayerUpdatedContext) 
+		OnPlayerUpdateCallback();
+
+	fLength = Vector3::Length(m_xmf3Velocity);
+	float fDeceleration = (m_fFriction * fTimeElapsed);
+	if (fDeceleration > fLength) fDeceleration = fLength;
+	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+}
+
+void PlayerMovementComponent::Jump()
+{
+	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
+
+	float fHeight = pTerrain->GetHeight(m_xmf3Position.x - pTerrain->GetPosition().x, m_xmf3Position.z - pTerrain->GetPosition().z);
+	if (m_xmf3Position.y <= fHeight) {
+		m_xmf3Velocity.y = 25.f;
+	}
+}
+
+void PlayerMovementComponent::Dash()
+{
+	Dashing = true;
+	CanDash = false;
+	DashTimeLeft = DashDuration;
+	DashCoolTimeLeft = DashCoolTime;
+
+	XMFLOAT3 look = GetLookVector();
+	float DistanceRatio = DashDistance / DashDuration;
+//	SetMaxVelocityXZ(6.5f);
+	m_xmf3Velocity.x += look.x * DistanceRatio;
+	m_xmf3Velocity.y += look.y * DistanceRatio;
+	m_xmf3Velocity.z += look.z * DistanceRatio;
+}
+
+void PlayerMovementComponent::OnPlayerUpdateCallback()
+{
+	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
+
+	float fHeight = pTerrain->GetHeight(m_xmf3Position.x - pTerrain->GetPosition().x, m_xmf3Position.z - pTerrain->GetPosition().z);
+	if (m_xmf3Position.y <= fHeight) {
+		m_xmf3Velocity.y = -5.0f;
+		m_xmf3Position.y = fHeight;
+	}
 }

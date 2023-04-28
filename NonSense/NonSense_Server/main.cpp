@@ -5,7 +5,7 @@
 #include <list>
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <concurrent_unordered_map.h>
 
 #include <signal.h>
 #include <thread>
@@ -17,10 +17,12 @@
 
 #include "remoteClients/RemoteClient.h"
 #include "Scene.h"
+#include "Terrain.h"
 
 #include "Components/PlayerMovementComponent.h"
 
 using namespace std;
+using namespace concurrency;
 
 volatile bool stopWorking = false;
 
@@ -43,21 +45,36 @@ list<shared_ptr<RemoteClient>> deleteClinets;
 
 void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
 {
+	unsigned long long leave_id = remoteClient->m_id;
+	//Scene의 ObjectList에서 떠난 Player 제거
+//	Scene::scene->PushDelete(remoteClient->m_pPlayer.get());
+
 	// 에러 혹은 소켓 종료이다.
 	// 해당 소켓은 제거해버리자. 
 	remoteClient->tcpConnection.Close();
+	
 	{
-		lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
-		RemoteClient::remoteClients.erase(remoteClient.get());
-
+//		lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
+//		RemoteClient::remoteClients.unsafe_erase(remoteClient.get());
 		cout << "Client left. There are " << RemoteClient::remoteClients.size() << " connections.\n";
 	}
+
+	//플레이어가 떠났다고 알림
+	for (auto rc : RemoteClient::remoteClients) {
+		SC_REMOVE_PLAYER_PACKET send_packet;
+		send_packet.size = sizeof(SC_REMOVE_PLAYER_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_SC_REMOVE_PLAYER;
+		send_packet.id = leave_id;
+		rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+	}
+
 }
 
 // IOCP를 준비한다.
 Iocp iocp(N_THREAD); // 5개의 스레드 사용을 API에 힌트로 준다.
 
 recursive_mutex mx_accept;
+recursive_mutex mx_scene;
 
 shared_ptr<Socket> p_listenSocket;
 shared_ptr<RemoteClient> remoteClientCandidate;
@@ -97,10 +114,7 @@ void Worker_Thread()
 				{
 					// 처리할 클라이언트 받아오기
 					shared_ptr<RemoteClient> remoteClient;
-					{
-						lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
-						remoteClient = RemoteClient::remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
-					}
+					remoteClient = RemoteClient::remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
 
 					//
 					if (remoteClient)
@@ -121,8 +135,7 @@ void Worker_Thread()
 							char* recv_buf = remoteClient->tcpConnection.m_recvOverlapped._buf;
 							int recv_buf_Length = ec;
 
-							cout << " recv! - recv_buf_Length : " << recv_buf_Length << endl;
-
+		
 							{ // 패킷 처리
 								int remain_data = recv_buf_Length + remoteClient->tcpConnection.m_prev_remain;
 								while (remain_data > 0) {
@@ -177,6 +190,18 @@ int main(int argc, char* argv[])
 	signal(SIGINT, ProcessSignalAction);
 
 	scene = make_shared<Scene>();
+	char MapName[] = "Model/NonBlend_Props_Map.bin";
+//	char BlendMapName[] = "../NonSense/Model/Blend_Objects_Map.bin";
+	cout << "Server Loding..." << endl;
+//	Object::LoadMapData(MapName);
+//	Object::LoadMapData_Blend(BlendMapName);
+	cout << "Server Loding Complete!" << endl;
+
+
+	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
+	Scene::terrain = new HeightMapTerrain(_T("Terrain/terrain.raw"), 800, 800, xmf3Scale);
+	Scene::terrain->SetPosition(-400, 0, -400);
+
 	Timer::Initialize();
 	Timer::Reset();
 
@@ -199,30 +224,29 @@ int main(int argc, char* argv[])
 	for (int i{}; i < N_THREAD; ++i)
 		worker_threads.emplace_back(make_shared<thread>(Worker_Thread));
 
-	//while (true) {
-	//	Timer::Tick(0.0f);
-	//	Scene::scene->update();
+	while (true) {
+		Timer::Tick(0.0f);
+		Scene::scene->update();
 
-	//	/*{
-	//		lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
+		for (auto& rc : RemoteClient::remoteClients) {
+			auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
 
-	//		for (auto& rc : RemoteClient::remoteClients) {
-	//			if (!rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>())
-	//				continue;
-	//			auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
-	//			for (auto& rc_to : RemoteClient::remoteClients) {
-	//				SC_MOVE_PLAYER_PACKET send_packet;
-	//				send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
-	//				send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
-	//				send_packet.id = rc.second->m_id;
-	//				send_packet.x = rc_pos.x;
-	//				send_packet.y = rc_pos.y;
-	//				send_packet.z = rc_pos.z;
-	//				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
-	//			}
-	//		}
-	//	}*/
-	//}
+			if (!Vector3::Length(vel))
+				continue;
+
+			auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
+			for (auto& rc_to : RemoteClient::remoteClients) {
+				SC_MOVE_PLAYER_PACKET send_packet;
+				send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
+				send_packet.id = rc.second->m_id;
+				send_packet.x = rc_pos.x;
+				send_packet.y = rc_pos.y;
+				send_packet.z = rc_pos.z;
+				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
+		}
+	}
 
 	for (auto& th : worker_threads) th->join();
 
@@ -235,49 +259,49 @@ void CloseServer()
 	lock_guard<recursive_mutex> lock_accept(mx_accept);
 	// i/o 완료 체크
 	p_listenSocket->Close();
-	{
-		lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
 
-		for (auto i : RemoteClient::remoteClients)
+
+	for (auto i : RemoteClient::remoteClients)
+	{
+		i.second->tcpConnection.Close();
+	}
+
+
+	// 서버를 종료하기 위한 정리중
+	cout << "서버를 종료하고 있습니다...\n";
+	while (RemoteClient::remoteClients.size() > 0)
+	{
+		// I/O completion이 없는 상태의 RemoteClient를 제거한다.
+		for (auto i = RemoteClient::remoteClients.begin(); i != RemoteClient::remoteClients.end(); ++i)
 		{
-			i.second->tcpConnection.Close();
+			if (!i->second->tcpConnection.m_isReadOverlapped) {
+				RemoteClient::remoteClients.unsafe_erase(i);
+			}
 		}
 
+		// I/O completion이 발생하면 더 이상 Overlapped I/O를 걸지 말고 '이제 정리해도 돼...'를 플래깅한다.
+		IocpEvents readEvents;
+		iocp.Wait(readEvents, 100);
 
-		// 서버를 종료하기 위한 정리중
-		cout << "서버를 종료하고 있습니다...\n";
-		while (RemoteClient::remoteClients.size() > 0)
+		// 받은 이벤트 각각을 처리합니다.
+		for (int i = 0; i < readEvents.m_eventCount; i++)
 		{
-			// I/O completion이 없는 상태의 RemoteClient를 제거한다.
-			for (auto i = RemoteClient::remoteClients.begin(); i != RemoteClient::remoteClients.end(); ++i)
+			auto& readEvent = readEvents.m_events[i];
+			if (readEvent.lpCompletionKey == 0) // 리슨소켓이면
 			{
-				if (!i->second->tcpConnection.m_isReadOverlapped)
-					RemoteClient::remoteClients.erase(i);
+				p_listenSocket->m_isReadOverlapped = false;
 			}
-
-			// I/O completion이 발생하면 더 이상 Overlapped I/O를 걸지 말고 '이제 정리해도 돼...'를 플래깅한다.
-			IocpEvents readEvents;
-			iocp.Wait(readEvents, 100);
-
-			// 받은 이벤트 각각을 처리합니다.
-			for (int i = 0; i < readEvents.m_eventCount; i++)
+			else
 			{
-				auto& readEvent = readEvents.m_events[i];
-				if (readEvent.lpCompletionKey == 0) // 리슨소켓이면
+				shared_ptr<RemoteClient> remoteClient = RemoteClient::remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
+				if (remoteClient)
 				{
-					p_listenSocket->m_isReadOverlapped = false;
-				}
-				else
-				{
-					shared_ptr<RemoteClient> remoteClient = RemoteClient::remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
-					if (remoteClient)
-					{
-						remoteClient->tcpConnection.m_isReadOverlapped = false;
-					}
+					remoteClient->tcpConnection.m_isReadOverlapped = false;
 				}
 			}
 		}
 	}
+	
 	cout << "서버 끝.\n";
 }
 void ProcessAccept()
@@ -296,8 +320,8 @@ void ProcessAccept()
 		remoteClient->m_id = N_CLIENT_ID++;
 		remoteClient->m_pPlayer = make_shared<Player>();
 		remoteClient->m_pPlayer->start();
+		remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
 		remoteClient->m_pPlayer->remoteClient = remoteClient.get();
-	//	RemoteClient::remoteClients_ptr_v.emplace_back(remoteClient.get());
 
 		// 새 TCP 소켓도 IOCP에 추가한다.
 		iocp.Add(remoteClient->tcpConnection, remoteClient.get());
@@ -315,12 +339,11 @@ void ProcessAccept()
 			remoteClient->tcpConnection.m_isReadOverlapped = true;
 
 			// 새 클라이언트를 목록에 추가.
-			{
-				lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
-				RemoteClient::remoteClients.insert({ remoteClient.get(), remoteClient });
 
-				cout << "Client joined. There are " << RemoteClient::remoteClients.size() << " connections.\n";
-			}
+			RemoteClient::remoteClients.insert({ remoteClient.get(), remoteClient });
+
+			cout << "Client joined. There are " << RemoteClient::remoteClients.size() << " connections.\n";
+			
 		}
 
 		// 계속해서 소켓 받기를 해야 하므로 리슨소켓도 overlapped I/O를 걸자.
@@ -343,8 +366,6 @@ void ProcessAccept()
 
 void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 {
-	lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
-
 	switch (p_Packet[1]) // 패킷 타입
 	{
 	case E_PACKET::E_PACKET_CS_LOGIN: {
@@ -392,6 +413,18 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		CS_KEYDOWN_PACKET* recv_packet = reinterpret_cast<CS_KEYDOWN_PACKET*>(p_Packet);
 		p_Client->m_KeyInput.keys[recv_packet->key] = TRUE;
 		cout << recv_packet->key << " E_PACKET_CS_KEYDOWN" << endl;
+
+		switch (recv_packet->key)
+		{
+		case VK_SPACE:
+			p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->Jump();
+			break;
+		case VK_RBUTTON:
+			p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->Dash();
+			break;
+		default:
+			break;
+		}
 		break;
 	}
 	case E_PACKET::E_PACKET_CS_KEYUP: {
@@ -404,18 +437,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		CS_MOVE_PACKET* recv_packet = reinterpret_cast<CS_MOVE_PACKET*>(p_Packet);
 		XMFLOAT3 xmf3Dir{ XMFLOAT3(recv_packet->dirX, recv_packet->dirY, recv_packet->dirZ) };
 		auto pm = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>();
-		pm->Move(xmf3Dir, false);
-
-		for (auto& rc_to : RemoteClient::remoteClients) {
-			SC_MOVE_PLAYER_PACKET send_packet;
-			send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
-			send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
-			send_packet.id = p_Client->m_id;
-			send_packet.x = pm->GetPosition().x;
-			send_packet.y = pm->GetPosition().y;
-			send_packet.z = pm->GetPosition().z;
-			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
-		}
+		pm->Move(xmf3Dir, true);
 		break;
 	}
 	case E_PACKET::E_PACKET_CS_ROTATE: {
