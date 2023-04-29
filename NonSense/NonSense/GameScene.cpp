@@ -684,14 +684,12 @@ void GameScene::AnimateObjects(float fTimeElapsed)
 	elapseTime = fTimeElapsed;
 	for (auto& object : gameObjects)
 	{
-	
+
 	}
 	for (auto& object : MonsterObjects)
 	{
-		object->Animate(fTimeElapsed);
 	}
 }
-
 void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	pd3dCommandList->SetGraphicsRootSignature(m_pGraphicsRootSignature);
@@ -709,6 +707,7 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 
 	for (auto& object : MonsterObjects)
 	{
+		object->Animate(elapseTime);
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
 	}
