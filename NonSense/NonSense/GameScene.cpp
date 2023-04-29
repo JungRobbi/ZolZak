@@ -653,6 +653,12 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
+		case VK_INSERT:
+			bgm->AddDsp();
+			break;
+		case VK_DELETE:
+			bgm->RemoveDsp();
+			break;
 		case VK_SPACE:
 
 			break;
