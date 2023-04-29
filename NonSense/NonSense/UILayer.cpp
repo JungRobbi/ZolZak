@@ -90,7 +90,9 @@ ID2D1SolidColorBrush* UILayer::CreateBrush(D2D1::ColorF d2dColor)
 IDWriteTextFormat* UILayer::CreateTextFormat(WCHAR* pszFontName, float fFontSize)
 {
     IDWriteTextFormat* pdwDefaultTextFormat = NULL;
-    m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fFontSize, L"en-us", &pdwDefaultTextFormat);
+    m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr, 
+        DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+        fFontSize, L"en-us", &pdwDefaultTextFormat);
     
   //pdwDefaultTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
     pdwDefaultTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); // 가운데 정렬
