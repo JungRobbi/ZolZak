@@ -1,5 +1,6 @@
 #pragma once
 #include "../Globals.h"
+#include "../AnimationType.h"
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 
@@ -81,6 +82,12 @@ class SC_LOOK_PLAYER_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	id;
 	float	x, y, z;
+};
+
+class SC_PLAYER_CHANGE_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	id;
+	char Anitype;
 };
 
 #pragma pack (pop)

@@ -1,5 +1,6 @@
 #pragma once
 #include "../../ImaysNet/ImaysNet.h"
+#include "../../AnimationType.h"
 
 #include <thread>
 #include <memory>

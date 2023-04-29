@@ -6,6 +6,9 @@ class Player :
 {
 public:
 	class RemoteClient* remoteClient;
+public:
+	E_PLAYER_ANIMATION_TYPE OldAniType;
+	E_PLAYER_ANIMATION_TYPE PresentAniType;
 
 public:
 	Player();

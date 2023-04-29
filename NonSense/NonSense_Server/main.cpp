@@ -331,6 +331,8 @@ void ProcessAccept()
 		remoteClient->m_pPlayer = make_shared<Player>();
 		remoteClient->m_pPlayer->start();
 		remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
+		remoteClient->m_pPlayer->OldAniType = E_PLAYER_ANIMATION_TYPE::E_IDLE;
+		remoteClient->m_pPlayer->PresentAniType = E_PLAYER_ANIMATION_TYPE::E_IDLE;
 		remoteClient->m_pPlayer->remoteClient = remoteClient.get();
 
 		// 새 TCP 소켓도 IOCP에 추가한다.
