@@ -647,11 +647,11 @@ void GameFramework::FrameAdvance()
 	// 불투명 오브젝트, Terrain
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 	// 플레이어
-	//if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
-	//for (auto& p : m_OtherPlayers) {
-	//	if (p->GetUsed())
-	//		dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
-	//}
+	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
+	for (auto& p : m_OtherPlayers) {
+		if (p->GetUsed())
+			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
+	}
 	///////////////////////////////////////////
 
 

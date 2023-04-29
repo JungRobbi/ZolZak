@@ -44,6 +44,7 @@ void BoxCollideComponent::update()
 			{
 				m_BoundingObject->Center = gameObject->FindFirstMesh()->GetBoundingBox().Center;
 				m_BoundingObject->Extents = gameObject->FindFirstMesh()->GetBoundingBox().Extents;
+
 			}
 			else
 			{

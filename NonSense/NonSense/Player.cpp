@@ -72,26 +72,7 @@ void Player::Move(ULONG dwDirection, float fDistance, bool bUpdateVelocity)
 			PacketQueue::AddSendPacket(&send_packet);
 		}
 		else {
-			XMFLOAT3 a = xmf3Shift;
-			GetComponent<SphereCollideComponent>()->Center.x += a.x;
-			GetComponent<SphereCollideComponent>()->Center.y += a.y;
-			GetComponent<SphereCollideComponent>()->Center.z += a.z;
-			GetComponent<SphereCollideComponent>()->update();
-			bool bound = false;
-			for (auto& o : GameScene::MainScene->gameObjects)
-			{
-				if (o->GetComponent<BoxCollideComponent>())
-				{
-					if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
-					{
-						bound = true;
-					}
-				}
-			}
-			if (!bound) Move(xmf3Shift, bUpdateVelocity);
-			GetComponent<SphereCollideComponent>()->Center.x -= a.x;
-			GetComponent<SphereCollideComponent>()->Center.y -= a.y;
-			GetComponent<SphereCollideComponent>()->Center.z -= a.z;
+			Move(xmf3Shift, bUpdateVelocity);
 		}
 	}
 }
@@ -214,7 +195,29 @@ void Player::Update(float fTimeElapsed)
 		fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 		if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-		Move(xmf3Velocity, false);
+		GetComponent<SphereCollideComponent>()->Center.x += xmf3Velocity.x;
+		GetComponent<SphereCollideComponent>()->Center.y += xmf3Velocity.y;
+		GetComponent<SphereCollideComponent>()->Center.z += xmf3Velocity.z;
+		GetComponent<SphereCollideComponent>()->update();
+		bool bound = false;
+
+		for (auto& o : GameScene::MainScene->gameObjects)
+		{
+			if (o->GetComponent<BoxCollideComponent>())
+			{
+				if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
+				{
+					bound = true;
+					Move(XMFLOAT3(-xmf3Velocity.x, 0, -xmf3Velocity.z), false);
+					break;
+				}
+			}
+		}
+		if (!bound) Move(xmf3Velocity, false);
+		GetComponent<SphereCollideComponent>()->Center.x -= xmf3Velocity.x;
+		GetComponent<SphereCollideComponent>()->Center.y -= xmf3Velocity.y;
+		GetComponent<SphereCollideComponent>()->Center.z -= xmf3Velocity.z;
+
 		fLength = Vector3::Length(m_xmf3Velocity);
 		float fDeceleration = (m_fFriction * fTimeElapsed);
 		if (fDeceleration > fLength) fDeceleration = fLength;
