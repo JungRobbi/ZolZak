@@ -455,8 +455,6 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 void MagePlayer::Update(float fTimeElapsed)
 {
-
-	Object::update();
 	Player::Update(fTimeElapsed);
 	DWORD nCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
 	UpdateTransform(NULL);
@@ -468,16 +466,22 @@ void MagePlayer::Update(float fTimeElapsed)
 
 void MagePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-
-	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
-	if (nCameraMode == FIRST_PERSON_CAMERA)
+	if (GameScene::MainScene->m_pPlayer == this)
 	{
-		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
-	
-		FindFrame("Wand")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-		FindFrame("Body_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-		FindFrame("Arm_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-		FindFrame("Leg_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+		DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
+		if (nCameraMode == FIRST_PERSON_CAMERA)
+		{
+			m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
+
+			FindFrame("Wand")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Body_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Arm_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Leg_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+		}
+		else
+		{
+			Player::Render(pd3dCommandList, pCamera);
+		}
 	}
 	else
 	{

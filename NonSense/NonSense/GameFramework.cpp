@@ -751,19 +751,19 @@ void GameFramework::FrameAdvance()
 	//////////// MRT Render Target /////////////
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
 	GameScene::MainScene->update();
-	m_pPlayer->Update(Timer::GetTimeElapsed());
-	for (auto& p : m_OtherPlayers) {
-		if (p->GetUsed())
-			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());
-	}
+	
 	// 불투명 오브젝트, Terrain
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 	// 플레이어
+	m_pPlayer->Update(Timer::GetTimeElapsed());
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	for (auto& p : m_OtherPlayers) {
-		if (p->GetUsed())
+		if (p->GetUsed()) {
 			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
+			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());
+		}
 	}
+
 	///////////////////////////////////////////
 
 
