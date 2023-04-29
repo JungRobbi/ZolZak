@@ -235,6 +235,8 @@ int main(int argc, char* argv[])
 			if (!rc.second->b_Enable)
 				continue;
 
+			rc.second->m_pPlayer->update();
+
 			auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
 
 			if (!Vector3::Length(vel))
