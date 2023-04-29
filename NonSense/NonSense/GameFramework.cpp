@@ -570,23 +570,11 @@ void GameFramework::ProcessInput()
 	
 			if (cxDelta || cyDelta)
 			{
-			
-				/*if (pKeyBuffer[VK_RBUTTON] & 0xF0)
-					m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-				else
-					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);*/
+
 			}
 			if (dwDirection) {
-				/*if (pKeyBuffer[0x41] & 0xF0) {
-					m_pPlayer->Rotate(0.0f, -0.1f, 0.0f);
-					pKeyBuffer[0x41] = false;
-				}
-				else if (pKeyBuffer[0x44] & 0xF0) {
-					m_pPlayer->Rotate(0.0f, +0.1f, 0.0f);
-					pKeyBuffer[0x44] = false;
-				}*/
 				m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
-				m_pPlayer->SetWalk(true);
+
 			}
 		}
 	}
@@ -684,16 +672,7 @@ void GameFramework::FrameAdvance()
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
-	//for (auto& o : GameScene::MainScene->gameObjects)
-	//{
-	//	if (o->GetComponent<BoxCollideComponent>())
-	//	{
-	//		if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
-	//		{
-	//			m_pPlayer->Wallcollide(o->GetComponent<BoxCollideComponent>()->GetBoundingObject());
-	//		}
-	//	}
-	//}
+
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

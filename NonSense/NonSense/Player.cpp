@@ -71,8 +71,29 @@ void Player::Move(ULONG dwDirection, float fDistance, bool bUpdateVelocity)
 			send_packet.dirZ = xmf3Dir.z;
 			PacketQueue::AddSendPacket(&send_packet);
 		}
-		else
-			Move(xmf3Shift, bUpdateVelocity);
+		else {
+			XMFLOAT3 a = xmf3Shift;
+			GetComponent<SphereCollideComponent>()->Center.x += a.x;
+			GetComponent<SphereCollideComponent>()->Center.y += a.y;
+			GetComponent<SphereCollideComponent>()->Center.z += a.z;
+			GetComponent<SphereCollideComponent>()->update();
+			bool bound = false;
+			for (auto& o : GameScene::MainScene->gameObjects)
+			{
+				if (o->GetComponent<BoxCollideComponent>())
+				{
+					if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
+					{
+						bound = true;
+						printf("asdf");
+					}
+				}
+			}
+			if (!bound) Move(xmf3Shift, bUpdateVelocity);
+			GetComponent<SphereCollideComponent>()->Center.x -= a.x;
+			GetComponent<SphereCollideComponent>()->Center.y -= a.y;
+			GetComponent<SphereCollideComponent>()->Center.z -= a.z;
+		}
 	}
 }
 void Player::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)

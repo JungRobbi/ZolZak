@@ -5,6 +5,7 @@
 #include "BoxCollideComponent.h"
 #include "SphereCollideComponent.h"
 #include "GameFramework.h"
+#include <cmath>
 
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters)
 {
@@ -1015,7 +1016,8 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 				pObject->AddComponent<BoxCollideComponent>();
 				pObject->GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
 
-				float rd = pObject->FindFirstMesh()->GetBoundingBox().Extents.x > pObject->FindFirstMesh()->GetBoundingBox().Extents.y ? (pObject->FindFirstMesh()->GetBoundingBox().Extents.x > pObject->FindFirstMesh()->GetBoundingBox().Extents.z) ? pObject->FindFirstMesh()->GetBoundingBox().Extents.x : pObject->FindFirstMesh()->GetBoundingBox().Extents.z : (pObject->FindFirstMesh()->GetBoundingBox().Extents.y > pObject->FindFirstMesh()->GetBoundingBox().Extents.z) ? pObject->FindFirstMesh()->GetBoundingBox().Extents.y : pObject->FindFirstMesh()->GetBoundingBox().Extents.z;
+				//float rd = abs(pow(pObject->FindFirstMesh()->GetBoundingBox().Extents.x,2.0) + pow(pObject->FindFirstMesh()->GetBoundingBox().Extents.y, 2.0) + pow(pObject->FindFirstMesh()->GetBoundingBox().Extents.z, 2.0));
+				float rd = pObject->FindFirstMesh()->GetBoundingBox().Extents.x;
 
 				pObject->AddComponent<SphereCollideComponent>();
 				pObject->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
