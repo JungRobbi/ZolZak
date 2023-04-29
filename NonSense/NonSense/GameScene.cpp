@@ -39,6 +39,9 @@ GameScene::~GameScene()
 	for (auto object : MonsterObjects)
 		delete object;
 	MonsterObjects.clear();
+
+
+
 }
 
 Object* GameScene::CreateEmpty()
@@ -650,6 +653,12 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
+		case VK_INSERT:
+			bgm->AddDsp();
+			break;
+		case VK_DELETE:
+			bgm->RemoveDsp();
+			break;
 		case VK_SPACE:
 
 			break;
@@ -672,9 +681,10 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 
 void GameScene::AnimateObjects(float fTimeElapsed)
 {
+	elapseTime = fTimeElapsed;
 	for (auto& object : gameObjects)
 	{
-		object->Animate(fTimeElapsed);
+	
 	}
 	for (auto& object : MonsterObjects)
 	{
@@ -704,6 +714,7 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 	}
 	for (auto& object : gameObjects)
 	{
+		object->Animate(elapseTime);
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
 	}

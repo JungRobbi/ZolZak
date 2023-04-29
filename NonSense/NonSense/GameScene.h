@@ -11,6 +11,7 @@
 #include "Characters.h"
 #include "UI.h"
 #include "UILayer.h"
+#include "Sound.h"
 
 struct LIGHT
 {
@@ -66,7 +67,8 @@ public:
 	Player* m_pPlayer = NULL;
 protected:
 	Object* CreateEmpty();
-
+	float elapseTime;
+	Sound* bgm;
 public:
 	virtual void update();
 	virtual void render();
