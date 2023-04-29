@@ -759,8 +759,8 @@ void GameFramework::FrameAdvance()
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	for (auto& p : m_OtherPlayers) {
 		if (p->GetUsed()) {
-			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
 			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());
+			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
 		}
 	}
 
