@@ -1,6 +1,7 @@
 #include "AttackComponent.h"
-#include "Input.h"
-#include "GameFramework.h"
+#include "../Input.h"
+// #include "GameFramework.h"
+#include "../Player.h"
 #include "BoxCollideComponent.h"
 #include "SphereCollideComponent.h"
 

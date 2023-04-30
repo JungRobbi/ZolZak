@@ -131,7 +131,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CloseTypeState.cpp" />
+    <ClCompile Include="Components\AttackComponent.cpp" />
     <ClCompile Include="Components\BoxCollideComponent.cpp" />
+    <ClCompile Include="Components\CloseTypeFSMComponent.cpp" />
     <ClCompile Include="Components\Component.cpp" />
     <ClCompile Include="Components\PlayerMovementComponent.cpp" />
     <ClCompile Include="Components\SphereCollideComponent.cpp" />
@@ -145,16 +148,21 @@
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CloseTypeState.h" />
+    <ClInclude Include="Components\AttackComponent.h" />
     <ClInclude Include="Components\BoxCollideComponent.h" />
+    <ClInclude Include="Components\CloseTypeFSMComponent.h" />
     <ClInclude Include="Components\Component.h" />
     <ClInclude Include="Components\PlayerMovementComponent.h" />
     <ClInclude Include="Components\SphereCollideComponent.h" />
+    <ClInclude Include="FSM.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RemoteClients\RemoteClient.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="State.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Terrain.h" />

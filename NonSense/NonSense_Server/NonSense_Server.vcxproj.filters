@@ -31,6 +31,9 @@
     <Filter Include="소스 파일\Terrain">
       <UniqueIdentifier>{9ed3d800-42aa-479b-b984-34791284917b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\FSM">
+      <UniqueIdentifier>{39ef14fe-13f2-468c-b064-b119172eecb3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -67,6 +70,15 @@
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
     <ClCompile Include="Components\SphereCollideComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CloseTypeFSMComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="CloseTypeState.cpp">
+      <Filter>소스 파일\FSM</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\AttackComponent.cpp">
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
   </ItemGroup>
@@ -111,6 +123,21 @@
       <Filter>소스 파일\Components</Filter>
     </ClInclude>
     <ClInclude Include="Components\SphereCollideComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CloseTypeFSMComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="CloseTypeState.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="FSM.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="State.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\AttackComponent.h">
       <Filter>소스 파일\Components</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,7 +1,7 @@
 #pragma once
 #include "Component.h"
-#include "Timer.h"
-#include "Object.h"
+#include "../Timer.h"
+#include "../Object.h"
 
 class BoundBox;
 

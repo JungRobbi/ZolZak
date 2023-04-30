@@ -17,10 +17,10 @@ enum E_PACKET
 
 	// Server -> Client packet
 	E_PACKET_SC_LOGIN_INFO, E_PACKET_SC_ADD_PLAYER, E_PACKET_SC_REMOVE_PLAYER, 
-	E_PACKET_SC_MOVE_PLAYER, E_PACKET_SC_LOOK_PLAYER, E_PACKET_SC_ANIMATION_TYPE_PLAYER
+	E_PACKET_SC_MOVE_PLAYER, E_PACKET_SC_LOOK_PLAYER, E_PACKET_SC_ANIMATION_TYPE_PLAYER,
+	E_PACKET_SC_ANIMATION_TYPE_MOSTER
 
 };
-
 
 #pragma pack (push, 1)
 
@@ -85,6 +85,12 @@ public:
 };
 
 class SC_PLAYER_ANIMATION_TYPE_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	id;
+	char Anitype;
+};
+
+class SC_MONSTER_ANIMATION_TYPE_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	id;
 	char Anitype;
