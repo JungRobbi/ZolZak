@@ -5,6 +5,7 @@
 #include "NetworkMGR.h"
 #include "GameScene.h"
 #include "GameFramework.h"
+#include "PlayerMovementComponent.h"
 #pragma comment(lib, "WS2_32.LIB")
 
 char* NetworkMGR::SERVERIP = "127.0.0.1";
@@ -143,7 +144,6 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	{
 	case E_PACKET::E_PACKET_SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* recv_packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(p_Packet);
-
 		NetworkMGR::id = recv_packet->id;
 		break;
 	}
@@ -189,7 +189,6 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 				break;
 
 			player = dynamic_cast<Player*>(*p);
-			dynamic_cast<Player*>(*p)->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
 		}
 
 		player->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
@@ -229,6 +228,28 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			player->GetCamera()->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3RightVector, true));
 			player->GetCamera()->Rotate(player->GetPitch(), 0, 0);
 		}
+		break;
+	}
+	case E_PACKET_SC_ANIMATION_TYPE_PLAYER: {
+		SC_PLAYER_ANIMATION_TYPE_PACKET* recv_packet = reinterpret_cast<SC_PLAYER_ANIMATION_TYPE_PACKET*>(p_Packet);
+		Player* player = GameFramework::MainGameFramework->m_pPlayer;
+		if (recv_packet->id == NetworkMGR::id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->id;
+				});
+
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
+
+			player = dynamic_cast<Player*>(*p);
+		}
+		player->GetComponent<PlayerMovementComponent>()->Animation_type = (E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype;
+
 		break;
 	}
 	default:

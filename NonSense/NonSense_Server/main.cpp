@@ -235,6 +235,36 @@ int main(int argc, char* argv[])
 			if (!rc.second->b_Enable)
 				continue;
 
+			if (rc.second->m_KeyInput.keys['w'] || rc.second->m_KeyInput.keys['W'] ||
+				rc.second->m_KeyInput.keys['s'] || rc.second->m_KeyInput.keys['S'] ||
+				rc.second->m_KeyInput.keys['a'] || rc.second->m_KeyInput.keys['A'] ||
+				rc.second->m_KeyInput.keys['d'] || rc.second->m_KeyInput.keys['D']) {
+				if (rc.second->m_KeyInput.keys[16]) { // LSHIFT
+					rc.second->m_pPlayer->PresentAniType = E_PLAYER_ANIMATION_TYPE::E_WALK;
+				}
+				else {
+					rc.second->m_pPlayer->PresentAniType = E_PLAYER_ANIMATION_TYPE::E_RUN;
+				}
+			}
+			else {
+			//	if (!((Player*)gameObject)->GetComponent<AttackComponent>()->During_Attack) 컴포넌트 추가 해야함
+					rc.second->m_pPlayer->PresentAniType = E_PLAYER_ANIMATION_TYPE::E_IDLE;
+			}
+
+			if (rc.second->m_pPlayer->OldAniType != rc.second->m_pPlayer->PresentAniType) {
+				for (auto& rc_to : RemoteClient::remoteClients) {
+					if (!rc_to.second->b_Enable)
+						continue;
+					SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
+					send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
+					send_packet.id = rc.second->m_id;
+					send_packet.Anitype = (char)rc.second->m_pPlayer->PresentAniType;
+					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				}
+				rc.second->m_pPlayer->OldAniType = rc.second->m_pPlayer->PresentAniType;
+			}
+
 			rc.second->m_pPlayer->update();
 
 			auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
@@ -331,8 +361,6 @@ void ProcessAccept()
 		remoteClient->m_pPlayer = make_shared<Player>();
 		remoteClient->m_pPlayer->start();
 		remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
-		remoteClient->m_pPlayer->OldAniType = E_PLAYER_ANIMATION_TYPE::E_IDLE;
-		remoteClient->m_pPlayer->PresentAniType = E_PLAYER_ANIMATION_TYPE::E_IDLE;
 		remoteClient->m_pPlayer->remoteClient = remoteClient.get();
 
 		// 새 TCP 소켓도 IOCP에 추가한다.

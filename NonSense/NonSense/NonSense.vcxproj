@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\AnimationType.h" />
     <ClInclude Include="..\Globals.h" />
     <ClInclude Include="AttackComponent.h" />
     <ClInclude Include="BillboardComponent.h" />

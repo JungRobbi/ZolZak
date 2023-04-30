@@ -2,6 +2,7 @@
 #include "AttackComponent.h"
 #include "Input.h"
 #include "Player.h"
+#include "NetworkMGR.h"
 
 #include "../AnimationType.h"
 
@@ -14,9 +15,9 @@ void PlayerMovementComponent::Jump()
 	if (pos.y <= fHeight) {
 		XMFLOAT3 vel = ((Player*)gameObject)->GetVelocity();
 //		((Player*)gameObject)->SetVelocity(XMFLOAT3(vel.x, 25.0f, vel.z));
-		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, E_PLAYER_ANIMATION_TYPE::E_JUMP);
-		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, E_PLAYER_ANIMATION_TYPE::E_JUMP);
-		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, E_PLAYER_ANIMATION_TYPE::E_JUMP);
+		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, (int)E_PLAYER_ANIMATION_TYPE::E_JUMP);
+		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, (int)E_PLAYER_ANIMATION_TYPE::E_JUMP);
+		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, (int)E_PLAYER_ANIMATION_TYPE::E_JUMP);
 	}
 }
 
@@ -32,9 +33,9 @@ void PlayerMovementComponent::Dash()
 	XMFLOAT3 vel = XMFLOAT3(look.x * DistanceRatio, look.y * DistanceRatio, look.z * DistanceRatio);
 //	((Player*)gameObject)->SetMaxVelocityXZ(6.5f);
 //	((Player*)gameObject)->SetVelocity(vel);
-	((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, E_PLAYER_ANIMATION_TYPE::E_DASH);
-	((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, E_PLAYER_ANIMATION_TYPE::E_DASH);
-	((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, E_PLAYER_ANIMATION_TYPE::E_DASH);
+	((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, (int)E_PLAYER_ANIMATION_TYPE::E_DASH);
+	((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, (int)E_PLAYER_ANIMATION_TYPE::E_DASH);
+	((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, (int)E_PLAYER_ANIMATION_TYPE::E_DASH);
 	((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackSpeed(0, 2.0f);
 }
 
@@ -90,56 +91,61 @@ void PlayerMovementComponent::update()
 			if (!Dashing)
 				((Player*)gameObject)->SetMaxVelocityXZ(3.5f);
 		}
-		if (Input::InputKeyBuffer['W'] & 0xF0)
-		{
-			if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
+		if (!NetworkMGR::b_isNet) {
+			if (Input::InputKeyBuffer['W'] & 0xF0)
 			{
-				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_PLAYER_ANIMATION_TYPE::E_WALK);
-			}
-			else
-			{
-				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_PLAYER_ANIMATION_TYPE::E_RUN);
-			}
+				if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
+				{
+					Animation_type = E_PLAYER_ANIMATION_TYPE::E_WALK;
+				}
+				else
+				{
+					Animation_type = E_PLAYER_ANIMATION_TYPE::E_RUN;
+				}
 
-		}
-		else if (Input::InputKeyBuffer['A'] & 0xF0)
-		{
-			if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
+			}
+			else if (Input::InputKeyBuffer['A'] & 0xF0)
 			{
-				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_PLAYER_ANIMATION_TYPE::E_WALK);
+				if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
+				{
+					Animation_type = E_PLAYER_ANIMATION_TYPE::E_WALK;
+				}
+				else
+				{
+					Animation_type = E_PLAYER_ANIMATION_TYPE::E_RUN;
+				}
+			}
+			else if (Input::InputKeyBuffer['S'] & 0xF0)
+			{
+				if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
+				{
+					Animation_type = E_PLAYER_ANIMATION_TYPE::E_WALK;
+				}
+				else
+				{
+					Animation_type = E_PLAYER_ANIMATION_TYPE::E_RUN;
+				}
+			}
+			else if (Input::InputKeyBuffer['D'] & 0xF0)
+			{
+				if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
+				{
+					Animation_type = E_PLAYER_ANIMATION_TYPE::E_WALK;
+				}
+				else
+				{
+					Animation_type = E_PLAYER_ANIMATION_TYPE::E_RUN;
+				}
 			}
 			else
 			{
-				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_PLAYER_ANIMATION_TYPE::E_RUN);
+				if (!((Player*)gameObject)->GetComponent<AttackComponent>()->During_Attack)
+					Animation_type = E_PLAYER_ANIMATION_TYPE::E_IDLE;
 			}
 		}
-		else if (Input::InputKeyBuffer['S'] & 0xF0)
-		{
-			if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
-			{
-				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_PLAYER_ANIMATION_TYPE::E_WALK);
-			}
-			else
-			{
-				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_PLAYER_ANIMATION_TYPE::E_RUN);
-			}
-		}
-		else if (Input::InputKeyBuffer['D'] & 0xF0)
-		{
-			if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
-			{
-				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_PLAYER_ANIMATION_TYPE::E_WALK);
-			}
-			else
-			{
-				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_PLAYER_ANIMATION_TYPE::E_RUN);
-			}
-		}
-		else
-		{
-			if(!((Player*)gameObject)->GetComponent<AttackComponent>()->During_Attack)
-				((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_PLAYER_ANIMATION_TYPE::E_IDLE);
-		}
+
+		((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending((int)Animation_type);
+		
 		if (CursorCoolTime < MaxCursorCoolTime)
 		{
 			CursorCoolTime += Timer::GetTimeElapsed();
