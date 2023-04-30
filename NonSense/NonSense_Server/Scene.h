@@ -4,9 +4,11 @@
 #include <deque>
 #include <atomic>
 #include <concurrent_queue.h>
+#include <concurrent_vector.h>
 
 #include "Object.h"
 #include "Terrain.h"
+#include "Characters.h"
 
 
 class Scene
@@ -22,6 +24,7 @@ public:
 	static Scene* scene;
 	static HeightMapTerrain* terrain;
 
+	concurrency::concurrent_vector<Character*> MonsterObjects;
 protected:
 	Object* CreateEmpty();
 

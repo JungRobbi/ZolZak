@@ -46,6 +46,9 @@ Object::Object(OBJECT_TYPE type)
 
 Object::~Object()
 {
+	for (auto& p : components)
+		delete p;
+	components.clear();
 }
 
 void Object::start()

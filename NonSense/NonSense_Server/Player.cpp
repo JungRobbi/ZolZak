@@ -12,6 +12,8 @@ Player::Player() : Object(false)
 
 Player::~Player()
 {
+	for (auto& p : components)
+		delete p;
 	components.clear();
 }
 

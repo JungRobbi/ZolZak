@@ -1,5 +1,7 @@
 #include "CloseTypeFSMComponent.h"
-// #include "Characters.h"
+#include "../Characters.h"
+#include "../RemoteClients/RemoteClient.h"
+#include "../Scene.h"
 #include "../CloseTypeState.h"
 #include "AttackComponent.h"
 void CloseTypeFSMComponent::start()
@@ -21,8 +23,9 @@ FSM<CloseTypeFSMComponent>* CloseTypeFSMComponent::GetFSM()
 bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 {
 	XMFLOAT3 OwnerPos = gameObject->GetPosition();
-	XMFLOAT3 PlayerPos = GameFramework::MainGameFramework->m_pPlayer->GetPosition();
-	TargetPlayer = GameFramework::MainGameFramework->m_pPlayer;
+	auto first = RemoteClient::remoteClients.begin()->second;
+	XMFLOAT3 PlayerPos = first->m_pPlayer->GetPosition();
+	TargetPlayer = first->m_pPlayer.get();
 	float Distance = Vector3::Length(Vector3::Subtract(OwnerPos, PlayerPos));
 	if (Distance < ChangeStateDistance)
 		return true;
@@ -33,11 +36,11 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 void CloseTypeFSMComponent::ResetWanderPosition(float posx, float posz)
 {
 	XMFLOAT3 pos;
-	if (GameScene::MainScene->GetTerrain())
+	if (Scene::terrain)
 	{
-		float width = GameScene::MainScene->GetTerrain()->GetWidth();
-		float length = GameScene::MainScene->GetTerrain()->GetLength();
-		float height = GameScene::MainScene->GetTerrain()->GetHeight(posx + (width / 2), posz + (length / 2));
+		float width = Scene::terrain->GetWidth();
+		float length = Scene::terrain->GetLength();
+		float height = Scene::terrain->GetHeight(posx + (width / 2), posz + (length / 2));
 
 		pos = { posx, height, posz };
 	}
@@ -70,18 +73,18 @@ bool CloseTypeFSMComponent::Idle()
 
 void CloseTypeFSMComponent::Stop()
 {
-	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(0);
+	dynamic_cast<Character*>(gameObject)->SetAniType(E_MONSTER_ANIMATION_TYPE::E_IDLE);
 }
 
 void CloseTypeFSMComponent::Move_Walk(float dist)
 {
 	gameObject->MoveForward(dist);
-	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(1);
+	dynamic_cast<Character*>(gameObject)->SetAniType(E_MONSTER_ANIMATION_TYPE::E_WALK);
 }
 void CloseTypeFSMComponent::Move_Run(float dist)
 {
 	gameObject->MoveForward(dist);
-	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(2);
+	dynamic_cast<Character*>(gameObject)->SetAniType(E_MONSTER_ANIMATION_TYPE::E_RUN);
 }
 void CloseTypeFSMComponent::Attack()
 {

@@ -78,6 +78,21 @@ using Microsoft::WRL::ComPtr;
 inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE // 전체화면 default
 
+extern UINT	CBVSRVDescriptorSize;
+extern UINT RTVDescriptorSize;
+extern bool DebugMode;
+extern bool OptionMode;
+extern UINT OBJNum;
+
+extern UINT	gnRtvDescriptorIncrementSize;
+extern UINT gnDsvDescriptorIncrementSize;
+
+extern FLOAT ClearColor[4];
+
+extern BYTE ReadStringFromFile(FILE* OpenedFile, char* pstrToken);
+extern int ReadIntegerFromFile(FILE* OpenedFile);
+extern float ReadFloatFromFile(FILE* OpenedFile);
+
 namespace Vector3
 {
 	inline XMFLOAT3 XMVectorToFloat3(XMVECTOR& xmvVector)

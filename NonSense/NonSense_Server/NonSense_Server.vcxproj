@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Characters.cpp" />
     <ClCompile Include="CloseTypeState.cpp" />
     <ClCompile Include="Components\AttackComponent.cpp" />
     <ClCompile Include="Components\BoxCollideComponent.cpp" />
@@ -144,10 +145,12 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RemoteClients\RemoteClient.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Characters.h" />
     <ClInclude Include="CloseTypeState.h" />
     <ClInclude Include="Components\AttackComponent.h" />
     <ClInclude Include="Components\BoxCollideComponent.h" />

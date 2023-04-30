@@ -17,21 +17,18 @@ Object* Scene::CreateEmpty()
 
 void Scene::update()
 {
-	while (!creationQueue.empty())
+	Object* object;
+	while (creationQueue.try_pop(object))
 	{
-		auto Object = creationQueue.unsafe_begin();
-		(*Object)->start();
-		gameObjects.push_back(*Object);
-		creationQueue.try_pop(*Object);
+		object->start();
+		gameObjects.push_back(object);
 	}
 
 	for (auto Object : gameObjects)
 		Object->update();
 
-	while (!deletionQueue.empty())
+	while (deletionQueue.try_pop(object))
 	{
-		auto Object = deletionQueue.unsafe_begin();
-		deletionQueue.try_pop(*Object);
-		delete *Object;
+		delete object;
 	}
 }
