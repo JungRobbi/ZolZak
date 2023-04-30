@@ -235,55 +235,79 @@ int main(int argc, char* argv[])
 			if (!rc.second->b_Enable)
 				continue;
 
-			if (rc.second->m_KeyInput.keys['w'] || rc.second->m_KeyInput.keys['W'] ||
-				rc.second->m_KeyInput.keys['s'] || rc.second->m_KeyInput.keys['S'] ||
-				rc.second->m_KeyInput.keys['a'] || rc.second->m_KeyInput.keys['A'] ||
-				rc.second->m_KeyInput.keys['d'] || rc.second->m_KeyInput.keys['D']) {
-				if (rc.second->m_KeyInput.keys[16]) { // LSHIFT
-					rc.second->m_pPlayer->PresentAniType = E_PLAYER_ANIMATION_TYPE::E_WALK;
+			// Animation Packet
+			{ 
+				if (rc.second->m_KeyInput.keys['w'] || rc.second->m_KeyInput.keys['W'] ||
+					rc.second->m_KeyInput.keys['s'] || rc.second->m_KeyInput.keys['S'] ||
+					rc.second->m_KeyInput.keys['a'] || rc.second->m_KeyInput.keys['A'] ||
+					rc.second->m_KeyInput.keys['d'] || rc.second->m_KeyInput.keys['D']) {
+					if (rc.second->m_KeyInput.keys[16]) { // LSHIFT
+						rc.second->m_pPlayer->PresentAniType = E_PLAYER_ANIMATION_TYPE::E_WALK;
+					}
+					else {
+						rc.second->m_pPlayer->PresentAniType = E_PLAYER_ANIMATION_TYPE::E_RUN;
+					}
 				}
 				else {
-					rc.second->m_pPlayer->PresentAniType = E_PLAYER_ANIMATION_TYPE::E_RUN;
-				}
-			}
-			else {
-			//	if (!((Player*)gameObject)->GetComponent<AttackComponent>()->During_Attack) 컴포넌트 추가 해야함
+					//	if (!((Player*)gameObject)->GetComponent<AttackComponent>()->During_Attack) 컴포넌트 추가 해야함
 					rc.second->m_pPlayer->PresentAniType = E_PLAYER_ANIMATION_TYPE::E_IDLE;
-			}
-
-			if (rc.second->m_pPlayer->OldAniType != rc.second->m_pPlayer->PresentAniType) {
-				for (auto& rc_to : RemoteClient::remoteClients) {
-					if (!rc_to.second->b_Enable)
-						continue;
-					SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
-					send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
-					send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
-					send_packet.id = rc.second->m_id;
-					send_packet.Anitype = (char)rc.second->m_pPlayer->PresentAniType;
-					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
-				rc.second->m_pPlayer->OldAniType = rc.second->m_pPlayer->PresentAniType;
+
+				if (rc.second->m_pPlayer->OldAniType != rc.second->m_pPlayer->PresentAniType) {
+					for (auto& rc_to : RemoteClient::remoteClients) {
+						if (!rc_to.second->b_Enable)
+							continue;
+						SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
+						send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
+						send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
+						send_packet.id = rc.second->m_id;
+						send_packet.Anitype = (char)rc.second->m_pPlayer->PresentAniType;
+						rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+					}
+					rc.second->m_pPlayer->OldAniType = rc.second->m_pPlayer->PresentAniType;
+				}
 			}
 
 			rc.second->m_pPlayer->update();
+			
+			// Move Packet
+			{ 
+				auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
 
-			auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
-
-			if (!Vector3::Length(vel))
-				continue;
-
-			auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
-			for (auto& rc_to : RemoteClient::remoteClients) {
-				if (!rc_to.second->b_Enable)
+				if (!Vector3::Length(vel))
 					continue;
-				SC_MOVE_PLAYER_PACKET send_packet;
-				send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
-				send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
-				send_packet.id = rc.second->m_id;
-				send_packet.x = rc_pos.x;
-				send_packet.y = rc_pos.y;
-				send_packet.z = rc_pos.z;
-				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+
+				auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
+				for (auto& rc_to : RemoteClient::remoteClients) {
+					if (!rc_to.second->b_Enable)
+						continue;
+					SC_MOVE_PLAYER_PACKET send_packet;
+					send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
+					send_packet.id = rc.second->m_id;
+					send_packet.x = rc_pos.x;
+					send_packet.y = rc_pos.y;
+					send_packet.z = rc_pos.z;
+					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				}
+			}
+
+			// Camera Look Packet
+			if (rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->is_Rotate){ 
+				XMFLOAT3 xmf3FinalLook = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetLookVector();
+				for (auto& rc_to : RemoteClient::remoteClients) {
+					if (!rc_to.second->b_Enable)
+						continue;
+					SC_LOOK_PLAYER_PACKET send_packet;
+					send_packet.size = sizeof(SC_LOOK_PLAYER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_LOOK_PLAYER;
+					send_packet.id = rc.second->m_id;
+					send_packet.x = xmf3FinalLook.x;
+					send_packet.y = xmf3FinalLook.y;
+					send_packet.z = xmf3FinalLook.z;
+					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				}
+				rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->is_Rotate = false;
 			}
 		}
 	}
@@ -456,7 +480,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 	case E_PACKET::E_PACKET_CS_KEYDOWN: {
 		CS_KEYDOWN_PACKET* recv_packet = reinterpret_cast<CS_KEYDOWN_PACKET*>(p_Packet);
 		p_Client->m_KeyInput.keys[recv_packet->key] = TRUE;
-		cout << recv_packet->key << " E_PACKET_CS_KEYDOWN" << endl;
+	//	cout << recv_packet->key << " E_PACKET_CS_KEYDOWN" << endl;
 
 		switch (recv_packet->key)
 		{
@@ -474,7 +498,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 	case E_PACKET::E_PACKET_CS_KEYUP: {
 		CS_KEYUP_PACKET* recv_packet = reinterpret_cast<CS_KEYUP_PACKET*>(p_Packet);
 		p_Client->m_KeyInput.keys[recv_packet->key] = FALSE;
-		cout << recv_packet->key << " E_PACKET_CS_KEYUP" << endl;
+	//	cout << recv_packet->key << " E_PACKET_CS_KEYUP" << endl;
 		break;
 	}
 	case E_PACKET::E_PACKET_CS_MOVE: {
@@ -499,19 +523,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		pm->SetLookVector(Vector3::TransformNormal(xmf3Look, xmmtxRotate));
 		pm->SetRightVector(Vector3::TransformNormal(xmf3Right, xmmtxRotate));
 
-		XMFLOAT3 xmf3FinalLook = pm->GetLookVector();
-		for (auto& rc_to : RemoteClient::remoteClients) {
-			if (!rc_to.second->b_Enable)
-				continue;
-			SC_LOOK_PLAYER_PACKET send_packet;
-			send_packet.size = sizeof(SC_LOOK_PLAYER_PACKET);
-			send_packet.type = E_PACKET::E_PACKET_SC_LOOK_PLAYER;
-			send_packet.id = p_Client->m_id;
-			send_packet.x = xmf3FinalLook.x;
-			send_packet.y = xmf3FinalLook.y;
-			send_packet.z = xmf3FinalLook.z;
-			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
-		}
+		pm->is_Rotate = true;
 		break;
 	}
 	default:

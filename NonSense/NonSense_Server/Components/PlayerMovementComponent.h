@@ -33,6 +33,8 @@ class PlayerMovementComponent :
 	void* m_pPlayerUpdatedContext = nullptr;
 
 public:
+	bool is_Rotate = false;
+public:
 
     void start();
     void update();
