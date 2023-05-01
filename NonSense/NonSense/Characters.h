@@ -1,6 +1,7 @@
 #pragma once
 #include "Object.h"
 #include "UI.h"
+#include "../AnimationType.h"
 enum MonsterType
 {
 	MONSTER_TYPE_CLOSE, 
@@ -22,7 +23,6 @@ protected:
 	Shader* m_pBoundingShader = NULL;
 	CubeMesh* m_pBoundMesh = NULL;
 public:
-
 	Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel);
 	virtual ~Character();
 	virtual void OnPrepareRender();
@@ -37,6 +37,8 @@ public:
 	void SetDefense(float f) { m_Defense = f; }
 	void SetAttack(float f) { m_Attack = f; }
 	void SetRemainHP(float f) { m_RemainHP = f; }
+
+	E_MONSTER_ANIMATION_TYPE Animation_type = E_MONSTER_ANIMATION_TYPE::E_M_IDLE;
 };
 
 class Goblin : public Character
