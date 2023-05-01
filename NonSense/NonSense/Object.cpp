@@ -5,6 +5,7 @@
 #include "BoxCollideComponent.h"
 #include "SphereCollideComponent.h"
 #include "GameFramework.h"
+#include <cmath>
 
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters)
 {

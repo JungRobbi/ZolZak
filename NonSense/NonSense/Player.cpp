@@ -71,8 +71,9 @@ void Player::Move(ULONG dwDirection, float fDistance, bool bUpdateVelocity)
 			send_packet.dirZ = xmf3Dir.z;
 			PacketQueue::AddSendPacket(&send_packet);
 		}
-		else
+		else {
 			Move(xmf3Shift, bUpdateVelocity);
+		}
 	}
 }
 void Player::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
@@ -194,7 +195,29 @@ void Player::Update(float fTimeElapsed)
 		fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 		if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-		Move(xmf3Velocity, false);
+		GetComponent<SphereCollideComponent>()->Center.x += xmf3Velocity.x;
+		GetComponent<SphereCollideComponent>()->Center.y += xmf3Velocity.y;
+		GetComponent<SphereCollideComponent>()->Center.z += xmf3Velocity.z;
+		GetComponent<SphereCollideComponent>()->update();
+		bool bound = false;
+
+		for (auto& o : GameScene::MainScene->gameObjects)
+		{
+			if (o->GetComponent<BoxCollideComponent>())
+			{
+				if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
+				{
+					bound = true;
+					Move(XMFLOAT3(-xmf3Velocity.x, 0, -xmf3Velocity.z), false);
+					break;
+				}
+			}
+		}
+		if (!bound) Move(xmf3Velocity, false);
+		GetComponent<SphereCollideComponent>()->Center.x -= xmf3Velocity.x;
+		GetComponent<SphereCollideComponent>()->Center.y -= xmf3Velocity.y;
+		GetComponent<SphereCollideComponent>()->Center.z -= xmf3Velocity.z;
+
 		fLength = Vector3::Length(m_xmf3Velocity);
 		float fDeceleration = (m_fFriction * fTimeElapsed);
 		if (fDeceleration > fLength) fDeceleration = fLength;
@@ -356,7 +379,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-		XMFLOAT3 pos = XMFLOAT3(0.0f, 5.0f, 0.0f);
+		XMFLOAT3 pos = XMFLOAT3(-10.0f, 10.0f, -2.0f);
 		SetPosition(pos);
 		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
 		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);
@@ -418,13 +441,13 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	case SPACESHIP_CAMERA:
 		//플레이어의 특성을 스페이스-쉽 카메라 모드에 맞게 변경한다. 중력은 적용하지 않는다.
 		SetFriction(50.0f);
-		SetGravity(XMFLOAT3(0.0f, -100.0f, 0.0f));
+		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		SetMaxVelocityXZ(100.0f);
 		SetMaxVelocityY(100.0f);
 		m_pCamera = OnChangeCamera(SPACESHIP_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		m_pCamera->GenerateProjectionMatrix(0.01f, 100.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->GenerateProjectionMatrix(0.01f, 1000.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;

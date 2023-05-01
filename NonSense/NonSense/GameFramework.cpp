@@ -3,6 +3,7 @@
 #include "PlayerMovementComponent.h"
 #include "BoxCollideComponent.h"
 #include "SphereCollideComponent.h"
+#include "AttackComponent.h"
 
 #include "Input.h"
 
@@ -317,11 +318,11 @@ void GameFramework::BuildObjects()
 	m_pDebug->CreateShader(m_pDevice, GameScene::MainScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 	DXGI_FORMAT pdxgiResourceFormats[MRT - 1] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
-	m_pDebug->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT);
+	//m_pDebug->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT);
 	m_pScreen->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT); //SRV to (Render Targets) + (Depth Buffer)
 	DXGI_FORMAT pdxgiDepthSrvFormats[1] = { DXGI_FORMAT_R24_UNORM_X8_TYPELESS };
 	m_pScreen->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
-	m_pDebug->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
+	//m_pDebug->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
 	m_pCommandList->Close();
 
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
@@ -493,53 +494,46 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			switch (wParam)
 			{
 
-			case VK_F1:
-			case VK_F2:
-			case VK_F3:
-				if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((wParam - VK_F1 + 1), Timer::GetTimeElapsed());
-				break;
-			case VK_ESCAPE:
-				(OptionMode) ? (OptionMode = 0) : (OptionMode = 1);
-				break;
-			case VK_RETURN:
-				PostQuitMessage(0);
-				break;
-			case VK_F8:
-				(DebugMode) ? (DebugMode = 0) : (DebugMode = 1);
-				break;
-			case VK_F9:
-				ChangeSwapChainState();
-				break;
-			case '2':
-				//m_pHP_UI->HP -= 0.05;
-				//m_pHP_Dec_UI->Dec_HP -= 0.05;
-				//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
-				break;
-			case '3':
-				//m_pHP_UI->HP -= 0.2;
-				//m_pHP_Dec_UI->Dec_HP -= 0.2;
-				//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
-				break;
-			case '7':
-				ChangeScene(0);
-				break;
-			case '8':
-				ChangeScene(1);
-				break;
-			case '9':
-				ChangeScene(2);
-				break;
-			case 't':
-			case 'T':
-				ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_CHAT;
-				break;
-			default:
-				break;
-			}
+		case VK_F1:
+		case VK_F2:
+		case VK_F3:
+			if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((wParam - VK_F1 + 1), Timer::GetTimeElapsed());
+			break;
+		case VK_ESCAPE:
+			(OptionMode) ? (OptionMode = 0) : (OptionMode = 1);
+			break;
+		case VK_RETURN:
+			PostQuitMessage(0);
+			break;
+		case VK_F8:
+			(DebugMode) ? (DebugMode = 0) : (DebugMode = 1);
+			break;
+		case VK_F9:
+			ChangeSwapChainState();
+			break;
+		case '2':
+			//m_pHP_UI->HP -= 0.05;
+			//m_pHP_Dec_UI->Dec_HP -= 0.05;
+			//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+			break;
+		case '3':
+			m_pPlayer->DeleteComponent<AttackComponent>();
+			break;
+		case '7':
+			ChangeScene(0);
+			break;
+		case '8':
+			ChangeScene(1);
+			break;
+		case '9':
+			ChangeScene(2);
 			break;
 		default:
 			break;
 		}
+		break;
+	default:
+		break;
 	}
 }
 LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -668,23 +662,11 @@ void GameFramework::ProcessInput()
 	
 			if (cxDelta || cyDelta)
 			{
-			
-				/*if (pKeyBuffer[VK_RBUTTON] & 0xF0)
-					m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-				else
-					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);*/
+
 			}
 			if (dwDirection) {
-				/*if (pKeyBuffer[0x41] & 0xF0) {
-					m_pPlayer->Rotate(0.0f, -0.1f, 0.0f);
-					pKeyBuffer[0x41] = false;
-				}
-				else if (pKeyBuffer[0x44] & 0xF0) {
-					m_pPlayer->Rotate(0.0f, +0.1f, 0.0f);
-					pKeyBuffer[0x44] = false;
-				}*/
 				m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
-				m_pPlayer->SetWalk(true);
+
 			}
 		}
 	}
@@ -772,28 +754,19 @@ void GameFramework::FrameAdvance()
 
 	// MRT 결과
 	m_pScreen->Render(m_pCommandList, m_pCamera);
-	m_pScreen->OnPostRenderTarget(m_pCommandList);
 	// 투명 오브젝트
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
 	if(GameScene::MainScene->m_pSkyBox)GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
 	// Bounding Box
 	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
-	// UI
-	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
 	// Debug 화면
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
+	m_pScreen->OnPostRenderTarget(m_pCommandList);
 
-	//for (auto& o : GameScene::MainScene->gameObjects)
-	//{
-	//	if (o->GetComponent<BoxCollideComponent>())
-	//	{
-	//		if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
-	//		{
-	//			m_pPlayer->Wallcollide(o->GetComponent<BoxCollideComponent>()->GetBoundingObject());
-	//		}
-	//	}
-	//}
+	// UI
+	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
+
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
