@@ -450,6 +450,12 @@ void AnimationController::ChangeAnimationUseBlending(int nAnimationSet)
 		}
 	}
 }
+void AnimationController::ChangeAnimationWithoutBlending(int nAnimationSet)
+{
+	SetTrackAnimationSet(0, nAnimationSet);
+	SetTrackAnimationSet(1, nAnimationSet);
+	SetTrackAnimationSet(2, nAnimationSet);
+}
 float AnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength)
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;

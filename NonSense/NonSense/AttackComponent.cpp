@@ -30,9 +30,7 @@ void AttackComponent::Attack()
 
 	if (!Type_ComboAttack)
 	{
-		gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo1_AnineSetNum);
-		gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo1_AnineSetNum);
-		gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo1_AnineSetNum);
+		gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(AttackCombo1_AnineSetNum);
 		gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 	}
 	else
@@ -41,23 +39,17 @@ void AttackComponent::Attack()
 		switch (type)
 		{
 		case Combo1:
-			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo1_AnineSetNum);
-			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo1_AnineSetNum);
-			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo1_AnineSetNum);
+			gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(AttackCombo1_AnineSetNum);
 			gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 			type = Combo2;
 			break;
 		case Combo2:
-			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo2_AnineSetNum);
-			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo2_AnineSetNum);
-			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo2_AnineSetNum);
+			gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(AttackCombo2_AnineSetNum);
 			gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 			type = Combo3;
 			break;
 		case Combo3:
-			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo3_AnineSetNum);
-			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo3_AnineSetNum);
-			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo3_AnineSetNum);
+			gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(AttackCombo3_AnineSetNum);
 			gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);			
 			type = Combo1;
 			break;
