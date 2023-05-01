@@ -4,10 +4,9 @@
 #include <list>
 #include <array>
 #include "Mesh.h"
-
+#include "../AnimationType.h"
 #include "Camera.h"
 #include "Component.h"
-
 class Shader;
 class Camera;
 class Object; 
@@ -293,6 +292,7 @@ public:
 
 	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
 	void ChangeAnimationUseBlending(int nAnimationSet);
+	void ChangeAnimationWithoutBlending(int nAnimationSet);
 	void SetTrackEnable(int nAnimationTrack, bool bEnable);
 	void SetTrackPosition(int nAnimationTrack, float fPosition);
 	void SetTrackSpeed(int nAnimationTrack, float fSpeed);
