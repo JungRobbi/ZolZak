@@ -31,6 +31,7 @@ public:
 	static void start();
 	static void Tick();
 
+	static void do_connetion();
 	static void do_recv();
 	static void do_send(const char* buf, short buf_size);
 	static void Process_Packet(char* p_Packet);

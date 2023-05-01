@@ -300,6 +300,9 @@ void GameFramework::BuildObjects()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
+	ChatMGR::m_pUILayer = new UILayer(m_nSwapChainBuffers, 1, m_pDevice, m_pCommandQueue, 
+		m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
+	ChatMGR::SetTextinfos(m_nWndClientWidth, m_nWndClientHeight);
 	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Stage
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
@@ -308,11 +311,6 @@ void GameFramework::BuildObjects()
 	ChangeScene(LOGIN_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
-	char n_players = 3;
-	for (int i{}; i < n_players; ++i) {
-		m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
-		m_OtherPlayersPool.back()->SetUsed(true);
-	}
 
 	m_pDebug = new DebugShader();
 	m_pScreen = new ScreenShader();
@@ -344,6 +342,9 @@ void GameFramework::BuildObjects()
 void GameFramework::ReleaseObjects()
 {
 	GameScene::MainScene->ReleaseObjects();
+
+	if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
+	if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
 }
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	LPARAM lParam)
@@ -411,12 +412,87 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			}
 		}
 	}
-	
-	switch (nMessageID)
-	{
-	case WM_KEYUP:
-		switch (wParam)
+
+	HIMC hIMC;
+	DWORD dwConversion, dwSentence;
+
+	hIMC = ImmGetContext(hWnd);
+	ImmGetConversionStatus(hIMC, &dwConversion, &dwSentence);
+
+	int len{};
+
+	if (ChatMGR::m_ChatMode == E_MODE_CHAT::E_MODE_CHAT) { // Chat Mode
+		switch (nMessageID)
 		{
+		case WM_IME_COMPOSITION:
+			if (ChatMGR::m_HangulMode == E_MODE_HANGUL::E_MODE_HANGUL) {
+				WCHAR ch;
+				if (lParam & GCS_COMPSTR) {
+					len = ImmGetCompositionString(hIMC, GCS_COMPSTR, NULL, 0);
+					ImmGetCompositionString(hIMC, GCS_COMPSTR, &ChatMGR::m_combtext, len);
+					memcpy(&ChatMGR::m_textbuf[ChatMGR::m_textindex], &ChatMGR::m_combtext, sizeof(ChatMGR::m_combtext));
+				}
+				if (lParam & GCS_RESULTSTR) {
+					len = ImmGetCompositionString(hIMC, GCS_RESULTSTR, NULL, 0);
+					ImmGetCompositionString(hIMC, GCS_RESULTSTR, &ch, len);
+					memcpy(&ChatMGR::m_textbuf[ChatMGR::m_textindex++], &ch, sizeof(ch));
+				}
+			}
+			break;
+		case WM_KEYUP:
+			switch (wParam)
+			{
+			case VK_RETURN:
+				ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
+				ChatMGR::StoreText();
+				ChatMGR::m_textindex = 0;
+
+				if (NetworkMGR::b_isNet && scene_type == LOGIN_SCENE) {
+					char* p = ConvertWCtoC(ChatMGR::m_textbuf);
+					NetworkMGR::name = string{ p };
+					delete[] p;
+					NetworkMGR::do_connetion();
+					NetworkMGR::do_recv();
+					ChangeScene(GAME_SCENE);
+				}
+				ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
+				break;
+			case VK_BACK:
+				if (ChatMGR::m_textindex > 0)
+					--ChatMGR::m_textindex;
+				ChatMGR::m_textbuf[ChatMGR::m_textindex] = NULL;
+				break;
+			case VK_HANGUL:
+				if (ChatMGR::m_HangulMode == E_MODE_HANGUL::E_MODE_ENGLISH) {
+					ChatMGR::m_HangulMode = E_MODE_HANGUL::E_MODE_HANGUL;
+				}
+				else {
+					ChatMGR::m_HangulMode = E_MODE_HANGUL::E_MODE_ENGLISH;
+				}
+				break;
+			case ' ':
+				ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
+				break;
+			default:
+				if (ChatMGR::m_HangulMode == E_MODE_HANGUL::E_MODE_ENGLISH) {
+					if (isalpha(wParam)) {
+						ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
+					}
+				}
+				break;
+			}
+			break;
+
+		default:
+			break;
+		}
+	}
+	else {
+		switch (nMessageID)
+		{
+		case WM_KEYUP:
+			switch (wParam)
+			{
 
 		case VK_F1:
 		case VK_F2:
@@ -492,6 +568,23 @@ void GameFramework::ChangeScene(unsigned char num)
 	GameScene::MainScene->ReleaseObjects();
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+
+	if (num != LOGIN_SCENE) {
+		m_OtherPlayers.clear();
+		m_OtherPlayersPool.clear();
+		for (int i{}; i < 3; ++i) {
+			m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
+			dynamic_cast<Player*>(m_OtherPlayersPool.back())->
+				SetCamera(dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f));
+			m_OtherPlayersPool.back()->SetUsed(true);
+		}
+
+		CS_LOGIN_PACKET send_packet;
+		send_packet.size = sizeof(CS_LOGIN_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
+		memcpy(send_packet.name, NetworkMGR::name.c_str(), NetworkMGR::name.size());
+		PacketQueue::AddSendPacket(&send_packet);
+	}
 	scene_type = (SCENE_TYPE)num;
 	m_pCamera = m_pPlayer->GetCamera();
 	GameScene::MainScene->m_pPlayer = m_pPlayer;
@@ -624,6 +717,8 @@ void GameFramework::FrameAdvance()
 	if (NetworkMGR::b_isNet)
 		NetworkMGR::Tick();
 
+	ChatMGR::UpdateText();
+
 	ProcessInput();
 	AnimateObjects();
 	HRESULT hResult = m_pCommandAllocator->Reset();
@@ -638,19 +733,19 @@ void GameFramework::FrameAdvance()
 	//////////// MRT Render Target /////////////
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
 	GameScene::MainScene->update();
-	m_pPlayer->Update(Timer::GetTimeElapsed());
-	for (auto& p : m_OtherPlayers) {
-		if (p->GetUsed())
-			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());
-	}
+	
 	// 불투명 오브젝트, Terrain
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 	// 플레이어
+	m_pPlayer->Update(Timer::GetTimeElapsed());
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	for (auto& p : m_OtherPlayers) {
-		if (p->GetUsed())
+		if (p->GetUsed()) {
+			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());
 			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
+		}
 	}
+
 	///////////////////////////////////////////
 
 
@@ -680,6 +775,8 @@ void GameFramework::FrameAdvance()
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
+
+	ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 
 	m_pSwapChain->Present(0, 0);
 

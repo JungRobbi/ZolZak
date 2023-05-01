@@ -2,10 +2,12 @@
 #include "stdafx.h"
 #include "Timer.h"
 #include "Component.h"
+#include "../AnimationType.h"
 class PlayerMovementComponent : public Component
 {
 public:
     bool CursorExpose;
+    E_PLAYER_ANIMATION_TYPE Animation_type = E_PLAYER_ANIMATION_TYPE::E_IDLE;
 private:
     POINT ptCursorPos;
     POINT CenterOfWindow;
@@ -25,6 +27,7 @@ private:
     void Jump();
     void Dash();
 public:
+    ~PlayerMovementComponent() {}
     void SetWindowPos(RECT pos);
 
     void start();

@@ -1,5 +1,6 @@
 #pragma once
 #include "../Globals.h"
+#include "../AnimationType.h"
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 
@@ -16,7 +17,7 @@ enum E_PACKET
 
 	// Server -> Client packet
 	E_PACKET_SC_LOGIN_INFO, E_PACKET_SC_ADD_PLAYER, E_PACKET_SC_REMOVE_PLAYER, 
-	E_PACKET_SC_MOVE_PLAYER, E_PACKET_SC_LOOK_PLAYER
+	E_PACKET_SC_MOVE_PLAYER, E_PACKET_SC_LOOK_PLAYER, E_PACKET_SC_ANIMATION_TYPE_PLAYER
 
 };
 
@@ -81,6 +82,12 @@ class SC_LOOK_PLAYER_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	id;
 	float	x, y, z;
+};
+
+class SC_PLAYER_ANIMATION_TYPE_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	id;
+	char Anitype;
 };
 
 #pragma pack (pop)

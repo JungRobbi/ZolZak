@@ -131,3 +131,13 @@ bool CloseTypeFSMComponent::Wander()
 	return true;
 
 }
+
+void CloseTypeFSMComponent::Death()
+{
+	DeathCount -= Timer::GetTimeElapsed();
+	if (DeathCount < 0.0f)
+	{
+		//GameScene::MainScene->PushDelete((Character*)gameObject);
+		GameScene::MainScene->deletionMonsterQueue.push_back((Character*)gameObject);
+	}
+}

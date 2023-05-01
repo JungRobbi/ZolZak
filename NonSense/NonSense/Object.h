@@ -4,10 +4,9 @@
 #include <list>
 #include <array>
 #include "Mesh.h"
-
+#include "../AnimationType.h"
 #include "Camera.h"
 #include "Component.h"
-
 class Shader;
 class Camera;
 class Object; 
@@ -120,7 +119,7 @@ class Material
 public:
 	Material() {};
 	Material(int Textures);
-	virtual ~Material() {};
+	virtual ~Material();
 private:
 	int m_nReferences = 0;
 public:
@@ -293,6 +292,7 @@ public:
 
 	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
 	void ChangeAnimationUseBlending(int nAnimationSet);
+	void ChangeAnimationWithoutBlending(int nAnimationSet);
 	void SetTrackEnable(int nAnimationTrack, bool bEnable);
 	void SetTrackPosition(int nAnimationTrack, float fPosition);
 	void SetTrackSpeed(int nAnimationTrack, float fSpeed);
@@ -339,7 +339,9 @@ private:
 	int Num = 0;
 public:
 	void AddRef() { m_nReferences++; }
-	void Release() { if (--m_nReferences <= 0) delete this; }
+	void Release() { 
+		if (--m_nReferences <= 0) 
+			delete this; }
 	void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	XMFLOAT3 GetPosition();

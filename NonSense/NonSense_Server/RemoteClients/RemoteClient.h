@@ -1,5 +1,6 @@
 #pragma once
 #include "../../ImaysNet/ImaysNet.h"
+#include "../../AnimationType.h"
 
 #include <thread>
 #include <memory>
@@ -27,6 +28,8 @@ public:
 
 	Input m_KeyInput;
 	shared_ptr<Player> m_pPlayer;
+
+	bool b_Enable = true;
 
 	RemoteClient() : thread(), tcpConnection(SocketType::Tcp), m_KeyInput(), m_pPlayer() {}
 	RemoteClient(SocketType socketType) :tcpConnection(socketType), m_KeyInput(), m_pPlayer() {}

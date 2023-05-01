@@ -4,6 +4,7 @@
 class BillboardComponent : public Component
 {
 public:
+    ~BillboardComponent() {}
     void start();
     void update();
 };

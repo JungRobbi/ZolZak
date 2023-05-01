@@ -10,6 +10,7 @@
 #include "Object.h"
 #include "Characters.h"
 #include "UI.h"
+#include "UILayer.h"
 #include "Sound.h"
 
 struct LIGHT

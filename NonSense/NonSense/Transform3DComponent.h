@@ -12,7 +12,7 @@ public:
 	float pitch = 0.0f; // x 각 모델 좌표계 기준
 	float yaw = 0.0f; // y각
 	float roll = 0.0f; // z각
-
+	~Transform3DComponent() {}
 	void start();
 	void update();
 };

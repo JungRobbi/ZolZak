@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-Player::Player() : Object()
+Player::Player() : Object(false)
 {
 	AddComponent<PlayerMovementComponent>();
 }

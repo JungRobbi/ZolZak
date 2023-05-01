@@ -14,8 +14,9 @@ private:
     Object* TargetPlayer = NULL;
     float IdleLeftTime = 0.0f;
     XMFLOAT3 WanderPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
-
+    float DeathCount = 3.0f;
 public:
+    ~CloseTypeFSMComponent() {}
     void start();
     void update();
 
@@ -25,6 +26,7 @@ public:
     void ResetWanderPosition(float posx, float posz);
     void ResetIdleTime(float time);
     XMFLOAT3 GetOwnerPosition();
+
     bool Idle();
     void Stop();
     void Move_Walk(float dist);
@@ -32,6 +34,7 @@ public:
     void Attack();
     void Track();
     bool Wander();
+    void Death();
 
 };
 

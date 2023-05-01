@@ -40,8 +40,6 @@ GameScene::~GameScene()
 		delete object;
 	MonsterObjects.clear();
 
-
-
 }
 
 Object* GameScene::CreateEmpty()
@@ -684,14 +682,12 @@ void GameScene::AnimateObjects(float fTimeElapsed)
 	elapseTime = fTimeElapsed;
 	for (auto& object : gameObjects)
 	{
-	
+
 	}
 	for (auto& object : MonsterObjects)
 	{
-		object->Animate(fTimeElapsed);
 	}
 }
-
 void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	pd3dCommandList->SetGraphicsRootSignature(m_pGraphicsRootSignature);
@@ -707,17 +703,23 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
-	for (auto& object : gameObjects)
-	{
-		object->UpdateTransform(NULL);
-		object->Render(pd3dCommandList, pCamera);
-	}
 	for (auto& object : MonsterObjects)
 	{
 		object->Animate(elapseTime);
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
 	}
+	for (auto& object : gameObjects)
+	{
+		object->Animate(elapseTime);
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
+	}
+
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
+	}
+>>>>>>>>> Temporary merge branch 2
 
 }
 

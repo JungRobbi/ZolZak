@@ -5,6 +5,7 @@
 #include "NetworkMGR.h"
 #include "GameScene.h"
 #include "GameFramework.h"
+#include "PlayerMovementComponent.h"
 #pragma comment(lib, "WS2_32.LIB")
 
 char* NetworkMGR::SERVERIP = "127.0.0.1";
@@ -89,19 +90,9 @@ void NetworkMGR::start()
 		b_isNet = false;
 		return;
 	}
-	std::cout << "이름 입력 : ";
-	std::cin >> name;
 
 	tcpSocket->Bind(Endpoint::Any);
-	tcpSocket->Connect(Endpoint(SERVERIP, SERVERPORT));
 
-	CS_LOGIN_PACKET send_packet;
-	send_packet.size = sizeof(CS_LOGIN_PACKET);
-	send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
-	memcpy(send_packet.name, name.c_str(), name.size());
-	PacketQueue::AddSendPacket(&send_packet);
-
-	do_recv();
 }
 
 void NetworkMGR::Tick()
@@ -129,6 +120,10 @@ void NetworkMGR::Tick()
 	}
 }
 
+void NetworkMGR::do_connetion() {
+	tcpSocket->Connect(Endpoint(SERVERIP, SERVERPORT));
+}
+
 void NetworkMGR::do_recv() {
 	tcpSocket->m_readFlags = 0;
 	ZeroMemory(&tcpSocket->m_recvOverlapped._wsa_over, sizeof(tcpSocket->m_recvOverlapped._wsa_over));
@@ -149,32 +144,32 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	{
 	case E_PACKET::E_PACKET_SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* recv_packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(p_Packet);
-
 		NetworkMGR::id = recv_packet->id;
 		break;
 	}
 	case E_PACKET::E_PACKET_SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(p_Packet);
+		if (!GameFramework::MainGameFramework->m_OtherPlayersPool.empty()) {
+			auto player = GameFramework::MainGameFramework->m_OtherPlayersPool.back();
+			dynamic_cast<Player*>(player)->id = recv_packet->id;
+			dynamic_cast<Player*>(player)->m_name = recv_packet->name;
+			GameFramework::MainGameFramework->m_OtherPlayers.push_back(player);
 
-		auto player = GameFramework::MainGameFramework->m_OtherPlayersPool.back();
-		GameFramework::MainGameFramework->m_OtherPlayersPool.pop_back();
-		dynamic_cast<Player*>(player)->id = recv_packet->id;
-		dynamic_cast<Player*>(player)->m_name = recv_packet->name;
-
-		GameFramework::MainGameFramework->m_OtherPlayers.push_back(player);
+			GameFramework::MainGameFramework->m_OtherPlayersPool.pop_back();
+		}
 		break;
 	}
 	case E_PACKET::E_PACKET_SC_REMOVE_PLAYER: {
 		SC_REMOVE_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(p_Packet);
 		auto leave_id = recv_packet->id;
-		auto OtherPlayers = GameFramework::MainGameFramework->m_OtherPlayers;
+		auto& OtherPlayers = GameFramework::MainGameFramework->m_OtherPlayers;
 		auto leave_player = find_if(OtherPlayers.begin(), OtherPlayers.end(), [&leave_id](Object* lhs) {
 			return dynamic_cast<Player*>(lhs)->id == leave_id;
 			});
 		if (leave_player == OtherPlayers.end())
 			break;
+		(*leave_player)->SetUsed(false);
 		OtherPlayers.erase(leave_player);
-		GameScene::MainScene->PushDelete(*leave_player);
 		break;
 	}
 	case E_PACKET::E_PACKET_SC_MOVE_PLAYER: {
@@ -194,7 +189,6 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 				break;
 
 			player = dynamic_cast<Player*>(*p);
-			dynamic_cast<Player*>(*p)->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
 		}
 
 		player->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
@@ -234,6 +228,28 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			player->GetCamera()->SetUpVector(Vector3::CrossProduct(xmf3Look, xmf3RightVector, true));
 			player->GetCamera()->Rotate(player->GetPitch(), 0, 0);
 		}
+		break;
+	}
+	case E_PACKET_SC_ANIMATION_TYPE_PLAYER: {
+		SC_PLAYER_ANIMATION_TYPE_PACKET* recv_packet = reinterpret_cast<SC_PLAYER_ANIMATION_TYPE_PACKET*>(p_Packet);
+		Player* player = GameFramework::MainGameFramework->m_pPlayer;
+		if (recv_packet->id == NetworkMGR::id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->id;
+				});
+
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
+
+			player = dynamic_cast<Player*>(*p);
+		}
+		player->GetComponent<PlayerMovementComponent>()->Animation_type = (E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype;
+
 		break;
 	}
 	default:
