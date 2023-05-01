@@ -323,6 +323,9 @@ public:
 	template<typename T>
 	T* GetComponent();
 
+	template<typename T>
+	T* DeleteComponent();
+
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
@@ -449,6 +452,16 @@ inline T* Object::GetComponent()
 	return nullptr;
 }
 
+template<typename T>
+inline T* Object::DeleteComponent()
+{
+	for (auto component : components)
+	{
+		auto c = dynamic_cast<T*>(component);
+		if (c) components.remove(c);
+	}
+	return nullptr;
+}
 
 //¿”Ω√ ∞¥√º
 class ModelObject : public Object

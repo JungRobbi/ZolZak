@@ -3,6 +3,7 @@
 #include "PlayerMovementComponent.h"
 #include "BoxCollideComponent.h"
 #include "SphereCollideComponent.h"
+#include "AttackComponent.h"
 
 #include "Input.h"
 
@@ -440,9 +441,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
 			break;
 		case '3':
-			//m_pHP_UI->HP -= 0.2;
-			//m_pHP_Dec_UI->Dec_HP -= 0.2;
-			//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+			m_pPlayer->DeleteComponent<AttackComponent>();
 			break;
 		case '7':
 			ChangeScene(0);
