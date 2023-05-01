@@ -58,6 +58,11 @@ void AttackComponent::Attack()
 	}
 }
 
+AttackComponent::~AttackComponent()
+{
+	//AttackRange->Release();
+}
+
 void AttackComponent::start()
 {
 }

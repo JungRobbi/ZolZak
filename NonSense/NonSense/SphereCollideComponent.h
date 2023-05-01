@@ -10,6 +10,7 @@ class SphereCollideComponent : public Component
     XMFLOAT3 Center = { 0,0,0 };
     float Radius = 1.f;
 public:
+    ~SphereCollideComponent() {}
     void start();
     void update();
 

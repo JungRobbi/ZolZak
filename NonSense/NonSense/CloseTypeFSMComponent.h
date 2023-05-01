@@ -16,6 +16,7 @@ private:
     XMFLOAT3 WanderPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
     float DeathCount = 3.0f;
 public:
+    ~CloseTypeFSMComponent() {}
     void start();
     void update();
 

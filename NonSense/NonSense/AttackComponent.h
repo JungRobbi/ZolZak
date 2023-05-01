@@ -30,6 +30,7 @@ private:
 	AttackCombo type = Combo1;
 
 public:
+	~AttackComponent();
 	void start();
 	void update();
 	void SetAttackSpeed(float speed);

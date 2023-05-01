@@ -119,7 +119,7 @@ class Material
 public:
 	Material() {};
 	Material(int Textures);
-	virtual ~Material() {};
+	virtual ~Material();
 private:
 	int m_nReferences = 0;
 public:
@@ -336,7 +336,9 @@ private:
 	int Num = 0;
 public:
 	void AddRef() { m_nReferences++; }
-	void Release() { if (--m_nReferences <= 0) delete this; }
+	void Release() { 
+		if (--m_nReferences <= 0) 
+			delete this; }
 	void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	XMFLOAT3 GetPosition();

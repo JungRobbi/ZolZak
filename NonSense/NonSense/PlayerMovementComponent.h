@@ -27,6 +27,7 @@ private:
     void Jump();
     void Dash();
 public:
+    ~PlayerMovementComponent() {}
     void SetWindowPos(RECT pos);
 
     void start();
