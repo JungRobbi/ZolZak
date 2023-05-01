@@ -1,4 +1,5 @@
 #include "CloseTypeState.h"
+#include "Characters.h"
 #include <random>
 
 std::uniform_real_distribution<float> RandomIdleTime(3.0, 8.0f);
@@ -25,6 +26,11 @@ void WanderState::Enter(CloseTypeFSMComponent* pOwner)
 
 void WanderState::Execute(CloseTypeFSMComponent* pOwner)
 {
+	if (dynamic_cast<Character*>(pOwner->gameObject)->GetRemainHP() <= 0.0f)
+	{
+		pOwner->GetFSM()->ChangeState(DeathState::GetInstance());
+	}
+
 	if (pOwner->CheckDistanceFromPlayer())
 	{
 		pOwner->GetFSM()->ChangeState(TrackEnemyState::GetInstance());
@@ -54,6 +60,10 @@ void TrackEnemyState::Enter(CloseTypeFSMComponent* pOwner)
 
 void TrackEnemyState::Execute(CloseTypeFSMComponent* pOwner)
 {
+	if (dynamic_cast<Character*>(pOwner->gameObject)->GetRemainHP() <= 0.0f)
+	{
+		pOwner->GetFSM()->ChangeState(DeathState::GetInstance());
+	}
 	pOwner->Track();
 	if (!pOwner->CheckDistanceFromPlayer())
 	{
@@ -81,6 +91,10 @@ void IdleState::Enter(CloseTypeFSMComponent* pOwner)
 
 void IdleState::Execute(CloseTypeFSMComponent* pOwner)
 {
+	if (dynamic_cast<Character*>(pOwner->gameObject)->GetRemainHP() <= 0.0f)
+	{
+		pOwner->GetFSM()->ChangeState(DeathState::GetInstance());
+	}
 	if (pOwner->CheckDistanceFromPlayer())
 	{
 		pOwner->GetFSM()->ChangeState(TrackEnemyState::GetInstance());
@@ -94,4 +108,25 @@ void IdleState::Execute(CloseTypeFSMComponent* pOwner)
 void IdleState::Exit(CloseTypeFSMComponent* pOwner)
 {
 	std::cout << "Stop Idel" << std::endl;
+}
+
+DeathState* DeathState::GetInstance()
+{
+	static DeathState state;
+	return &state;
+}
+
+void DeathState::Enter(CloseTypeFSMComponent* pOwner)
+{
+	std::cout << "Unit Die" << std::endl;
+	pOwner->gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_DEATH);
+}
+
+void DeathState::Execute(CloseTypeFSMComponent* pOwner)
+{
+	pOwner->Death();
+}
+
+void DeathState::Exit(CloseTypeFSMComponent* pOwner)
+{
 }
