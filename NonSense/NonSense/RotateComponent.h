@@ -9,6 +9,7 @@ class RotateComponent :
     float m_fRotationSpeed;
 
 public:
+    ~RotateComponent() {}
     void start();
     void update();
 

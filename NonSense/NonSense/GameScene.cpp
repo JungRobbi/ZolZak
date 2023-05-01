@@ -40,8 +40,6 @@ GameScene::~GameScene()
 		delete object;
 	MonsterObjects.clear();
 
-
-
 }
 
 Object* GameScene::CreateEmpty()

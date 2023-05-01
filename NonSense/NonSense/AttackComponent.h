@@ -23,13 +23,14 @@ public:
 	int AttackCombo3_AnineSetNum = 9;
 private:
 	float NextAttackInputTime = 0.5;
-	float AttackDuration = 1.56;
+	float AttackDuration = 1.06;
 	float AttackTimeLeft = 0.0;
 	
 
 	AttackCombo type = Combo1;
 
 public:
+	~AttackComponent();
 	void start();
 	void update();
 	void SetAttackSpeed(float speed);

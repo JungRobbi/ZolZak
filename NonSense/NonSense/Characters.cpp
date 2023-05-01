@@ -3,8 +3,6 @@
 #include "GameScene.h"
 #include "CloseTypeFSMComponent.h"
 #include "AttackComponent.h"
-
-
 Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) :
 	Object(false)
 {
@@ -27,6 +25,12 @@ Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 
 	GameScene::MainScene->creationMonsterQueue.push((Character*)this);
 }
+
+Character::~Character()
+{
+}
+
+
 Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) :
 	Character(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
@@ -102,9 +106,15 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 
 }
 
+Goblin::~Goblin()
+{
+}
+
 void Character::OnPrepareRender()
 {
 	Object::OnPrepareRender();
 	m_pHP->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, GetComponent<BoxCollideComponent>()->GetBoundingObject()->Extents.y * 2 + 0.3, 0)));
 	m_pHP->HP = m_RemainHP / m_Health;
 }
+
+

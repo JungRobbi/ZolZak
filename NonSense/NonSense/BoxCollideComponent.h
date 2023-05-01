@@ -11,6 +11,7 @@ class BoxCollideComponent : public Component
     XMFLOAT3 Center = { 0,0,0 };
     XMFLOAT3 Extents = { 0,0,0 };
 public:
+    ~BoxCollideComponent() {}
     void start();
     void update();
 

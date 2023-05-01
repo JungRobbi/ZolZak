@@ -184,6 +184,16 @@ Material::Material(int Textures)
 	for (int i = 0; i < m_nTextures; i++) m_ppTextures[i] = NULL;
 	for (int i = 0; i < m_nTextures; i++) m_ppstrTextureNames[i][0] = '\0';
 }
+Material::~Material()
+{
+
+	if (m_pShader)
+		m_pShader->Release();
+	for (int i = 0; i < m_nTextures; i++)
+	{
+		if (m_ppTextures[i]) m_ppTextures[i]->Release();
+	}
+}
 Shader* Material::m_pSkinnedAnimationShader = NULL;
 Shader* Material::m_pStandardShader = NULL;
 void Material::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -450,6 +460,12 @@ void AnimationController::ChangeAnimationUseBlending(int nAnimationSet)
 		}
 	}
 }
+void AnimationController::ChangeAnimationWithoutBlending(int nAnimationSet)
+{
+	SetTrackAnimationSet(0, nAnimationSet);
+	SetTrackAnimationSet(1, nAnimationSet);
+	SetTrackAnimationSet(2, nAnimationSet);
+}
 float AnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength)
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;
@@ -658,8 +674,25 @@ Object::Object(OBJECT_TYPE type)
 
 Object::~Object()
 {
+	if (m_pSkinnedAnimationController)
+		delete m_pSkinnedAnimationController;
+	
 	if (m_pMesh) m_pMesh->Release();
 	if (m_pMaterial) m_pMaterial->Release();
+	if (m_nMaterials > 0)
+	{
+		for (int i = 0; i < m_nMaterials; ++i)
+		{
+			if (m_ppMaterials[i])
+				m_ppMaterials[i]->Release();
+		}
+	}
+	for (auto component : components)
+	{
+		delete component;
+	}
+	if (m_pSibling) m_pSibling->Release();
+	if (m_pChild)m_pChild->Release();
 }
 
 void Object::start()
