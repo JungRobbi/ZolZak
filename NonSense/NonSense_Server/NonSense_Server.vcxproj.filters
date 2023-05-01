@@ -149,5 +149,8 @@
     <ClInclude Include="Characters.h">
       <Filter>소스 파일\GameFramework</Filter>
     </ClInclude>
+    <ClInclude Include="..\AnimationType.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

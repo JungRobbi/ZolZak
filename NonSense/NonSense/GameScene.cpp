@@ -715,12 +715,6 @@ void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
 	}
-
-		object->UpdateTransform(NULL);
-		object->Render(pd3dCommandList, pCamera);
-	}
->>>>>>>>> Temporary merge branch 2
-
 }
 
 void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)

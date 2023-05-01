@@ -494,46 +494,50 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			switch (wParam)
 			{
 
-		case VK_F1:
-		case VK_F2:
-		case VK_F3:
-			if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((wParam - VK_F1 + 1), Timer::GetTimeElapsed());
-			break;
-		case VK_ESCAPE:
-			(OptionMode) ? (OptionMode = 0) : (OptionMode = 1);
-			break;
-		case VK_RETURN:
-			PostQuitMessage(0);
-			break;
-		case VK_F8:
-			(DebugMode) ? (DebugMode = 0) : (DebugMode = 1);
-			break;
-		case VK_F9:
-			ChangeSwapChainState();
-			break;
-		case '2':
-			//m_pHP_UI->HP -= 0.05;
-			//m_pHP_Dec_UI->Dec_HP -= 0.05;
-			//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
-			break;
-		case '3':
-			m_pPlayer->DeleteComponent<AttackComponent>();
-			break;
-		case '7':
-			ChangeScene(0);
-			break;
-		case '8':
-			ChangeScene(1);
-			break;
-		case '9':
-			ChangeScene(2);
+			case VK_F1:
+			case VK_F2:
+			case VK_F3:
+				if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((wParam - VK_F1 + 1), Timer::GetTimeElapsed());
+				break;
+			case VK_ESCAPE:
+				(OptionMode) ? (OptionMode = 0) : (OptionMode = 1);
+				break;
+			case VK_RETURN:
+				PostQuitMessage(0);
+				break;
+			case VK_F8:
+				(DebugMode) ? (DebugMode = 0) : (DebugMode = 1);
+				break;
+			case VK_F9:
+				ChangeSwapChainState();
+				break;
+			case '2':
+				//m_pHP_UI->HP -= 0.05;
+				//m_pHP_Dec_UI->Dec_HP -= 0.05;
+				//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+				break;
+			case '3':
+				m_pPlayer->DeleteComponent<AttackComponent>();
+				break;
+			case '7':
+				ChangeScene(0);
+				break;
+			case '8':
+				ChangeScene(1);
+				break;
+			case '9':
+				ChangeScene(2);
+				break;
+			case 't':
+			case 'T':
+				ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_CHAT;
+			default:
+				break;
+			}
 			break;
 		default:
 			break;
 		}
-		break;
-	default:
-		break;
 	}
 }
 LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)

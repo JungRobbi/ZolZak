@@ -150,6 +150,7 @@
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\AnimationType.h" />
     <ClInclude Include="Characters.h" />
     <ClInclude Include="CloseTypeState.h" />
     <ClInclude Include="Components\AttackComponent.h" />
