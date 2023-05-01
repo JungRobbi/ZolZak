@@ -1,7 +1,6 @@
 #pragma once
 #include "Object.h"
 #include "UI.h"
-#include "../AnimationType.h"
 enum MonsterType
 {
 	MONSTER_TYPE_CLOSE, 
@@ -38,7 +37,6 @@ public:
 	void SetAttack(float f) { m_Attack = f; }
 	void SetRemainHP(float f) { m_RemainHP = f; }
 
-	E_MONSTER_ANIMATION_TYPE Animation_type = E_MONSTER_ANIMATION_TYPE::E_M_IDLE;
 };
 
 class Goblin : public Character

@@ -3,6 +3,7 @@
 #include "Component.h"
 #include "State.h"
 #include "FSM.h"
+#include "../AnimationType.h"
 
 class BoundBox;
 
@@ -36,5 +37,6 @@ public:
     bool Wander();
     void Death();
 
+    E_MONSTER_ANIMATION_TYPE Animation_type = E_MONSTER_ANIMATION_TYPE::E_M_IDLE;
 };
 
