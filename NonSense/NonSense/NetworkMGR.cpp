@@ -257,18 +257,16 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		SC_MONSTER_ANIMATION_TYPE_PACKET* recv_packet = reinterpret_cast<SC_MONSTER_ANIMATION_TYPE_PACKET*>(p_Packet);
 		
 		Character* Monster;
-		auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
-			GameFramework::MainGameFramework->m_OtherPlayers.end(),
+		auto p = find_if(GameScene::MainScene->MonsterObjects.begin(),
+			GameScene::MainScene->MonsterObjects.end(),
 			[&recv_packet](Object* lhs) {
 				return dynamic_cast<Character*>(lhs)->GetNum() == recv_packet->id;
 			});
 
-		if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+		if (p == GameScene::MainScene->MonsterObjects.end())
 			break;
 
 		Monster = dynamic_cast<Character*>(*p);
-		
-
 		Monster->GetComponent<CloseTypeFSMComponent>()->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
 
 		break;

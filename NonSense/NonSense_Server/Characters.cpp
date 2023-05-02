@@ -7,7 +7,7 @@
 Character::Character() :
 	Object(false)
 {
-//	Scene::scene->creationMonsterQueue.push((Character*)this);
+	Scene::scene->creationMonsterQueue.push((Character*)this);
 }
 
 Character::~Character() 

@@ -18,6 +18,9 @@ class Scene
 	concurrency::concurrent_queue<Object*> deletionQueue;
 //	std::deque<Object*> deletionQueue;
 
+	concurrency::concurrent_queue<Character*> creationMonsterQueue;
+	concurrency::concurrent_queue<Character*> deletionMonsterQueue;
+
 	std::list<Object*> gameObjects;
 
 public:
@@ -45,4 +48,5 @@ public:
 	}
 
 	friend Object;
+	friend Character;
 };

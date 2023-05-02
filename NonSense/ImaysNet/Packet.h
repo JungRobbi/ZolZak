@@ -96,4 +96,10 @@ public:
 	char Anitype;
 };
 
+class SC_MONSTER_FSM_STATE_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	id;
+	char Anitype;
+};
+
 #pragma pack (pop)

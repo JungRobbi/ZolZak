@@ -31,4 +31,19 @@ void Scene::update()
 	{
 		delete object;
 	}
+
+	Character* Monster;
+	while (creationMonsterQueue.try_pop(Monster))
+	{
+		Monster->start();
+		MonsterObjects.push_back(Monster);
+	}
+
+	for (auto Monster : gameObjects)
+		Monster->update();
+
+	while (deletionMonsterQueue.try_pop(Monster))
+	{
+		delete Monster;
+	}
 }
