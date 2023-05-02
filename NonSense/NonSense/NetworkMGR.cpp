@@ -271,6 +271,24 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 
 		break;
 	}
+	case E_PACKET_SC_MOVE_MONSTER_PACKET: {
+		SC_MOVE_MONSTER_PACKET* recv_packet = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(p_Packet);
+
+		Character* Monster;
+		auto p = find_if(GameScene::MainScene->MonsterObjects.begin(),
+			GameScene::MainScene->MonsterObjects.end(),
+			[&recv_packet](Object* lhs) {
+				return dynamic_cast<Character*>(lhs)->GetNum() == recv_packet->id;
+			});
+
+		if (p == GameScene::MainScene->MonsterObjects.end())
+			break;
+
+		Monster = dynamic_cast<Character*>(*p);
+		//	Monster->SetPosition(recv_packet->x, recv_packet->y, recv_packet->z);
+
+		break;
+	}
 	default:
 		break;
 	}

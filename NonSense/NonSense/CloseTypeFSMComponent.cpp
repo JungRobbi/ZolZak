@@ -76,12 +76,12 @@ void CloseTypeFSMComponent::Stop()
 
 void CloseTypeFSMComponent::Move_Walk(float dist)
 {
-	gameObject->MoveForward(dist);
+//	gameObject->MoveForward(dist);
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_MONSTER_ANIMATION_TYPE::E_M_WALK);
 }
 void CloseTypeFSMComponent::Move_Run(float dist)
 {
-	gameObject->MoveForward(dist);
+//	gameObject->MoveForward(dist);
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_MONSTER_ANIMATION_TYPE::E_M_RUN);
 }
 void CloseTypeFSMComponent::Attack()

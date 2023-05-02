@@ -315,7 +315,7 @@ int main(int argc, char* argv[])
 				rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->is_Rotate = false;
 			}
 
-			//Monster
+			//Monster test
 			{
 				for (auto& rc_to : RemoteClient::remoteClients) {
 					if (!rc_to.second->b_Enable)
