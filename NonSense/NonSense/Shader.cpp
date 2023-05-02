@@ -522,6 +522,7 @@ void ScreenShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pC
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pd3dCommandList->DrawInstanced(3, 1, 0, 0);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 }
 
@@ -560,10 +561,7 @@ void DebugShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLi
 
 void DebugShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	//pd3dCommandList->SetDescriptorHeaps(1, &m_CBVSRVDescriptorHeap);
 	Shader::Render(pd3dCommandList, pCamera);
-	//if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
-
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(24, 1, 0, 0);
 }

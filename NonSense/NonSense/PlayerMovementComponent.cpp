@@ -62,11 +62,11 @@ void PlayerMovementComponent::update()
 		//현재 마우스 커서의 위치를 가져온다.
 		::GetCursorPos(&ptCursorPos);
 		//마우스 버튼이 눌린 상태에서 마우스가 움직인 양을 구한다.
-	//	cxDelta = (float)(ptCursorPos.x - CenterOfWindow.x) / 3.0f;
-	//	cyDelta = (float)(ptCursorPos.y - CenterOfWindow.y) / 3.0f;
+		cxDelta = (float)(ptCursorPos.x - CenterOfWindow.x) / 3.0f;
+		cyDelta = (float)(ptCursorPos.y - CenterOfWindow.y) / 3.0f;
 		//마우스 커서의 위치를 마우스가 눌려졌던 위치로 설정한다.
 	
-	//	::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
+		::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 
 
 	}
