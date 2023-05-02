@@ -200,6 +200,15 @@ int main(int argc, char* argv[])
 //	Object::LoadMapData_Blend(BlendMapName);
 	cout << "Server Loding Complete!" << endl;
 
+	Object* TempObject = NULL;
+	TempObject = new Goblin(MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(1.0f, 1.0f, 3.0f);
+	((Goblin*)TempObject)->num = 1;
+
+	TempObject = new Goblin(MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(2.0f, 1.0f, 3.0f);
+	((Goblin*)TempObject)->num = 2;
+
 
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	Scene::terrain = new HeightMapTerrain(_T("Terrain/terrain.raw"), 800, 800, xmf3Scale);

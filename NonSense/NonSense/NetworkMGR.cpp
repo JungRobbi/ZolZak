@@ -6,6 +6,7 @@
 #include "GameScene.h"
 #include "GameFramework.h"
 #include "PlayerMovementComponent.h"
+#include "CloseTypeFSMComponent.h"
 #pragma comment(lib, "WS2_32.LIB")
 
 char* NetworkMGR::SERVERIP = "127.0.0.1";
@@ -255,24 +256,20 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	case E_PACKET_SC_ANIMATION_TYPE_MOSTER: {
 		SC_MONSTER_ANIMATION_TYPE_PACKET* recv_packet = reinterpret_cast<SC_MONSTER_ANIMATION_TYPE_PACKET*>(p_Packet);
 		
-	//	Character* Monster;
-		/*if (recv_packet->id == NetworkMGR::id) {
-			player = GameFramework::MainGameFramework->m_pPlayer;
-		}
-		else {
-			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
-				GameFramework::MainGameFramework->m_OtherPlayers.end(),
-				[&recv_packet](Object* lhs) {
-					return dynamic_cast<Player*>(lhs)->id == recv_packet->id;
-				});
+		Character* Monster;
+		auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+			GameFramework::MainGameFramework->m_OtherPlayers.end(),
+			[&recv_packet](Object* lhs) {
+				return dynamic_cast<Character*>(lhs)->GetNum() == recv_packet->id;
+			});
 
-			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
-				break;
+		if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+			break;
 
-			player = dynamic_cast<Player*>(*p);
-		}*/
+		Monster = dynamic_cast<Character*>(*p);
+		
 
-	//	Monster->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
+		Monster->GetComponent<CloseTypeFSMComponent>()->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
 
 		break;
 	}
