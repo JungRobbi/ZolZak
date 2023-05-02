@@ -145,13 +145,13 @@ VS_SCREEN_OUTPUT VSScreen(uint nVertexID : SV_VertexID)
 {
 	VS_SCREEN_OUTPUT output = (VS_SCREEN_OUTPUT)0;
 
-	if		(nVertexID == 0) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
-	else if (nVertexID == 1) { output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
-	else if (nVertexID == 2) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
-
-	else if (nVertexID == 3) { output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
-	else if (nVertexID == 4) { output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
-	else if (nVertexID == 5) { output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
+	if		(nVertexID == 0) { output.position = float4(-1.0f, +1.0f, 1.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 1) { output.position = float4(+1.0f, +1.0f, 1.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
+	else if (nVertexID == 2) { output.position = float4(+1.0f, -1.0f, 1.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+																	  
+	else if (nVertexID == 3) { output.position = float4(-1.0f, +1.0f, 1.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
+	else if (nVertexID == 4) { output.position = float4(+1.0f, -1.0f, 1.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
+	else if (nVertexID == 5) { output.position = float4(-1.0f, -1.0f, 1.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
 
 	return(output);
 }
@@ -161,8 +161,9 @@ static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, {
 
 float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 {
+
 	//return RenderInfor[2].Sample(gssDefaultSamplerState, input.position.xy);
-	return float4(RenderInfor[2][int2(input.uv.x*1240,input.uv.y*720)].xyz,1);
+	//return float4(RenderInfor[2][int2(input.uv.x*1240,input.uv.y*720)].xyz,1);
 	//return float4(1,0,1,1);
 	int Edge = false;
 	float fObjectID = RenderInfor[1][int2(input.position.xy)].a;
@@ -172,8 +173,8 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 			if (fObjectID != RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
 	}
 
-	//float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection);
-	float4 cColor = RenderInfor[2][int2(input.position.xy)];
+	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection);
+	//float4 cColor = RenderInfor[0][int2(input.position.xy)];
 	if (Edge)
 		return(float4(LineColor));
 	else

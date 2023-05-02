@@ -725,6 +725,8 @@ void GameFramework::FrameAdvance()
 
 	ProcessInput();
 	AnimateObjects();
+	GameScene::MainScene->update();
+
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -736,10 +738,9 @@ void GameFramework::FrameAdvance()
 
 	//////////// MRT Render Target /////////////
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
-	GameScene::MainScene->update();
-	
 	// 불투명 오브젝트, Terrain
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
+
 	// 플레이어
 	m_pPlayer->Update(Timer::GetTimeElapsed());
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
@@ -758,6 +759,8 @@ void GameFramework::FrameAdvance()
 
 	// MRT 결과
 	m_pScreen->Render(m_pCommandList, m_pCamera);
+
+	m_pScreen->OnPostRenderTarget(m_pCommandList);
 	// 투명 오브젝트
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
@@ -766,7 +769,6 @@ void GameFramework::FrameAdvance()
 	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
 	// Debug 화면
 	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
-	m_pScreen->OnPostRenderTarget(m_pCommandList);
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
