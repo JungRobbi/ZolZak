@@ -7,6 +7,8 @@ void CloseTypeFSMComponent::start()
 {
 	m_pFSM = new FSM<CloseTypeFSMComponent>(this);
 	m_pFSM->SetCurrentState(IdleState::GetInstance());
+
+	SetTargetPlayer(GameFramework::MainGameFramework->m_pPlayer);
 }
 
 void CloseTypeFSMComponent::update()
@@ -22,8 +24,7 @@ FSM<CloseTypeFSMComponent>* CloseTypeFSMComponent::GetFSM()
 bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 {
 	XMFLOAT3 OwnerPos = gameObject->GetPosition();
-	XMFLOAT3 PlayerPos = GameFramework::MainGameFramework->m_pPlayer->GetPosition();
-	TargetPlayer = GameFramework::MainGameFramework->m_pPlayer;
+	XMFLOAT3 PlayerPos = TargetPlayer->GetPosition();
 	float Distance = Vector3::Length(Vector3::Subtract(OwnerPos, PlayerPos));
 	if (Distance < ChangeStateDistance)
 		return true;

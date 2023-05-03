@@ -19,7 +19,8 @@ enum E_PACKET
 	E_PACKET_SC_LOGIN_INFO, E_PACKET_SC_ADD_PLAYER, E_PACKET_SC_REMOVE_PLAYER,
 	E_PACKET_SC_MOVE_PLAYER, E_PACKET_SC_LOOK_PLAYER, E_PACKET_SC_ANIMATION_TYPE_PLAYER,
 	E_PACKET_SC_ANIMATION_TYPE_MOSTER,
-	E_PACKET_SC_MOVE_MONSTER_PACKET
+	E_PACKET_SC_MOVE_MONSTER_PACKET,
+	E_PACKET_SC_AGGRO_PLAYER_PACKET
 
 };
 
@@ -100,13 +101,19 @@ public:
 class SC_MONSTER_FSM_STATE_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	id;
-	char Anitype;
+	char state;
 };
 
 class SC_MOVE_MONSTER_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	id;
 	float	x, y, z;
+};
+
+class SC_AGGRO_PLAYER_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	monster_id;
+	unsigned int	player_id;
 };
 
 #pragma pack (pop)

@@ -4,6 +4,7 @@
 #include "State.h"
 #include "FSM.h"
 #include "../AnimationType.h"
+#include <iostream>
 
 class BoundBox;
 
@@ -36,6 +37,8 @@ public:
     void Track();
     bool Wander();
     void Death();
+
+    void SetTargetPlayer(Object* target) { TargetPlayer = target; };
 
     E_MONSTER_ANIMATION_TYPE Animation_type = E_MONSTER_ANIMATION_TYPE::E_M_IDLE;
 };

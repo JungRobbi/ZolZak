@@ -289,6 +289,44 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 
 		break;
 	}
+	case E_PACKET_SC_AGGRO_PLAYER_PACKET: {
+		SC_AGGRO_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_AGGRO_PLAYER_PACKET*>(p_Packet);
+
+		Player* player;
+		Character* Monster;
+		if (recv_packet->player_id == NetworkMGR::id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->player_id;
+				});
+
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
+
+			player = dynamic_cast<Player*>(*p);
+		}
+
+		{
+			auto p = find_if(GameScene::MainScene->MonsterObjects.begin(),
+				GameScene::MainScene->MonsterObjects.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Character*>(lhs)->GetNum() == recv_packet->monster_id;
+				});
+
+			if (p == GameScene::MainScene->MonsterObjects.end())
+				break;
+
+			Monster = dynamic_cast<Character*>(*p);
+		}
+
+		Monster->GetComponent<CloseTypeFSMComponent>()->SetTargetPlayer(player);
+
+		break;
+	}
 	default:
 		break;
 	}

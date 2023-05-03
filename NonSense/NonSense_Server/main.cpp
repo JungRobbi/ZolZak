@@ -346,6 +346,23 @@ int main(int argc, char* argv[])
 				}
 				((Character*)TempObject)->OldAniType = ((Character*)TempObject)->PresentAniType;
 			}
+
+			auto first = RemoteClient::remoteClients.begin();
+			if (RemoteClient::remoteClients.empty() ||
+				first->second->m_id == 0)
+				continue;
+
+			//Monster Target
+			for (auto& rc_to : RemoteClient::remoteClients) {
+				if (!rc_to.second->b_Enable)
+					continue;
+				SC_AGGRO_PLAYER_PACKET send_packet;
+				send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
+				send_packet.player_id = first->second->m_id;
+				send_packet.monster_id = ((Goblin*)TempObject)->num;
+				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
 		}
 	}
 
