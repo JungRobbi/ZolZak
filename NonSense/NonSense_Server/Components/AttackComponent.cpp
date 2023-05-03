@@ -22,6 +22,8 @@ void AttackComponent::Attack()
 	}
 	else {
 		if (AttackRange) {
+			if (RemoteClient::remoteClients.empty())
+				return;
 			auto firstPlayer = RemoteClient::remoteClients.begin()->second->m_pPlayer;
 			if (AttackRange->Intersects(*firstPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{

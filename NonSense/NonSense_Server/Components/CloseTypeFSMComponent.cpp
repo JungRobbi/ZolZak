@@ -75,18 +75,15 @@ bool CloseTypeFSMComponent::Idle()
 
 void CloseTypeFSMComponent::Stop()
 {
-	dynamic_cast<Character*>(gameObject)->SetAniType(E_MONSTER_ANIMATION_TYPE::E_M_IDLE);
 }
 
 void CloseTypeFSMComponent::Move_Walk(float dist)
 {
-//	gameObject->MoveForward(dist);
-	dynamic_cast<Character*>(gameObject)->SetAniType(E_MONSTER_ANIMATION_TYPE::E_M_WALK);
+	gameObject->MoveForward(dist);
 }
 void CloseTypeFSMComponent::Move_Run(float dist)
 {
-//	gameObject->MoveForward(dist);
-	dynamic_cast<Character*>(gameObject)->SetAniType(E_MONSTER_ANIMATION_TYPE::E_M_RUN);
+	gameObject->MoveForward(dist);
 }
 void CloseTypeFSMComponent::Attack()
 {
