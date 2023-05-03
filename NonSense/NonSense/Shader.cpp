@@ -225,15 +225,7 @@ void Shader::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBu
 void Shader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 }
-void Shader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
-{
-}
-void Shader::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
-{
-	XMFLOAT4X4 xmf4x4World;
-	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
-	pd3dCommandList->SetGraphicsRoot32BitConstants(0, 16, &xmf4x4World, 0);
-}
+
 void Shader::ReleaseShaderVariables()
 {
 }
@@ -428,28 +420,6 @@ void ScreenShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* p
 	Shader::CreateShader(pd3dDevice, m_pGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
 }
 
-void ScreenShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	UINT ncbElementBytes = ((sizeof(CB_SCREEN_INFO) + 255) & ~255); //256의 배수
-	m_pScreenOptions = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-	m_pScreenOptions->Map(0, NULL, (void**)&m_pMappedScreenOptions);
-}
-
-void ScreenShader::ReleaseShaderVariables()
-{
-	if (m_pScreenOptions) m_pScreenOptions->Release();
-}
-
-void ScreenShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	m_pMappedScreenOptions->LineColor = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	m_pMappedScreenOptions->LineSize = 9;
-	m_pMappedScreenOptions->ToonShading = 10;
-
-	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pScreenOptions->GetGPUVirtualAddress();
-	pd3dCommandList->SetGraphicsRootConstantBufferView(7, d3dGpuVirtualAddress);
-}
-
 void ScreenShader::CreateResourcesAndViews(ID3D12Device* pd3dDevice, UINT nResources, DXGI_FORMAT* pdxgiFormats, UINT nWidth, UINT nHeight, D3D12_CPU_DESCRIPTOR_HANDLE m_RTVDescriptorCPUHandle, UINT nShaderResources)
 {
 	m_pTexture = new CTexture(nResources, RESOURCE_TEXTURE2D, 0, 1);
@@ -547,17 +517,11 @@ D3D12_SHADER_BYTECODE DebugShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSDebug", "ps_5_1", ppd3dShaderBlob));
 }
 
-void DebugShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-}
 
 void DebugShader::ReleaseShaderVariables()
 {
 }
 
-void DebugShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
-{
-}
 
 void DebugShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
@@ -592,27 +556,27 @@ D3D12_INPUT_LAYOUT_DESC StandardShader::CreateInputLayout()
 	return(d3dInputLayoutDesc);
 
 }
-void StandardShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbGameObjectBytes * m_nObjects, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
-}
-//객체의 월드변환 행렬과 재질 번호를 상수 버퍼에 쓴다.
-void StandardShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-	XMFLOAT4X4 xmf4x4World;
-
-	int k = 0;
-	for (auto gameobject : GameScene::MainScene->GetObjects())
-	{
-		XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&gameobject->GetWorld())));
-		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects + (k * ncbGameObjectBytes));
-		::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
-		pbMappedcbGameObject->m_nObjectID = k++;
-	}
-}
+//void StandardShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+//{
+//	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+//	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbGameObjectBytes * m_nObjects, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+//	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
+//}
+////객체의 월드변환 행렬과 재질 번호를 상수 버퍼에 쓴다.
+//void StandardShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+//{
+//	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+//	XMFLOAT4X4 xmf4x4World;
+//
+//	int k = 0;
+//	for (auto gameobject : GameScene::MainScene->GetObjects())
+//	{
+//		XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&gameobject->GetWorld())));
+//		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects + (k * ncbGameObjectBytes));
+//		::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
+//		pbMappedcbGameObject->m_nObjectID = k++;
+//	}
+//}
 void StandardShader::ReleaseShaderVariables()
 {
 	if (m_pd3dcbGameObjects)

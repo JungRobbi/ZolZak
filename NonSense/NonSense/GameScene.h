@@ -13,6 +13,13 @@
 #include "UILayer.h"
 #include "Sound.h"
 
+struct CB_SCREEN_INFO
+{
+	XMFLOAT4 LineColor;
+	UINT LineSize;
+	UINT ToonShading;
+};
+
 struct LIGHT
 {
 	XMFLOAT4 m_xmf4Ambient;
@@ -129,6 +136,9 @@ protected:
 	//재질을 나타내는 리소스와 리소스에 대한 포인터이다.
 	ID3D12Resource* m_pd3dcbMaterials = NULL;
 	MATERIAL* m_pcbMappedMaterials = NULL;
+	// Screen option
+	ID3D12Resource* m_pScreenOptions = NULL;
+	CB_SCREEN_INFO* m_pMappedScreenOptions = NULL;
 
 	int m_nObjects = 0;
 	Object** m_GameObjects = NULL;

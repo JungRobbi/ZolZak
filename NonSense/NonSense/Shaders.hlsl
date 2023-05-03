@@ -161,22 +161,16 @@ static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, {
 
 float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 {
-
-	//return RenderInfor[2].Sample(gssDefaultSamplerState, input.position.xy);
-	//return float4(RenderInfor[2][int2(input.uv.x*1240,input.uv.y*720)].xyz,1);
-	//return float4(1,0,1,1);
 	int Edge = false;
 	float fObjectID = RenderInfor[1][int2(input.position.xy)].a;
 	for (int i = 0; i < LineSize; i++)
 	{
-		if (RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a != 0 && fObjectID != 0)
 			if (fObjectID != RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
 	}
 
 	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection);
-	//float4 cColor = RenderInfor[0][int2(input.position.xy)];
 	if (Edge)
-		return(float4(LineColor));
+		return(LineColor);
 	else
 		return(cColor);
 }
