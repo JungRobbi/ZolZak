@@ -317,7 +317,7 @@ int main(int argc, char* argv[])
 		}
 
 		//Monster test
-		{
+		if (((Character*)TempObject)->GetRemainHP() > 0.f) {
 			//Monster Pos
 			for (auto& rc_to : RemoteClient::remoteClients) {
 				if (!rc_to.second->b_Enable)
