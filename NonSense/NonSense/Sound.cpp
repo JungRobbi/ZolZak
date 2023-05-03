@@ -13,11 +13,11 @@ Sound::Sound(char* SoundFilePath, bool IsLoop)
 	}
 
 	FMOD_System_CreateDSPByType(FMODSystem, FMOD_DSP_TYPE_LOWPASS, &Lowpass);
-	FMOD_DSP_SetParameterFloat(Lowpass, FMOD_DSP_LOWPASS_CUTOFF, 250.0f);
+	FMOD_DSP_SetParameterFloat(Lowpass, FMOD_DSP_LOWPASS_CUTOFF, 550.0f);
 	FMOD_System_CreateDSPByType(FMODSystem, FMOD_DSP_TYPE_HIGHPASS, &Highpass);
 	FMOD_DSP_SetParameterFloat(Highpass, FMOD_DSP_HIGHPASS_CUTOFF, 20.0f);
 	FMOD_System_CreateDSPByType(FMODSystem, FMOD_DSP_TYPE_TREMOLO, &Tremolo);
-	FMOD_DSP_SetParameterFloat(Tremolo, 0, 0.5f);
+	FMOD_DSP_SetParameterFloat(Tremolo, 0, 1.0f);
 }
 Sound::~Sound()
 {

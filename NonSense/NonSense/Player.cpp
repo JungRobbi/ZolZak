@@ -376,10 +376,18 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	GetComponent<AttackComponent>()->SetBoundingObject(bb);
 
 	{
+		XMFLOAT3 pos;
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
-		XMFLOAT3 pos = XMFLOAT3(-10.0f, 10.0f, 10.0f);
+		if (GameScene::MainScene->GetTerrain())
+		{
+			float h = GameScene::MainScene->GetTerrain()->GetHeight(-16.0f, 103.0f);
+			 pos = XMFLOAT3(-16.0f, h, 103.0f);
+		}
+		else
+		{
+			pos = XMFLOAT3(0, 0, 0);
+		}
 		SetPosition(pos);
 		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
 		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);
