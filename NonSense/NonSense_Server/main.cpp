@@ -453,6 +453,7 @@ void ProcessAccept()
 		remoteClient->m_pPlayer = make_shared<Player>();
 		remoteClient->m_pPlayer->start();
 		remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
+		remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(-16.0f, Scene::terrain->GetHeight(-16.0f, 103.0f), 103.0f));
 		remoteClient->m_pPlayer->SetPosition(XMFLOAT3(-16.0f, Scene::terrain->GetHeight(-16.0f, 103.0f), 103.0f));
 		remoteClient->m_pPlayer->remoteClient = remoteClient.get();
 
