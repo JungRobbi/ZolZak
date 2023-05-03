@@ -323,7 +323,7 @@ int main(int argc, char* argv[])
 					SC_MOVE_MONSTER_PACKET send_packet;
 					send_packet.size = sizeof(SC_MOVE_MONSTER_PACKET);
 					send_packet.type = E_PACKET::E_PACKET_SC_MOVE_MONSTER_PACKET;
-					send_packet.id = rc.second->m_id;
+					send_packet.id = ((Goblin*)TempObject)->num;
 					send_packet.x = TempObject->GetPosition().x;
 					send_packet.y = TempObject->GetPosition().y;
 					send_packet.z = TempObject->GetPosition().z;
