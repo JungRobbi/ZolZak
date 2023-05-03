@@ -580,6 +580,37 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		pm->is_Rotate = true;
 		break;
 	}
+	case E_PACKET::E_PACKET_CS_TEMP_HIT_MONSTER_PACKET: {
+		CS_TEMP_HIT_MONSTER_PACKET* recv_packet = reinterpret_cast<CS_TEMP_HIT_MONSTER_PACKET*>(p_Packet);
+		Character* Monster;
+		{
+			auto p = find_if(Scene::scene->MonsterObjects.begin(),
+				Scene::scene->MonsterObjects.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Character*>(lhs)->num == recv_packet->monster_id;
+				});
+
+			if (p == Scene::scene->MonsterObjects.end())
+				break;
+
+			Monster = dynamic_cast<Character*>(*p);
+		}
+
+		Monster->GetHit(recv_packet->hit_damage);
+
+		// 다른 클라이언트들에게 남은 HP 정보 통신
+		for (auto& rc : RemoteClient::remoteClients) {
+			if (!rc.second->b_Enable)
+				continue;
+			SC_TEMP_HIT_MONSTER_PACKET send_packet;
+			send_packet.size = sizeof(SC_TEMP_HIT_MONSTER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_TEMP_HIT_MONSTER_PACKET;
+			send_packet.monster_id = recv_packet->monster_id;
+			send_packet.remain_hp = Monster->GetRemainHP();
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+		break;
+	}
 	default:
 		break;
 	}

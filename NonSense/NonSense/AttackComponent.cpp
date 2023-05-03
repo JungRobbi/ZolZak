@@ -3,6 +3,7 @@
 #include "GameFramework.h"
 #include "BoxCollideComponent.h"
 #include "SphereCollideComponent.h"
+#include "NetworkMGR.h"
 
 void AttackComponent::Attack()
 {
@@ -13,7 +14,18 @@ void AttackComponent::Attack()
 		if (AttackRange) {
 			for (auto& monster : GameScene::MainScene->MonsterObjects)
 			{
-				if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject()))monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense()/(monster->GetDefense() + 100)));
+				if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject())) {
+					if (!NetworkMGR::b_isNet) {
+						monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100)));
+						continue;
+					}
+					CS_TEMP_HIT_MONSTER_PACKET send_packet;
+					send_packet.size = sizeof(CS_TEMP_HIT_MONSTER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_MONSTER_PACKET;
+					send_packet.monster_id = monster->GetNum();
+					send_packet.hit_damage = dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100));
+					PacketQueue::AddSendPacket(&send_packet);
+				}
 				printf("%f -> %f = %f", dynamic_cast<Player*>(gameObject)->GetAttack(), monster->GetDefense(), dynamic_cast<Goblin*>(monster)->GetRemainHP());
 			}
 		}

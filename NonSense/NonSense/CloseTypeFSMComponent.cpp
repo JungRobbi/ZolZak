@@ -77,12 +77,16 @@ void CloseTypeFSMComponent::Stop()
 
 void CloseTypeFSMComponent::Move_Walk(float dist)
 {
-//	gameObject->MoveForward(dist);
+	if (!NetworkMGR::b_isNet) {
+		gameObject->MoveForward(dist);
+	}
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(Animation_type);
 }
 void CloseTypeFSMComponent::Move_Run(float dist)
 {
-//	gameObject->MoveForward(dist);
+	if (!NetworkMGR::b_isNet) {
+		gameObject->MoveForward(dist);
+	}
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(Animation_type);
 }
 void CloseTypeFSMComponent::Attack()
