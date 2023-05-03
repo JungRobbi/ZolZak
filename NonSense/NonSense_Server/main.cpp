@@ -314,21 +314,37 @@ int main(int argc, char* argv[])
 				}
 				rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->is_Rotate = false;
 			}
+		}
 
-			//Monster test
-			{	
+		//Monster test
+		{
+			//Monster Pos
+			for (auto& rc_to : RemoteClient::remoteClients) {
+				if (!rc_to.second->b_Enable)
+					continue;
+				SC_MOVE_MONSTER_PACKET send_packet;
+				send_packet.size = sizeof(SC_MOVE_MONSTER_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_MOVE_MONSTER_PACKET;
+				send_packet.id = ((Goblin*)TempObject)->num;
+				send_packet.x = TempObject->GetPosition().x;
+				send_packet.y = TempObject->GetPosition().y;
+				send_packet.z = TempObject->GetPosition().z;
+				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
+
+			//Monster Animation
+			if (((Character*)TempObject)->OldAniType != ((Character*)TempObject)->PresentAniType) {
 				for (auto& rc_to : RemoteClient::remoteClients) {
 					if (!rc_to.second->b_Enable)
 						continue;
-					SC_MOVE_MONSTER_PACKET send_packet;
-					send_packet.size = sizeof(SC_MOVE_MONSTER_PACKET);
-					send_packet.type = E_PACKET::E_PACKET_SC_MOVE_MONSTER_PACKET;
+					SC_MONSTER_ANIMATION_TYPE_PACKET send_packet;
+					send_packet.size = sizeof(SC_MONSTER_ANIMATION_TYPE_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_MOSTER;
 					send_packet.id = ((Goblin*)TempObject)->num;
-					send_packet.x = TempObject->GetPosition().x;
-					send_packet.y = TempObject->GetPosition().y;
-					send_packet.z = TempObject->GetPosition().z;
+					send_packet.Anitype = ((Character*)TempObject)->PresentAniType;
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
+				((Character*)TempObject)->OldAniType = ((Character*)TempObject)->PresentAniType;
 			}
 		}
 	}
