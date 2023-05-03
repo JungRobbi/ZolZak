@@ -45,19 +45,19 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(16.0f, m_pTerrain->GetHeight(16.0f, 34.0f), 34.0f);
-	TempObject->SetNum(102);
+	TempObject->SetNum(103);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(53.0f, m_pTerrain->GetHeight(53.0f, 43.0f), 43.0f);
-	TempObject->SetNum(102);
+	TempObject->SetNum(104);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(89.0f, m_pTerrain->GetHeight(89.0f, 33.0f), 33.0f);
-	TempObject->SetNum(102);
+	TempObject->SetNum(105);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(113.0f, m_pTerrain->GetHeight(113.0f, 20.0f), 20.0f);
-	TempObject->SetNum(102);
+	TempObject->SetNum(106);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 
 

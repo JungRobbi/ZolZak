@@ -200,15 +200,29 @@ int main(int argc, char* argv[])
 //	Object::LoadMapData_Blend(BlendMapName);
 	cout << "Server Loding Complete!" << endl;
 
-	Object* TempObject = NULL;
-	TempObject = new Goblin(MONSTER_TYPE_CLOSE);
-	TempObject->SetPosition(1.0f, 1.0f, 3.0f);
-	((Goblin*)TempObject)->num = 1;
-
-
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	Scene::terrain = new HeightMapTerrain(_T("Terrain/terrain.raw"), 800, 800, xmf3Scale);
 	Scene::terrain->SetPosition(-400, 0, -400);
+
+	Object* TempObject = NULL;
+	TempObject = new Goblin(MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(-9.0f, Scene::terrain->GetHeight(-9.0f, 9.0f), 87);
+	((Goblin*)TempObject)->num = 101;
+	TempObject = new Goblin(MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(-1.0f, Scene::terrain->GetHeight(-1.0f, 42.0f), 42.0f);
+	((Goblin*)TempObject)->num = 102;
+	TempObject = new Goblin(MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(16.0f, Scene::terrain->GetHeight(16.0f, 34.0f), 34.0f);
+	((Goblin*)TempObject)->num = 103;
+	TempObject = new Goblin(MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(53.0f, Scene::terrain->GetHeight(53.0f, 43.0f), 43.0f);
+	((Goblin*)TempObject)->num = 104;
+	TempObject = new Goblin(MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(89.0f, Scene::terrain->GetHeight(89.0f, 33.0f), 33.0f);
+	((Goblin*)TempObject)->num = 105;
+	TempObject = new Goblin(MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(113.0f, Scene::terrain->GetHeight(113.0f, 20.0f), 20.0f);
+	((Goblin*)TempObject)->num = 106;
 
 	Timer::Initialize();
 	Timer::Reset();
@@ -439,6 +453,7 @@ void ProcessAccept()
 		remoteClient->m_pPlayer = make_shared<Player>();
 		remoteClient->m_pPlayer->start();
 		remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
+		remoteClient->m_pPlayer->SetPosition(XMFLOAT3(-16.0f, Scene::terrain->GetHeight(-16.0f, 103.0f), 103.0f));
 		remoteClient->m_pPlayer->remoteClient = remoteClient.get();
 
 		// 새 TCP 소켓도 IOCP에 추가한다.

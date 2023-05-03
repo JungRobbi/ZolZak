@@ -382,7 +382,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		if (GameScene::MainScene->GetTerrain())
 		{
 			float h = GameScene::MainScene->GetTerrain()->GetHeight(-16.0f, 103.0f);
-			 pos = XMFLOAT3(-16.0f, h, 103.0f);
+			pos = XMFLOAT3(-16.0f, h, 103.0f);
 		}
 		else
 		{
