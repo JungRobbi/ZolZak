@@ -23,11 +23,13 @@ FSM<CloseTypeFSMComponent>* CloseTypeFSMComponent::GetFSM()
 bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 {
 	XMFLOAT3 OwnerPos = gameObject->GetPosition();
-	if (RemoteClient::remoteClients.empty())
+	auto first = RemoteClient::remoteClients.begin();
+	if ((first == RemoteClient::remoteClients.end()) || 
+		RemoteClient::remoteClients.empty() ||
+		first->second->m_id == 0)
 		return false;
-	auto first = RemoteClient::remoteClients.begin()->second;
-	XMFLOAT3 PlayerPos = first->m_pPlayer->GetPosition();
-	TargetPlayer = first->m_pPlayer.get();
+	XMFLOAT3 PlayerPos = first->second->m_pPlayer->GetPosition();
+	TargetPlayer = first->second->m_pPlayer.get();
 	float Distance = Vector3::Length(Vector3::Subtract(OwnerPos, PlayerPos));
 	if (Distance < ChangeStateDistance)
 		return true;
