@@ -285,7 +285,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			break;
 
 		Monster = dynamic_cast<Character*>(*p);
-		//	Monster->SetPosition(recv_packet->x, recv_packet->y, recv_packet->z);
+		Monster->SetPosition(recv_packet->x, recv_packet->y, recv_packet->z);
 
 		break;
 	}

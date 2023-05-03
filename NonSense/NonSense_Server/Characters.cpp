@@ -25,19 +25,17 @@ Goblin::Goblin(MonsterType type) :
 	switch (type)
 	{
 	case MONSTER_TYPE_CLOSE:
-	//	AddComponent<CloseTypeFSMComponent>();
-	//	bb2->SetNum(5);
-	//	AddComponent<AttackComponent>();
-	//	GetComponent<AttackComponent>()->SetAttackSpeed(3.0f);
-	//	GetComponent<AttackComponent>()->AttackCombo1_AnineSetNum = 4;
-	//	GetComponent<AttackComponent>()->Type_ComboAttack = false;
-	//	GetComponent<AttackComponent>()->SetBoundingObject(bb2);
+		AddComponent<CloseTypeFSMComponent>();
+		AddComponent<AttackComponent>();
+		GetComponent<AttackComponent>()->SetAttackSpeed(3.0f);
+		GetComponent<AttackComponent>()->AttackCombo1_AnineSetNum = 4;
+		GetComponent<AttackComponent>()->Type_ComboAttack = false;
+		GetComponent<AttackComponent>()->SetBoundingObject(bb2);
 
-	////	bb->SetNum(2);
-	//	AddComponent<BoxCollideComponent>();
-	//	GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
-	//	GetComponent<BoxCollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(0.3, 0.5, 0.3));
-	//	GetComponent<BoxCollideComponent>()->SetMoveAble(true);
+		AddComponent<BoxCollideComponent>();
+		GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
+		GetComponent<BoxCollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(0.3, 0.5, 0.3));
+		GetComponent<BoxCollideComponent>()->SetMoveAble(true);
 
 		m_Health = 965;
 		m_RemainHP = 965;

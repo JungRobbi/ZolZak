@@ -81,7 +81,7 @@ void AttackComponent::update()
 		AttackRange->Extents = XMFLOAT3(1, 0.3, 0.5);
 		AttackRange->Orientation = XMFLOAT4(0, 0, 0, 1);
 
-	//	AttackRange->Transform(*AttackRange, XMLoadFloat4x4(&gameObject->GetWorld()));
+		AttackRange->Transform(*AttackRange, XMLoadFloat4x4(&gameObject->GetWorld()));
 
 		/// 그리기 위한 코드
 		AttackRange->m_xmf4x4ToParent = gameObject->GetWorld();
