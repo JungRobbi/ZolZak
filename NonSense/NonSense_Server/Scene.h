@@ -38,6 +38,10 @@ public:
 		for (auto object : gameObjects)
 			delete object;
 		gameObjects.clear();
+
+		for (auto object : MonsterObjects)
+			delete object;
+		MonsterObjects.clear();
 	}
 	virtual void update();
 

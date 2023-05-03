@@ -316,7 +316,7 @@ int main(int argc, char* argv[])
 			}
 
 			//Monster test
-			{
+			{	
 				for (auto& rc_to : RemoteClient::remoteClients) {
 					if (!rc_to.second->b_Enable)
 						continue;
