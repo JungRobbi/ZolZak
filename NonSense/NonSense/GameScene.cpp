@@ -755,6 +755,10 @@ void GameScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256의 배수
 	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dcbLights->Map(0, NULL, (void**)&m_pcbMappedLights);
+
+	UINT ncbElementBytes2 = ((sizeof(CB_SCREEN_INFO) + 255) & ~255); //256의 배수
+	m_pScreenOptions = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes2, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pScreenOptions->Map(0, NULL, (void**)&m_pMappedScreenOptions);
 }
 
 void GameScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
@@ -762,6 +766,13 @@ void GameScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	::memcpy(m_pcbMappedLights, m_pLights, sizeof(LIGHTS));
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dGpuVirtualAddress);
+
+	m_pMappedScreenOptions->LineColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	m_pMappedScreenOptions->LineSize = 3;
+	m_pMappedScreenOptions->ToonShading = 10;
+
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress2 = m_pScreenOptions->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(7, d3dGpuVirtualAddress2);
 }
 
 void GameScene::ReleaseShaderVariables()
