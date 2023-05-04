@@ -3,6 +3,7 @@
 #include "Timer.h"
 #include "Component.h"
 #include "../AnimationType.h"
+#include "NetworkMGR.h"
 class PlayerMovementComponent : public Component
 {
 public:
@@ -23,6 +24,10 @@ private:
     float DashCoolTimeLeft = 0.0f;
     bool Dashing = false;
     bool CanDash = true;
+
+    bool b_Jump = false;
+    bool b_Dash = false;
+
 private:
     void Jump();
     void Dash();
@@ -32,4 +37,6 @@ public:
 
     void start();
     void update();
+
+    friend NetworkMGR;
 };

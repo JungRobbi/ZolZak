@@ -1,4 +1,8 @@
 #pragma once
+enum class E_MONSTER_STATE {
+	E_WANDER, E_TRACK, E_IDLE
+};
+
 enum E_MONSTER_ANIMATION_TYPE {
 	E_M_IDLE, E_M_WALK, E_M_RUN, E_M_DASH, E_M_ATTACK, E_M_HIT, E_M_DEATH
 };

@@ -36,4 +36,6 @@ public:
 		m_pCurrentState = NewState;
 		m_pCurrentState->Enter(m_pOwner);
 	}
+
+	State<owner_class>* GetCurrentState() { return m_pCurrentState; }
 };

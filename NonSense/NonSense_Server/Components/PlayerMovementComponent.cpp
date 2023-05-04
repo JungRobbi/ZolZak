@@ -89,6 +89,7 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	else
 	{
 		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+		gameObject->SetPosition(m_xmf3Position);
 	}
 }
 

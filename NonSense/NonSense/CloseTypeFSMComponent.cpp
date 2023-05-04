@@ -7,6 +7,8 @@ void CloseTypeFSMComponent::start()
 {
 	m_pFSM = new FSM<CloseTypeFSMComponent>(this);
 	m_pFSM->SetCurrentState(IdleState::GetInstance());
+
+	SetTargetPlayer(GameFramework::MainGameFramework->m_pPlayer);
 }
 
 void CloseTypeFSMComponent::update()
@@ -22,8 +24,7 @@ FSM<CloseTypeFSMComponent>* CloseTypeFSMComponent::GetFSM()
 bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 {
 	XMFLOAT3 OwnerPos = gameObject->GetPosition();
-	XMFLOAT3 PlayerPos = GameFramework::MainGameFramework->m_pPlayer->GetPosition();
-	TargetPlayer = GameFramework::MainGameFramework->m_pPlayer;
+	XMFLOAT3 PlayerPos = TargetPlayer->GetPosition();
 	float Distance = Vector3::Length(Vector3::Subtract(OwnerPos, PlayerPos));
 	if (Distance < ChangeStateDistance)
 		return true;
@@ -71,18 +72,22 @@ bool CloseTypeFSMComponent::Idle()
 
 void CloseTypeFSMComponent::Stop()
 {
-	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_MONSTER_ANIMATION_TYPE::E_M_IDLE);
+	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(Animation_type);
 }
 
 void CloseTypeFSMComponent::Move_Walk(float dist)
 {
-//	gameObject->MoveForward(dist);
-	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_MONSTER_ANIMATION_TYPE::E_M_WALK);
+	if (!NetworkMGR::b_isNet) {
+		gameObject->MoveForward(dist);
+	}
+	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(Animation_type);
 }
 void CloseTypeFSMComponent::Move_Run(float dist)
 {
-//	gameObject->MoveForward(dist);
-	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_MONSTER_ANIMATION_TYPE::E_M_RUN);
+	if (!NetworkMGR::b_isNet) {
+		gameObject->MoveForward(dist);
+	}
+	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(Animation_type);
 }
 void CloseTypeFSMComponent::Attack()
 {
@@ -123,6 +128,7 @@ bool CloseTypeFSMComponent::Wander()
 	if (ToTargetAngle > 7.0f)
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(WanderPosition, CurrentPos));
+
 	if (Distance > 0.5f)
 	{
 		Move_Walk(2.0f * Timer::GetTimeElapsed());
@@ -134,9 +140,11 @@ bool CloseTypeFSMComponent::Wander()
 void CloseTypeFSMComponent::Death()
 {
 	DeathCount -= Timer::GetTimeElapsed();
+	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 	if (DeathCount < 0.0f)
 	{
 		//GameScene::MainScene->PushDelete((Character*)gameObject);
 		GameScene::MainScene->deletionMonsterQueue.push_back((Character*)gameObject);
+		gameObject->m_pSkinnedAnimationController->SetTrackEnable(0, false);
 	}
 }

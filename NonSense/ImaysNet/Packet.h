@@ -15,11 +15,16 @@ enum E_PACKET
 	// Client -> Server packet
 	E_PACKET_CS_LOGIN, E_PACKET_CS_KEYDOWN, E_PACKET_CS_KEYUP, E_PACKET_CS_MOVE, E_PACKET_CS_ROTATE,
 
+	E_PACKET_CS_TEMP_HIT_MONSTER_PACKET, E_PACKET_SC_TEMP_HIT_MONSTER_PACKET,
+
 	// Server -> Client packet
 	E_PACKET_SC_LOGIN_INFO, E_PACKET_SC_ADD_PLAYER, E_PACKET_SC_REMOVE_PLAYER,
 	E_PACKET_SC_MOVE_PLAYER, E_PACKET_SC_LOOK_PLAYER, E_PACKET_SC_ANIMATION_TYPE_PLAYER,
 	E_PACKET_SC_ANIMATION_TYPE_MOSTER,
-	E_PACKET_SC_MOVE_MONSTER_PACKET
+	E_PACKET_SC_MOVE_MONSTER_PACKET, E_PACKET_SC_LOOK_MONSTER_PACKET,
+	E_PACKET_SC_AGGRO_PLAYER_PACKET,
+
+	E_PACKET_SC_TEMP_WANDER_MONSTER_PACKET
 
 };
 
@@ -55,6 +60,23 @@ public:
 class CS_KEYUP_PACKET : public PACKET_HEAD {
 public:
 	short	key;
+};
+
+class CS_TEMP_HIT_MONSTER_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	monster_id;
+	unsigned int	hit_damage;
+};
+
+class SC_TEMP_HIT_MONSTER_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	monster_id;
+	int				remain_hp;
+};
+
+class SC_TEMP_WANDER_MONSTER_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	id;
 };
 
 class SC_LOGIN_INFO_PACKET : public PACKET_HEAD {
@@ -100,10 +122,22 @@ public:
 class SC_MONSTER_FSM_STATE_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	id;
-	char Anitype;
+	char state;
 };
 
 class SC_MOVE_MONSTER_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	id;
+	float	x, y, z;
+};
+
+class SC_AGGRO_PLAYER_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	monster_id;
+	unsigned int	player_id;
+};
+
+class SC_LOOK_MONSTER_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	id;
 	float	x, y, z;

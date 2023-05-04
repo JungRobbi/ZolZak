@@ -235,10 +235,9 @@ public:
 
 	int 							m_nAnimationSet = 0;
 	int 							m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
-
+	bool							AnimationEnd = false;
 public:
 	void SetAnimationSet(int nAnimationSet) { m_nAnimationSet = nAnimationSet; }
-
 	void SetEnable(bool bEnable) { m_bEnable = bEnable; }
 	void SetSpeed(float fSpeed) { m_fSpeed = fSpeed; }
 	void SetWeight(float fWeight) { m_fWeight = fWeight; }
@@ -286,7 +285,7 @@ public:
 
 	Object* m_pRootMotionObject = NULL;
 	XMFLOAT3						m_xmf3FirstRootMotionPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
-
+	bool							NoMoreAnimation = false;
 
 public:
 	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
@@ -298,7 +297,7 @@ public:
 	void SetTrackPosition(int nAnimationTrack, float fPosition);
 	void SetTrackSpeed(int nAnimationTrack, float fSpeed);
 	void SetTrackWeight(int nAnimationTrack, float fWeight);
-
+	void EndAnimation();
 	void AdvanceTime(float fElapsedTime, Object* pRootGameObject);
 };
 

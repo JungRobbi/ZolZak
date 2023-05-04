@@ -467,6 +467,7 @@ void AnimationController::ChangeAnimationWithoutBlending(int nAnimationSet)
 	SetTrackAnimationSet(1, nAnimationSet);
 	SetTrackAnimationSet(2, nAnimationSet);
 }
+
 float AnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength)
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;
@@ -532,6 +533,11 @@ void AnimationController::SetTrackWeight(int nAnimationTrack, float fWeight)
 	if (m_pAnimationTracks) m_pAnimationTracks[nAnimationTrack].SetWeight(fWeight);
 }
 
+void AnimationController::EndAnimation()
+{
+	NoMoreAnimation = true;
+}
+
 void AnimationController::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	for (int i = 0; i < m_nSkinnedMeshes; i++)
@@ -560,7 +566,8 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 					{
 						SetTrackAnimationSet(1, 0);
 						SetTrackAnimationSet(2, 0);
-						SetTrackEnable(1, true);
+						if(!NoMoreAnimation)
+							SetTrackEnable(1, true);
 						m_BlendingWeight = 0.0f;
 						break;
 					}
@@ -568,7 +575,8 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 					{
 						SetTrackAnimationSet(1, m_pAnimationTracks[2].m_nAnimationSet);
 						SetTrackAnimationSet(2, m_pAnimationTracks[2].m_nAnimationSet);
-						SetTrackEnable(1, true);
+						if(!NoMoreAnimation)
+							SetTrackEnable(1, true);
 						m_BlendingWeight = 0.0f;
 
 					}
@@ -594,7 +602,7 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 				}
 			}
 		}
-		else																		//ºí·»µù
+		else if(m_pAnimationTracks[0].m_bEnable)															//ºí·»µù
 		{
 			m_BlendingWeight += fTimeElapsed*3.5f;
 			m_BlendingWeight = max(0.0f, min(1.0f, m_BlendingWeight));

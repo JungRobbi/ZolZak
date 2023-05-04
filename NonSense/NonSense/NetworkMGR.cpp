@@ -7,6 +7,7 @@
 #include "GameFramework.h"
 #include "PlayerMovementComponent.h"
 #include "CloseTypeFSMComponent.h"
+#include "CloseTypeState.h"
 #pragma comment(lib, "WS2_32.LIB")
 
 char* NetworkMGR::SERVERIP = "127.0.0.1";
@@ -68,29 +69,32 @@ void NetworkMGR::start()
 {
 	tcpSocket = make_shared<Socket>(SocketType::Tcp);
 	
-	//
-	// 연결
-	//
-
-//	std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
-
-//	std::cout << std::endl << "접속 할 서버주소를 입력해주세요(ex 197.xxx.xxx.xxx) : " << std::endl;
-//	std::string server_s;
-//	std::cin >> server_s;
-//	SERVERIP = new char[server_s.size() + 1];
-//	SERVERIP[server_s.size()] = '\0';
-//	strcpy(SERVERIP, server_s.c_str());
-
 	char isnet = 'n';
 	std::cout << "NetworkMGR::start()의 cin을 주석처리 하면 편함)" << endl;
 	std::cout << "네트워크 연결 여부 키 입력 (y/n - 연결O/연결X) :";
-
 	std::cin >> isnet;
 
 	if (isnet == 'n') {
 		b_isNet = false;
 		return;
 	}
+	
+	system("cls");
+	//
+	// 연결
+	//
+
+	std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
+
+	std::cout << std::endl << "접속 할 서버주소를 입력해주세요(ex 197.xxx.xxx.xxx) : " << std::endl;
+	std::string server_s;
+	std::cin >> server_s;
+	SERVERIP = new char[server_s.size() + 1];
+	SERVERIP[server_s.size()] = '\0';
+	strcpy(SERVERIP, server_s.c_str());
+
+
+
 
 	tcpSocket->Bind(Endpoint::Any);
 
@@ -249,8 +253,16 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 
 			player = dynamic_cast<Player*>(*p);
 		}
-		player->GetComponent<PlayerMovementComponent>()->Animation_type = (E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype;
 
+		if ((E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype == E_PLAYER_ANIMATION_TYPE::E_JUMP) {
+			player->GetComponent<PlayerMovementComponent>()->b_Jump = true;
+		}
+		else if ((E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype == E_PLAYER_ANIMATION_TYPE::E_DASH) {
+			player->GetComponent<PlayerMovementComponent>()->b_Dash = true;
+		}
+		else {
+			player->GetComponent<PlayerMovementComponent>()->Animation_type = (E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype;
+		}
 		break;
 	}
 	case E_PACKET_SC_ANIMATION_TYPE_MOSTER: {
@@ -287,6 +299,101 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		Monster = dynamic_cast<Character*>(*p);
 		Monster->SetPosition(recv_packet->x, recv_packet->y, recv_packet->z);
 
+		break;
+	}
+	case E_PACKET_SC_AGGRO_PLAYER_PACKET: {
+		SC_AGGRO_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_AGGRO_PLAYER_PACKET*>(p_Packet);
+
+		Player* player;
+		Character* Monster;
+		if (recv_packet->player_id == NetworkMGR::id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->player_id;
+				});
+
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
+
+			player = dynamic_cast<Player*>(*p);
+		}
+
+		{
+			auto p = find_if(GameScene::MainScene->MonsterObjects.begin(),
+				GameScene::MainScene->MonsterObjects.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Character*>(lhs)->GetNum() == recv_packet->monster_id;
+				});
+
+			if (p == GameScene::MainScene->MonsterObjects.end())
+				break;
+
+			Monster = dynamic_cast<Character*>(*p);
+		}
+
+		Monster->GetComponent<CloseTypeFSMComponent>()->SetTargetPlayer(player);
+
+		break;
+	}
+	case E_PACKET_SC_TEMP_HIT_MONSTER_PACKET: {
+		SC_TEMP_HIT_MONSTER_PACKET* recv_packet = reinterpret_cast<SC_TEMP_HIT_MONSTER_PACKET*>(p_Packet);
+		Character* Monster;
+		{
+			auto p = find_if(GameScene::MainScene->MonsterObjects.begin(),
+				GameScene::MainScene->MonsterObjects.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Character*>(lhs)->GetNum() == recv_packet->monster_id;
+				});
+
+			if (p == GameScene::MainScene->MonsterObjects.end())
+				break;
+
+			Monster = dynamic_cast<Character*>(*p);
+		}
+
+		Monster->SetRemainHP(recv_packet->remain_hp);
+		break;
+	}
+	case E_PACKET_SC_LOOK_MONSTER_PACKET: {
+		SC_LOOK_MONSTER_PACKET* recv_packet = reinterpret_cast<SC_LOOK_MONSTER_PACKET*>(p_Packet);
+		Character* Monster;
+		{
+			auto p = find_if(GameScene::MainScene->MonsterObjects.begin(),
+				GameScene::MainScene->MonsterObjects.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Character*>(lhs)->GetNum() == recv_packet->id;
+				});
+
+			if (p == GameScene::MainScene->MonsterObjects.end())
+				break;
+
+			Monster = dynamic_cast<Character*>(*p);
+		}
+
+		Monster->GetComponent<CloseTypeFSMComponent>()->WanderPosition = XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z);
+		break;
+	}
+	case E_PACKET_SC_TEMP_WANDER_MONSTER_PACKET: {
+		SC_TEMP_WANDER_MONSTER_PACKET* recv_packet = reinterpret_cast<SC_TEMP_WANDER_MONSTER_PACKET*>(p_Packet);
+		Character* Monster;
+		{
+			auto p = find_if(GameScene::MainScene->MonsterObjects.begin(),
+				GameScene::MainScene->MonsterObjects.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Character*>(lhs)->GetNum() == recv_packet->id;
+				});
+
+			if (p == GameScene::MainScene->MonsterObjects.end())
+				break;
+
+			Monster = dynamic_cast<Character*>(*p);
+		}
+		if (Monster->GetComponent<CloseTypeFSMComponent>()->GetFSM()->GetCurrentState() != WanderState::GetInstance())
+			Monster->GetComponent<CloseTypeFSMComponent>()->GetFSM()->ChangeState(WanderState::GetInstance());
 		break;
 	}
 	default:

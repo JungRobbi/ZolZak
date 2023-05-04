@@ -4,6 +4,7 @@
 #include "State.h"
 #include "FSM.h"
 #include "../AnimationType.h"
+#include <iostream>
 
 class BoundBox;
 
@@ -14,9 +15,9 @@ private:
     float ChangeStateDistance = 5.0f;
     Object* TargetPlayer = NULL;
     float IdleLeftTime = 0.0f;
-    XMFLOAT3 WanderPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
     float DeathCount = 3.0f;
 public:
+    XMFLOAT3 WanderPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
     ~CloseTypeFSMComponent() {}
     void start();
     void update();
@@ -36,6 +37,8 @@ public:
     void Track();
     bool Wander();
     void Death();
+
+    void SetTargetPlayer(Object* target) { TargetPlayer = target; };
 
     E_MONSTER_ANIMATION_TYPE Animation_type = E_MONSTER_ANIMATION_TYPE::E_M_IDLE;
 };

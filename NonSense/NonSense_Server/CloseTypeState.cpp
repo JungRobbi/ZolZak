@@ -1,6 +1,8 @@
 #include "CloseTypeState.h"
 #include <random>
 
+#include "RemoteClients/RemoteClient.h"
+
 std::uniform_real_distribution<float> RandomIdleTime(3.0, 8.0f);
 std::uniform_real_distribution<float> RandomPosDistance(-5.0f, 5.0f);
 std::random_device rd;
@@ -15,7 +17,7 @@ WanderState* WanderState::GetInstance()
 
 void WanderState::Enter(CloseTypeFSMComponent* pOwner)
 {
-//	std::cout << "Start Wandering" << std::endl;
+	std::cout << "Start Wandering" << std::endl;
 	pOwner->Stop();
 	XMFLOAT3 OwnerPos = pOwner->GetOwnerPosition();
 	float NewPosx = OwnerPos.x + RandomPosDistance(dre);
@@ -37,7 +39,7 @@ void WanderState::Execute(CloseTypeFSMComponent* pOwner)
 
 void WanderState::Exit(CloseTypeFSMComponent* pOwner)
 {
-//	std::cout << "Stop Wandering" << std::endl;
+	std::cout << "Stop Wandering" << std::endl;
 }
 
 TrackEnemyState* TrackEnemyState::GetInstance()
@@ -48,7 +50,7 @@ TrackEnemyState* TrackEnemyState::GetInstance()
 
 void TrackEnemyState::Enter(CloseTypeFSMComponent* pOwner)
 {
-//	std::cout << "Start Tracking" << std::endl;
+	std::cout << "Start Tracking" << std::endl;
 
 }
 
@@ -63,7 +65,7 @@ void TrackEnemyState::Execute(CloseTypeFSMComponent* pOwner)
 
 void TrackEnemyState::Exit(CloseTypeFSMComponent* pOwner)
 {
-//	std::cout << "Stop Tracking" << std::endl;
+	std::cout << "Stop Tracking" << std::endl;
 }
 
 IdleState* IdleState::GetInstance()
@@ -74,7 +76,7 @@ IdleState* IdleState::GetInstance()
 
 void IdleState::Enter(CloseTypeFSMComponent* pOwner)
 {
-//	std::cout << "Start Idle" << std::endl;
+	std::cout << "Start Idle" << std::endl;
 	pOwner->Stop();
 	pOwner->ResetIdleTime(RandomIdleTime(rd));
 }
@@ -93,5 +95,5 @@ void IdleState::Execute(CloseTypeFSMComponent* pOwner)
 
 void IdleState::Exit(CloseTypeFSMComponent* pOwner)
 {
-//	std::cout << "Stop Idel" << std::endl;
+	std::cout << "Stop Idel" << std::endl;
 }
