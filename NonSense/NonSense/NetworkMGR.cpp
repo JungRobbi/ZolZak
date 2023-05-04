@@ -68,29 +68,32 @@ void NetworkMGR::start()
 {
 	tcpSocket = make_shared<Socket>(SocketType::Tcp);
 	
-	//
-	// 연결
-	//
-
-//	std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
-
-//	std::cout << std::endl << "접속 할 서버주소를 입력해주세요(ex 197.xxx.xxx.xxx) : " << std::endl;
-//	std::string server_s;
-//	std::cin >> server_s;
-//	SERVERIP = new char[server_s.size() + 1];
-//	SERVERIP[server_s.size()] = '\0';
-//	strcpy(SERVERIP, server_s.c_str());
-
 	char isnet = 'n';
 	std::cout << "NetworkMGR::start()의 cin을 주석처리 하면 편함)" << endl;
 	std::cout << "네트워크 연결 여부 키 입력 (y/n - 연결O/연결X) :";
-
 	std::cin >> isnet;
 
 	if (isnet == 'n') {
 		b_isNet = false;
 		return;
 	}
+	
+	system("cls");
+	//
+	// 연결
+	//
+
+	std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
+
+	std::cout << std::endl << "접속 할 서버주소를 입력해주세요(ex 197.xxx.xxx.xxx) : " << std::endl;
+	std::string server_s;
+	std::cin >> server_s;
+	SERVERIP = new char[server_s.size() + 1];
+	SERVERIP[server_s.size()] = '\0';
+	strcpy(SERVERIP, server_s.c_str());
+
+
+
 
 	tcpSocket->Bind(Endpoint::Any);
 
