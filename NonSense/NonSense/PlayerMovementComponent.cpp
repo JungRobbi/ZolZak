@@ -80,7 +80,7 @@ void PlayerMovementComponent::update()
 
 	if (((Player*)gameObject)->m_pSkinnedAnimationController)
 	{
-		if (Input::InputKeyBuffer[VK_SPACE] & 0xF0)
+		if (Input::InputKeyBuffer[VK_SPACE] & 0xF0 && !NetworkMGR::b_isNet)
 		{
 			Jump();
 		}
@@ -161,7 +161,7 @@ void PlayerMovementComponent::update()
 			::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 		}
 
-		if ((Input::InputKeyBuffer[VK_RBUTTON] & 0xF0) && !Dashing && CanDash)
+		if ((Input::InputKeyBuffer[VK_RBUTTON] & 0xF0) && !Dashing && CanDash && !NetworkMGR::b_isNet)
 		{
 			Dash();
 		}

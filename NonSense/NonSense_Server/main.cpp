@@ -554,11 +554,33 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 
 		switch (recv_packet->key)
 		{
-		case VK_SPACE:
+		case VK_SPACE: {
 			p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->Jump();
+			for (auto& rc : RemoteClient::remoteClients) {
+				if (!rc.second->b_Enable)
+					continue;
+				SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
+				send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
+				send_packet.id = p_Client->m_id;
+				send_packet.Anitype = E_PLAYER_ANIMATION_TYPE::E_JUMP;
+				p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
+		}
 			break;
-		case VK_RBUTTON:
+		case VK_RBUTTON: {
 			p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->Dash();
+			for (auto& rc : RemoteClient::remoteClients) {
+				if (!rc.second->b_Enable)
+					continue;
+				SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
+				send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
+				send_packet.id = p_Client->m_id;
+				send_packet.Anitype = E_PLAYER_ANIMATION_TYPE::E_DASH;
+				p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
+		}
 			break;
 		default:
 			break;

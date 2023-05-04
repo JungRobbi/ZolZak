@@ -3,6 +3,7 @@
 #include "Timer.h"
 #include "Component.h"
 #include "../AnimationType.h"
+#include "NetworkMGR.h"
 class PlayerMovementComponent : public Component
 {
 public:
@@ -32,4 +33,6 @@ public:
 
     void start();
     void update();
+
+    friend NetworkMGR;
 };

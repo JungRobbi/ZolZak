@@ -252,8 +252,16 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 
 			player = dynamic_cast<Player*>(*p);
 		}
-		player->GetComponent<PlayerMovementComponent>()->Animation_type = (E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype;
 
+		if ((E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype == E_PLAYER_ANIMATION_TYPE::E_JUMP) {
+			player->GetComponent<PlayerMovementComponent>()->Jump();
+		}
+		else if ((E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype == E_PLAYER_ANIMATION_TYPE::E_DASH) {
+			player->GetComponent<PlayerMovementComponent>()->Dash();
+		}
+		else {
+			player->GetComponent<PlayerMovementComponent>()->Animation_type = (E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype;
+		}
 		break;
 	}
 	case E_PACKET_SC_ANIMATION_TYPE_MOSTER: {
