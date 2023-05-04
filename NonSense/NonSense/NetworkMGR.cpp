@@ -254,10 +254,10 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 
 		if ((E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype == E_PLAYER_ANIMATION_TYPE::E_JUMP) {
-			player->GetComponent<PlayerMovementComponent>()->Jump();
+			player->GetComponent<PlayerMovementComponent>()->b_Jump = true;
 		}
 		else if ((E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype == E_PLAYER_ANIMATION_TYPE::E_DASH) {
-			player->GetComponent<PlayerMovementComponent>()->Dash();
+			player->GetComponent<PlayerMovementComponent>()->b_Dash = true;
 		}
 		else {
 			player->GetComponent<PlayerMovementComponent>()->Animation_type = (E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype;

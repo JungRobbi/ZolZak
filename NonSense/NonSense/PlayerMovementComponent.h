@@ -24,6 +24,10 @@ private:
     float DashCoolTimeLeft = 0.0f;
     bool Dashing = false;
     bool CanDash = true;
+
+    bool b_Jump = false;
+    bool b_Dash = false;
+
 private:
     void Jump();
     void Dash();

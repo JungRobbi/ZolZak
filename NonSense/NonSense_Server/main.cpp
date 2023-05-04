@@ -449,14 +449,17 @@ void ProcessAccept()
 	else // 잘 처리함
 	{
 		shared_ptr<RemoteClient> remoteClient = remoteClientCandidate;
-		remoteClient->m_id = N_CLIENT_ID++;
-		remoteClient->m_pPlayer = make_shared<Player>();
-		remoteClient->m_pPlayer->start();
-		remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
-		remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(-16.0f, Scene::terrain->GetHeight(-16.0f, 103.0f), 103.0f));
-		remoteClient->m_pPlayer->SetPosition(XMFLOAT3(-16.0f, Scene::terrain->GetHeight(-16.0f, 103.0f), 103.0f));
-		remoteClient->m_pPlayer->remoteClient = remoteClient.get();
 
+		{
+			lock_guard<recursive_mutex> lock(mx_accept);
+			remoteClient->m_id = N_CLIENT_ID++;
+			remoteClient->m_pPlayer = make_shared<Player>();
+			remoteClient->m_pPlayer->start();
+			remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
+			remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(-16.0f, Scene::terrain->GetHeight(-16.0f, 103.0f), 103.0f));
+			remoteClient->m_pPlayer->SetPosition(XMFLOAT3(-16.0f, Scene::terrain->GetHeight(-16.0f, 103.0f), 103.0f));
+			remoteClient->m_pPlayer->remoteClient = remoteClient.get();
+		}
 		// 새 TCP 소켓도 IOCP에 추가한다.
 		iocp.Add(remoteClient->tcpConnection, remoteClient.get());
 

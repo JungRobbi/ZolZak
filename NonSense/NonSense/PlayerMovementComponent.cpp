@@ -8,6 +8,13 @@
 
 void PlayerMovementComponent::Jump()
 {
+	if (NetworkMGR::b_isNet) {
+		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, (int)E_PLAYER_ANIMATION_TYPE::E_JUMP);
+		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, (int)E_PLAYER_ANIMATION_TYPE::E_JUMP);
+		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, (int)E_PLAYER_ANIMATION_TYPE::E_JUMP);
+		return;
+	}
+
 	XMFLOAT3 pos = ((Player*)gameObject)->GetPosition();
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)(((Player*)gameObject)->m_pPlayerUpdatedContext);
 
@@ -83,6 +90,12 @@ void PlayerMovementComponent::update()
 		if (Input::InputKeyBuffer[VK_SPACE] & 0xF0 && !NetworkMGR::b_isNet)
 		{
 			Jump();
+		}
+		else if (b_Jump)
+		{
+			cout << "JUMP!" << endl;
+			Jump();
+			b_Jump = false;
 		}
 		if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
 		{
@@ -164,6 +177,11 @@ void PlayerMovementComponent::update()
 		if ((Input::InputKeyBuffer[VK_RBUTTON] & 0xF0) && !Dashing && CanDash && !NetworkMGR::b_isNet)
 		{
 			Dash();
+		}
+		else if (b_Dash)
+		{
+			Dash();
+			b_Dash = false;
 		}
 		//XMFLOAT3 v = ((Player*)gameObject)->GetVelocity();
 		//float len = Vector3::Length(v);
