@@ -1,6 +1,8 @@
 #include "CloseTypeState.h"
 #include <random>
 
+#include "RemoteClients/RemoteClient.h"
+
 std::uniform_real_distribution<float> RandomIdleTime(3.0, 8.0f);
 std::uniform_real_distribution<float> RandomPosDistance(-5.0f, 5.0f);
 std::random_device rd;

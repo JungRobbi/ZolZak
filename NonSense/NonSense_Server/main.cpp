@@ -20,6 +20,7 @@
 #include "Terrain.h"
 
 #include "Components/PlayerMovementComponent.h"
+#include "Components/CloseTypeFSMComponent.h"
 
 using namespace std;
 using namespace concurrency;
@@ -331,51 +332,70 @@ int main(int argc, char* argv[])
 		}
 
 		//Monster test
-		if (((Character*)TempObject)->GetRemainHP() > 0.f) {
-			//Monster Pos
-			for (auto& rc_to : RemoteClient::remoteClients) {
-				if (!rc_to.second->b_Enable)
-					continue;
-				SC_MOVE_MONSTER_PACKET send_packet;
-				send_packet.size = sizeof(SC_MOVE_MONSTER_PACKET);
-				send_packet.type = E_PACKET::E_PACKET_SC_MOVE_MONSTER_PACKET;
-				send_packet.id = ((Goblin*)TempObject)->num;
-				send_packet.x = TempObject->GetPosition().x;
-				send_packet.y = TempObject->GetPosition().y;
-				send_packet.z = TempObject->GetPosition().z;
-				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
-			}
+		for (auto monster : Scene::scene->MonsterObjects) {
+			if (monster->GetRemainHP() < 0.f)
+				continue;
 
-			//Monster Animation
-			if (((Character*)TempObject)->OldAniType != ((Character*)TempObject)->PresentAniType) {
+			if (((Character*)monster)->GetRemainHP() > 0.f) {
+				//Monster Pos
 				for (auto& rc_to : RemoteClient::remoteClients) {
 					if (!rc_to.second->b_Enable)
 						continue;
-					SC_MONSTER_ANIMATION_TYPE_PACKET send_packet;
-					send_packet.size = sizeof(SC_MONSTER_ANIMATION_TYPE_PACKET);
-					send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_MOSTER;
-					send_packet.id = ((Goblin*)TempObject)->num;
-					send_packet.Anitype = ((Character*)TempObject)->PresentAniType;
+					SC_MOVE_MONSTER_PACKET send_packet;
+					send_packet.size = sizeof(SC_MOVE_MONSTER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_MOVE_MONSTER_PACKET;
+					send_packet.id = ((Goblin*)monster)->num;
+					send_packet.x = monster->GetPosition().x;
+					send_packet.y = monster->GetPosition().y;
+					send_packet.z = monster->GetPosition().z;
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
-				((Character*)TempObject)->OldAniType = ((Character*)TempObject)->PresentAniType;
-			}
 
-			auto first = RemoteClient::remoteClients.begin();
-			if (RemoteClient::remoteClients.empty() ||
-				first->second->m_id == 0)
-				continue;
+				//WanderPosition
+				for (auto& rc_to : RemoteClient::remoteClients) {
+					if (!rc_to.second->b_Enable)
+						continue;
+					SC_LOOK_MONSTER_PACKET send_packet;
+					send_packet.size = sizeof(SC_LOOK_MONSTER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_LOOK_MONSTER_PACKET;
+					send_packet.id = ((Goblin*)monster)->num;
+					send_packet.x = monster->GetComponent<CloseTypeFSMComponent>()->WanderPosition.x;
+					send_packet.y = monster->GetComponent<CloseTypeFSMComponent>()->WanderPosition.y;
+					send_packet.z = monster->GetComponent<CloseTypeFSMComponent>()->WanderPosition.z;
+					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				}
 
-			//Monster Target
-			for (auto& rc_to : RemoteClient::remoteClients) {
-				if (!rc_to.second->b_Enable)
+				//Monster Animation
+				if (((Character*)monster)->OldAniType != ((Character*)monster)->PresentAniType) {
+					for (auto& rc_to : RemoteClient::remoteClients) {
+						if (!rc_to.second->b_Enable)
+							continue;
+						SC_MONSTER_ANIMATION_TYPE_PACKET send_packet;
+						send_packet.size = sizeof(SC_MONSTER_ANIMATION_TYPE_PACKET);
+						send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_MOSTER;
+						send_packet.id = ((Goblin*)monster)->num;
+						send_packet.Anitype = ((Character*)monster)->PresentAniType;
+						rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+					}
+					((Character*)monster)->OldAniType = ((Character*)monster)->PresentAniType;
+				}
+
+				auto first = RemoteClient::remoteClients.begin();
+				if (RemoteClient::remoteClients.empty() ||
+					first->second->m_id == 0)
 					continue;
-				SC_AGGRO_PLAYER_PACKET send_packet;
-				send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
-				send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
-				send_packet.player_id = first->second->m_id;
-				send_packet.monster_id = ((Goblin*)TempObject)->num;
-				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+
+				//Monster Target
+				for (auto& rc_to : RemoteClient::remoteClients) {
+					if (!rc_to.second->b_Enable)
+						continue;
+					SC_AGGRO_PLAYER_PACKET send_packet;
+					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
+					send_packet.player_id = first->second->m_id;
+					send_packet.monster_id = ((Goblin*)monster)->num;
+					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				}
 			}
 		}
 	}

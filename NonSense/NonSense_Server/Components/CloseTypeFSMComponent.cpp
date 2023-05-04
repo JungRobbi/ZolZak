@@ -129,6 +129,17 @@ bool CloseTypeFSMComponent::Wander()
 	if (ToTargetAngle > 7.0f)
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(WanderPosition, CurrentPos));
+	
+	for (auto& rc_to : RemoteClient::remoteClients) {
+		if (!rc_to.second->b_Enable)
+			continue;
+		SC_TEMP_WANDER_MONSTER_PACKET send_packet;
+		send_packet.size = sizeof(SC_TEMP_WANDER_MONSTER_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_SC_TEMP_WANDER_MONSTER_PACKET;
+		send_packet.id = ((Goblin*)gameObject)->num;
+		rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+	}
+
 	if (Distance > 0.5f)
 	{
 		Move_Walk(2.0f * Timer::GetTimeElapsed());

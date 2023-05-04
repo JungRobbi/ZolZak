@@ -128,6 +128,7 @@ bool CloseTypeFSMComponent::Wander()
 	if (ToTargetAngle > 7.0f)
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(WanderPosition, CurrentPos));
+
 	if (Distance > 0.5f)
 	{
 		Move_Walk(2.0f * Timer::GetTimeElapsed());

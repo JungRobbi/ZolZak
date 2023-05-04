@@ -7,6 +7,7 @@
 #include "GameFramework.h"
 #include "PlayerMovementComponent.h"
 #include "CloseTypeFSMComponent.h"
+#include "CloseTypeState.h"
 #pragma comment(lib, "WS2_32.LIB")
 
 char* NetworkMGR::SERVERIP = "127.0.0.1";
@@ -355,6 +356,44 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 
 		Monster->SetRemainHP(recv_packet->remain_hp);
+		break;
+	}
+	case E_PACKET_SC_LOOK_MONSTER_PACKET: {
+		SC_LOOK_MONSTER_PACKET* recv_packet = reinterpret_cast<SC_LOOK_MONSTER_PACKET*>(p_Packet);
+		Character* Monster;
+		{
+			auto p = find_if(GameScene::MainScene->MonsterObjects.begin(),
+				GameScene::MainScene->MonsterObjects.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Character*>(lhs)->GetNum() == recv_packet->id;
+				});
+
+			if (p == GameScene::MainScene->MonsterObjects.end())
+				break;
+
+			Monster = dynamic_cast<Character*>(*p);
+		}
+
+		Monster->GetComponent<CloseTypeFSMComponent>()->WanderPosition = XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z);
+		break;
+	}
+	case E_PACKET_SC_TEMP_WANDER_MONSTER_PACKET: {
+		SC_TEMP_WANDER_MONSTER_PACKET* recv_packet = reinterpret_cast<SC_TEMP_WANDER_MONSTER_PACKET*>(p_Packet);
+		Character* Monster;
+		{
+			auto p = find_if(GameScene::MainScene->MonsterObjects.begin(),
+				GameScene::MainScene->MonsterObjects.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Character*>(lhs)->GetNum() == recv_packet->id;
+				});
+
+			if (p == GameScene::MainScene->MonsterObjects.end())
+				break;
+
+			Monster = dynamic_cast<Character*>(*p);
+		}
+		if (Monster->GetComponent<CloseTypeFSMComponent>()->GetFSM()->GetCurrentState() != WanderState::GetInstance())
+			Monster->GetComponent<CloseTypeFSMComponent>()->GetFSM()->ChangeState(WanderState::GetInstance());
 		break;
 	}
 	default:

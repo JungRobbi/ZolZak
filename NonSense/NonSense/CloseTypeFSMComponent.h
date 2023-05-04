@@ -15,9 +15,9 @@ private:
     float ChangeStateDistance = 5.0f;
     Object* TargetPlayer = NULL;
     float IdleLeftTime = 0.0f;
-    XMFLOAT3 WanderPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
     float DeathCount = 3.0f;
 public:
+    XMFLOAT3 WanderPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
     ~CloseTypeFSMComponent() {}
     void start();
     void update();
