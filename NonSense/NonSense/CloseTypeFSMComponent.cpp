@@ -71,18 +71,18 @@ bool CloseTypeFSMComponent::Idle()
 
 void CloseTypeFSMComponent::Stop()
 {
-	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(Animation_type);
+	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_MONSTER_ANIMATION_TYPE::E_M_IDLE);
 }
 
 void CloseTypeFSMComponent::Move_Walk(float dist)
 {
-	gameObject->MoveForward(dist);
-	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(Animation_type);
+//	gameObject->MoveForward(dist);
+	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_MONSTER_ANIMATION_TYPE::E_M_WALK);
 }
 void CloseTypeFSMComponent::Move_Run(float dist)
 {
-	gameObject->MoveForward(dist);
-	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(Animation_type);
+//	gameObject->MoveForward(dist);
+	gameObject->m_pSkinnedAnimationController->ChangeAnimationUseBlending(E_MONSTER_ANIMATION_TYPE::E_M_RUN);
 }
 void CloseTypeFSMComponent::Attack()
 {

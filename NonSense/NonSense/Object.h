@@ -353,6 +353,7 @@ public:
 	XMFLOAT4X4 GetWorld() { return m_xmf4x4World; }
 	Material* GetMaterial() { return m_pMaterial; }
 	Material* GetMaterials(int index) { return m_ppMaterials[index]; }
+	int GetNum() { return Num; }
 	void SetMaterial(Material* pMaterial);
 	void SetMaterial(UINT nReflection);
 	void SetMaterials(int nMaterial, Material* pMaterial);

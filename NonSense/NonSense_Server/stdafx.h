@@ -152,13 +152,13 @@ namespace Vector3
 				XMLoadFloat3(&xmf3Vector2)));
 		return(xmf3Result);
 	}
-	inline XMFLOAT3 Normalize(XMFLOAT3 xmf3Vector)
+	inline XMFLOAT3 Normalize(XMFLOAT3& xmf3Vector)
 	{
 		XMFLOAT3 m_xmf3Normal;
 		XMStoreFloat3(&m_xmf3Normal, XMVector3Normalize(XMLoadFloat3(&xmf3Vector)));
 		return(m_xmf3Normal);
 	}
-	inline float Length(XMFLOAT3 xmf3Vector)
+	inline float Length(XMFLOAT3& xmf3Vector)
 	{
 		XMFLOAT3 xmf3Result;
 		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3Vector)));

@@ -200,6 +200,11 @@ int main(int argc, char* argv[])
 //	Object::LoadMapData_Blend(BlendMapName);
 	cout << "Server Loding Complete!" << endl;
 
+	Object* TempObject = NULL;
+	TempObject = new Goblin(MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(1.0f, 1.0f, 3.0f);
+	((Goblin*)TempObject)->num = 1;
+
 
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	Scene::terrain = new HeightMapTerrain(_T("Terrain/terrain.raw"), 800, 800, xmf3Scale);
@@ -308,6 +313,22 @@ int main(int argc, char* argv[])
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
 				rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->is_Rotate = false;
+			}
+
+			//Monster test
+			{	
+				for (auto& rc_to : RemoteClient::remoteClients) {
+					if (!rc_to.second->b_Enable)
+						continue;
+					SC_MOVE_MONSTER_PACKET send_packet;
+					send_packet.size = sizeof(SC_MOVE_MONSTER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_MOVE_MONSTER_PACKET;
+					send_packet.id = ((Goblin*)TempObject)->num;
+					send_packet.x = TempObject->GetPosition().x;
+					send_packet.y = TempObject->GetPosition().y;
+					send_packet.z = TempObject->GetPosition().z;
+					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				}
 			}
 		}
 	}

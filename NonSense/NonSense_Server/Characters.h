@@ -24,7 +24,7 @@ protected:
 	E_MONSTER_ANIMATION_TYPE PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_IDLE;
 
 public:
-
+	int num;
 	Character();
 	virtual ~Character();
 	virtual void GetHit(float damage) { m_RemainHP -= damage; }

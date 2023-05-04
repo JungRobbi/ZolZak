@@ -18,6 +18,9 @@ class Scene
 	concurrency::concurrent_queue<Object*> deletionQueue;
 //	std::deque<Object*> deletionQueue;
 
+	concurrency::concurrent_queue<Character*> creationMonsterQueue;
+	concurrency::concurrent_queue<Character*> deletionMonsterQueue;
+
 	std::list<Object*> gameObjects;
 
 public:
@@ -35,6 +38,10 @@ public:
 		for (auto object : gameObjects)
 			delete object;
 		gameObjects.clear();
+
+		for (auto object : MonsterObjects)
+			delete object;
+		MonsterObjects.clear();
 	}
 	virtual void update();
 
@@ -45,4 +52,5 @@ public:
 	}
 
 	friend Object;
+	friend Character;
 };

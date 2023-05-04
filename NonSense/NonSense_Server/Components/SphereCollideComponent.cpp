@@ -8,7 +8,7 @@ void SphereCollideComponent::start()
 		m_BoundingObject->Center = Center;
 		m_BoundingObject->Radius = Radius;
 
-	//	m_BoundingObject->Transform(*m_BoundingObject, XMLoadFloat4x4(&gameObject->GetWorld()));
+		m_BoundingObject->Transform(*m_BoundingObject, XMLoadFloat4x4(&gameObject->GetWorld()));
 
 		m_BoundingObject->m_xmf4x4ToParent = gameObject->GetWorld();
 		m_BoundingObject->SetScale(m_BoundingObject->Radius, m_BoundingObject->Radius, m_BoundingObject->Radius);
@@ -23,7 +23,7 @@ void SphereCollideComponent::update()
 		m_BoundingObject->Center = Center;
 		m_BoundingObject->Radius = Radius;
 
-	//	m_BoundingObject->Transform(*m_BoundingObject, XMLoadFloat4x4(&gameObject->GetWorld()));
+		m_BoundingObject->Transform(*m_BoundingObject, XMLoadFloat4x4(&gameObject->GetWorld()));
 
 		m_BoundingObject->m_xmf4x4ToParent = gameObject->GetWorld();
 		m_BoundingObject->SetScale(m_BoundingObject->Radius, m_BoundingObject->Radius, m_BoundingObject->Radius);

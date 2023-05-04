@@ -2,6 +2,7 @@
 
 #include "stdafx.h"
 #include <list>
+#include <concurrent_vector.h>
 #include "Mesh.h"
 #include "Components/Component.h"
 
@@ -40,7 +41,7 @@ class Object
 {
 	char isuse = 1; // Object를 Scene에 사용하는지를 구분하기 위한 변수
 protected:
-	std::list<Component*> components;
+	concurrency::concurrent_vector<Component*> components;
 public:
 	Object();
 	// GameScene의 gameobjects 리스트에 안넣기 위해 만든 생성자

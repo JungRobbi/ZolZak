@@ -23,6 +23,8 @@ FSM<CloseTypeFSMComponent>* CloseTypeFSMComponent::GetFSM()
 bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 {
 	XMFLOAT3 OwnerPos = gameObject->GetPosition();
+	if (RemoteClient::remoteClients.empty())
+		return false;
 	auto first = RemoteClient::remoteClients.begin()->second;
 	XMFLOAT3 PlayerPos = first->m_pPlayer->GetPosition();
 	TargetPlayer = first->m_pPlayer.get();
@@ -73,18 +75,15 @@ bool CloseTypeFSMComponent::Idle()
 
 void CloseTypeFSMComponent::Stop()
 {
-	dynamic_cast<Character*>(gameObject)->SetAniType(E_MONSTER_ANIMATION_TYPE::E_M_IDLE);
 }
 
 void CloseTypeFSMComponent::Move_Walk(float dist)
 {
 	gameObject->MoveForward(dist);
-	dynamic_cast<Character*>(gameObject)->SetAniType(E_MONSTER_ANIMATION_TYPE::E_M_WALK);
 }
 void CloseTypeFSMComponent::Move_Run(float dist)
 {
 	gameObject->MoveForward(dist);
-	dynamic_cast<Character*>(gameObject)->SetAniType(E_MONSTER_ANIMATION_TYPE::E_M_RUN);
 }
 void CloseTypeFSMComponent::Attack()
 {
