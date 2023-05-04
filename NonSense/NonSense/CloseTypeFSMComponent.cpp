@@ -139,9 +139,11 @@ bool CloseTypeFSMComponent::Wander()
 void CloseTypeFSMComponent::Death()
 {
 	DeathCount -= Timer::GetTimeElapsed();
+	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 	if (DeathCount < 0.0f)
 	{
 		//GameScene::MainScene->PushDelete((Character*)gameObject);
 		GameScene::MainScene->deletionMonsterQueue.push_back((Character*)gameObject);
+		gameObject->m_pSkinnedAnimationController->SetTrackEnable(0, false);
 	}
 }
