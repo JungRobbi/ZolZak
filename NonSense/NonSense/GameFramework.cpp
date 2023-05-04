@@ -564,6 +564,12 @@ LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessa
 	}
 	return(0);
 }
+void GameFramework::SetWindowCentser(RECT rect)
+{
+	WindowPos = rect;
+	CenterOfWindow.x = (rect.right - rect.left) / 2;
+	CenterOfWindow.y = (rect.bottom - rect.top) / 2;
+}
 void GameFramework::ChangeScene(unsigned char num)
 {
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
@@ -634,12 +640,35 @@ void GameFramework::ProcessInput()
 	float cxDelta = 0.0f, cyDelta = 0.0f;
 	POINT ptCursorPos;
 
+	if (!m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose)
+	{
+		::SetCapture(m_hWnd);
+		RECT rect;
+		::GetWindowRect(m_hWnd, &rect);
+		SetWindowCentser(rect);
+
+		//마우스 커서를 화면에서 없앤다(보이지 않게 한다).
+		::SetCursor(NULL);
+		//현재 마우스 커서의 위치를 가져온다.
+		::GetCursorPos(&ptCursorPos);
+		//마우스 버튼이 눌린 상태에서 마우스가 움직인 양을 구한다.
+		cxDelta = (float)(ptCursorPos.x - CenterOfWindow.x) / 3.0f;
+		cyDelta = (float)(ptCursorPos.y - CenterOfWindow.y) / 3.0f;
+		//마우스 커서의 위치를 마우스가 눌려졌던 위치로 설정한다.
+
+		::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
+	}
+	if (cxDelta || cyDelta)
+	{
+		m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+	}
+
+
 	if (::GetCapture() == m_hWnd)
 	{
 		::SetCapture(m_hWnd);
 		RECT rect;
 		::GetWindowRect(m_hWnd, &rect);
-		::GetCursorPos(&ptCursorPos);
 		if (scene_type != GAME_SCENE) {
 			float px = (ptCursorPos.x - rect.left)/ (float)FRAME_BUFFER_WIDTH;
 			float py = (ptCursorPos.y - rect.top - 10)/ (float)FRAME_BUFFER_HEIGHT;
@@ -710,13 +739,6 @@ void GameFramework::FrameAdvance()
 
 	Sound::SystemUpdate(); //FMOD System Update
 
-	if (!m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose)
-	{
-		::SetCapture(m_hWnd);
-		RECT rect;
-		::GetWindowRect(m_hWnd, &rect);
-		m_pPlayer->GetComponent<PlayerMovementComponent>()->SetWindowPos(rect);
-	}
 
 	if (NetworkMGR::b_isNet)
 		NetworkMGR::Tick();
@@ -724,6 +746,11 @@ void GameFramework::FrameAdvance()
 	ChatMGR::UpdateText();
 
 	ProcessInput();
+
+
+
+
+
 	AnimateObjects();
 	GameScene::MainScene->update();
 

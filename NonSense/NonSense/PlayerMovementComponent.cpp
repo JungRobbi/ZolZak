@@ -63,27 +63,7 @@ void PlayerMovementComponent::start()
 
 void PlayerMovementComponent::update()
 {
-	float cxDelta = 0.0f, cyDelta = 0.0f;
-	
-	if (!CursorExpose)
-	{
-		//마우스 커서를 화면에서 없앤다(보이지 않게 한다).
-		::SetCursor(NULL);
-		//현재 마우스 커서의 위치를 가져온다.
-		::GetCursorPos(&ptCursorPos);
-		//마우스 버튼이 눌린 상태에서 마우스가 움직인 양을 구한다.
-		cxDelta = (float)(ptCursorPos.x - CenterOfWindow.x) / 3.0f;
-		cyDelta = (float)(ptCursorPos.y - CenterOfWindow.y) / 3.0f;
-		//마우스 커서의 위치를 마우스가 눌려졌던 위치로 설정한다.
-	
-		::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 
-
-	}
-	if (cxDelta || cyDelta)
-	{
-		((Player*)gameObject)->Rotate(cyDelta, cxDelta, 0.0f);
-	}
 
 	if (((Player*)gameObject)->m_pSkinnedAnimationController)
 	{
@@ -171,7 +151,6 @@ void PlayerMovementComponent::update()
 		{
 			CursorCoolTime = 0.0f;
 			CursorExpose = !CursorExpose; 
-			::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 		}
 
 		if ((Input::InputKeyBuffer[VK_RBUTTON] & 0xF0) && !Dashing && CanDash && !NetworkMGR::b_isNet)
