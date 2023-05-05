@@ -21,6 +21,8 @@ public:
 	int AttackCombo1_AnineSetNum = 6;
 	int AttackCombo2_AnineSetNum = 8;
 	int AttackCombo3_AnineSetNum = 9;
+
+	bool b_Attack = false;
 private:
 	float NextAttackInputTime = 0.5;
 	float AttackDuration = 1.06;

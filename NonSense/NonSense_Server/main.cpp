@@ -28,7 +28,7 @@ using namespace concurrency;
 volatile bool stopWorking = false;
 
 const int N_THREAD{ 1 };
-static unsigned long long N_CLIENT_ID{ 0 };
+static unsigned long long N_CLIENT_ID{ 1 };
 
 shared_ptr<Scene> scene;
 

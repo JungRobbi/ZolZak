@@ -262,7 +262,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			player->GetComponent<PlayerMovementComponent>()->b_Dash = true;
 		}
 		else if ((E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype == E_PLAYER_ANIMATION_TYPE::E_ATTACK0) {
-			player->GetComponent<AttackComponent>()->Attack();
+			player->GetComponent<AttackComponent>()->b_Attack = true;
 		}
 		else {
 			player->GetComponent<PlayerMovementComponent>()->Animation_type = (E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype;

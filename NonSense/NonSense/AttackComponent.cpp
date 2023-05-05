@@ -110,6 +110,13 @@ void AttackComponent::update()
 					Attack();
 				}
 			}
+			else {
+				if (!During_Attack && b_Attack)
+				{
+					Attack();
+					b_Attack = false;
+				}
+			}
 		}
 	}
 	if (AttackTimeLeft > 0.0f)
