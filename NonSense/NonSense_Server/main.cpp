@@ -28,7 +28,7 @@ using namespace concurrency;
 volatile bool stopWorking = false;
 
 const int N_THREAD{ 1 };
-static unsigned long long N_CLIENT_ID{ 1 };
+static unsigned long long N_CLIENT_ID{ 10 };
 
 shared_ptr<Scene> scene;
 
@@ -380,9 +380,7 @@ int main(int argc, char* argv[])
 					((Character*)monster)->OldAniType = ((Character*)monster)->PresentAniType;
 				}
 
-				auto first = RemoteClient::remoteClients.begin();
-				if (RemoteClient::remoteClients.empty() ||
-					first->second->m_id == 0)
+				if (RemoteClient::remoteClients.empty())
 					continue;
 
 				//Monster Target
@@ -392,7 +390,7 @@ int main(int argc, char* argv[])
 					SC_AGGRO_PLAYER_PACKET send_packet;
 					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
 					send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
-					send_packet.player_id = first->second->m_id;
+					send_packet.player_id = 10;
 					send_packet.monster_id = ((Goblin*)monster)->num;
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
@@ -472,7 +470,6 @@ void ProcessAccept()
 
 		{
 			lock_guard<recursive_mutex> lock(mx_accept);
-			remoteClient->m_id = N_CLIENT_ID++;
 			remoteClient->m_pPlayer = make_shared<Player>();
 			remoteClient->m_pPlayer->start();
 			remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
@@ -498,7 +495,6 @@ void ProcessAccept()
 			// 새 클라이언트를 목록에 추가.
 
 			RemoteClient::remoteClients.insert({ remoteClient.get(), remoteClient });
-
 			cout << "Client joined. There are " << RemoteClient::remoteClients.size() << " connections.\n";
 			
 		}
