@@ -40,6 +40,11 @@ void AttackComponent::Attack()
 		}
 	}
 
+	AttackAnimate();
+}
+
+void AttackComponent::AttackAnimate() 
+{
 	if (!Type_ComboAttack)
 	{
 		gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(AttackCombo1_AnineSetNum);
@@ -62,7 +67,7 @@ void AttackComponent::Attack()
 			break;
 		case Combo3:
 			gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(AttackCombo3_AnineSetNum);
-			gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);			
+			gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 			type = Combo1;
 			break;
 		}
@@ -98,7 +103,7 @@ void AttackComponent::update()
 	if (dynamic_cast<Player*>(gameObject)) {
 		if (((Player*)gameObject)->m_pSkinnedAnimationController)
 		{
-			if ((Input::InputKeyBuffer[VK_LBUTTON] & 0xF0))
+			if ((Input::InputKeyBuffer[VK_LBUTTON] & 0xF0) && !NetworkMGR::b_isNet)
 			{
 				if (!During_Attack)
 				{

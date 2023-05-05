@@ -73,7 +73,6 @@ void PlayerMovementComponent::update()
 		}
 		else if (b_Jump)
 		{
-			cout << "JUMP!" << endl;
 			Jump();
 			b_Jump = false;
 		}

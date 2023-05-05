@@ -36,6 +36,7 @@ public:
 	void SetAttackSpeed(float speed);
 
 	void Attack();
+	void AttackAnimate();
 	void SetBoundingObject(BoundBox* bd) { AttackRange = bd; }
 };
 

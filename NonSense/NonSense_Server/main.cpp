@@ -605,6 +605,19 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 			}
 		}
 			break;
+		case VK_LBUTTON: {
+			for (auto& rc : RemoteClient::remoteClients) {
+				if (!rc.second->b_Enable)
+					continue;
+				SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
+				send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
+				send_packet.id = p_Client->m_id;
+				send_packet.Anitype = E_PLAYER_ANIMATION_TYPE::E_ATTACK0;
+				p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
+			break;
+		}
 		default:
 			break;
 		}

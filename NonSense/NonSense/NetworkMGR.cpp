@@ -8,6 +8,7 @@
 #include "PlayerMovementComponent.h"
 #include "CloseTypeFSMComponent.h"
 #include "CloseTypeState.h"
+#include "AttackComponent.h"
 #pragma comment(lib, "WS2_32.LIB")
 
 char* NetworkMGR::SERVERIP = "127.0.0.1";
@@ -259,6 +260,9 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		else if ((E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype == E_PLAYER_ANIMATION_TYPE::E_DASH) {
 			player->GetComponent<PlayerMovementComponent>()->b_Dash = true;
+		}
+		else if ((E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype == E_PLAYER_ANIMATION_TYPE::E_ATTACK0) {
+			player->GetComponent<AttackComponent>()->Attack();
 		}
 		else {
 			player->GetComponent<PlayerMovementComponent>()->Animation_type = (E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype;

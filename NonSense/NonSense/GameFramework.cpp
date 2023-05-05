@@ -350,7 +350,7 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 	LPARAM lParam)
 {
 	if (NetworkMGR::b_isNet) {
-		if (nMessageID == WM_RBUTTONDOWN) {
+		if (nMessageID == WM_RBUTTONDOWN || nMessageID == WM_LBUTTONDOWN) {
 			CS_KEYDOWN_PACKET send_packet;
 			send_packet.size = sizeof(CS_KEYDOWN_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_CS_KEYDOWN;
@@ -358,7 +358,7 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 			PacketQueue::AddSendPacket(&send_packet);
 
 		}
-		else if (nMessageID == WM_RBUTTONUP) {
+		else if (nMessageID == WM_RBUTTONUP || nMessageID == WM_LBUTTONUP) {
 			CS_KEYUP_PACKET send_packet;
 			send_packet.size = sizeof(CS_KEYUP_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_CS_KEYUP;
