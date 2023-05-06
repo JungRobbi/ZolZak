@@ -667,6 +667,7 @@ void GameFramework::ProcessInput()
 	{
 		::SetCapture(m_hWnd);
 		RECT rect;
+		::GetCursorPos(&ptCursorPos);
 		::GetWindowRect(m_hWnd, &rect);
 		if (scene_type != GAME_SCENE) {
 			float px = (ptCursorPos.x - rect.left)/ (float)FRAME_BUFFER_WIDTH;
