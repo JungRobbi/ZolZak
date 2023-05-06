@@ -376,7 +376,6 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 		//마우스 캡쳐를 하고 현재 마우스 위치를 가져온다.
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
-
 		break;
 	case WM_RBUTTONDOWN:
 		break;

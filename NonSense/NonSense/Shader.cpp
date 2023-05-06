@@ -318,24 +318,7 @@ D3D12_SHADER_BYTECODE BillboardShader::CreatePixelShader(ID3DBlob** ppd3dShaderB
 {
 	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSBillboard", "ps_5_1", ppd3dShaderBlob));
 }
-//D3D12_BLEND_DESC BillboardShader::CreateBlendState()
-//{
-//	D3D12_BLEND_DESC d3dBlendDesc;
-//	::ZeroMemory(&d3dBlendDesc, sizeof(D3D12_BLEND_DESC));
-//	d3dBlendDesc.AlphaToCoverageEnable = TRUE;
-//	d3dBlendDesc.IndependentBlendEnable = FALSE;
-//	d3dBlendDesc.RenderTarget[0].BlendEnable = TRUE;
-//	d3dBlendDesc.RenderTarget[0].LogicOpEnable = FALSE;
-//	d3dBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
-//	d3dBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-//	d3dBlendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-//	d3dBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-//	d3dBlendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-//	d3dBlendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-//	d3dBlendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
-//	d3dBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-//	return(d3dBlendDesc);
-//}
+
 D3D12_RASTERIZER_DESC BillboardShader::CreateRasterizerState()
 {
 	D3D12_RASTERIZER_DESC d3dRasterizerDesc;
@@ -556,27 +539,7 @@ D3D12_INPUT_LAYOUT_DESC StandardShader::CreateInputLayout()
 	return(d3dInputLayoutDesc);
 
 }
-//void StandardShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-//{
-//	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-//	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbGameObjectBytes * m_nObjects, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-//	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
-//}
-////객체의 월드변환 행렬과 재질 번호를 상수 버퍼에 쓴다.
-//void StandardShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
-//{
-//	UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
-//	XMFLOAT4X4 xmf4x4World;
-//
-//	int k = 0;
-//	for (auto gameobject : GameScene::MainScene->GetObjects())
-//	{
-//		XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&gameobject->GetWorld())));
-//		CB_GAMEOBJECT_INFO* pbMappedcbGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects + (k * ncbGameObjectBytes));
-//		::memcpy(&pbMappedcbGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
-//		pbMappedcbGameObject->m_nObjectID = k++;
-//	}
-//}
+
 void StandardShader::ReleaseShaderVariables()
 {
 	if (m_pd3dcbGameObjects)
