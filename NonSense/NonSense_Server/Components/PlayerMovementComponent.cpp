@@ -37,7 +37,13 @@ void PlayerMovementComponent::update()
 		direction |= DIR_RIGHT;*/
 
 	if (direction) {
-		Move(direction, 50.0f * Timer::GetTimeElapsed(), false);
+		/*if (dynamic_cast<Player*>(gameObject)->PresentAniType == E_PLAYER_ANIMATION_TYPE::E_WALK) {
+			SetMaxVelocityXZ(3.f);
+			Move(direction, 10.0f * Timer::GetTimeElapsed(), false);
+		}
+		else {
+			Move(direction, 40.0f * Timer::GetTimeElapsed(), false);
+		}*/
 	}
 	updateValocity();
 
@@ -95,6 +101,13 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 
 void PlayerMovementComponent::updateValocity()
 {
+	if (dynamic_cast<Player*>(gameObject)->PresentAniType == E_PLAYER_ANIMATION_TYPE::E_WALK) {
+		SetMaxVelocityXZ(1.8f);
+	}
+	else {
+		SetMaxVelocityXZ(6.5f);
+	}
+
 	auto fTimeElapsed = Timer::GetTimeElapsed();
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity, fTimeElapsed, false));
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
@@ -124,7 +137,7 @@ void PlayerMovementComponent::Jump()
 
 	float fHeight = pTerrain->GetHeight(m_xmf3Position.x - pTerrain->GetPosition().x, m_xmf3Position.z - pTerrain->GetPosition().z);
 	if (m_xmf3Position.y <= fHeight) {
-		m_xmf3Velocity.y = 25.f;
+		m_xmf3Velocity.y = 22.f;
 	}
 }
 
