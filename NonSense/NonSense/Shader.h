@@ -125,6 +125,7 @@ public:
 
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 
+	void SetDescriptorHeap(ID3D12GraphicsCommandList* pd3dCommandList);
 protected:
 	CTexture* m_pTexture = NULL;
 	D3D12_CPU_DESCRIPTOR_HANDLE* m_pRTVDescriptorHandles = NULL;

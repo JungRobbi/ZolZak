@@ -479,6 +479,11 @@ void ScreenShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pC
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 }
 
+void ScreenShader::SetDescriptorHeap(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	pd3dCommandList->SetDescriptorHeaps(1, &m_CBVSRVDescriptorHeap);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

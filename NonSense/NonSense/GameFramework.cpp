@@ -788,6 +788,7 @@ void GameFramework::FrameAdvance()
 	m_pScreen->Render(m_pCommandList, m_pCamera);
 
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
+
 	// 투명 오브젝트
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
@@ -795,7 +796,12 @@ void GameFramework::FrameAdvance()
 	// Bounding Box
 	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
 	// Debug 화면
-	if (DebugMode) m_pDebug->Render(m_pCommandList, m_pCamera);
+	
+	if (DebugMode)
+	{
+		m_pScreen->SetDescriptorHeap(m_pCommandList);
+		m_pDebug->Render(m_pCommandList, m_pCamera);
+	}
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
