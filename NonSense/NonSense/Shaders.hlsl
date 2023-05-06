@@ -170,7 +170,8 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 
 	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection);
 	if (Edge)
-		return(LineColor);
+		return (LineColor);
+
 	else
 		return(cColor);
 }
