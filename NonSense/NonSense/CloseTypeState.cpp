@@ -2,10 +2,10 @@
 #include "Characters.h"
 #include <random>
 
-std::uniform_real_distribution<float> RandomIdleTime(3.0, 8.0f);
-std::uniform_real_distribution<float> RandomPosDistance(-5.0f, 5.0f);
-std::random_device rd;
-std::default_random_engine dre(rd());
+static std::uniform_real_distribution<float> RandomIdleTime(3.0, 8.0f);
+static std::uniform_real_distribution<float> RandomPosDistance(-5.0f, 5.0f);
+static std::random_device rd;
+static std::default_random_engine dre(rd());
 
 
 WanderState* WanderState::GetInstance()
