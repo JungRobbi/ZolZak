@@ -94,7 +94,7 @@ void FarTypeFSMComponent::Move_Run(float dist)
 void FarTypeFSMComponent::Attack()
 {
 	if (!gameObject->GetComponent<MonsterAttackComponent>()->During_Attack)
-		gameObject->GetComponent<MonsterAttackComponent>()->Attack_Far();
+		gameObject->GetComponent<MonsterAttackComponent>()->FarTypeAttack();
 }
 
 void FarTypeFSMComponent::Track()
