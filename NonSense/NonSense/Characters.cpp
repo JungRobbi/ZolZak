@@ -23,7 +23,6 @@ Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 	m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[5]->m_nType = ANIMATION_TYPE_ONCE;
 	m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[6]->m_nType = ANIMATION_TYPE_ONCE;
 
-	GameScene::MainScene->creationMonsterQueue.push((Character*)this);
 }
 
 Character::~Character()
@@ -35,8 +34,18 @@ void Character::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 	Object::Render(pd3dCommandList, pCamera);
 }
 
-Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) :
-	Character(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
+Monster::Monster(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Character(pd3dDevice,pd3dCommandList, pd3dGraphicsRootSignature, pModel)
+{
+	GameScene::MainScene->creationMonsterQueue.push((Monster*)this);
+}
+
+void Monster::OnPrepareRender()
+{
+	Object::OnPrepareRender();
+	m_pHP->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, GetComponent<BoxCollideComponent>()->GetBoundingObject()->Extents.y * 2 + 0.3, 0)));
+	m_pHP->HP = m_RemainHP / m_Health;
+}
+Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) : Monster(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
 	m_pBoundingShader = new BoundingShader();
 	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -109,11 +118,5 @@ Goblin::~Goblin()
 {
 }
 
-void Character::OnPrepareRender()
-{
-	Object::OnPrepareRender();
-	m_pHP->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, GetComponent<BoxCollideComponent>()->GetBoundingObject()->Extents.y * 2 + 0.3, 0)));
-	m_pHP->HP = m_RemainHP / m_Health;
-}
 
 

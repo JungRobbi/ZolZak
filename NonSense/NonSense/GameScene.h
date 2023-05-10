@@ -53,9 +53,9 @@ public:
 	std::deque<Object*> deletionQueue;
 	std::list<Object*> gameObjects;
 
-	std::queue<Character*> creationMonsterQueue;
-	std::deque<Character*> deletionMonsterQueue;
-	std::list<Character*> MonsterObjects;
+	std::queue<Monster*> creationMonsterQueue;
+	std::deque<Monster*> deletionMonsterQueue;
+	std::list<Monster*> MonsterObjects;
 
 	std::queue<Object*> creationBlendQueue;
 	std::deque<Object*> deletionBlendQueue;

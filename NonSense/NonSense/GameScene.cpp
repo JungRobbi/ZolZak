@@ -153,8 +153,8 @@ void GameScene::PushDelete(Object* gameObject)
 		deletionUIQueue.push_back(gameObject);
 	if (std::find(deletionBoundingQueue.begin(), deletionBoundingQueue.end(), gameObject) == deletionBoundingQueue.end())
 		deletionBoundingQueue.push_back(gameObject);
-	if (std::find(deletionMonsterQueue.begin(), deletionMonsterQueue.end(), (Character*)gameObject) == deletionMonsterQueue.end())
-		deletionMonsterQueue.push_back((Character*)gameObject);
+	if (std::find(deletionMonsterQueue.begin(), deletionMonsterQueue.end(), (Monster*)gameObject) == deletionMonsterQueue.end())
+		deletionMonsterQueue.push_back((Monster*)gameObject);
 }
 
 void GameScene::render()

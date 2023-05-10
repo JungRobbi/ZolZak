@@ -64,12 +64,13 @@ public:
 	float HP = 1.0;
 };
 
-class Player_HP_DEC_UI : public Player_HP_UI
+class Player_HP_DEC_UI : public UI
 {
 public:
 	Player_HP_DEC_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~Player_HP_DEC_UI() {};
 	virtual void update();
+	float HP = 1.0;
 	float Dec_HP = 1.0;
 };
 
