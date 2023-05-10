@@ -3,12 +3,12 @@
 void MonsterAttackComponent::FarTypeAttack()
 {
 	During_Attack = true;
-	((Character*)gameObject)->FarTypeAttack(); 
+	((Monster*)gameObject)->FarTypeAttack(); 
 }
 void MonsterAttackComponent::RushTypeAttack()
 {
 	During_Attack = true;
-	((Character*)gameObject)->FarTypeAttack();
+	((Monster*)gameObject)->FarTypeAttack();
 }
 
 void MonsterAttackComponent::start()

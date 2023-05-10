@@ -34,8 +34,7 @@ public:
 	void SetRemainHP(float f) { m_RemainHP = f; }
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 
-	void FarTypeAttack();
-	void RushTypeAttack();
+
 };
 class Monster : public Character
 {
@@ -45,6 +44,11 @@ public:
 	Monster_HP_UI* m_pHP = NULL;
 	Shader* m_pBoundingShader = NULL;
 	CubeMesh* m_pBoundMesh = NULL;
+
+
+public:
+	void FarTypeAttack();
+	void RushTypeAttack();
 };
 class Goblin : public Monster
 {
