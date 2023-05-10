@@ -186,7 +186,7 @@ void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
     memset(m_textbuf, NULL, sizeof(m_textbuf));
     m_combtext = NULL;
 
-    pd2dBrush = m_pUILayer->CreateBrush(D2D1::ColorF(D2D1::ColorF::Aquamarine, 1.0f));
+    pd2dBrush = m_pUILayer->CreateBrush(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
     pdwTextFormat = m_pUILayer->CreateTextFormat(L"Arial", WndClientHeight / 25.0f);
   //d2dRect = D2D1::RectF((float)WndClientWidth / 3.2f, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
     d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
