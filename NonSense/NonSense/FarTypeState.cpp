@@ -1,4 +1,4 @@
-#include "CloseTypeState.h"
+#include "FarTypeState.h"
 #include "Characters.h"
 #include <random>
 
@@ -8,13 +8,13 @@ static std::random_device rd;
 static std::default_random_engine dre(rd());
 
 
-WanderState* WanderState::GetInstance()
+WanderState_Far* WanderState_Far::GetInstance()
 {
-	static WanderState state;
+	static WanderState_Far state;
 	return &state;
 }
 
-void WanderState::Enter(CloseTypeFSMComponent* pOwner)
+void WanderState_Far::Enter(FarTypeFSMComponent* pOwner)
 {
 	std::cout << "Start Wandering" << std::endl;
 	pOwner->Stop();
@@ -24,109 +24,109 @@ void WanderState::Enter(CloseTypeFSMComponent* pOwner)
 	pOwner->ResetWanderPosition(NewPosx, NewPosz);
 }
 
-void WanderState::Execute(CloseTypeFSMComponent* pOwner)
+void WanderState_Far::Execute(FarTypeFSMComponent* pOwner)
 {
 	if (dynamic_cast<Character*>(pOwner->gameObject)->GetRemainHP() <= 0.0f)
 	{
-		pOwner->GetFSM()->ChangeState(DeathState::GetInstance());
+		pOwner->GetFSM()->ChangeState(DeathState_Far::GetInstance());
 	}
 
 	if (pOwner->CheckDistanceFromPlayer())
 	{
-		pOwner->GetFSM()->ChangeState(TrackEnemyState::GetInstance());
+		pOwner->GetFSM()->ChangeState(TrackEnemyState_Far::GetInstance());
 	}
 	if (pOwner->Wander())
 	{
-		pOwner->GetFSM()->ChangeState(IdleState::GetInstance());
+		pOwner->GetFSM()->ChangeState(IdleState_Far::GetInstance());
 	}
 }
 
-void WanderState::Exit(CloseTypeFSMComponent* pOwner)
+void WanderState_Far::Exit(FarTypeFSMComponent* pOwner)
 {
 	std::cout << "Stop Wandering" << std::endl;
 }
 
-TrackEnemyState* TrackEnemyState::GetInstance()
+TrackEnemyState_Far* TrackEnemyState_Far::GetInstance()
 {
-	static TrackEnemyState state;
+	static TrackEnemyState_Far state;
 	return &state;
 }
 
-void TrackEnemyState::Enter(CloseTypeFSMComponent* pOwner)
+void TrackEnemyState_Far::Enter(FarTypeFSMComponent* pOwner)
 {
 	std::cout << "Start Tracking" << std::endl;
 
 }
 
-void TrackEnemyState::Execute(CloseTypeFSMComponent* pOwner)
+void TrackEnemyState_Far::Execute(FarTypeFSMComponent* pOwner)
 {
 	if (dynamic_cast<Character*>(pOwner->gameObject)->GetRemainHP() <= 0.0f)
 	{
-		pOwner->GetFSM()->ChangeState(DeathState::GetInstance());
+		pOwner->GetFSM()->ChangeState(DeathState_Far::GetInstance());
 	}
 	pOwner->Track();
 	if (!pOwner->CheckDistanceFromPlayer())
 	{
-		pOwner->GetFSM()->ChangeState(IdleState::GetInstance());
+		pOwner->GetFSM()->ChangeState(IdleState_Far::GetInstance());
 	}
 }
 
-void TrackEnemyState::Exit(CloseTypeFSMComponent* pOwner)
+void TrackEnemyState_Far::Exit(FarTypeFSMComponent* pOwner)
 {
 	std::cout << "Stop Tracking" << std::endl;
 }
 
-IdleState* IdleState::GetInstance()
+IdleState_Far* IdleState_Far::GetInstance()
 {
-	static IdleState state;
+	static IdleState_Far state;
 	return &state;
 }
 
-void IdleState::Enter(CloseTypeFSMComponent* pOwner)
+void IdleState_Far::Enter(FarTypeFSMComponent* pOwner)
 {
 	std::cout << "Start Idle" << std::endl;
 	pOwner->Stop();
 	pOwner->ResetIdleTime(RandomIdleTime(rd));
 }
 
-void IdleState::Execute(CloseTypeFSMComponent* pOwner)
+void IdleState_Far::Execute(FarTypeFSMComponent* pOwner)
 {
 	if (dynamic_cast<Character*>(pOwner->gameObject)->GetRemainHP() <= 0.0f)
 	{
-		pOwner->GetFSM()->ChangeState(DeathState::GetInstance());
+		pOwner->GetFSM()->ChangeState(DeathState_Far::GetInstance());
 	}
 	if (pOwner->CheckDistanceFromPlayer())
 	{
-		pOwner->GetFSM()->ChangeState(TrackEnemyState::GetInstance());
+		pOwner->GetFSM()->ChangeState(TrackEnemyState_Far::GetInstance());
 	}
 	if (pOwner->Idle())
 	{
-		pOwner->GetFSM()->ChangeState(WanderState::GetInstance());
+		pOwner->GetFSM()->ChangeState(WanderState_Far::GetInstance());
 	}
 }
 
-void IdleState::Exit(CloseTypeFSMComponent* pOwner)
+void IdleState_Far::Exit(FarTypeFSMComponent* pOwner)
 {
 	std::cout << "Stop Idel" << std::endl;
 }
 
-DeathState* DeathState::GetInstance()
+DeathState_Far* DeathState_Far::GetInstance()
 {
-	static DeathState state;
+	static DeathState_Far state;
 	return &state;
 }
 
-void DeathState::Enter(CloseTypeFSMComponent* pOwner)
+void DeathState_Far::Enter(FarTypeFSMComponent* pOwner)
 {
 	std::cout << "Unit Die" << std::endl;
 	pOwner->gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_DEATH);
 }
 
-void DeathState::Execute(CloseTypeFSMComponent* pOwner)
+void DeathState_Far::Execute(FarTypeFSMComponent* pOwner)
 {
 	pOwner->Death();
 }
 
-void DeathState::Exit(CloseTypeFSMComponent* pOwner)
+void DeathState_Far::Exit(FarTypeFSMComponent* pOwner)
 {
 }

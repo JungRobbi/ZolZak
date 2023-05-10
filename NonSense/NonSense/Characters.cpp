@@ -2,6 +2,8 @@
 #include "BoxCollideComponent.h"
 #include "GameScene.h"
 #include "CloseTypeFSMComponent.h"
+#include "FarTypeFSMComponent.h"
+#include "MonsterAttackComponent.h"
 #include "AttackComponent.h"
 Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Object(false)
 {
@@ -44,6 +46,14 @@ void Monster::OnPrepareRender()
 	m_pHP->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, GetComponent<BoxCollideComponent>()->GetBoundingObject()->Extents.y * 2 + 0.3, 0)));
 	m_pHP->HP = m_RemainHP / m_Health;
 }
+void Monster::FarTypeAttack()
+{
+	std::cout << "원거리 공격" << std::endl;
+}
+void Monster::RushTypeAttack()
+{
+	std::cout << "돌진 공격" << std::endl;
+}
 Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) : Monster(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
 	m_pBoundingShader = new BoundingShader();
@@ -74,6 +84,19 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		m_Defense = 90;
 		break;
 	case MONSTER_TYPE_FAR:
+
+		AddComponent<FarTypeFSMComponent>();
+		bb2->SetNum(5);
+		AddComponent<MonsterAttackComponent>();
+		GetComponent<MonsterAttackComponent>()->SetAttackSpeed(3.0f);
+		GetComponent<MonsterAttackComponent>()->SetBoundingObject(bb2);
+
+		bb->SetNum(2);
+		AddComponent<BoxCollideComponent>();
+		GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
+		GetComponent<BoxCollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(0.3, 0.5, 0.3));
+		GetComponent<BoxCollideComponent>()->SetMoveAble(true);
+
 		m_Health = 675;
 		m_RemainHP = 675;
 		m_Attack = 180;

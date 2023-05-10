@@ -154,6 +154,8 @@
     <ClInclude Include="CloseTypeState.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
+    <ClInclude Include="FarTypeFSMComponent.h" />
+    <ClInclude Include="FarTypeState.h" />
     <ClInclude Include="FSM.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="GameScene.h" />
@@ -163,6 +165,7 @@
     <ClInclude Include="Lobby_GameScene.h" />
     <ClInclude Include="Login_GameScene.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MonsterAttackComponent.h" />
     <ClInclude Include="NetworkMGR.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
@@ -197,6 +200,8 @@
     <ClCompile Include="CloseTypeState.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
+    <ClCompile Include="FarTypeFSMComponent.cpp" />
+    <ClCompile Include="FarTypeState.cpp" />
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="GameState.cpp" />
@@ -205,6 +210,7 @@
     <ClCompile Include="Lobby_GameScene.cpp" />
     <ClCompile Include="Login_GameScene.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MonsterAttackComponent.cpp" />
     <ClCompile Include="NetworkMGR.cpp" />
     <ClCompile Include="NonSense.cpp" />
     <ClCompile Include="Object.cpp" />
