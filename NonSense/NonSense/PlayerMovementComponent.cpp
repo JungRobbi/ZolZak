@@ -149,6 +149,7 @@ void PlayerMovementComponent::update()
 		if ((Input::InputKeyBuffer[VK_MENU] & 0xF0) && CursorCoolTime >= MaxCursorCoolTime)
 		{
 			CursorCoolTime = 0.0f;
+
 			CursorExpose = !CursorExpose; 
 		}
 

@@ -11,6 +11,7 @@
 #include "Lobby_GameScene.h"
 #include "Stage_GameScene.h"
 
+#include "resource.h"
 #include "Sound.h"
 GameFramework* GameFramework::MainGameFramework;
 
@@ -499,7 +500,15 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((wParam - VK_F1 + 1), Timer::GetTimeElapsed());
 				break;
 			case VK_ESCAPE:
-				(OptionMode) ? (OptionMode = 0) : (OptionMode = 1);
+				if (OptionMode)
+				{
+					m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = false;
+					OptionMode = false;
+				}
+				else {
+					m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
+					OptionMode = true;
+				}
 				break;
 			case VK_RETURN:
 				PostQuitMessage(0);
@@ -657,32 +666,50 @@ void GameFramework::ProcessInput()
 
 		::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 	}
+	else
+	{
+		::SetCursor(LoadCursor(m_hInstance, MAKEINTRESOURCE(IDC_CURSOR1)));
+		if (::GetCapture() == m_hWnd)
+		{
+			RECT rect;
+			::GetCursorPos(&ptCursorPos);
+			::GetWindowRect(m_hWnd, &rect);
+			if (scene_type != GAME_SCENE) {
+				float px = (ptCursorPos.x - rect.left) / (float)FRAME_BUFFER_WIDTH;
+				float py = (ptCursorPos.y - rect.top - 10) / (float)FRAME_BUFFER_HEIGHT;
+
+				for (auto& ui : GameScene::MainScene->UIGameObjects)
+				{
+					if (px >= dynamic_cast<UI*>(ui)->XYWH._41 && px <= dynamic_cast<UI*>(ui)->XYWH._41 + dynamic_cast<UI*>(ui)->XYWH._11 &&
+						py <= 1 - dynamic_cast<UI*>(ui)->XYWH._42 && py >= 1 - (dynamic_cast<UI*>(ui)->XYWH._42 + dynamic_cast<UI*>(ui)->XYWH._22))
+					{
+						dynamic_cast<UI*>(ui)->OnClick();
+					}
+				}
+			}
+		}
+		else {
+			RECT rect;
+			::GetCursorPos(&ptCursorPos);
+			::GetWindowRect(m_hWnd, &rect);
+			float px = (ptCursorPos.x - rect.left) / (float)FRAME_BUFFER_WIDTH;
+			float py = (ptCursorPos.y - rect.top - 10) / (float)FRAME_BUFFER_HEIGHT;
+
+			for (auto& ui : GameScene::MainScene->UIGameObjects)
+			{
+				if (px >= dynamic_cast<UI*>(ui)->XYWH._41 && px <= dynamic_cast<UI*>(ui)->XYWH._41 + dynamic_cast<UI*>(ui)->XYWH._11 &&
+					py <= 1 - dynamic_cast<UI*>(ui)->XYWH._42 && py >= 1 - (dynamic_cast<UI*>(ui)->XYWH._42 + dynamic_cast<UI*>(ui)->XYWH._22))
+				{
+					if (dynamic_cast<UI*>(ui)->CanClick) printf("ASdf");
+				}
+			}
+		}
+	}
 	if (cxDelta || cyDelta)
 	{
 		m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 	}
 
-
-	if (::GetCapture() == m_hWnd)
-	{
-		::SetCapture(m_hWnd);
-		RECT rect;
-		::GetCursorPos(&ptCursorPos);
-		::GetWindowRect(m_hWnd, &rect);
-		if (scene_type != GAME_SCENE) {
-			float px = (ptCursorPos.x - rect.left)/ (float)FRAME_BUFFER_WIDTH;
-			float py = (ptCursorPos.y - rect.top - 10)/ (float)FRAME_BUFFER_HEIGHT;
-
-			for (auto& ui : GameScene::MainScene->UIGameObjects)
-			{
-				if (px >= dynamic_cast<UI*>(ui)->XYWH._41 && px <= dynamic_cast<UI*>(ui)->XYWH._41 + dynamic_cast<UI*>(ui)->XYWH._11 &&
-					py <= 1 - dynamic_cast<UI*>(ui)->XYWH._42 && py >= 1-(dynamic_cast<UI*>(ui)->XYWH._42 + dynamic_cast<UI*>(ui)->XYWH._22))
-				{
-					dynamic_cast<UI*>(ui)->OnClick();
-				}
-			}
-		}
-	}
 	//마우스 또는 키 입력이 있으면 플레이어를 이동하거나(dwDirection) 회전한다(cxDelta 또는 cyDelta).
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 	{
@@ -746,10 +773,6 @@ void GameFramework::FrameAdvance()
 	ChatMGR::UpdateText();
 
 	ProcessInput();
-
-
-
-
 
 	AnimateObjects();
 	GameScene::MainScene->update();
