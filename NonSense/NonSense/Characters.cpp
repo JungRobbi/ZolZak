@@ -2,8 +2,6 @@
 #include "BoxCollideComponent.h"
 #include "GameScene.h"
 #include "CloseTypeFSMComponent.h"
-#include "FarTypeFSMComponent.h"
-#include "MonsterAttackComponent.h"
 #include "AttackComponent.h"
 Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) :
 	Object(false)
@@ -25,39 +23,30 @@ Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 	m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[5]->m_nType = ANIMATION_TYPE_ONCE;
 	m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[6]->m_nType = ANIMATION_TYPE_ONCE;
 
-	GameScene::MainScene->creationMonsterQueue.push((Character*)this);
 }
 
 Character::~Character()
 {
 }
-void Character::OnPrepareRender()
-{
-	Object::OnPrepareRender();
-	m_pHP->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, GetComponent<BoxCollideComponent>()->GetBoundingObject()->Extents.y * 2 + 0.3, 0)));
-	m_pHP->HP = m_RemainHP / m_Health;
-}
-
 
 void Character::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	Object::Render(pd3dCommandList, pCamera);
 }
 
-
-void Character::FarTypeAttack()
+Monster::Monster(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Character(pd3dDevice,pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
-	std::cout << "원거리 공격" << std::endl;
+	GameScene::MainScene->creationMonsterQueue.push((Monster*)this);
 }
 
-void Character::RushTypeAttack()
+void Monster::OnPrepareRender()
 {
-	std::cout << "돌진 공격" << std::endl;
+	Object::OnPrepareRender();
+	m_pHP->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, GetComponent<BoxCollideComponent>()->GetBoundingObject()->Extents.y * 2 + 0.3, 0)));
+	m_pHP->HP = m_RemainHP / m_Health;
 }
-Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) :
-	Character(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
+Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) : Monster(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
-	Object* Hand;
 	m_pBoundingShader = new BoundingShader();
 	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 	m_pBoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
@@ -84,36 +73,8 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		m_RemainHP = 965;
 		m_Attack = 200;
 		m_Defense = 90;
-
-		if (pWeaponL && pWeaponR) {
-			
-			Hand= FindFrame("Weapon_Goblin_2_R_Dummy");
-			if (Hand) {
-				Hand->SetChild(pWeaponR->m_pRoot, true);
-
-			}
-			Hand = FindFrame("Weapon_Goblin_2_L_Dummy");
-			if (Hand) {
-				Hand->SetChild(pWeaponL->m_pRoot, true);
-
-			}
-		}
-
 		break;
 	case MONSTER_TYPE_FAR:
-
-		AddComponent<FarTypeFSMComponent>();
-		bb2->SetNum(5);
-		AddComponent<MonsterAttackComponent>();
-		GetComponent<MonsterAttackComponent>()->SetAttackSpeed(3.0f);
-		GetComponent<MonsterAttackComponent>()->SetBoundingObject(bb2);
-
-		bb->SetNum(2);
-		AddComponent<BoxCollideComponent>();
-		GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
-		GetComponent<BoxCollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(0.3, 0.5, 0.3));
-		GetComponent<BoxCollideComponent>()->SetMoveAble(true);
-
 		m_Health = 675;
 		m_RemainHP = 675;
 		m_Attack = 180;
@@ -137,6 +98,19 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 
 	Monster_HP_UI* m_HP_UI = new Monster_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pHP = m_HP_UI;
+
+	if (pWeaponL && pWeaponR) {
+		Object* Hand = FindFrame("Weapon_Goblin_2_R_Dummy");
+		if (Hand) {
+			Hand->SetChild(pWeaponR->m_pRoot, true);
+
+		}
+		Hand = FindFrame("Weapon_Goblin_2_L_Dummy");
+		if (Hand) {
+			Hand->SetChild(pWeaponL->m_pRoot, true);
+
+		}
+	}
 
 }
 

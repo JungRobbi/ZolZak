@@ -144,7 +144,7 @@ void CloseTypeFSMComponent::Death()
 	if (DeathCount < 0.0f)
 	{
 		//GameScene::MainScene->PushDelete((Character*)gameObject);
-		GameScene::MainScene->deletionMonsterQueue.push_back((Character*)gameObject);
+		GameScene::MainScene->deletionMonsterQueue.push_back((Monster*)gameObject);
 		gameObject->m_pSkinnedAnimationController->SetTrackEnable(0, false);
 	}
 }

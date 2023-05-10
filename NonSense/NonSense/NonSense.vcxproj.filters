@@ -296,4 +296,9 @@
     <FxCompile Include="Shaders.hlsl" />
     <FxCompile Include="Light1.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="normal.cur">
+      <Filter>리소스 파일</Filter>
+    </None>
+  </ItemGroup>
 </Project>

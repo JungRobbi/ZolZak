@@ -153,8 +153,8 @@ void GameScene::PushDelete(Object* gameObject)
 		deletionUIQueue.push_back(gameObject);
 	if (std::find(deletionBoundingQueue.begin(), deletionBoundingQueue.end(), gameObject) == deletionBoundingQueue.end())
 		deletionBoundingQueue.push_back(gameObject);
-	if (std::find(deletionMonsterQueue.begin(), deletionMonsterQueue.end(), (Character*)gameObject) == deletionMonsterQueue.end())
-		deletionMonsterQueue.push_back((Character*)gameObject);
+	if (std::find(deletionMonsterQueue.begin(), deletionMonsterQueue.end(), (Monster*)gameObject) == deletionMonsterQueue.end())
+		deletionMonsterQueue.push_back((Monster*)gameObject);
 }
 
 void GameScene::render()
@@ -732,15 +732,15 @@ void GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCa
 {
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
-	for (auto& object : UIGameObjects)
-	{
-		object->UpdateTransform(NULL);
-		object->Render(pd3dCommandList, pCamera);
-	}
 	for (auto& object : MonsterObjects)
 	{
 		object->m_pHP->UpdateTransform(NULL);
 		object->m_pHP->Render(pd3dCommandList, pCamera);;
+	}
+	for (auto& object : UIGameObjects)
+	{
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
 	}
 }
 
