@@ -583,7 +583,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
 				send_packet.id = p_Client->m_id;
 				send_packet.Anitype = E_PLAYER_ANIMATION_TYPE::E_JUMP;
-				p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
 		}
 			break;
@@ -597,7 +597,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
 				send_packet.id = p_Client->m_id;
 				send_packet.Anitype = E_PLAYER_ANIMATION_TYPE::E_DASH;
-				p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
 		}
 			break;
@@ -610,7 +610,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
 				send_packet.id = p_Client->m_id;
 				send_packet.Anitype = E_PLAYER_ANIMATION_TYPE::E_ATTACK0;
-				p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
 			break;
 		}
