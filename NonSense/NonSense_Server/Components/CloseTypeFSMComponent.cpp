@@ -36,13 +36,14 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 		}
 	}
 
+	TargetPlayer = cand_player.get();
+
 	if (Distance >= ChangeStateDistance ||
 		RemoteClient::remoteClients.empty() ||
 		cand_player->remoteClient->m_id == 0 ||
 		!cand_player)
 		return false;
 
-	TargetPlayer = cand_player.get();
 	return true;
 }
 
