@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "CloseTypeFSMComponent.h"
 #include "../Characters.h"
 #include "../RemoteClients/RemoteClient.h"
@@ -23,18 +24,26 @@ FSM<CloseTypeFSMComponent>* CloseTypeFSMComponent::GetFSM()
 bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 {
 	XMFLOAT3 OwnerPos = gameObject->GetPosition();
-	auto first = RemoteClient::remoteClients.begin();
-	if ((first == RemoteClient::remoteClients.end()) || 
+
+	float Distance = ChangeStateDistance;
+	shared_ptr<Player> cand_player = nullptr;
+	for (auto& rc : RemoteClient::remoteClients) {
+		auto PlayerPos = rc.second->m_pPlayer->GetPosition();
+		float cand_length = Vector3::Length(Vector3::Subtract(PlayerPos, OwnerPos));
+		if (Distance > cand_length) {
+			Distance = cand_length;
+			cand_player = rc.second->m_pPlayer;
+		}
+	}
+
+	if (Distance >= ChangeStateDistance ||
 		RemoteClient::remoteClients.empty() ||
-		first->second->m_id == 0)
+		cand_player->remoteClient->m_id == 0 ||
+		!cand_player)
 		return false;
-	XMFLOAT3 PlayerPos = first->second->m_pPlayer->GetPosition();
-	TargetPlayer = first->second->m_pPlayer.get();
-	float Distance = Vector3::Length(Vector3::Subtract(OwnerPos, PlayerPos));
-	if (Distance < ChangeStateDistance)
-		return true;
-	else
-		return false;
+
+	TargetPlayer = cand_player.get();
+	return true;
 }
 
 void CloseTypeFSMComponent::ResetWanderPosition(float posx, float posz)
