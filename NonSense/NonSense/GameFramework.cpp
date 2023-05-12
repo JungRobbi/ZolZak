@@ -865,7 +865,7 @@ void GameFramework::SaveSceneOBB()
 
 		out << obb->Center.x << " " << obb->Center.y << " " << obb->Center.z << " ";
 		out << obb->Extents.x << " " << obb->Extents.y << " " << obb->Extents.z << " ";
-		out << obb->Orientation.x << " " << obb->Orientation.y << " " << obb->Orientation.z << endl;
+		out << obb->Orientation.x << " " << obb->Orientation.y << " " << obb->Orientation.z << " " << obb->Orientation.w << endl;
 	}
 	cout << "맵 바운딩 박스 저장완료!" << endl;
 }

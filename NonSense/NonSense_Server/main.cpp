@@ -194,12 +194,8 @@ int main(int argc, char* argv[])
 	signal(SIGINT, ProcessSignalAction);
 
 	scene = make_shared<Scene>();
-	char MapName[] = "Model/NonBlend_Props_Map.bin";
-//	char BlendMapName[] = "../NonSense/Model/Blend_Objects_Map.bin";
-	cout << "Server Loding..." << endl;
-//	Object::LoadMapData(MapName);
-//	Object::LoadMapData_Blend(BlendMapName);
-	cout << "Server Loding Complete!" << endl;
+
+	Scene::scene->LoadSceneObb();
 
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	Scene::terrain = new HeightMapTerrain(_T("Terrain/terrain.raw"), 800, 800, xmf3Scale);
