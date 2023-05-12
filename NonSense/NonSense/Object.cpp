@@ -979,6 +979,14 @@ void Object::SetChild(Object* pChild, bool bReferenceUpdate)
 	}
 }
 
+void Object::SetDo_Render(bool b)
+{
+	Do_Render = b;
+	if (m_pSibling) m_pSibling->SetDo_Render(b);
+	if (m_pChild) m_pChild->SetDo_Render(b);
+
+}
+
 // -------------- 모델 & 애니메이션 로드 --------------
 
 int ReadIntegerFromFile(FILE* OpenedFile)
@@ -1433,7 +1441,8 @@ void Object::ReleaseUploadBuffers()
 void Object::Rotate(XMFLOAT3* pxmf3Axis, float fAngle)
 {
 	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(pxmf3Axis), XMConvertToRadians(fAngle));
-	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
+	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxRotate, m_xmf4x4ToParent);
+	UpdateTransform(NULL);
 }
 void Object::Animate(float fTimeElapsed)
 {
@@ -1474,6 +1483,7 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 		}
 
 	}
+
 	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
 	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
 

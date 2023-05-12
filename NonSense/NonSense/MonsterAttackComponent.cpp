@@ -2,13 +2,19 @@
 
 void MonsterAttackComponent::FarTypeAttack()
 {
+	gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(AttackAnimationNumber);
+	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 	During_Attack = true;
-	((Monster*)gameObject)->FarTypeAttack(); 
+	WeaponFire = true;
+	AttackTimeLeft = AttackDuration;
+	((Monster*)gameObject)->FarTypeAttack();
 }
 void MonsterAttackComponent::RushTypeAttack()
 {
 	During_Attack = true;
-	((Monster*)gameObject)->FarTypeAttack();
+
+	AttackTimeLeft = AttackDuration;
+	((Monster*)gameObject)->RushTypeAttack();
 }
 
 void MonsterAttackComponent::start()
@@ -25,6 +31,12 @@ void MonsterAttackComponent::update()
 	{
 		During_Attack = false;
 	}
+
+}
+
+void MonsterAttackComponent::ResetWeapon()
+{
+
 }
 void MonsterAttackComponent::SetAttackSpeed(float speed)
 {

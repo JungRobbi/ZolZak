@@ -214,7 +214,6 @@
     <ClCompile Include="Login_GameScene.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MonsterAttackComponent.cpp" />
-    <ClCompile Include="MoveForwadComponent.cpp" />
     <ClCompile Include="MoveForwardComponent.cpp" />
     <ClCompile Include="NetworkMGR.cpp" />
     <ClCompile Include="NonSense.cpp" />
