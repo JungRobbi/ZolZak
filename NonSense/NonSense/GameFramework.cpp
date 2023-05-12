@@ -519,6 +519,9 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			case VK_F9:
 				ChangeSwapChainState();
 				break;
+			case VK_F11: // 맵 바운딩 박스 파일로 저장
+				SaveOBB();
+				break;
 			case '2':
 				//m_pHP_UI->HP -= 0.05;
 				//m_pHP_Dec_UI->Dec_HP -= 0.05;
@@ -845,4 +848,8 @@ void GameFramework::FrameAdvance()
 
 	Timer::GetFrameRate(m_FrameRate + 9, 10);
 	::SetWindowText(m_hWnd, m_FrameRate);
+}
+
+void GameFramework::SaveOBB()
+{
 }
