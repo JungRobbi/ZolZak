@@ -234,15 +234,6 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	TempObject->GetComponent<BoxCollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(0.3, 0.5, 0.3));
 	TempObject->GetComponent<BoxCollideComponent>()->SetMoveAble(true);
 
-	//pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far.bin", NULL);
-	//LoadedModelInfo* pRW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far_Weapon_R.bin", NULL);
-	//LoadedModelInfo* pLW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far_Weapon_L.bin", NULL);
-	//Object* pObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pLW, pRW, MONSTER_TYPE_FAR);
-	//pObject->SetPosition(0.0, 2.0, 0.0);
-	//pObject->SetNum(55);
-	//pObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
-
-
 	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, xmf3Scale, xmf4Color);
 	terrain->SetPosition(-400, 0, -400);
 	m_pTerrain = terrain;
@@ -306,7 +297,7 @@ ID3D12RootSignature* GameScene::GetGraphicsRootSignature()
 
 ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[12];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[13];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -380,9 +371,15 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dDescriptorRanges[11].RegisterSpace = 0;
 	pd3dDescriptorRanges[11].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	pd3dDescriptorRanges[12].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[12].NumDescriptors = 1;
+	pd3dDescriptorRanges[12].BaseShaderRegister = 25; //t25 Particle
+	pd3dDescriptorRanges[12].RegisterSpace = 0;
+	pd3dDescriptorRanges[12].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
-	D3D12_ROOT_PARAMETER pd3dRootParameters[20];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[21];
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 0; //Player
 	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
@@ -484,6 +481,11 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[19].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[19].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[11]);
 	pd3dRootParameters[19].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	pd3dRootParameters[20].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[20].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[20].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[12]);
+	pd3dRootParameters[20].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];

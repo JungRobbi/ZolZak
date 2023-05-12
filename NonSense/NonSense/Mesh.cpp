@@ -1,6 +1,13 @@
 ﻿#include "stdafx.h"
 #include "Object.h"
 #include "Mesh.h"
+#include <random>
+
+std::random_device rd;
+std::default_random_engine dre(rd());
+std::uniform_real_distribution<float> velRand{ 0.2, 1.0 };
+std::uniform_real_distribution<float> emitRand{ 0.5, 2.0 };
+std::uniform_real_distribution<float> lifeRand{ 0.5, 2.0 };
 
 
 Mesh::Mesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -988,4 +995,49 @@ PlaneMesh::PlaneMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 	m_d3dPositionBufferView.BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
 	m_d3dPositionBufferView.StrideInBytes = sizeof(XMFLOAT3);
 	m_d3dPositionBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+}
+
+ParticleMesh::ParticleMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT particlenum) : Mesh(pd3dDevice, pd3dCommandList)
+{
+	m_nVertices = particlenum;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+
+	XMFLOAT3* PositionData = new XMFLOAT3[m_nVertices];
+	XMFLOAT3* VelocityData = new XMFLOAT3[m_nVertices];
+	float* EmitTimeData = new float[m_nVertices];
+	float* LifeTimeData = new float[m_nVertices];
+	for (int i = 0; i < particlenum; ++i) {
+		PositionData[i] = XMFLOAT3(0,0,0);
+		VelocityData[i] = XMFLOAT3(velRand(dre), velRand(dre), velRand(dre));
+		EmitTimeData[i] = emitRand(dre);
+		LifeTimeData[i] = lifeRand(dre);
+	}
+
+	m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, PositionData, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dPositionUploadBuffer);
+	m_d3dPositionBufferView.BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
+	m_d3dPositionBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dPositionBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+
+	m_pd3dVelBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, VelocityData, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVelUploadBuffer);
+	m_d3dVelBufferView.BufferLocation = m_pd3dVelBuffer->GetGPUVirtualAddress();
+	m_d3dVelBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dVelBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+
+	m_pd3dEmitBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, EmitTimeData, sizeof(float) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dEmitUploadBuffer);
+	m_d3dEmitBufferView.BufferLocation = m_pd3dEmitBuffer->GetGPUVirtualAddress();
+	m_d3dEmitBufferView.StrideInBytes = sizeof(float);
+	m_d3dEmitBufferView.SizeInBytes = sizeof(float) * m_nVertices;
+
+	m_pd3dLifeBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, LifeTimeData, sizeof(float) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dLifeUploadBuffer);
+	m_d3dLifeBufferView.BufferLocation = m_pd3dLifeBuffer->GetGPUVirtualAddress();
+	m_d3dLifeBufferView.StrideInBytes = sizeof(float);
+	m_d3dLifeBufferView.SizeInBytes = sizeof(float) * m_nVertices;
+}
+void ParticleMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
+{
+	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[4] = { m_d3dPositionBufferView, m_d3dVelBufferView, m_d3dEmitBufferView, m_d3dLifeBufferView};
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, 4, pVertexBufferViews);
+}
+ParticleMesh::~ParticleMesh()
+{
 }

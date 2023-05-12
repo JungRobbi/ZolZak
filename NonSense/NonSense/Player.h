@@ -9,6 +9,7 @@
 #include <string>
 #include "Object.h"
 #include "Shader.h"
+#include "UI.h"
 
 class Camera;
 
@@ -41,6 +42,9 @@ public:
 
 	unsigned int id = 0;
 	std::string m_name;
+	Player_State_UI* m_pUI = NULL;
+	Player_HP_UI* m_pHP_UI = NULL;
+	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;
 public:
 
 	LPVOID m_pPlayerUpdatedContext;

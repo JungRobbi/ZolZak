@@ -337,16 +337,21 @@ void Player::OnPrepareRender()
 	XMMATRIX mat = XMMatrixScaling(m_xmf3Scale.x, m_xmf3Scale.y, m_xmf3Scale.z);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mat, m_xmf4x4ToParent);
 
+	m_pHP_UI->HP = GetRemainHP() / GetHealth();
+	m_pHP_Dec_UI->Dec_HP = GetRemainHP() / GetHealth();
+	m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+
 }
 void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
-//	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
 		if (m_pMaterial) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
 		Object::Render(pd3dCommandList, pCamera);
-
+		if(m_pUI) m_pUI->Render(pd3dCommandList, pCamera);
+		if (m_pHP_UI)m_pHP_UI->Render(pd3dCommandList, pCamera);
+		if (m_pHP_Dec_UI)m_pHP_Dec_UI->Render(pd3dCommandList, pCamera);
 	}
 
 }
@@ -357,6 +362,19 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)pContext;
 	SetPlayerUpdatedContext(pTerrain);
 	SetCameraUpdatedContext(pTerrain);
+
+	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	if (NetworkMGR::id != id) {
+		m_pHP_Dec_UI->SetMyPos(0, 0, 0, 0);
+		m_pHP_UI->SetMyPos(0, 0, 0, 0);
+		m_pUI->SetMyPos(0, 0, 0, 0);
+	}
+
+	m_pHP_UI->SetParentUI(m_pUI);
+	m_pHP_Dec_UI->SetParentUI(m_pUI);
 
 	m_pBoundingShader = new BoundingShader();
 	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);

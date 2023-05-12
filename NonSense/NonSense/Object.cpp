@@ -1986,7 +1986,6 @@ bool BoundBox::Intersects(BoundSphere& sh)
 
 BoundSphere::BoundSphere(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, SphereMesh* SphereMesh, Shader* pBoundingShader) : Object(BOUNDING_OBJECT)
 {
-
 	SetMesh(SphereMesh);
 
 	Material* pBoundingMaterial = new Material();
@@ -2050,4 +2049,38 @@ bool BoundSphere::Intersects(BoundSphere& sh)
 	RadiusSquared = XMVectorMultiply(RadiusSquared, RadiusSquared);
 
 	return XMVector3LessOrEqual(DistanceSquared, RadiusSquared);
+}
+
+ParticleObject::ParticleObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BLEND_OBJECT)
+{
+	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 50);
+	SetMesh(pMesh);
+
+	CTexture* pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Particle/Particle.dds", RESOURCE_TEXTURE2D, 0);
+
+	ParticleShader* pShader = new ParticleShader();
+	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pParticleTexture, 20, false);
+
+	Material* pMaterial = new Material();
+	pMaterial->SetTexture(pParticleTexture);
+	pMaterial->SetShader(pShader);
+
+	SetMaterial(pMaterial);
+}
+
+void ParticleObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	OnPrepareRender();
+
+	UpdateShaderVariables(pd3dCommandList);
+
+	if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+	if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+	if (m_pMesh)
+	{
+		//m_pMesh->Render(pd3dCommandList, 0);
+	}
 }

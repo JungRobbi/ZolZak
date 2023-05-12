@@ -305,6 +305,7 @@ void GameFramework::BuildObjects()
 		m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
 	ChatMGR::SetTextinfos(m_nWndClientWidth, m_nWndClientHeight);
 	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Stage
+
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
@@ -319,11 +320,9 @@ void GameFramework::BuildObjects()
 	m_pDebug->CreateShader(m_pDevice, GameScene::MainScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 	DXGI_FORMAT pdxgiResourceFormats[MRT - 1] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
-	//m_pDebug->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT);
 	m_pScreen->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT); //SRV to (Render Targets) + (Depth Buffer)
 	DXGI_FORMAT pdxgiDepthSrvFormats[1] = { DXGI_FORMAT_R24_UNORM_X8_TYPELESS };
 	m_pScreen->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
-	//m_pDebug->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
 	m_pCommandList->Close();
 
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
@@ -347,8 +346,8 @@ void GameFramework::ReleaseObjects()
 	if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
 	if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
 }
-void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
-	LPARAM lParam)
+
+void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	if (NetworkMGR::b_isNet) {
 		if (nMessageID == WM_RBUTTONDOWN || nMessageID == WM_LBUTTONDOWN) {
@@ -799,7 +798,6 @@ void GameFramework::FrameAdvance()
 			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
 		}
 	}
-
 	///////////////////////////////////////////
 
 
@@ -827,9 +825,10 @@ void GameFramework::FrameAdvance()
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
+	ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
-	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
 	hResult = m_pCommandList->Close();
 
@@ -837,7 +836,6 @@ void GameFramework::FrameAdvance()
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 
 	m_pSwapChain->Present(0, 0);
 

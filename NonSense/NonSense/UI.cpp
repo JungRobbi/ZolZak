@@ -162,17 +162,12 @@ void Monster_HP_UI::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12Graphi
 
 void Monster_HP_UI::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	//XMFLOAT4X4 xmf4x4World;
-	//XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&GetWorld())));
-	//pd3dCommandList->SetGraphicsRoot32BitConstants(0, 16, &xmf4x4World, 0);
-
 	XMFLOAT4X4 xmf4x4World;
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbUIGpuVirtualAddress = m_pd3dcbUI->GetGPUVirtualAddress();
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&GetWorld())));
 	CB_PLAYER_INFO* pbMappedcbUI = (CB_PLAYER_INFO*)((UINT8*)m_pcbMappedUI);
 	::memcpy(&pbMappedcbUI->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
 	::memcpy(&pbMappedcbUI->Value, &HP, sizeof(float));
-
 	pd3dCommandList->SetGraphicsRootConstantBufferView(0, d3dcbUIGpuVirtualAddress);
 }
 

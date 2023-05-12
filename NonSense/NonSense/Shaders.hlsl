@@ -17,10 +17,11 @@ cbuffer cbWorldInfo : register(b0)
 cbuffer cbCameraInfo : register(b1)
 {
 	matrix gmtxView : packoffset(c0);
-	matrix gmtxProjection : packoffset(c4);
-	matrix gmtxInverseProjection : packoffset(c8);
-	float3 gf3CameraPosition : packoffset(c12);
-	float3 gf3CameraDirection : packoffset(c13);
+	matrix gmtxInverseView : packoffset(c4);
+	matrix gmtxProjection : packoffset(c8);
+	matrix gmtxInverseProjection : packoffset(c12);
+	float3 gf3CameraPosition : packoffset(c16);
+	float3 gf3CameraDirection : packoffset(c17);
 };
 
 cbuffer cbGameObjectInfo : register(b2)
@@ -47,11 +48,74 @@ Texture2D RenderInfor[4] : register(t1); //Position, Normal+ObjectID, Texture, D
 SamplerState gssDefaultSamplerState : register(s0);
 
 Texture2D gtxtUITexture : register(t24);
+Texture2D gtxtParticleTexture : register(t25);
 SamplerState gssWrap : register(s0);
 SamplerState gssBorder : register(s1);
 // SkyBox
 TextureCube gtxtSkyCubeTexture : register(t13);
 #include "Light1.hlsl"
+
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct VS_PARTICLE_INPUT
+{
+	float3 position : POSITION;
+	float3 velocity : VELOCITY;
+	float emittime : EMITTIME;
+	float lifetime : LIFETIME;
+};
+
+struct VS_PARTICLE_OUTPUT
+{
+	float3 position : POSITION;
+	float4 color : COLOR;
+	float size : SCALE;
+};
+
+struct GS_PARTICLE_OUTPUT
+{
+	float4 position : SV_Position;
+	float4 color : COLOR;
+	float2 uv : TEXTURE;
+};
+
+VS_PARTICLE_OUTPUT VSParticle(VS_PARTICLE_INPUT input)
+{
+	VS_PARTICLE_OUTPUT output = (VS_PARTICLE_OUTPUT)0;
+
+	output.position = input.position;
+	output.size = 2.5f;
+	output.color = float4(0, 1, 1, 1);
+	return(output);
+}
+
+static float3 gf3Positions[4] = { float3(-1.0f, +1.0f, 0.5f), float3(+1.0f, +1.0f, 0.5f), float3(-1.0f, -1.0f, 0.5f), float3(+1.0f, -1.0f, 0.5f) };
+static float2 gf2QuadUVs[4] = { float2(0.0f, 0.0f), float2(1.0f, 0.0f), float2(0.0f, 1.0f), float2(1.0f, 1.0f) };
+
+[maxvertexcount(4)]
+void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTICLE_OUTPUT> outputStream)
+{
+	GS_PARTICLE_OUTPUT output = (GS_PARTICLE_OUTPUT)0;
+
+	output.color = input[0].color;
+	for (int i = 0; i < 4; i++)
+	{
+		float3 positionW = mul(gf3Positions[i] * input[0].size, (float3x3)gmtxInverseView) + input[0].position;
+		output.position = mul(mul(float4(positionW, 1.0f), gmtxView), gmtxProjection);
+		output.uv = gf2QuadUVs[i];
+
+		outputStream.Append(output);
+	}
+	outputStream.RestartStrip();
+}
+
+float4 PSParticle(GS_PARTICLE_OUTPUT input) : SV_TARGET
+{
+	//float4 cColor = gtxtParticleTexture.Sample(gWrapSamplerState, input.uv);
+	return(float4(1,0,0,1));
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 

@@ -5,7 +5,7 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 150);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 170);
 
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();
@@ -17,13 +17,6 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	Graphic_Option_UI* m_Graphic_Option_Dec_UI = new Graphic_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Game_Option_UI* m_Game_Option_Dec_UI = new Game_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
-	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-
-	m_pHP_UI->SetParentUI(m_pUI);
-	m_pHP_Dec_UI->SetParentUI(m_pUI);
-
 	m_Game_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Graphic_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Sound_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
@@ -32,6 +25,9 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, xmf3Scale, xmf4Color);
 	terrain->SetPosition(-400, 0, -400);
 	m_pTerrain = terrain;
+
+	ParticleObject* particle = new ParticleObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	particle->SetPosition(-16.0f, GetTerrain()->GetHeight(-16.0f, 103.0f), 103.0f);
 
 	Object* TempObject = NULL;
 	LoadedModelInfo* pRW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_R.bin", NULL);
@@ -82,9 +78,6 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 void Stage_GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	m_pHP_UI->HP = m_pPlayer->GetRemainHP()/m_pPlayer->GetHealth();
-	m_pHP_Dec_UI->Dec_HP = m_pPlayer->GetRemainHP() / m_pPlayer->GetHealth();
-	m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
 	GameScene::OnPrepareRender(pd3dCommandList, pCamera);
 }
 
