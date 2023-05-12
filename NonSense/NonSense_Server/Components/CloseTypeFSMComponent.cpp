@@ -28,6 +28,8 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 	float Distance = ChangeStateDistance;
 	shared_ptr<Player> cand_player = nullptr;
 	for (auto& rc : RemoteClient::remoteClients) {
+		if (!rc.second->b_Enable)
+			continue;
 		auto PlayerPos = rc.second->m_pPlayer->GetPosition();
 		float cand_length = Vector3::Length(Vector3::Subtract(PlayerPos, OwnerPos));
 		if (Distance > cand_length) {
@@ -35,7 +37,6 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 			cand_player = rc.second->m_pPlayer;
 		}
 	}
-
 	TargetPlayer = cand_player.get();
 
 	if (Distance >= ChangeStateDistance ||

@@ -384,15 +384,17 @@ int main(int argc, char* argv[])
 					continue;
 
 				//Monster Target
-				for (auto& rc_to : RemoteClient::remoteClients) {
-					if (!rc_to.second->b_Enable)
-						continue;
-					SC_AGGRO_PLAYER_PACKET send_packet;
-					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
-					send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
-					send_packet.player_id = 10;
-					send_packet.monster_id = ((Goblin*)monster)->num;
-					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				if ((Goblin*)(monster)->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()) {
+					for (auto& rc_to : RemoteClient::remoteClients) {
+						if (!rc_to.second->b_Enable)
+							continue;
+						SC_AGGRO_PLAYER_PACKET send_packet;
+						send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
+						send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
+						send_packet.player_id = ((Player*)((Goblin*)(monster)->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
+						send_packet.monster_id = ((Goblin*)monster)->num;
+						rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+					}
 				}
 			}
 		}

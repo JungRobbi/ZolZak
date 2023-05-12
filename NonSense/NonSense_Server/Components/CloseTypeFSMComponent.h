@@ -34,5 +34,6 @@ public:
     void Track();
     bool Wander();
 
+    Object* GetTargetPlayer() { return TargetPlayer; }
 };
 
