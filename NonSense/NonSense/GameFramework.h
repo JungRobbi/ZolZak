@@ -105,7 +105,7 @@ public:
 	void SetWindowCentser(RECT rect);
 	void ChangeScene(unsigned char num);
 
-	void SaveOBB();
+	void SaveSceneOBB();
 
 	friend NetworkMGR;
 

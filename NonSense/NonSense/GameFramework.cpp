@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <fstream>
 #include "GameFramework.h"
 #include "PlayerMovementComponent.h"
 #include "BoxCollideComponent.h"
@@ -520,7 +521,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				ChangeSwapChainState();
 				break;
 			case VK_F11: // 맵 바운딩 박스 파일로 저장
-				SaveOBB();
+				SaveSceneOBB();
 				break;
 			case '2':
 				//m_pHP_UI->HP -= 0.05;
@@ -850,6 +851,21 @@ void GameFramework::FrameAdvance()
 	::SetWindowText(m_hWnd, m_FrameRate);
 }
 
-void GameFramework::SaveOBB()
+void GameFramework::SaveSceneOBB()
 {
+	ofstream out{ "NonSenseMapOBB.txt" };
+	
+	cout << "맵 바운딩 박스 저장 중.." << endl;
+	for (auto p : GameScene::MainScene->BoundingGameObjects) {
+		if (!dynamic_cast<BoundBox*>(p))
+			continue;
+		BoundBox* obb = dynamic_cast<BoundBox*>(p);
+		if (obb->GetNum() != 0)
+			continue;
+
+		out << obb->Center.x << " " << obb->Center.y << " " << obb->Center.z << " ";
+		out << obb->Extents.x << " " << obb->Extents.y << " " << obb->Extents.z << " ";
+		out << obb->Orientation.x << " " << obb->Orientation.y << " " << obb->Orientation.z << endl;
+	}
+	cout << "맵 바운딩 박스 저장완료!" << endl;
 }
