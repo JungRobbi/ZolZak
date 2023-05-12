@@ -333,7 +333,7 @@ public:
 	
 	bool GetUsed() { return isuse; }
 	void SetUsed(bool b) { isuse = b; }
-
+	bool Do_Render = true;
 private:
 	int m_nReferences = 0;
 	int Num = 0;
