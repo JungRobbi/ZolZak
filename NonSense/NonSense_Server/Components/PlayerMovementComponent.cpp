@@ -98,9 +98,17 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	{
 		auto cc = gameObject->GetComponent<SphereCollideComponent>();
 		if (cc) {
+			BoundSphere nextBB{ false };
+			nextBB.Center = cc->GetBoundingObject()->Center;
+			nextBB.Radius = cc->GetBoundingObject()->Radius;
+
+			nextBB.Center.x += xmf3Shift.x;
+			nextBB.Center.y += xmf3Shift.y;
+			nextBB.Center.z += xmf3Shift.z;
+
 			for (auto mapObject : Scene::scene->GetMapObjects()) {
-				if (cc->GetBoundingObject()->Intersects(*(BoundBox*)mapObject)) {
-					cout << "Move 중 MapObject와 Collide!" << endl;
+				if (nextBB.Intersects(*(BoundBox*)mapObject)) {
+					cout << "Player의 다음 움직임에 MapObject과 충돌!" << endl;
 				}
 			}
 		}
