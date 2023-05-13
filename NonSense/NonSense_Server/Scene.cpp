@@ -66,7 +66,7 @@ void Scene::LoadSceneObb()
 		obb->Center = center;
 		obb->Extents = extents;
 		obb->Orientation = orientation;
-		BoundingGameObjects.push_back(obb);
+		MapBoundingGameObjects.push_back(obb);
 	}
 
 	std::cout << "Map Obb Loding Complete!" << std::endl;

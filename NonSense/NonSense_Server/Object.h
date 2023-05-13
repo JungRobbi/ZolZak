@@ -92,6 +92,9 @@ public:
 
 	void SetMesh(Mesh* pMesh);
 
+	int GetNum() { return Num; }
+	void SetNum(int num) { Num = num; }
+
 	XMFLOAT4X4 m_xmf4x4World;
 
 public:

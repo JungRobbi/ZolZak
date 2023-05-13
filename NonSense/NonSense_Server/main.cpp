@@ -21,6 +21,8 @@
 
 #include "Components/PlayerMovementComponent.h"
 #include "Components/CloseTypeFSMComponent.h"
+#include "Components/SphereCollideComponent.h"
+#include "Components/BoxCollideComponent.h"
 
 using namespace std;
 using namespace concurrency;

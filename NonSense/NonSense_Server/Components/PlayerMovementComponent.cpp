@@ -1,5 +1,7 @@
 #include "../stdafx.h"
 #include "PlayerMovementComponent.h"
+#include "BoxCollideComponent.h"
+#include "SphereCollideComponent.h"
 #include "../Timer.h"
 #include "../RemoteClients/RemoteClient.h"
 #include "../Player.h"
@@ -94,6 +96,16 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	}
 	else
 	{
+		auto cc = gameObject->GetComponent<SphereCollideComponent>();
+		if (cc) {
+			for (auto mapObject : Scene::scene->GetMapObjects()) {
+				if (cc->GetBoundingObject()->Intersects(*(BoundBox*)mapObject)) {
+					cout << "Move Áß MapObject¿Í Collide!" << endl;
+				}
+			}
+		}
+
+
 		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
 		gameObject->SetPosition(m_xmf3Position);
 	}

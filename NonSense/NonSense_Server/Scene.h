@@ -22,7 +22,7 @@ class Scene
 	concurrency::concurrent_queue<Character*> deletionMonsterQueue;
 
 	std::list<Object*> gameObjects;
-	std::list<Object*> BoundingGameObjects;
+	std::list<Object*> MapBoundingGameObjects;
 
 public:
 	static Scene* scene;
@@ -53,6 +53,8 @@ public:
 	}
 
 	void LoadSceneObb();
+
+	std::list<Object*> GetMapObjects() { return MapBoundingGameObjects; }
 
 	friend Object;
 	friend Character;
