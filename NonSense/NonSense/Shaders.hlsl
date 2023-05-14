@@ -76,7 +76,7 @@ struct VS_PARTICLE_OUTPUT
 
 struct GS_PARTICLE_OUTPUT
 {
-	float4 position : SV_Position;
+	float4 position : SV_POSITION;
 	float4 color : COLOR;
 	float2 uv : TEXTURE;
 };
@@ -98,7 +98,6 @@ static float2 gf2QuadUVs[4] = { float2(0.0f, 0.0f), float2(1.0f, 0.0f), float2(0
 void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTICLE_OUTPUT> outputStream)
 {
 	GS_PARTICLE_OUTPUT output = (GS_PARTICLE_OUTPUT)0;
-
 	output.color = input[0].color;
 	for (int i = 0; i < 4; i++)
 	{
@@ -148,11 +147,11 @@ VS_BoundingOUTPUT VSBounding(VS_BoundingINPUT input)
 float4 PSBounding(VS_BoundingOUTPUT input) : SV_TARGET
 {
 	if (objectID == 0) // 맵 오브젝트
-	return(float4(1,1,1,1));
+		return(float4(1,1,1,1));
 	if (objectID == 1) // 아군 플레이어
-	return(float4(0, 1, 0, 1));
+		return(float4(0, 1, 0, 1));
 	if (objectID == 2) // 적
-	return(float4(1, 0, 0, 1));
+		return(float4(1, 0, 0, 1));
 	if (objectID == 3) // 아군 공격
 		return(float4(0, 0, 1, 1));
 	if (objectID == 4) // 맵 Sphere 오브젝트

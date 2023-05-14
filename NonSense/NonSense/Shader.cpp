@@ -900,7 +900,7 @@ D3D12_SHADER_BYTECODE ParticleShader::CreatePixelShader(ID3DBlob** ppd3dShaderBl
 {
 	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSParticle", "ps_5_1", ppd3dShaderBlob));
 }
-D3D12_SHADER_BYTECODE ParticleShader::CreateGeometryShader(ID3DBlob** ppd3dShaderBlob)
+D3D12_SHADER_BYTECODE ParticleShader::CreateGeometryShader(ID3DBlob** ppd3dShaderBlob, int nPipelineState)
 {
 	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "GSParticle", "gs_5_1", ppd3dShaderBlob));
 }
