@@ -109,6 +109,7 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 			for (auto mapObject : Scene::scene->GetMapObjects()) {
 				if (nextBB.Intersects(*(BoundBox*)mapObject)) {
 					cout << "Player의 다음 움직임에 MapObject과 충돌!" << endl;
+					xmf3Shift = XMFLOAT3(0, 0, 0);
 				}
 			}
 		}
