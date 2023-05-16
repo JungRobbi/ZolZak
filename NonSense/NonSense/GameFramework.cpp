@@ -606,6 +606,10 @@ void GameFramework::ChangeScene(unsigned char num)
 		memcpy(send_packet.name, NetworkMGR::name.c_str(), NetworkMGR::name.size());
 		PacketQueue::AddSendPacket(&send_packet);
 	}
+
+	if (num == GAME_SCENE) {
+		ChatMGR::SetTextSort(m_nWndClientWidth, m_nWndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_LEFT);
+	}
 	scene_type = (SCENE_TYPE)num;
 	m_pCamera = m_pPlayer->GetCamera();
 	GameScene::MainScene->m_pPlayer = m_pPlayer;

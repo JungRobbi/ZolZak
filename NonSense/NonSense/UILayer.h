@@ -101,6 +101,10 @@ enum class E_MODE_HANGUL {
     E_MODE_ENGLISH, E_MODE_HANGUL
 };
 
+enum class E_CHAT_SORTTYPE {
+    E_SORTTYPE_LEFT, E_SORTTYPE_MID
+};
+
 class ChatMGR
 {
 public:
@@ -119,6 +123,7 @@ public:
     static D2D1_RECT_F d2dRect;
 
     static void SetTextinfos(int WndClientWidth, int WndClientHeight);
+    static void SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTYPE type);
     static void UpdateText();
     static void StoreText();
 };

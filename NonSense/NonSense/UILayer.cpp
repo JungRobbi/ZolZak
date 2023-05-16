@@ -192,6 +192,15 @@ void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
     d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
 }
 
+void ChatMGR::SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTYPE type)
+{
+    if (type == E_CHAT_SORTTYPE::E_SORTTYPE_LEFT)
+        d2dRect = D2D1::RectF((float)WndClientWidth / 3.2f, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
+    else if (type == E_CHAT_SORTTYPE::E_SORTTYPE_MID) {
+        d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
+    }
+}
+
 void ChatMGR::StoreText()
 {
     WCHAR* temp = new WCHAR[256];
