@@ -226,7 +226,7 @@ void Player::Update(float fTimeElapsed)
 	}
 
 	DWORD nCameraMode = m_pCamera->GetMode();
-	//if (nCameraMode == THIRD_PERSON_CAMERA) 
+	if (nCameraMode == THIRD_PERSON_CAMERA) 
 	m_pCamera->Update(m_xmf3Position, fTimeElapsed);
 	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
 	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
@@ -368,9 +368,9 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	if (NetworkMGR::id != id) {
-		m_pHP_Dec_UI->SetMyPos(0, 0, 0, 0);
-		m_pHP_UI->SetMyPos(0, 0, 0, 0);
-		m_pUI->SetMyPos(0, 0, 0, 0);
+		m_pHP_Dec_UI->SetMyPos(0, 0, 1, 1);
+		m_pHP_UI->SetMyPos(0, 0, 1, 1);
+		m_pUI->SetMyPos(0, 0, 1, 1);
 	}
 
 	m_pHP_UI->SetParentUI(m_pUI);

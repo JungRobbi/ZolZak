@@ -96,6 +96,7 @@ public:
 	void ProcessInput();
 	void AnimateObjects();
 	void FrameAdvance();
+	void RenderHP();
 	void WaitForGpuComplete();
 
 	void ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta);

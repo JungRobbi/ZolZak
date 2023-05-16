@@ -825,7 +825,9 @@ void GameFramework::FrameAdvance()
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
-	//ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+	RenderHP();
+	ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
@@ -843,4 +845,25 @@ void GameFramework::FrameAdvance()
 
 	Timer::GetFrameRate(m_FrameRate + 9, 10);
 	::SetWindowText(m_hWnd, m_FrameRate);
+}
+
+void GameFramework::RenderHP()
+{
+	if (scene_type == GAME_SCENE) {
+		for (auto& p : m_OtherPlayers)
+		{
+			p->m_pHP_Dec_UI->UpdateTransform(NULL);
+			p->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
+			p->m_pHP_UI->UpdateTransform(NULL);
+			p->m_pHP_UI->Render(m_pCommandList, m_pCamera);
+			p->m_pUI->UpdateTransform(NULL);
+			p->m_pUI->Render(m_pCommandList, m_pCamera);
+		}
+		m_pPlayer->m_pHP_Dec_UI->UpdateTransform(NULL);
+		m_pPlayer->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
+		m_pPlayer->m_pHP_UI->UpdateTransform(NULL);
+		m_pPlayer->m_pHP_UI->Render(m_pCommandList, m_pCamera);
+		m_pPlayer->m_pUI->UpdateTransform(NULL);
+		m_pPlayer->m_pUI->Render(m_pCommandList, m_pCamera);
+	}
 }

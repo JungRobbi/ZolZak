@@ -70,14 +70,12 @@ struct VS_PARTICLE_INPUT
 struct VS_PARTICLE_OUTPUT
 {
 	float3 position : POSITION;
-	float4 color : COLOR;
 	float size : SCALE;
 };
 
 struct GS_PARTICLE_OUTPUT
 {
 	float4 position : SV_POSITION;
-	float4 color : COLOR;
 	float2 uv : TEXTURE;
 };
 
@@ -87,7 +85,6 @@ VS_PARTICLE_OUTPUT VSParticle(VS_PARTICLE_INPUT input)
 
 	output.position = input.position;
 	output.size = 2.5f;
-	output.color = float4(0, 1, 1, 1);
 	return(output);
 }
 
@@ -98,11 +95,11 @@ static float2 gf2QuadUVs[4] = { float2(0.0f, 0.0f), float2(1.0f, 0.0f), float2(0
 void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTICLE_OUTPUT> outputStream)
 {
 	GS_PARTICLE_OUTPUT output = (GS_PARTICLE_OUTPUT)0;
-	output.color = input[0].color;
 	for (int i = 0; i < 4; i++)
 	{
-		float3 positionW = mul(gf3Positions[i] * input[0].size, (float3x3)gmtxInverseView) + input[0].position;
-		output.position = mul(mul(float4(positionW, 1.0f), gmtxView), gmtxProjection);
+		//float3 positionW = mul(gf3Positions[i] * input[0].size, (float3x3)gmtxInverseView) + input[0].position;
+		//output.position = mul(mul(float4(positionW, 1.0f), gmtxView), gmtxProjection);
+		output.position = float4(gf3Positions[i],1.0f);
 		output.uv = gf2QuadUVs[i];
 
 		outputStream.Append(output);

@@ -25,7 +25,7 @@ private:
 	UI* ParentUI = NULL;
 };
 
-class Monster_HP_UI : public Object
+class Monster_HP_UI : public UI
 {
 public:
 	Monster_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);

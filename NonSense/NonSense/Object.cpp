@@ -655,6 +655,7 @@ Object::Object(bool Push_List)
 {
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_xmf4x4ToParent, XMMatrixIdentity());
+	SetNum(OBJNum++);
 	if (Push_List) {
 		GameScene::MainScene->creationQueue.push(this);
 	}
