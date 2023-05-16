@@ -194,8 +194,8 @@ void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
 
 void ChatMGR::StoreText()
 {
-    WCHAR temp[256];
-    wcscpy_s(temp, m_textbuf);
+    WCHAR* temp = new WCHAR[256];
+    memcpy_s(temp, sizeof(temp), m_textbuf, sizeof(m_textbuf));
     m_pPrevTexts.emplace_back(temp);
 
     if (m_pPrevTexts.size() >= 10) {
