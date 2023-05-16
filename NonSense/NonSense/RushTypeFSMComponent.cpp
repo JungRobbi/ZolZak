@@ -5,6 +5,7 @@
 #include "Characters.h"
 #include "GameFramework.h"
 #include "AttackComponent.h"
+#include "MonsterAttackComponent.h"
 void RushTypeFSMComponent::start()
 {
 	m_pFSM = new FSM<RushTypeFSMComponent>(this);
@@ -94,7 +95,16 @@ void RushTypeFSMComponent::Move_Run(float dist)
 void RushTypeFSMComponent::Attack()
 {
 	if (!gameObject->GetComponent<MonsterAttackComponent>()->During_Attack)
-		gameObject->GetComponent<MonsterAttackComponent>()->FarTypeAttack();
+	{
+		if (!gameObject->GetComponent<MonsterAttackComponent>()->Targetting)
+		{
+			gameObject->GetComponent<MonsterAttackComponent>()->TargetOn();
+		}
+		else
+		{
+			gameObject->GetComponent<MonsterAttackComponent>()->RushTypeAttack();
+		}
+	}
 }
 
 void RushTypeFSMComponent::Track()
@@ -110,8 +120,11 @@ void RushTypeFSMComponent::Track()
 	if (ToTargetAngle > 7.0f)
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(TargetPos, CurrentPos));
-	if (Distance > 5.0f)
-		Move_Run(2.0f * Timer::GetTimeElapsed());
+	if (Distance > 3.0f)
+	{
+		if (gameObject->GetComponent<MonsterAttackComponent>()->AttackTimeLeft < 1.5f)
+			Move_Run(2.0f * Timer::GetTimeElapsed());
+	}
 	else
 	{
 		Stop();

@@ -3,6 +3,7 @@
 #include "GameScene.h"
 #include "CloseTypeFSMComponent.h"
 #include "FarTypeFSMComponent.h"
+#include "RushTypeFSMComponent.h"
 #include "MonsterAttackComponent.h"
 #include "AttackComponent.h"
 #include "MoveForwardComponent.h"
@@ -165,6 +166,18 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		m_Defense = 80;
 		break;
 	case MONSTER_TYPE_RUSH:
+		AddComponent<RushTypeFSMComponent>();
+		bb2->SetNum(5);
+		AddComponent<MonsterAttackComponent>();
+		GetComponent<MonsterAttackComponent>()->SetAttackSpeed(5.0f);
+		GetComponent<MonsterAttackComponent>()->SetBoundingObject(bb2);
+		GetComponent<MonsterAttackComponent>()->AttackAnimationNumber = 3;
+
+		bb->SetNum(2);
+		AddComponent<BoxCollideComponent>();
+		GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
+		GetComponent<BoxCollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(0.3, 0.5, 0.3));
+		GetComponent<BoxCollideComponent>()->SetMoveAble(true);
 		m_Health = 1130;
 		m_RemainHP = 1130;
 		m_Attack = 460;
