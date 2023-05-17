@@ -334,10 +334,13 @@ public:
 	bool GetUsed() { return isuse; }
 	void SetUsed(bool b) { isuse = b; }
 
+	
 private:
 	int m_nReferences = 0;
 	int Num = 0;
 public:
+
+
 	void AddRef() { m_nReferences++; }
 	void Release() { 
 		if (--m_nReferences <= 0) 
@@ -417,7 +420,7 @@ public:
 	void LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* OpenedFile, Shader* pShader);
 
 	void SetChild(Object* pChild, bool bReferenceUpdate = false);
-
+	void SetDo_Render(bool render);
 
 	Object* m_pParent = NULL;
 	Object* m_pChild = NULL;
@@ -431,7 +434,7 @@ public:
 	XMFLOAT4X4 m_xmf4x4ToParent;
 
 	AnimationController* m_pSkinnedAnimationController = NULL;
-
+	bool Do_Render = true;
 };
 
 

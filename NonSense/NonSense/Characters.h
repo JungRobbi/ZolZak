@@ -9,6 +9,13 @@ enum MonsterType
 	MONSTER_TYPE_BOSS
 };
 
+class WeaponObject : public Object
+{
+public:
+	WeaponObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel);
+	virtual ~WeaponObject();
+	void Fire(XMFLOAT3& look, XMFLOAT3& pos);
+};
 
 class Character : public Object
 {
@@ -45,7 +52,8 @@ public:
 	Shader* m_pBoundingShader = NULL;
 	CubeMesh* m_pBoundMesh = NULL;
 
-
+	Object* HandFrame = NULL;
+	Object* WeaponFrame = NULL;
 public:
 	void FarTypeAttack();
 	void RushTypeAttack();

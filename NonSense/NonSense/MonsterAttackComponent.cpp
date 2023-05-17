@@ -2,13 +2,34 @@
 
 void MonsterAttackComponent::FarTypeAttack()
 {
+	gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(AttackAnimationNumber);
+	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 	During_Attack = true;
-	((Monster*)gameObject)->FarTypeAttack(); 
+	WeaponFire = true;
+	AttackTimeLeft = AttackDuration;
+	((Monster*)gameObject)->FarTypeAttack();
 }
 void MonsterAttackComponent::RushTypeAttack()
 {
+	gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(AttackAnimationNumber);
+	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 	During_Attack = true;
-	((Monster*)gameObject)->FarTypeAttack();
+	Targetting = false;
+	TargetCoolTime = 1.0f;
+	RushTime = 1.0f;
+	AttackTimeLeft = AttackDuration;
+	((Monster*)gameObject)->RushTypeAttack();
+}
+void MonsterAttackComponent::TargetOn()
+{
+	if (TargetCoolTime > 0.0f)
+	{
+		TargetCoolTime -= Timer::GetTimeElapsed();
+	}
+	else
+	{
+		Targetting = true;
+	}
 }
 
 void MonsterAttackComponent::start()
@@ -25,6 +46,16 @@ void MonsterAttackComponent::update()
 	{
 		During_Attack = false;
 	}
+	if (RushTime > 0)
+	{
+		RushTime -= Timer::GetTimeElapsed();
+		gameObject->MoveForward(6.0f * Timer::GetTimeElapsed());
+	}
+}
+
+void MonsterAttackComponent::ResetWeapon()
+{
+
 }
 void MonsterAttackComponent::SetAttackSpeed(float speed)
 {
