@@ -120,7 +120,7 @@ void UILayer::Render(UINT nFrame)
     m_pd2dDeviceContext->BeginDraw();
     for (UINT i = 0; i < m_nTextBlocks; i++)
     {
-       m_pd2dDeviceContext->DrawText(m_pTextBlocks[i].m_pstrText, (UINT)wcslen(m_pTextBlocks[i].m_pstrText), m_pTextBlocks[i].m_pdwFormat, m_pTextBlocks[i].m_d2dLayoutRect, m_pTextBlocks[i].m_pd2dTextBrush);
+        m_pd2dDeviceContext->DrawText(m_pTextBlocks[i].m_pstrText, (UINT)wcslen(m_pTextBlocks[i].m_pstrText), m_pTextBlocks[i].m_pdwFormat, m_pTextBlocks[i].m_d2dLayoutRect, m_pTextBlocks[i].m_pd2dTextBrush);
     }
     m_pd2dDeviceContext->EndDraw();
 
@@ -179,6 +179,7 @@ D2D1_RECT_F ChatMGR::d2dRect;
 void ChatMGR::UpdateText()
 {
     m_pUILayer->UpdateTextOutputs(0, m_textbuf, &d2dRect, pdwTextFormat, pd2dBrush);
+    m_pUILayer->UpdateTextOutputs(1, m_textbuf, &d2dRect, pdwTextFormat, pd2dBrush);
 }
 
 void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
@@ -228,7 +229,7 @@ void ChatMGR::SetInGame(int WndClientWidth, int WndClientHeight)
     m_combtext = NULL;
 
     SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_LEFT);
-    d2dRect = D2D1::RectF((float)WndClientWidth / 49.f, (float)WndClientHeight / 1.4f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
+    d2dRect = D2D1::RectF((float)WndClientWidth / 48.f, (float)WndClientHeight / 1.4f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
 
     m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
         DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,

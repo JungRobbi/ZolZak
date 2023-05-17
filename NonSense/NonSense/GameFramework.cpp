@@ -302,7 +302,7 @@ void GameFramework::BuildObjects()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
-	ChatMGR::m_pUILayer = new UILayer(m_nSwapChainBuffers, 1, m_pDevice, m_pCommandQueue, 
+	ChatMGR::m_pUILayer = new UILayer(m_nSwapChainBuffers, 10, m_pDevice, m_pCommandQueue, 
 		m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
 	ChatMGR::SetTextinfos(m_nWndClientWidth, m_nWndClientHeight);
 	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Stage
