@@ -106,6 +106,8 @@ public:
 	void SetWindowCentser(RECT rect);
 	void ChangeScene(unsigned char num);
 
+	void SaveSceneOBB();
+
 	friend NetworkMGR;
 
 	RECT WindowPos;

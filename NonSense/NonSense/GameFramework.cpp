@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <fstream>
 #include "GameFramework.h"
 #include "PlayerMovementComponent.h"
 #include "BoxCollideComponent.h"
@@ -518,6 +519,9 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			case VK_F9:
 				ChangeSwapChainState();
 				break;
+			case VK_F11: // 맵 바운딩 박스 파일로 저장
+				SaveSceneOBB();
+				break;
 			case '2':
 				//m_pHP_UI->HP -= 0.05;
 				//m_pHP_Dec_UI->Dec_HP -= 0.05;
@@ -600,6 +604,14 @@ void GameFramework::ChangeScene(unsigned char num)
 		send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
 		memcpy(send_packet.name, NetworkMGR::name.c_str(), NetworkMGR::name.size());
 		PacketQueue::AddSendPacket(&send_packet);
+	}
+
+	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
+	if (num == GAME_SCENE) {
+		ChatMGR::SetInGame(m_nWndClientWidth, m_nWndClientHeight);
+	}
+	else if (num == LOGIN_SCENE) {
+		ChatMGR::SetLoginScene(m_nWndClientWidth, m_nWndClientHeight);
 	}
 	scene_type = (SCENE_TYPE)num;
 	m_pCamera = m_pPlayer->GetCamera();
@@ -866,4 +878,24 @@ void GameFramework::RenderHP()
 		m_pPlayer->m_pUI->UpdateTransform(NULL);
 		m_pPlayer->m_pUI->Render(m_pCommandList, m_pCamera);
 	}
+}
+}
+
+void GameFramework::SaveSceneOBB()
+{
+	ofstream out{ "NonSenseMapOBB.txt" };
+	
+	cout << "맵 바운딩 박스 저장 중.." << endl;
+	for (auto p : GameScene::MainScene->BoundingGameObjects) {
+		if (!dynamic_cast<BoundBox*>(p))
+			continue;
+		BoundBox* obb = dynamic_cast<BoundBox*>(p);
+		if (obb->GetNum() != 0)
+			continue;
+
+		out << obb->Center.x << " " << obb->Center.y << " " << obb->Center.z << " ";
+		out << obb->Extents.x << " " << obb->Extents.y << " " << obb->Extents.z << " ";
+		out << obb->Orientation.x << " " << obb->Orientation.y << " " << obb->Orientation.z << " " << obb->Orientation.w << endl;
+	}
+	cout << "맵 바운딩 박스 저장완료!" << endl;
 }

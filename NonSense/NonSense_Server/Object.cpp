@@ -714,6 +714,10 @@ BoundSphere::BoundSphere() : Object(BOUNDING_OBJECT)
 {
 }
 
+BoundSphere::BoundSphere(bool Push_List) : Object(Push_List)
+{
+}
+
 void BoundSphere::Transform(_Out_ BoundSphere& Out, _In_ FXMMATRIX M)
 {
 	// Load the center of the sphere.

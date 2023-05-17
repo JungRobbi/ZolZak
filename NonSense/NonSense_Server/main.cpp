@@ -21,6 +21,8 @@
 
 #include "Components/PlayerMovementComponent.h"
 #include "Components/CloseTypeFSMComponent.h"
+#include "Components/SphereCollideComponent.h"
+#include "Components/BoxCollideComponent.h"
 
 using namespace std;
 using namespace concurrency;
@@ -194,12 +196,8 @@ int main(int argc, char* argv[])
 	signal(SIGINT, ProcessSignalAction);
 
 	scene = make_shared<Scene>();
-	char MapName[] = "Model/NonBlend_Props_Map.bin";
-//	char BlendMapName[] = "../NonSense/Model/Blend_Objects_Map.bin";
-	cout << "Server Loding..." << endl;
-//	Object::LoadMapData(MapName);
-//	Object::LoadMapData_Blend(BlendMapName);
-	cout << "Server Loding Complete!" << endl;
+
+	Scene::scene->LoadSceneObb();
 
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	Scene::terrain = new HeightMapTerrain(_T("Terrain/terrain.raw"), 800, 800, xmf3Scale);
@@ -384,15 +382,18 @@ int main(int argc, char* argv[])
 					continue;
 
 				//Monster Target
-				for (auto& rc_to : RemoteClient::remoteClients) {
-					if (!rc_to.second->b_Enable)
-						continue;
-					SC_AGGRO_PLAYER_PACKET send_packet;
-					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
-					send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
-					send_packet.player_id = 10;
-					send_packet.monster_id = ((Goblin*)monster)->num;
-					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				if ((Goblin*)(monster)->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()) {
+					for (auto& rc_to : RemoteClient::remoteClients) {
+						if (!rc_to.second->b_Enable)
+							continue;
+						SC_AGGRO_PLAYER_PACKET send_packet;
+						send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
+						send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
+						send_packet.player_id = ((Player*)((Goblin*)(monster)
+							->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
+						send_packet.monster_id = ((Goblin*)monster)->num;
+						rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+					}
 				}
 			}
 		}
@@ -583,7 +584,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
 				send_packet.id = p_Client->m_id;
 				send_packet.Anitype = E_PLAYER_ANIMATION_TYPE::E_JUMP;
-				p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
 		}
 			break;
@@ -597,7 +598,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
 				send_packet.id = p_Client->m_id;
 				send_packet.Anitype = E_PLAYER_ANIMATION_TYPE::E_DASH;
-				p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
 		}
 			break;
@@ -610,7 +611,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
 				send_packet.id = p_Client->m_id;
 				send_packet.Anitype = E_PLAYER_ANIMATION_TYPE::E_ATTACK0;
-				p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
 			break;
 		}
