@@ -607,8 +607,12 @@ void GameFramework::ChangeScene(unsigned char num)
 		PacketQueue::AddSendPacket(&send_packet);
 	}
 
+	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
 	if (num == GAME_SCENE) {
-		ChatMGR::SetTextSort(m_nWndClientWidth, m_nWndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_LEFT);
+		ChatMGR::SetInGame(m_nWndClientWidth, m_nWndClientHeight);
+	}
+	else if (num == LOGIN_SCENE) {
+		ChatMGR::SetLoginScene(m_nWndClientWidth, m_nWndClientHeight);
 	}
 	scene_type = (SCENE_TYPE)num;
 	m_pCamera = m_pPlayer->GetCamera();

@@ -126,4 +126,7 @@ public:
     static void SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTYPE type);
     static void UpdateText();
     static void StoreText();
+
+    static void SetLoginScene(int WndClientWidth, int WndClientHeight);
+    static void SetInGame(int WndClientWidth, int WndClientHeight);
 };
