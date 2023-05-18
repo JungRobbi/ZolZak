@@ -682,6 +682,31 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		}
 		break;
 	}
+	case E_PACKET::E_PACKET_CS_TEMP_HIT_PLAYER_PACKET: {
+		CS_TEMP_HIT_PLAYER_PACKET* recv_packet = reinterpret_cast<CS_TEMP_HIT_PLAYER_PACKET*>(p_Packet);
+		shared_ptr<Player> player;
+		for (auto& rc : RemoteClient::remoteClients) {
+			if (!rc.second->b_Enable)
+				continue;
+			if (rc.second->m_id == recv_packet->player_id)
+				player = rc.second->m_pPlayer;
+		}
+
+		player->GetHit(recv_packet->hit_damage);
+
+		// 다른 클라이언트들에게 남은 HP 정보 통신
+		for (auto& rc : RemoteClient::remoteClients) {
+			if (!rc.second->b_Enable)
+				continue;
+			SC_TEMP_HIT_PLAYER_PACKET send_packet;
+			send_packet.size = sizeof(SC_TEMP_HIT_PLAYER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_TEMP_HIT_PLAYER_PACKET;
+			send_packet.player_id = recv_packet->player_id;
+			send_packet.remain_hp = player->GetRemainHP();
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+		break;
+	}
 	default:
 		break;
 	}
