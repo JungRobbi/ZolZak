@@ -36,16 +36,15 @@ void AttackComponent::Attack()
 			{
 				if (!NetworkMGR::b_isNet) {
 					GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
-					continue;
 				}
-				CS_TEMP_HIT_PLAYER_PACKET send_packet;
-				send_packet.size = sizeof(CS_TEMP_HIT_PLAYER_PACKET);
-				send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_PLAYER_PACKET;
-				send_packet.player_id = NetworkMGR::id;
-				send_packet.hit_damage = dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100));
-				PacketQueue::AddSendPacket(&send_packet);
-
-				GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+				else {
+					CS_TEMP_HIT_PLAYER_PACKET send_packet;
+					send_packet.size = sizeof(CS_TEMP_HIT_PLAYER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_PLAYER_PACKET;
+					send_packet.player_id = NetworkMGR::id;
+					send_packet.hit_damage = dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100));
+					PacketQueue::AddSendPacket(&send_packet);
+				}
 				printf("%f -> %f = %f", dynamic_cast<Goblin*>(gameObject)->GetAttack(), GameFramework::MainGameFramework->m_pPlayer->GetDefense(), GameFramework::MainGameFramework->m_pPlayer->GetRemainHP());
 			}
 		}
