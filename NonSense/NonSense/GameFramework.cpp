@@ -849,7 +849,10 @@ void GameFramework::FrameAdvance()
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+	if (scene_type == LOGIN_SCENE)
+		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
+	else
+		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 
 	m_pSwapChain->Present(0, 0);
 

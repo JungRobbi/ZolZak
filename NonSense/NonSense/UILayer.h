@@ -38,6 +38,7 @@ public:
 
     void UpdateTextOutputs(UINT nIndex, WCHAR* pstrUIText, D2D1_RECT_F pd2dLayoutRect, IDWriteTextFormat* pdwFormat, ID2D1SolidColorBrush* pd2dTextBrush);
     void Render(UINT nFrame);
+    void RenderSingle(UINT nFrame);
     void ReleaseResources();
 
     ID2D1SolidColorBrush* CreateBrush(D2D1::ColorF d2dColor);

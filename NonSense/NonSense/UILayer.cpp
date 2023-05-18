@@ -132,6 +132,23 @@ void UILayer::Render(UINT nFrame)
     m_pd3d11DeviceContext->Flush();
 }
 
+void UILayer::RenderSingle(UINT nFrame)
+{
+    ID3D11Resource* ppResources[] = { m_ppd3d11WrappedRenderTargets[nFrame] };
+
+    m_pd2dDeviceContext->SetTarget(m_ppd2dRenderTargets[nFrame]);
+    m_pd3d11On12Device->AcquireWrappedResources(ppResources, _countof(ppResources));
+
+    m_pd2dDeviceContext->BeginDraw();
+    m_pd2dDeviceContext->DrawText(m_pTextBlocks[0].m_pstrText, (UINT)wcslen(m_pTextBlocks[0].m_pstrText), m_pTextBlocks[0].m_pdwFormat, m_pTextBlocks[0].m_d2dLayoutRect, m_pTextBlocks[0].m_pd2dTextBrush);
+
+    m_pd2dDeviceContext->EndDraw();
+
+    m_pd3d11On12Device->ReleaseWrappedResources(ppResources, _countof(ppResources));
+    m_pd3d11DeviceContext->Flush();
+}
+
+
 void UILayer::ReleaseResources()
 {
     for (UINT i = 0; i < m_nTextBlocks; i++)
@@ -183,11 +200,13 @@ int ChatMGR::fontsize = 0;
 
 void ChatMGR::UpdateText()
 {
-    for (int i{}; i < m_pUILayer->m_nTextBlocks; ++i) {
+    m_pUILayer->UpdateTextOutputs(0, m_textbuf, d2dRect, pdwTextFormat, pd2dBrush);
+    int i{1};
+    for (auto p{ m_pPrevTexts.begin() }; p != m_pPrevTexts.end(); ++p) {
         auto rect = d2dRect;
         rect.top -= i * fontsize + 2;
         rect.bottom -= i * fontsize + 2;
-        m_pUILayer->UpdateTextOutputs(i, m_textbuf, rect, pdwTextFormat, pd2dBrush);
+        m_pUILayer->UpdateTextOutputs(i++, *p, rect, pdwTextFormat, pd2dBrush);
     }
 }
 
@@ -215,11 +234,12 @@ void ChatMGR::SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTY
 
 void ChatMGR::StoreText()
 {
-    WCHAR temp[256];
-    wcscpy_s(temp, m_textbuf);
-    m_pPrevTexts.push_back(temp);
+    WCHAR* temp = new WCHAR[256];
+    wcscpy(temp, m_textbuf);
+    m_pPrevTexts.push_front(temp);
     if (m_pPrevTexts.size() >= 10) {
-        m_pPrevTexts.pop_front();
+        delete m_pPrevTexts.back();
+        m_pPrevTexts.pop_back();
     }
 }
 
@@ -244,6 +264,9 @@ void ChatMGR::SetInGame(int WndClientWidth, int WndClientHeight)
     d2dRect = D2D1::RectF((float)WndClientWidth / 48.f, (float)WndClientHeight / 1.4f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
 
     fontsize = WndClientHeight / 50.0f;
+
+    for (int i{}; i < 9; ++i)
+        m_pPrevTexts.emplace_back();
 
     m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
         DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
