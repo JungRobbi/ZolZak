@@ -232,10 +232,21 @@ void ChatMGR::SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTY
     }
 }
 
-void ChatMGR::StoreText()
+void ChatMGR::StoreTextSelf()
 {
     WCHAR* temp = new WCHAR[256];
     wcscpy(temp, m_textbuf);
+    m_pPrevTexts.push_front(temp);
+    if (m_pPrevTexts.size() >= 10) {
+        delete m_pPrevTexts.back();
+        m_pPrevTexts.pop_back();
+    }
+}
+
+void ChatMGR::StoreText(WCHAR* buf)
+{
+    WCHAR* temp = new WCHAR[256];
+    wcscpy(temp, buf);
     m_pPrevTexts.push_front(temp);
     if (m_pPrevTexts.size() >= 10) {
         delete m_pPrevTexts.back();

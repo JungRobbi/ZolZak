@@ -445,7 +445,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			{
 			case VK_RETURN:
 				ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
-				ChatMGR::StoreText();
+				ChatMGR::StoreTextSelf();
 				ChatMGR::m_textindex = 0;
 
 				if (NetworkMGR::b_isNet && scene_type == LOGIN_SCENE) {
