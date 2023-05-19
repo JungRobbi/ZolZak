@@ -359,6 +359,7 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 
 MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
+	Magical = true;
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)pContext;
 	SetPlayerUpdatedContext(pTerrain);
 	SetCameraUpdatedContext(pTerrain);
@@ -368,8 +369,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	if (NetworkMGR::id != id) {
-		m_pHP_Dec_UI->SetMyPos(0, 0, 1, 1);
-		m_pHP_UI->SetMyPos(0, 0, 1, 1);
+		printf("´Ù¸¥ ID");
 		m_pUI->SetMyPos(0, 0, 1, 1);
 	}
 

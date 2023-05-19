@@ -342,6 +342,5 @@ Login_UI::Login_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 void Login_UI::OnClick()
 {
-	printf("로그인버튼");
 	GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
 }

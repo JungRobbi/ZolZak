@@ -26,8 +26,7 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	terrain->SetPosition(-400, 0, -400);
 	m_pTerrain = terrain;
 
-	ParticleObject* particle = new ParticleObject(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	particle->SetPosition(-16.0f, GetTerrain()->GetHeight(-16.0f, 103.0f), 103.0f);
+
 
 	Object* TempObject = NULL;
 	LoadedModelInfo* pRW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_R.bin", NULL);
@@ -73,6 +72,9 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	//FireBall* particle = new FireBall(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	//particle->SetPosition(-16.0f, GetTerrain()->GetHeight(-16.0f, 103.0f), 103.0f);
 
 	bgm = new Sound("Sound/TestMusic.mp3", true);
 	bgm->Play();

@@ -40,6 +40,7 @@ protected:
 	float m_RemainHP = 1000;
 public:
 
+	bool Magical = false;
 	unsigned int id = 0;
 	std::string m_name;
 	Player_State_UI* m_pUI = NULL;

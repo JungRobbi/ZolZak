@@ -97,9 +97,8 @@ void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTI
 	GS_PARTICLE_OUTPUT output = (GS_PARTICLE_OUTPUT)0;
 	for (int i = 0; i < 4; i++)
 	{
-		//float3 positionW = mul(gf3Positions[i] * input[0].size, (float3x3)gmtxInverseView) + input[0].position;
-		//output.position = mul(mul(float4(positionW, 1.0f), gmtxView), gmtxProjection);
-		output.position = float4(gf3Positions[i],1.0f);
+		float3 positionW = mul(gf3Positions[i] * input[0].size, (float3x3)gmtxInverseView) + input[0].position;
+		output.position = mul(mul(mul(float4(positionW, 1.0f), gmtxObjectWorld), gmtxView), gmtxProjection);
 		output.uv = gf2QuadUVs[i];
 
 		outputStream.Append(output);
@@ -109,8 +108,8 @@ void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTI
 
 float4 PSParticle(GS_PARTICLE_OUTPUT input) : SV_TARGET
 {
-	//float4 cColor = gtxtParticleTexture.Sample(gWrapSamplerState, input.uv);
-	return(float4(1,0,0,1));
+	float4 cColor = gtxtParticleTexture.Sample(gssWrap, input.uv);
+	return(cColor);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

@@ -10,7 +10,7 @@ void AttackComponent::Attack()
 	AttackTimeLeft = AttackDuration + NextAttackInputTime;
 	During_Attack = true;
 
-	if (dynamic_cast<Player*>(gameObject)) {
+	if (dynamic_cast<Player*>(gameObject)) {	// 플레이어의 공격
 		if (AttackRange) {
 			for (auto& monster : GameScene::MainScene->MonsterObjects)
 			{
@@ -28,8 +28,16 @@ void AttackComponent::Attack()
 				}
 			}
 		}
+		if (!dynamic_cast<Player*>(gameObject)->Magical)	// 전사 플레이어
+		{	
+			
+		}
+		else
+		{
+
+		}
 	}
-	else {
+	else {	// 몬스터의 공격
 		if (AttackRange) {
 			if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{

@@ -879,7 +879,6 @@ void GameFramework::RenderHP()
 		m_pPlayer->m_pUI->Render(m_pCommandList, m_pCamera);
 	}
 }
-}
 
 void GameFramework::SaveSceneOBB()
 {

@@ -2062,7 +2062,7 @@ bool BoundSphere::Intersects(BoundSphere& sh)
 	return XMVector3LessOrEqual(DistanceSquared, RadiusSquared);
 }
 
-ParticleObject::ParticleObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BLEND_OBJECT)
+FireBall::FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BLEND_OBJECT)
 {
 	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 50);
 	SetMesh(pMesh);
@@ -2081,7 +2081,7 @@ ParticleObject::ParticleObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	SetMaterial(pMaterial);
 }
 
-void ParticleObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+void FireBall::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	OnPrepareRender();
 
@@ -2092,6 +2092,6 @@ void ParticleObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* 
 
 	if (m_pMesh)
 	{
-		//m_pMesh->Render(pd3dCommandList, 0);
+		m_pMesh->Render(pd3dCommandList, 0);
 	}
 }
