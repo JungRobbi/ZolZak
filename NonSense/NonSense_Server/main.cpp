@@ -718,7 +718,6 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 			SC_CHAT_PACKET send_packet;
 			send_packet.size = sizeof(SC_CHAT_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_CHAT_PACKET;
-			memcpy(send_packet.name, p_Client->name, sizeof(p_Client->name));
 			memcpy(send_packet.chat, recv_packet->chat, sizeof(recv_packet->chat));
 			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}

@@ -99,7 +99,6 @@ public:
 
 class SC_CHAT_PACKET : public PACKET_HEAD {
 public:
-	char	name[NAME_SIZE];
 	char    chat[CHAT_SIZE];
 };
 

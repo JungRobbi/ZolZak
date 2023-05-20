@@ -426,9 +426,8 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	case E_PACKET_SC_CHAT_PACKET: {
 		SC_CHAT_PACKET* recv_packet = reinterpret_cast<SC_CHAT_PACKET*>(p_Packet);
 		
-		std::string recv_name{ recv_packet->name };
 		auto p = ConverCtoWC(recv_packet->chat);
-		ChatMGR::StoreText(p, recv_name);
+		ChatMGR::StoreText(p);
 		delete p;
 		break;
 	}

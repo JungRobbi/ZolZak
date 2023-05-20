@@ -3,6 +3,7 @@
 #include <iostream>
 #include <wchar.h>
 #include <vector>
+#include <string>
 
 #include "NetworkMGR.h"
 #include "../ImaysNet/PacketQueue.h"
@@ -235,14 +236,14 @@ void ChatMGR::SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTY
 
 void ChatMGR::StoreTextSelf()
 {
-    char cname[100];
+    char cname[NAME_SIZE];
     memcpy(cname, NetworkMGR::name.c_str(), sizeof(NetworkMGR::name.c_str()));
     cname[NetworkMGR::name.size()] = ' ';
     cname[NetworkMGR::name.size() + 1] = ':';
     cname[NetworkMGR::name.size() + 2] = ' ';
     auto p = ConverCtoWC(cname);
 
-    WCHAR* temp = new WCHAR[256 + (sizeof(p) / sizeof(WCHAR))];
+    WCHAR* temp = new WCHAR[CHAT_SIZE];
 
     wcscpy(temp, p);
     wcscpy(temp + NetworkMGR::name.size() + 3, m_textbuf);
@@ -264,21 +265,11 @@ void ChatMGR::StoreTextSelf()
     }
 }
 
-void ChatMGR::StoreText(WCHAR* buf, std::string name)
+void ChatMGR::StoreText(WCHAR* buf)
 {
-    char cname[100];
-    memcpy(cname, name.c_str(), sizeof(name.c_str()));
-    cname[name.size()] = ' ';
-    cname[name.size() + 1] = ':';
-    cname[name.size() + 2] = ' ';
-    auto p = ConverCtoWC(cname);
-
-    WCHAR* temp = new WCHAR[256 + (sizeof(p) / sizeof(WCHAR))];
-
-    wcscpy(temp, p);
-    wcscpy(temp + name.size() + 3, buf);
+    WCHAR* temp = new WCHAR[CHAT_SIZE];
+    wcscpy(temp, buf);
     m_pPrevTexts.push_front(temp);
-    delete p;
     if (m_pPrevTexts.size() >= 10) {
         delete m_pPrevTexts.back();
         m_pPrevTexts.pop_back();
