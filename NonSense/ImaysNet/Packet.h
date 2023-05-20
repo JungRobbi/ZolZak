@@ -5,6 +5,7 @@
 #include <DirectXPackedVector.h>
 
 constexpr int NAME_SIZE = 20;
+constexpr int CHAT_SIZE = 40;
 
 constexpr int MAX_BUFSIZE_CLIENT = 1024;
 
@@ -17,6 +18,7 @@ enum E_PACKET
 
 	E_PACKET_CS_TEMP_HIT_MONSTER_PACKET, E_PACKET_SC_TEMP_HIT_MONSTER_PACKET,
 	E_PACKET_CS_TEMP_HIT_PLAYER_PACKET, E_PACKET_SC_TEMP_HIT_PLAYER_PACKET,
+	E_PACKET_CS_CHAT_PACKET,
 
 	// Server -> Client packet
 	E_PACKET_SC_LOGIN_INFO, E_PACKET_SC_ADD_PLAYER, E_PACKET_SC_REMOVE_PLAYER,
@@ -25,7 +27,9 @@ enum E_PACKET
 	E_PACKET_SC_MOVE_MONSTER_PACKET, E_PACKET_SC_LOOK_MONSTER_PACKET,
 	E_PACKET_SC_AGGRO_PLAYER_PACKET,
 
-	E_PACKET_SC_TEMP_WANDER_MONSTER_PACKET
+	E_PACKET_SC_TEMP_WANDER_MONSTER_PACKET,
+
+	E_PACKET_SC_CHAT_PACKET
 
 };
 
@@ -69,22 +73,34 @@ public:
 	unsigned int	hit_damage;
 };
 
-class SC_TEMP_HIT_MONSTER_PACKET : public PACKET_HEAD {
-public:
-	unsigned int	monster_id;
-	int				remain_hp;
-};
-
 class CS_TEMP_HIT_PLAYER_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	player_id;
 	unsigned int	hit_damage;
 };
 
+class CS_CHAT_PACKET : public PACKET_HEAD {
+public:
+	char    chat[CHAT_SIZE];
+};
+
+
+class SC_TEMP_HIT_MONSTER_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	monster_id;
+	int				remain_hp;
+};
+
 class SC_TEMP_HIT_PLAYER_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	player_id;
 	int				remain_hp;
+};
+
+class SC_CHAT_PACKET : public PACKET_HEAD {
+public:
+	char	name[NAME_SIZE];
+	char    chat[CHAT_SIZE];
 };
 
 class SC_TEMP_WANDER_MONSTER_PACKET : public PACKET_HEAD {

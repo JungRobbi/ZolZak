@@ -4,6 +4,7 @@
 #include <wchar.h>
 #include <vector>
 
+#include "NetworkMGR.h"
 using namespace std;
 
 UILayer::UILayer(UINT nFrames, UINT nTextBlocks, ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dCommandQueue, ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHeight)
@@ -219,7 +220,6 @@ void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
     pdwTextFormat = m_pUILayer->CreateTextFormat(L"Arial", WndClientHeight / 25.0f);
   //d2dRect = D2D1::RectF((float)WndClientWidth / 3.2f, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
     d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
-    SetInGame(WndClientWidth, WndClientHeight);
 }
 
 void ChatMGR::SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTYPE type)
@@ -234,20 +234,40 @@ void ChatMGR::SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTY
 
 void ChatMGR::StoreTextSelf()
 {
-    WCHAR* temp = new WCHAR[256];
-    wcscpy(temp, m_textbuf);
+    char cname[100];
+    memcpy(cname, NetworkMGR::name.c_str(), sizeof(NetworkMGR::name.c_str()));
+    cname[NetworkMGR::name.size()] = ' ';
+    cname[NetworkMGR::name.size() + 1] = ':';
+    cname[NetworkMGR::name.size() + 2] = ' ';
+    auto p = ConverCtoWC(cname);
+
+    WCHAR* temp = new WCHAR[256 + (sizeof(p) / sizeof(WCHAR))];
+
+    wcscpy(temp, p);
+    wcscpy(temp + NetworkMGR::name.size() + 3, m_textbuf);
     m_pPrevTexts.push_front(temp);
+    delete p;
     if (m_pPrevTexts.size() >= 10) {
         delete m_pPrevTexts.back();
         m_pPrevTexts.pop_back();
     }
 }
 
-void ChatMGR::StoreText(WCHAR* buf)
+void ChatMGR::StoreText(WCHAR* buf, std::string name)
 {
-    WCHAR* temp = new WCHAR[256];
-    wcscpy(temp, buf);
+    char cname[100];
+    memcpy(cname, name.c_str(), sizeof(name.c_str()));
+    cname[name.size()] = ' ';
+    cname[name.size() + 1] = ':';
+    cname[name.size() + 2] = ' ';
+    auto p = ConverCtoWC(cname);
+
+    WCHAR* temp = new WCHAR[256 + (sizeof(p) / sizeof(WCHAR))];
+
+    wcscpy(temp, p);
+    wcscpy(temp + name.size() + 3, buf);
     m_pPrevTexts.push_front(temp);
+    delete p;
     if (m_pPrevTexts.size() >= 10) {
         delete m_pPrevTexts.back();
         m_pPrevTexts.pop_back();
@@ -260,7 +280,8 @@ void ChatMGR::SetLoginScene(int WndClientWidth, int WndClientHeight)
     m_combtext = NULL;
 
     SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_MID);
-    d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
+    d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, 
+        (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
 
     fontsize = WndClientHeight / 25.0f;
 
@@ -271,8 +292,14 @@ void ChatMGR::SetInGame(int WndClientWidth, int WndClientHeight)
     memset(m_textbuf, NULL, sizeof(m_textbuf));
     m_combtext = NULL;
 
+    for (auto p{ m_pPrevTexts.begin() }; p != m_pPrevTexts.end(); ++p) {
+        delete (*p);
+    }
+    m_pPrevTexts.clear();
+
     SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_LEFT);
-    d2dRect = D2D1::RectF((float)WndClientWidth / 48.f, (float)WndClientHeight / 1.4f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
+    d2dRect = D2D1::RectF((float)WndClientWidth / 48.f, (float)WndClientHeight / 1.4f, 
+        (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
 
     fontsize = WndClientHeight / 50.0f;
 
