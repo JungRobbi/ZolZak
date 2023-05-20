@@ -5,7 +5,7 @@
 #include <DirectXPackedVector.h>
 
 constexpr int NAME_SIZE = 20;
-constexpr int CHAT_SIZE = 40;
+constexpr int CHAT_SIZE = 300;
 
 constexpr int MAX_BUFSIZE_CLIENT = 1024;
 

@@ -9,6 +9,7 @@
 #include "CloseTypeFSMComponent.h"
 #include "CloseTypeState.h"
 #include "AttackComponent.h"
+#include "UILayer.h"
 #pragma comment(lib, "WS2_32.LIB")
 
 char* NetworkMGR::SERVERIP = "127.0.0.1";
@@ -420,6 +421,15 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		if (Monster->GetComponent<CloseTypeFSMComponent>()->GetFSM()->GetCurrentState() != WanderState::GetInstance())
 			Monster->GetComponent<CloseTypeFSMComponent>()->GetFSM()->ChangeState(WanderState::GetInstance());
+		break;
+	}
+	case E_PACKET_SC_CHAT_PACKET: {
+		SC_CHAT_PACKET* recv_packet = reinterpret_cast<SC_CHAT_PACKET*>(p_Packet);
+		
+		std::string recv_name{ recv_packet->name };
+		auto p = ConverCtoWC(recv_packet->chat);
+		ChatMGR::StoreText(p, recv_name);
+		delete p;
 		break;
 	}
 	default:

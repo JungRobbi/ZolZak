@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "NetworkMGR.h"
+#include "../ImaysNet/PacketQueue.h"
 using namespace std;
 
 UILayer::UILayer(UINT nFrames, UINT nTextBlocks, ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dCommandQueue, ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHeight)
@@ -246,7 +247,17 @@ void ChatMGR::StoreTextSelf()
     wcscpy(temp, p);
     wcscpy(temp + NetworkMGR::name.size() + 3, m_textbuf);
     m_pPrevTexts.push_front(temp);
+
+    auto ctemp = ConvertWCtoC(temp);
+
+    CS_CHAT_PACKET send_Packet;
+    send_Packet.size = sizeof(CS_CHAT_PACKET);
+    send_Packet.type = E_PACKET_CS_CHAT_PACKET;
+    strcpy(send_Packet.chat, ctemp);
+    PacketQueue::AddSendPacket(&send_Packet);
+
     delete p;
+    delete ctemp;
     if (m_pPrevTexts.size() >= 10) {
         delete m_pPrevTexts.back();
         m_pPrevTexts.pop_back();
