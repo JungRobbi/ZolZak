@@ -1,3 +1,6 @@
+
+#define MAX_VERTEX_INFLUENCES			4
+#define SKINNED_ANIMATION_BONES			256
 ////////////////////////////////////////////////////////////////////////////
 struct MATERIAL
 {
@@ -6,7 +9,6 @@ struct MATERIAL
 	float4					m_cSpecular; //a = power
 	float4					m_cEmissive;
 };
-
 
 cbuffer cbWorldInfo : register(b0)
 {
@@ -34,13 +36,35 @@ cbuffer cbMaterial : register(b3)
 {
 	MATERIAL gMaterial : packoffset(c0);
 	uint gnTexturesMask : packoffset(c4);
-}
+};
 
 cbuffer cbDrawOptions : register(b5)
 {
 	float4 LineColor : packoffset(c0);
 	uint LineSize : packoffset(c1.x);
 	uint ToonShading : packoffset(c1.y);
+};
+
+cbuffer cbBoneOffsets : register(b6)
+{
+	float4x4 gpmtxBoneOffsets[SKINNED_ANIMATION_BONES];
+};
+
+cbuffer cbBoneTransforms : register(b7)
+{
+	float4x4 gpmtxBoneTransforms[SKINNED_ANIMATION_BONES];
+};
+
+
+cbuffer cbParticleInfo : register(b8)
+{
+	float4 Direction : packoffset(c0);
+	uint ParticleID : packoffset(c1.x);
+};
+
+cbuffer cbFrameworkInfo : register(b9)
+{
+	float gfCurrentTime : packoffset(c0.x);
 };
 
 Texture2DArray gtxtTextureArray : register(t0);
@@ -82,9 +106,18 @@ struct GS_PARTICLE_OUTPUT
 VS_PARTICLE_OUTPUT VSParticle(VS_PARTICLE_INPUT input)
 {
 	VS_PARTICLE_OUTPUT output = (VS_PARTICLE_OUTPUT)0;
+	const float c_PI = 3.141592;
+	float t = gfCurrentTime - input.emittime;
+	float3 newPosition;
 
-	output.position = input.position;
-	output.size = 2.5f;
+	float newT = input.lifetime * frac(t / input.lifetime);
+
+	newPosition.x = input.position.x + newT * (-Direction.x + input.velocity.x);
+	newPosition.y = input.position.y + newT * (-Direction.y + input.velocity.y);
+	newPosition.z = input.position.z + newT * (-Direction.z + input.velocity.z);
+
+	output.position = newPosition;
+	output.size = 0.01;
 	return(output);
 }
 
@@ -362,20 +395,6 @@ float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
 
 	return(cColor);
 }
-
-#define MAX_VERTEX_INFLUENCES			4
-#define SKINNED_ANIMATION_BONES			256
-
-
-cbuffer cbBoneOffsets : register(b7)
-{
-	float4x4 gpmtxBoneOffsets[SKINNED_ANIMATION_BONES];
-};
-
-cbuffer cbBoneTransforms : register(b8)
-{
-	float4x4 gpmtxBoneTransforms[SKINNED_ANIMATION_BONES];
-};
 
 struct VS_SKINNED_STANDARD_INPUT
 {

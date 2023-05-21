@@ -2064,7 +2064,7 @@ bool BoundSphere::Intersects(BoundSphere& sh)
 
 FireBall::FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BLEND_OBJECT)
 {
-	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 50);
+	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 500);
 	SetMesh(pMesh);
 
 	CTexture* pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
@@ -2078,20 +2078,46 @@ FireBall::FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 	pMaterial->SetTexture(pParticleTexture);
 	pMaterial->SetShader(pShader);
 
+	m_pBoundingShader = new BoundingShader();
+	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+	BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
+	bs->SetNum(1);
+	AddComponent<SphereCollideComponent>();
+	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, 0.0), 0.3);
+
 	SetMaterial(pMaterial);
+}
+
+void FireBall::OnPrepareRender()
+{
+	//SetPosition(GetPosition().x + Direction.x, GetPosition().y + Direction.y, GetPosition().z + Direction.z);
 }
 
 void FireBall::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	OnPrepareRender();
-
-	UpdateShaderVariables(pd3dCommandList);
-
-	if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
-	if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
-
-	if (m_pMesh)
+	if (Active)
 	{
-		m_pMesh->Render(pd3dCommandList, 0);
+		OnPrepareRender();
+
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		if (m_pMesh)
+		{
+			m_pMesh->Render(pd3dCommandList, 0);
+		}
 	}
+}
+
+void FireBall::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	Object::UpdateShaderVariables(pd3dCommandList);
+	UINT num = 0;
+	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 3, &Direction, 0);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 1, &num, 3);
 }

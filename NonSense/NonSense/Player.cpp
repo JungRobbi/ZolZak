@@ -226,7 +226,7 @@ void Player::Update(float fTimeElapsed)
 	}
 
 	DWORD nCameraMode = m_pCamera->GetMode();
-	if (nCameraMode == THIRD_PERSON_CAMERA) 
+	//if (nCameraMode == THIRD_PERSON_CAMERA) 
 	m_pCamera->Update(m_xmf3Position, fTimeElapsed);
 	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
 	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
@@ -241,7 +241,7 @@ void Player::OnPlayerUpdateCallback(float fTimeElapsed)
 	XMFLOAT3 xmf3PlayerPosition = GetPosition();
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
 
-	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x+400.0f, xmf3PlayerPosition.z+400.0f);
+	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x + 400.0f, xmf3PlayerPosition.z + 400.0f);
 	if (xmf3PlayerPosition.y < fHeight)
 	{
 		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
@@ -337,21 +337,16 @@ void Player::OnPrepareRender()
 	XMMATRIX mat = XMMatrixScaling(m_xmf3Scale.x, m_xmf3Scale.y, m_xmf3Scale.z);
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mat, m_xmf4x4ToParent);
 
-	m_pHP_UI->HP = GetRemainHP() / GetHealth();
-	m_pHP_Dec_UI->Dec_HP = GetRemainHP() / GetHealth();
-	m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
-
 }
 void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
+	//	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
 		if (m_pMaterial) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
 		Object::Render(pd3dCommandList, pCamera);
-		if(m_pUI) m_pUI->Render(pd3dCommandList, pCamera);
-		if (m_pHP_UI)m_pHP_UI->Render(pd3dCommandList, pCamera);
-		if (m_pHP_Dec_UI)m_pHP_Dec_UI->Render(pd3dCommandList, pCamera);
+
 	}
 
 }
@@ -367,6 +362,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	fireball = new FireBall(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	if (NetworkMGR::id != id) {
 		printf("다른 ID");
@@ -415,10 +411,14 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		if (pWeaponModel) {
 			Object* Hand = FindFrame("Sword_parentR"); // 무기를 붙여줄 팔 찾기
 			if (Hand) {
+				CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 0.1f, 0.1f, 0.1f);
+				BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
+				bb->SetNum(3);
 				Hand->SetChild(pWeaponModel->m_pRoot, true);
 				pWeaponObject = new Object(false);
 				pWeaponObject->SetChild(pWeaponModel->m_pRoot, true);
 				pWeaponObject->SetPosition(0, 5, 0);
+				bb->SetPosition(pWeaponObject->FindFirstMesh()->GetBoundingBox().Center.x, pWeaponObject->FindFirstMesh()->GetBoundingBox().Center.y + pWeaponObject->FindFirstMesh()->GetBoundingBox().Extents.y,pWeaponObject->FindFirstMesh()->GetBoundingBox().Extents.z);
 			}
 		}
 

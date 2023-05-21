@@ -588,6 +588,7 @@ void GameFramework::ChangeScene(unsigned char num)
 	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->ReleaseObjects();
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
+
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 
 	if (num != LOGIN_SCENE) {
@@ -772,6 +773,7 @@ void GameFramework::MoveToNextFrame()
 
 void GameFramework::FrameAdvance()
 {
+
 	Timer::Tick(0.0f);
 
 	Sound::SystemUpdate(); //FMOD System Update
@@ -780,15 +782,14 @@ void GameFramework::FrameAdvance()
 	if (NetworkMGR::b_isNet)
 		NetworkMGR::Tick();
 
+	HRESULT hResult = m_pCommandAllocator->Reset();
+	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 	ChatMGR::UpdateText();
-
 	ProcessInput();
 
 	AnimateObjects();
 	GameScene::MainScene->update();
 
-	HRESULT hResult = m_pCommandAllocator->Reset();
-	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
@@ -898,3 +899,4 @@ void GameFramework::SaveSceneOBB()
 	}
 	cout << "맵 바운딩 박스 저장완료!" << endl;
 }
+

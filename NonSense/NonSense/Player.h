@@ -116,6 +116,7 @@ public:
 class MagePlayer : public Player
 {
 public:
+	FireBall* fireball;
 	Object* pWeaponObject;
 	Shader* m_pBoundingShader = NULL;
 	CubeMesh* m_pBoundMesh = NULL;

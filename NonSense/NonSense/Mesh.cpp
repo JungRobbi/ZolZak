@@ -5,9 +5,9 @@
 
 std::random_device rd;
 std::default_random_engine dre(rd());
-std::uniform_real_distribution<float> velRand{ 0.2, 1.0 };
+std::uniform_real_distribution<float> velRand{ -0.2, 0.2 };
 std::uniform_real_distribution<float> emitRand{ 0.5, 2.0 };
-std::uniform_real_distribution<float> lifeRand{ 0.5, 2.0 };
+std::uniform_real_distribution<float> lifeRand{ 0.5, 6.0 };
 
 
 Mesh::Mesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameScene.h"
+#include "Timer.h"
 #include "BoxCollideComponent.h"
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 
@@ -268,11 +269,11 @@ void GameScene::ReleaseObjects()
 			delete object;
 		blendGameObjects.clear();
 	}
-	if (&UIGameObjects) {
-		for (auto object : UIGameObjects)
-			delete object;
-		UIGameObjects.clear();
-	}
+	//if (&UIGameObjects) {
+	//	for (auto object : UIGameObjects)
+	//		delete object;
+	//	UIGameObjects.clear();
+	//}
 	if (&BoundingGameObjects) {
 		for (auto object : BoundingGameObjects)
 			delete object;
@@ -379,7 +380,7 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 
 
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
-	D3D12_ROOT_PARAMETER pd3dRootParameters[21];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[23];
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 0; //Player
 	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
@@ -458,12 +459,12 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[14].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	pd3dRootParameters[15].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[15].Descriptor.ShaderRegister = 7; //Skinned Bone Offsets
+	pd3dRootParameters[15].Descriptor.ShaderRegister = 6; //Skinned Bone Offsets
 	pd3dRootParameters[15].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[15].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 	pd3dRootParameters[16].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[16].Descriptor.ShaderRegister = 8; //Skinned Bone Transforms
+	pd3dRootParameters[16].Descriptor.ShaderRegister = 7; //Skinned Bone Transforms
 	pd3dRootParameters[16].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
@@ -487,6 +488,17 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[20].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[12]);
 	pd3dRootParameters[20].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+	pd3dRootParameters[21].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	pd3dRootParameters[21].Constants.Num32BitValues = 4;
+	pd3dRootParameters[21].Descriptor.ShaderRegister = 8; //Particle
+	pd3dRootParameters[21].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[21].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[22].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	pd3dRootParameters[22].Constants.Num32BitValues = 1;
+	pd3dRootParameters[22].Descriptor.ShaderRegister = 9; //Framework Infor
+	pd3dRootParameters[22].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[22].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -780,6 +792,9 @@ void GameScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress2 = m_pScreenOptions->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(7, d3dGpuVirtualAddress2);
+
+	float time = Timer::GetTotalTime();
+	pd3dCommandList->SetGraphicsRoot32BitConstants(22, 1, &time, 0);
 }
 
 void GameScene::ReleaseShaderVariables()

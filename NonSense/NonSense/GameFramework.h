@@ -107,7 +107,6 @@ public:
 	void ChangeScene(unsigned char num);
 
 	void SaveSceneOBB();
-
 	friend NetworkMGR;
 
 	RECT WindowPos;
