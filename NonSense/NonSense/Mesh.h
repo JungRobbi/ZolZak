@@ -217,6 +217,10 @@ public:
 	ID3D12Resource* m_pd3dLifeUploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dLifeBufferView;
 
+	ID3D12Resource* m_pd3dColorBuffer = NULL;
+	ID3D12Resource* m_pd3dColorUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dColorBufferView;
+
 	ParticleMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT particlenum);
 	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
 	virtual ~ParticleMesh();

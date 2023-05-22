@@ -87,6 +87,7 @@ struct VS_PARTICLE_INPUT
 {
 	float3 position : POSITION;
 	float3 velocity : VELOCITY;
+	float3 color : COLOR;
 	float emittime : EMITTIME;
 	float lifetime : LIFETIME;
 };
@@ -95,12 +96,14 @@ struct VS_PARTICLE_OUTPUT
 {
 	float3 position : POSITION;
 	float size : SCALE;
+	float3 out_color : COLOR;
 };
 
 struct GS_PARTICLE_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float2 uv : TEXTURE;
+	float3 color : COLOR;
 };
 
 VS_PARTICLE_OUTPUT VSParticle(VS_PARTICLE_INPUT input)
@@ -118,6 +121,7 @@ VS_PARTICLE_OUTPUT VSParticle(VS_PARTICLE_INPUT input)
 
 	output.position = newPosition;
 	output.size = 0.01;
+	output.color = input.out_color;
 	return(output);
 }
 
@@ -133,7 +137,7 @@ void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTI
 		float3 positionW = mul(gf3Positions[i] * input[0].size, (float3x3)gmtxInverseView) + input[0].position;
 		output.position = mul(mul(mul(float4(positionW, 1.0f), gmtxObjectWorld), gmtxView), gmtxProjection);
 		output.uv = gf2QuadUVs[i];
-
+		output.color = input.color;
 		outputStream.Append(output);
 	}
 	outputStream.RestartStrip();
@@ -142,7 +146,7 @@ void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTI
 float4 PSParticle(GS_PARTICLE_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtParticleTexture.Sample(gssWrap, input.uv);
-	cColor.xyz = float3(0, 1, 1);
+	cColor.xyz = input.color;
 	return(cColor);
 }
 
