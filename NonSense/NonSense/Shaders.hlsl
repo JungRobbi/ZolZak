@@ -142,6 +142,7 @@ void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTI
 float4 PSParticle(GS_PARTICLE_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtParticleTexture.Sample(gssWrap, input.uv);
+	cColor.xyz = float3(0, 1, 1);
 	return(cColor);
 }
 

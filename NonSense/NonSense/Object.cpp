@@ -2068,7 +2068,7 @@ FireBall::FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 	SetMesh(pMesh);
 
 	CTexture* pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Particle/Particle.dds", RESOURCE_TEXTURE2D, 0);
+	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Particle/BlendParticle.dds", RESOURCE_TEXTURE2D, 0);
 
 	ParticleShader* pShader = new ParticleShader();
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
