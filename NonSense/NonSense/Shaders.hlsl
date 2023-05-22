@@ -96,7 +96,7 @@ struct VS_PARTICLE_OUTPUT
 {
 	float3 position : POSITION;
 	float size : SCALE;
-	float3 out_color : COLOR;
+	float3 color : COLOR;
 };
 
 struct GS_PARTICLE_OUTPUT
@@ -110,7 +110,7 @@ VS_PARTICLE_OUTPUT VSParticle(VS_PARTICLE_INPUT input)
 {
 	VS_PARTICLE_OUTPUT output = (VS_PARTICLE_OUTPUT)0;
 	const float c_PI = 3.141592;
-	float t = gfCurrentTime - input.emittime;
+	float t = gfCurrentTime - input.lifetime;
 	float3 newPosition;
 
 	float newT = input.lifetime * frac(t / input.lifetime);
@@ -121,7 +121,7 @@ VS_PARTICLE_OUTPUT VSParticle(VS_PARTICLE_INPUT input)
 
 	output.position = newPosition;
 	output.size = 0.01;
-	output.color = input.out_color;
+	output.color = input.color;
 	return(output);
 }
 
@@ -137,7 +137,7 @@ void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTI
 		float3 positionW = mul(gf3Positions[i] * input[0].size, (float3x3)gmtxInverseView) + input[0].position;
 		output.position = mul(mul(mul(float4(positionW, 1.0f), gmtxObjectWorld), gmtxView), gmtxProjection);
 		output.uv = gf2QuadUVs[i];
-		output.color = input.color;
+		output.color = input[0].color;
 		outputStream.Append(output);
 	}
 	outputStream.RestartStrip();
