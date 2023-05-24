@@ -120,7 +120,7 @@ VS_PARTICLE_OUTPUT VSParticle(VS_PARTICLE_INPUT input)
 	newPosition.z = input.position.z + newT * (-Direction.z + input.velocity.z);
 
 	output.position = newPosition;
-	output.size = 0.01;
+	output.size = 0.03-newT/100;
 	output.color = input.color;
 	return(output);
 }

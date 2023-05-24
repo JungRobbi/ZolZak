@@ -2093,7 +2093,7 @@ FireBall::FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 void FireBall::OnPrepareRender()
 {
-	SetPosition(GetPosition().x + Direction.x, GetPosition().y + Direction.y, GetPosition().z + Direction.z);
+	//SetPosition(GetPosition().x + Direction.x, GetPosition().y + Direction.y, GetPosition().z + Direction.z);
 }
 
 void FireBall::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
