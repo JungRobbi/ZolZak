@@ -807,6 +807,15 @@ void Object::SetMesh(Mesh* pMesh)
 	if (m_pMesh) m_pMesh->AddRef();
 }
 
+void Object::SetMesh(int i, Mesh* pMesh)
+{
+	if (m_ppMeshes)
+	{
+		if (m_ppMeshes[i]) m_ppMeshes[i]->Release();
+		m_ppMeshes[i] = pMesh;
+		if (pMesh) pMesh->AddRef();
+	}
+}
 void Object::SetScale(float x, float y, float z)
 {
 	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
@@ -1466,14 +1475,14 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 		if (m_pMesh)
 		{
 			UpdateShaderVariables(pd3dCommandList);
-			
+
 			if (m_nMaterials > 0)
 			{
 				for (int i = 0; i < m_nMaterials; ++i)
 				{
 					if (m_ppMaterials[i])
 					{
-				
+
 						if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
 						m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 					}
@@ -1481,14 +1490,31 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 				}
 			}
 		}
+		if (m_ppMeshes)
+		{
+			UpdateShaderVariables(pd3dCommandList);
+			if (m_nMaterials > 0)
+			{
+				for (int i = 0; i < m_nMaterials; ++i)
+				{
+					if (m_ppMaterials[i])
+					{
+						if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+						m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+					}
+					for (int j = 0; j < m_nMeshes; j++)
+					{
+						if (m_ppMeshes[j]) m_ppMeshes[j]->Render(pd3dCommandList, i);
+					}
+				}
+			}
 
+		}
+
+		if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
+		if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
 	}
-
-	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
-	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
-
 }
-
 void Object::RenderOnlyOneFrame(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 
@@ -1617,7 +1643,7 @@ void SkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-HeightMapTerrain::HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : Object(DEFAULT_OBJECT)
+HeightMapTerrain::HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, int BlockWidth, int BlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color) : Object(DEFAULT_OBJECT)
 {
 	m_nWidth = nWidth;
 	m_nLength = nLength;
@@ -1626,11 +1652,41 @@ HeightMapTerrain::HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	m_pHeightMapImage = new HeightMapImage(pFileName, nWidth, nLength, xmf3Scale);
 
+	
+#ifdef TESSELLATION
+	int cxQuadsPerBlock = BlockWidth - 1;
+	int czQuadsPerBlock = BlockLength - 1;
+
+	long cxBlocks = (nWidth - 1) / cxQuadsPerBlock;
+	long czBlocks = (nLength - 1) / czQuadsPerBlock;
+
+	m_nMeshes = cxBlocks * czBlocks;
+	m_ppMeshes = new Mesh * [m_nMeshes];
+	for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = NULL;
+	HeightMapGridMeshTess* pHeightMapGridMesh = NULL;
+	for (int z = 0, zStart = 0; z < czBlocks; z++)
+	{
+		for (int x = 0, xStart = 0; x < cxBlocks; x++)
+		{
+			xStart = x * (BlockWidth - 1);
+			zStart = z * (BlockLength - 1);
+			pHeightMapGridMesh = new HeightMapGridMeshTess(pd3dDevice, pd3dCommandList, xStart, zStart, BlockWidth, BlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
+			SetMesh(x + (z * cxBlocks), pHeightMapGridMesh);
+		}
+	}
+	TessTerrainShader* pTerrainShader = new TessTerrainShader();
+	
+#else
 	HeightMapGridMesh* pMesh = new HeightMapGridMesh(pd3dDevice, pd3dCommandList, 0, 0, nWidth, nLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
 	SetMesh(pMesh);
+	TerrainShader* pTerrainShader = new TerrainShader();
 
+#endif	
 
-	CTexture* Terrain_Texture = new CTexture(10, RESOURCE_TEXTURE2D, 0, 18);
+	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
+	pTerrainShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, MRT, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	CTexture* Terrain_Texture = new CTexture(10, RESOURCE_TEXTURE2D, 0, 1);
 
 	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TFF_Terrain_Dirt_1A_D.dds", RESOURCE_TEXTURE2D, 0);
 	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TFF_Terrain_Dirt_Road_1A_D.dds", RESOURCE_TEXTURE2D, 1);
@@ -1643,10 +1699,6 @@ HeightMapTerrain::HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TestLevel_splatmap_0.dds", RESOURCE_TEXTURE2D, 8);
 	Terrain_Texture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/TestLevel_splatmap_1.dds", RESOURCE_TEXTURE2D, 9);
 
-	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
-
-	TerrainShader* pTerrainShader = new TerrainShader();
-	pTerrainShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, MRT, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 	GameScene::CreateShaderResourceViews(pd3dDevice, Terrain_Texture, 18, false);
 

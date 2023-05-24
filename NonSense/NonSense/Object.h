@@ -389,6 +389,7 @@ public:
 	void ReleaseUploadBuffers();
 	virtual bool IsVisible(Camera* pCamera = NULL);
 	virtual void SetMesh(Mesh* pMesh);
+	virtual void SetMesh(int i, Mesh* pMesh);
 	virtual Mesh* GetMesh() { return m_pMesh; }
 	virtual void SetShader(Shader* pShader);
 	virtual void SetNum(int num); 
@@ -425,7 +426,8 @@ public:
 	Object* m_pParent = NULL;
 	Object* m_pChild = NULL;
 	Object* m_pSibling = NULL;
-
+	Mesh**	m_ppMeshes;
+	int								m_nMeshes;
 	char							m_pFrameName[64];
 
 	int m_nMaterials = 0;
@@ -435,6 +437,7 @@ public:
 
 	AnimationController* m_pSkinnedAnimationController = NULL;
 	bool Do_Render = true;
+
 };
 
 
@@ -530,7 +533,7 @@ public:
 class HeightMapTerrain : public Object
 {
 public:
-	HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color);
+	HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength,int BlockWidth, int BlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color);
 	virtual ~HeightMapTerrain();
 
 private:
