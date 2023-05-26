@@ -58,6 +58,9 @@
     <Filter Include="소스 파일\Components\CollideComponent">
       <UniqueIdentifier>{552aa322-824f-4181-ad9a-5fc25cd4268d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Vivox">
+      <UniqueIdentifier>{d501f999-86bc-454f-b103-3a564b4af7a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -308,6 +311,9 @@
     <ClCompile Include="MoveForwardComponent.cpp">
       <Filter>소스 파일\Components\MovementComponent</Filter>
     </ClCompile>
+    <ClCompile Include="Vivox.cpp">
+      <Filter>소스 파일\Vivox</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NonSense.rc">
@@ -329,6 +335,9 @@
   <ItemGroup>
     <None Include="normal.cur">
       <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="Vivox.h">
+      <Filter>소스 파일\Vivox</Filter>
     </None>
   </ItemGroup>
 </Project>
