@@ -12,7 +12,7 @@ void AttackComponent::Attack()
 	if (dynamic_cast<MagePlayer*>(gameObject))	// Mage Player
 	{
 		dynamic_cast<MagePlayer*>(gameObject)->fireball->SetPosition(gameObject->GetPosition().x, gameObject->GetPosition().y+0.5, gameObject->GetPosition().z);
-		dynamic_cast<MagePlayer*>(gameObject)->fireball->Direction = dynamic_cast<Player*>(gameObject)->GetLook();
+		dynamic_cast<MagePlayer*>(gameObject)->fireball->Direction = dynamic_cast<Player*>(gameObject)->GetCamera()->GetLookVector();
 		dynamic_cast<MagePlayer*>(gameObject)->fireball->Active = true;
 	}
 	else if (dynamic_cast<Player*>(gameObject))	// Player
