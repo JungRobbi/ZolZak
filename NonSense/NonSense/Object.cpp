@@ -2080,20 +2080,50 @@ FireBall::FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 	m_pBoundingShader = new BoundingShader();
 	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-
+	explode = new Explosion(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
 	BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
 	bs->SetNum(1);
 	AddComponent<SphereCollideComponent>();
 	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
-	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, 0.0), 0.3);
+	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, 0.0), 0.1);
 
 	SetMaterial(pMaterial);
+	SetNum(0);
 }
 
 void FireBall::OnPrepareRender()
 {
-	//SetPosition(GetPosition().x + Direction.x, GetPosition().y + Direction.y, GetPosition().z + Direction.z);
+	SetPosition(GetPosition().x + Direction.x, GetPosition().y + Direction.y, GetPosition().z + Direction.z);
+	for (auto& o : GameScene::MainScene->gameObjects)
+	{
+		if (o->GetComponent<BoxCollideComponent>())
+		{
+			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
+			{
+				printf("\n벽과 충돌 %d\n",o->GetNum());
+				explode->Active = true;
+				explode->SetPosition(GetPosition());
+				Active = false;
+				break;
+			}
+		}
+	}
+	for (auto& o : GameScene::MainScene->MonsterObjects)
+	{
+		if (o->GetComponent<BoxCollideComponent>())
+		{
+			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
+			{
+				printf("\n몬스터와 충돌\n");
+				o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
+				explode->Active = true;
+				explode->SetPosition(GetPosition());
+				Active = false;
+				break;
+			}
+		}
+	}
 }
 
 void FireBall::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -2117,7 +2147,94 @@ void FireBall::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamer
 void FireBall::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	Object::UpdateShaderVariables(pd3dCommandList);
-	UINT num = 0;
 	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 3, &Direction, 0);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 1, &num, 3);
+	float time = Timer::GetTotalTime();
+	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 1, &time, 3);
+}
+
+
+Explosion::Explosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BLEND_OBJECT)
+{
+	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 500);
+	SetMesh(pMesh);
+
+	CTexture* pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Particle/BlendParticle.dds", RESOURCE_TEXTURE2D, 0);
+
+	ParticleShader* pShader = new ParticleShader();
+	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pParticleTexture, 20, false);
+
+	Material* pMaterial = new Material();
+	pMaterial->SetTexture(pParticleTexture);
+	pMaterial->SetShader(pShader);
+
+	m_pBoundingShader = new BoundingShader();
+	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	Active = false;
+
+	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+	BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
+	bs->SetNum(1);
+	AddComponent<SphereCollideComponent>();
+	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, 0.0), 0.0);
+
+	SetMaterial(pMaterial);
+	SetNum(1);
+}
+
+void Explosion::OnPrepareRender()
+{
+	GetComponent<SphereCollideComponent>()->Radius += 0.02;
+	for (auto& o : GameScene::MainScene->MonsterObjects)
+	{
+		if (o->GetComponent<BoxCollideComponent>())
+		{
+			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
+			{
+				if (!o->MageDamage)
+				{
+					o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
+					o->MageDamage = true;
+				}
+			}
+		}
+	}
+	if (GetComponent<SphereCollideComponent>()->Radius >= 1.5)
+	{
+		GetComponent<SphereCollideComponent>()->Radius = 0;
+		Active = false;
+		for (auto& o : GameScene::MainScene->MonsterObjects)
+		{
+			o->MageDamage = false;
+		}
+	}
+}
+
+void Explosion::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (Active)
+	{
+		OnPrepareRender();
+
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		if (m_pMesh)
+		{
+			m_pMesh->Render(pd3dCommandList, 0);
+		}
+	}
+}
+
+void Explosion::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	float time = Timer::GetTotalTime();
+	XMFLOAT3 dir;
+	Object::UpdateShaderVariables(pd3dCommandList);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 3, &dir, 0);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 1, &time, 3);
 }

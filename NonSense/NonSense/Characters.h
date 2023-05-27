@@ -52,6 +52,7 @@ public:
 	Shader* m_pBoundingShader = NULL;
 	CubeMesh* m_pBoundMesh = NULL;
 
+	bool MageDamage = false;
 	Object* HandFrame = NULL;
 	Object* WeaponFrame = NULL;
 public:

@@ -7,8 +7,8 @@ class BoundSphere;
 class SphereCollideComponent : public Component
 {
     BoundSphere* m_BoundingObject = NULL;
-    float Radius = 1.f;
 public:
+    float Radius = 1.f;
     XMFLOAT3 Center = { 0,0,0 };
     ~SphereCollideComponent() {}
     void start();

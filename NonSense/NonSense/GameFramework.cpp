@@ -711,7 +711,7 @@ void GameFramework::ProcessInput()
 				if (px >= dynamic_cast<UI*>(ui)->XYWH._41 && px <= dynamic_cast<UI*>(ui)->XYWH._41 + dynamic_cast<UI*>(ui)->XYWH._11 &&
 					py <= 1 - dynamic_cast<UI*>(ui)->XYWH._42 && py >= 1 - (dynamic_cast<UI*>(ui)->XYWH._42 + dynamic_cast<UI*>(ui)->XYWH._22))
 				{
-					if (dynamic_cast<UI*>(ui)->CanClick) printf("ASdf");
+					if (dynamic_cast<UI*>(ui)->CanClick) {}
 				}
 			}
 		}
@@ -830,11 +830,11 @@ void GameFramework::FrameAdvance()
 	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
 	// Debug È­¸é
 	
-	if (DebugMode)
-	{
-		m_pScreen->SetDescriptorHeap(m_pCommandList);
-		m_pDebug->Render(m_pCommandList, m_pCamera);
-	}
+	//if (DebugMode)
+	//{
+	//	m_pScreen->SetDescriptorHeap(m_pCommandList);
+	//	m_pDebug->Render(m_pCommandList, m_pCamera);
+	//}
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);

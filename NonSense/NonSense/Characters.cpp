@@ -39,8 +39,7 @@ void WeaponObject::Fire(XMFLOAT3& look, XMFLOAT3& pos)
 
 
 
-Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) :
-	Object(false)
+Character::Character(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) :Object(false)
 {
 	LoadedModelInfo* pLoadedModel = pModel;
 	if (pLoadedModel)

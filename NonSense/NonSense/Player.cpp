@@ -382,12 +382,13 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
 	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
 
-	CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
-	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
-	bb->SetNum(3);
+	//CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+	//BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
+	//bb->SetNum(3);
+	//GetComponent<AttackComponent>()->SetBoundingObject(bb);
 	AddComponent<PlayerMovementComponent>();
 	AddComponent<AttackComponent>();
-	GetComponent<AttackComponent>()->SetBoundingObject(bb);
+	GetComponent<AttackComponent>()->SetAttackDuration(2.2);
 
 	{
 		XMFLOAT3 pos;

@@ -59,7 +59,7 @@ cbuffer cbBoneTransforms : register(b7)
 cbuffer cbParticleInfo : register(b8)
 {
 	float4 Direction : packoffset(c0);
-	uint ParticleID : packoffset(c1.x);
+	float Value : packoffset(c1.x);
 };
 
 cbuffer cbFrameworkInfo : register(b9)
@@ -103,7 +103,7 @@ struct GS_PARTICLE_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float2 uv : TEXTURE;
-	float3 color : COLOR;
+	float4 color : COLOR;
 };
 
 VS_PARTICLE_OUTPUT VSParticle(VS_PARTICLE_INPUT input)
@@ -113,15 +113,30 @@ VS_PARTICLE_OUTPUT VSParticle(VS_PARTICLE_INPUT input)
 	float t = gfCurrentTime - input.lifetime;
 	float3 newPosition;
 
-	float newT = input.lifetime * frac(t / input.lifetime);
+	if (objectID == 0) {
+		float newT = input.lifetime * frac(t / input.lifetime);
 
-	newPosition.x = input.position.x + newT * (-Direction.x + input.velocity.x);
-	newPosition.y = input.position.y + newT * (-Direction.y + input.velocity.y);
-	newPosition.z = input.position.z + newT * (-Direction.z + input.velocity.z);
+		newPosition.x = input.position.x + newT * (-Direction.x + input.velocity.x);
+		newPosition.y = input.position.y + newT * (-Direction.y + input.velocity.y);
+		newPosition.z = input.position.z + newT * (-Direction.z + input.velocity.z);
 
-	output.position = newPosition;
-	output.size = 0.03-newT/100;
-	output.color = input.color;
+		output.position = newPosition;
+		output.size = 0.02 - newT / 200;
+		output.color = input.color;
+	}
+
+	else if (objectID == 1) {
+		float newT = input.lifetime * frac(t / input.lifetime);
+
+		newPosition.x = input.position.x + newT * (input.velocity.x)*5;
+		newPosition.y = input.position.x + newT * (input.velocity.y)*5;
+		newPosition.z = input.position.x + newT * (input.velocity.z)*5;
+
+		output.position = newPosition;
+		output.size = newT/25;
+		output.color = input.color/2;
+	}
+
 	return(output);
 }
 
@@ -137,7 +152,7 @@ void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTI
 		float3 positionW = mul(gf3Positions[i] * input[0].size, (float3x3)gmtxInverseView) + input[0].position;
 		output.position = mul(mul(mul(float4(positionW, 1.0f), gmtxObjectWorld), gmtxView), gmtxProjection);
 		output.uv = gf2QuadUVs[i];
-		output.color = input[0].color;
+		output.color.xyz = input[0].color;
 		outputStream.Append(output);
 	}
 	outputStream.RestartStrip();
@@ -146,7 +161,7 @@ void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTI
 float4 PSParticle(GS_PARTICLE_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtParticleTexture.Sample(gssWrap, input.uv);
-	cColor.xyz = input.color;
+	cColor.xyz = input.color.xyz;
 	return(cColor);
 }
 

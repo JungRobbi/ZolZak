@@ -9,7 +9,6 @@ void AttackComponent::Attack()
 {
 	AttackTimeLeft = AttackDuration + NextAttackInputTime;
 	During_Attack = true;
-
 	if (dynamic_cast<MagePlayer*>(gameObject))	// Mage Player
 	{
 		dynamic_cast<MagePlayer*>(gameObject)->fireball->SetPosition(gameObject->GetPosition().x, gameObject->GetPosition().y+0.5, gameObject->GetPosition().z);
@@ -36,7 +35,8 @@ void AttackComponent::Attack()
 			}
 		}
 	}
-	else {	// Monster
+	else // Monster
+	{	
 		if (AttackRange) {
 			if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
@@ -44,7 +44,6 @@ void AttackComponent::Attack()
 			}
 		}
 	}
-
 	AttackAnimate();
 }
 
