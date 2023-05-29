@@ -40,6 +40,7 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "vivoxsdk.lib")
 
 #define MRT 4 // Multie Render Target의 수
 

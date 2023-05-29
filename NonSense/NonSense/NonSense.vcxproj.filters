@@ -61,6 +61,9 @@
     <Filter Include="소스 파일\Vivox">
       <UniqueIdentifier>{d501f999-86bc-454f-b103-3a564b4af7a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Vivox\SDK">
+      <UniqueIdentifier>{09ded668-6de2-46c0-afab-bdee3b1865c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -194,6 +197,33 @@
     </ClInclude>
     <ClInclude Include="MoveForwardComponent.h">
       <Filter>소스 파일\Components\MovementComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\vivox-config.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\Vxc.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\VxcErrors.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\VxcEvents.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\VxcExports.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\VxcRequests.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\VxcResponses.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\VxcTypes.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox.h">
+      <Filter>소스 파일\Vivox</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -335,9 +365,6 @@
   <ItemGroup>
     <None Include="normal.cur">
       <Filter>리소스 파일</Filter>
-    </None>
-    <None Include="Vivox.h">
-      <Filter>소스 파일\Vivox</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -17,7 +17,6 @@
 #include <time.h>
 #include <VxcExports.h>
 #include <VxcTypes.h>
-
 #define VIVOX_SDK_HAS_CRASH_REPORTING 1
 #define VIVOX_SDK_HAS_VOICE_FONTS 1
 #define VIVOX_SDK_HAS_GROUP_IM 1
