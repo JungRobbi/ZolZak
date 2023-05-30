@@ -69,3 +69,15 @@ void VivoxSystem::CreateConnector(vx_resp_connector_create_t* resp)
 	int vx_issue_request3_response = vx_issue_request3(&req->base, &request_count);
 
 }
+
+void VivoxSystem::Connect()
+{
+	vx_req_account_anonymous_login_t* req;
+	vx_req_account_anonymous_login_create(&req); 
+	req->connector_handle = vx_strdup("c1");
+	req->acct_name = vx_strdup(".jeawoo0732-no23-dev.mytestaccountname.");
+	req->displayname = vx_strdup("TEST");
+	req->account_handle = vx_strdup(req->acct_name);
+	req->access_token = vx_strdup(_the_access_token_generated_by_the_game_server);
+	vx_issue_request3(&req->base);
+}

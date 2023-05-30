@@ -17,4 +17,5 @@ public:
 	void ResponseHandle(vx_resp_base_t* resp);
 	void EventHandle(vx_evt_base_t* evt);
 	void CreateConnector(vx_resp_connector_create_t* resp);
+	void Connect();
 };
