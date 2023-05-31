@@ -1,6 +1,7 @@
 #include "Stage_GameScene.h"
 #include "BoxCollideComponent.h"
 class GameFramework;
+
 void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
@@ -79,7 +80,11 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	bgm = new Sound("Sound/TestMusic.mp3", true);
 	bgm->Play();
 }
-
+void Stage_GameScene::ReleaseObjects()
+{
+	GameScene::ReleaseObjects();
+	delete bgm;
+}
 
 void Stage_GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
