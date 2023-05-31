@@ -37,7 +37,10 @@ GameFramework::GameFramework()
 	_tcscpy_s(m_FrameRate, _T("NonSense("));
 	
 	MainGameFramework = this;
-
+	m_pVivoxSystem = new VivoxSystem();
+	m_pVivoxSystem->Initialize();
+	m_pVivoxSystem->Connect();
+	m_pVivoxSystem->Listen();
 	Timer::Initialize();
 }
 
@@ -87,6 +90,12 @@ void GameFramework::OnDestroy()
 	if (m_pDevice) m_pDevice->Release();
 	if (m_pFactory) m_pFactory->Release();
 
+	if (m_pVivoxSystem)
+	{
+		m_pVivoxSystem->Disconnect();
+		m_pVivoxSystem->Uninitialize();
+		delete m_pVivoxSystem;
+	}
 	m_GameScenes.clear();
 
 	Sound::ReleaseFmodSystem();		// FMOD System ÇØÁ¦
@@ -582,9 +591,43 @@ void GameFramework::ChangeScene(unsigned char num)
 {
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
+	switch (GameSceneState)
+	{
+	case LOGIN_SCENE:
+		m_pVivoxSystem->LeaveChannel("Login");
+		break;
+	case LOBBY_SCENE:
+		m_pVivoxSystem->LeaveChannel("Lobby");
+		break;
+	case GAME_SCENE:
+		m_pVivoxSystem->LeaveChannel("Stage");
+		break;
+	default:
+		break;
+	}
+
+	switch (num)
+	{
+	case LOGIN_SCENE:
+		m_pVivoxSystem->JoinChannel("Login");
+		break;
+	case LOBBY_SCENE:
+		m_pVivoxSystem->JoinChannel("Lobby");
+		break;
+	case GAME_SCENE:
+		m_pVivoxSystem->JoinChannel("Stage");
+		break;
+	default:
+		break;
+	}
+
 	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->ReleaseObjects();
+	
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
+
+	GameSceneState = num;
+
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 
 	if (num != LOGIN_SCENE) {
@@ -611,6 +654,11 @@ void GameFramework::ChangeScene(unsigned char num)
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
+}
+
+VivoxSystem* GameFramework::GetVivoxSystem()
+{
+	return m_pVivoxSystem;
 }
 
 void GameFramework::ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta)

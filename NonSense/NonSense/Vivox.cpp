@@ -18,16 +18,29 @@ void VivoxSystem::Initialize()
 		std::cout << "vx_initialize3() returned " << status << ":" << vx_get_error_string(status) << std::endl;
 		return;
 	}
+	CreateConnector(NULL);
+}
+
+void VivoxSystem::Uninitialize()
+{
+	vx_uninitialize();
 }
 
 void VivoxSystem::Listen()
 {
 	int status = vx_get_message(&VX_Message);
-
 	if (status == VX_GET_MESSAGE_AVAILABLE)
 	{
 		MessageHandle(VX_Message);
 		vx_destroy_message(VX_Message);
+	}
+	else if(status == VX_GET_MESSAGE_FAILURE)
+	{
+		std::cout << "Fail Message\n";
+	}
+	else if (status == VX_GET_MESSAGE_NO_MESSAGE)
+	{
+		std::cout << "No Message\n";
 	}
 }
 
@@ -73,11 +86,51 @@ void VivoxSystem::CreateConnector(vx_resp_connector_create_t* resp)
 void VivoxSystem::Connect()
 {
 	vx_req_account_anonymous_login_t* req;
+
 	vx_req_account_anonymous_login_create(&req); 
 	req->connector_handle = vx_strdup("c1");
 	req->acct_name = vx_strdup(".jeawoo0732-no23-dev.mytestaccountname.");
 	req->displayname = vx_strdup("TEST");
 	req->account_handle = vx_strdup(req->acct_name);
-	req->access_token = vx_strdup(_the_access_token_generated_by_the_game_server);
-	vx_issue_request3(&req->base);
+	req->access_token = vx_debug_generate_token("jeawoo0732-no23-dev",(vx_time_t)-1,"login",1,NULL,"sip:.jeawoo0732-no23-dev.me.@mt1s.vivox.com",NULL, (const unsigned char*)key, strlen("zing795"));
+	int request_count;
+	vx_issue_request3(&req->base, &request_count);
+}
+
+void VivoxSystem::Disconnect()
+{
+	vx_req_account_logout* req;
+	vx_req_account_logout_create(&req);
+	req->account_handle = vx_strdup(".jeawoo0732-no23-dev.mytestaccountname.");
+	int request_count;
+	vx_issue_request3(&req->base, &request_count);
+}
+
+void VivoxSystem::JoinChannel(const char* Channel)
+{
+	char* uri = vx_get_echo_channel_uri(Channel, "mt1s.vivox.com", "jeawoo0732-no23-dev");
+	vx_req_sessiongroup_add_session* req;
+	vx_req_sessiongroup_add_session_create(&req);
+	req->sessiongroup_handle = vx_strdup("sg1");
+	req->session_handle = vx_strdup("Channel");
+	req->uri = uri;
+	req->account_handle = vx_strdup("sip:.issuer.playerName@mt1s.vivox.com");
+	req->connect_audio = 1;
+	req->connect_text = 1;
+	req->access_token = vx_debug_generate_token("jeawoo0732-no23-dev", (vx_time_t)-1, "login", 1, NULL, "sip:.jeawoo0732-no23-dev.me.@mt1s.vivox.com", uri, (const unsigned char*)key, strlen("zing795"));
+	int request_count;
+	vx_issue_request3(&req->base, &request_count);
+
+
+	vx_free(uri);
+}
+
+void VivoxSystem::LeaveChannel(const char* Channel)
+{
+	vx_req_sessiongroup_remove_session* req;
+	vx_req_sessiongroup_remove_session_create(&req);
+	req->sessiongroup_handle = vx_strdup("sg1");
+	req->session_handle = vx_strdup(Channel);
+	int request_count;
+	vx_issue_request3(&req->base, &request_count);
 }

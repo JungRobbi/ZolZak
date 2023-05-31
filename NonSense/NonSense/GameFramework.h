@@ -9,6 +9,7 @@
 #include "UI.h"
 #include "NetworkMGR.h"
 #include "UILayer.h"
+#include "Vivox.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
@@ -58,6 +59,9 @@ private:
 	UINT64 m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE m_FenceEventHandle;
 
+	VivoxSystem* m_pVivoxSystem;
+
+	int GameSceneState;
 
 public:
 	static GameFramework* MainGameFramework;
@@ -104,6 +108,8 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,LPARAM lParam);
 	void SetWindowCentser(RECT rect);
 	void ChangeScene(unsigned char num);
+
+	VivoxSystem* GetVivoxSystem();
 
 	friend NetworkMGR;
 
