@@ -147,6 +147,7 @@ public:
 	virtual void Transform(_Out_ BoundBox& Out, _In_ FXMMATRIX M);
 	virtual bool Intersects(BoundBox& box);
 	virtual bool Intersects(BoundSphere& box);
+	virtual void GetCorners(XMFLOAT3* Corners);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,11 +155,13 @@ class BoundSphere : public Object
 {
 public:
 	XMFLOAT3 Center = { 0,0,0 };
-	float Radius = 1.f;           
+	float Radius = 1.f;
 	BoundSphere();
 	BoundSphere(bool Push_List);
 	virtual ~BoundSphere() {};
 	virtual void Transform(_Out_ BoundSphere& Out, _In_ FXMMATRIX M);
 	virtual bool Intersects(BoundBox& box);
 	virtual bool Intersects(BoundSphere& box);
+	virtual bool Intersects(FXMVECTOR V0, FXMVECTOR V1, FXMVECTOR V2);
+
 };
