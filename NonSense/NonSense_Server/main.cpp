@@ -11,6 +11,7 @@
 #include <thread>
 #include <memory>
 #include <mutex>
+#include <atomic>
 
 #include "Input.h"
 #include "Timer.h"
@@ -79,7 +80,7 @@ void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
 }
 
 // IOCP를 준비한다.
-Iocp iocp(N_THREAD); // 5개의 스레드 사용을 API에 힌트로 준다.
+Iocp iocp(N_THREAD); // N_THREAD개의 스레드 사용을 API에 힌트로 준다.
 
 recursive_mutex mx_accept;
 recursive_mutex mx_scene;
@@ -92,6 +93,7 @@ void ProcessAccept();
 
 void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet);
 void Process_Timer_Event(void* p_Client, IO_TYPE type);
+void Process_Timer_Event_for_NPC(Character* p_NPC, IO_TYPE type);
 
 void Worker_Thread()
 {
@@ -115,22 +117,30 @@ void Worker_Thread()
 					continue;
 				}
 
-				if (readEvent.lpCompletionKey == 0) // 리슨소켓이면
+				if (readEvent.lpCompletionKey == (ULONG_PTR)p_listenSocket.get()) // 리슨소켓이면
 				{
 					ProcessAccept(); // 클라이언트 연결 작업
 				}
 				else  // TCP 연결 소켓이면
 				{
+					if (IO_TYPE::IO_RECV != p_readOverlapped->m_ioType &&
+						IO_TYPE::IO_TIMER_MONSTER_ANIMATION <= p_readOverlapped->m_ioType &&
+						IO_TYPE::IO_TIMER_MONSTER_TARGET >= p_readOverlapped->m_ioType) {
+						// Monster Event 처리
+					//	cout << "Timer_Monster! index - " << readEvent.lpCompletionKey << endl;
+						Process_Timer_Event_for_NPC((Character*)readEvent.lpCompletionKey, p_readOverlapped->m_ioType);
+						continue;
+					}
+
 					// 처리할 클라이언트 받아오기
 					shared_ptr<RemoteClient> remoteClient;
 					remoteClient = RemoteClient::remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
-					
+
 					// Timer Event 처리
 					if (IO_TYPE::IO_RECV != p_readOverlapped->m_ioType) {
-						if (remoteClient) // Player
+						// Player Event 처리
+						if (remoteClient)
 							Process_Timer_Event(remoteClient.get(), p_readOverlapped->m_ioType);
-						else // Monster
-							Process_Timer_Event((Character*)readEvent.lpCompletionKey, p_readOverlapped->m_ioType);
 						continue;
 					}
 
@@ -211,9 +221,11 @@ int main(int argc, char* argv[])
 
 	Scene::scene->LoadSceneObb();
 
+	std::cout << "Terrain Loding..." << std::endl;
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	Scene::terrain = new HeightMapTerrain(_T("Terrain/terrain.raw"), 800, 800, xmf3Scale);
 	Scene::terrain->SetPosition(-400, 0, -400);
+	std::cout << "Terrain Loding Complete!" << std::endl;
 
 	Object* TempObject = NULL;
 	TempObject = new Goblin(MONSTER_TYPE_CLOSE);
@@ -242,7 +254,7 @@ int main(int argc, char* argv[])
 	p_listenSocket->Bind(Endpoint("0.0.0.0", SERVERPORT));
 	p_listenSocket->Listen();
 	// IOCP에 추가한다.
-	iocp.Add(*p_listenSocket, nullptr);
+	iocp.Add(*p_listenSocket, p_listenSocket.get());
 
 	remoteClientCandidate = make_shared<RemoteClient>(SocketType::Tcp);
 
@@ -256,7 +268,8 @@ int main(int argc, char* argv[])
 
 	for (int i{}; i < N_THREAD; ++i)
 		worker_threads.emplace_back(make_shared<thread>(Worker_Thread));
-
+	int MAX_MonsterTimerDelay = 10000;
+	int MonsterTimerDelay = 0;
 	while (true) {
 		Timer::Tick(0.0f);
 		Scene::scene->update();
@@ -317,34 +330,35 @@ int main(int argc, char* argv[])
 		}
 
 		//Monster test
-		for (auto monster : Scene::scene->MonsterObjects) {
-			if (monster->GetRemainHP() < 0.f)
+	//	for (auto monster : Scene::scene->MonsterObjects) {
+		++MonsterTimerDelay;
+		if (MonsterTimerDelay <= MAX_MonsterTimerDelay) 
+			continue;
+		MonsterTimerDelay = 0;
+		for (auto& monster : Scene::scene->MonsterObjects) {
+			if (monster->GetRemainHP() <= 0.f)
 				continue;
 
-			if (((Character*)monster)->GetRemainHP() > 0.f) {
+			/*{
 				shared_ptr<EXP_OVER> p = make_shared<EXP_OVER>();
 				p->m_ioType = IO_TYPE::IO_TIMER_MONSTER_MOVE;
-				PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)monster, &p->_wsa_over);
-			
-
-				p = make_shared<EXP_OVER>();
-				p->m_ioType = IO_TYPE::IO_TIMER_MONSTER_WANDER;
-				PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)monster, &p->_wsa_over);
-
-
-				p = make_shared<EXP_OVER>();
-				p->m_ioType = IO_TYPE::IO_TIMER_MONSTER_ANIMATION;
-				PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)monster, &p->_wsa_over);
-				
-
-				if (RemoteClient::remoteClients.empty())
-					continue;
-
-				p = make_shared<EXP_OVER>();
-				p->m_ioType = IO_TYPE::IO_TIMER_MONSTER_TARGET;
-				PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)monster, &p->_wsa_over);
-
+				PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)(monster), &p->_wsa_over);
 			}
+			{
+				shared_ptr<EXP_OVER> p = make_shared<EXP_OVER>();
+				p->m_ioType = IO_TYPE::IO_TIMER_MONSTER_WANDER;
+				PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)(monster), &p->_wsa_over);
+			}
+			{
+				shared_ptr<EXP_OVER> p = make_shared<EXP_OVER>();
+				p->m_ioType = IO_TYPE::IO_TIMER_MONSTER_ANIMATION;
+				PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)(monster), &p->_wsa_over);
+			}
+			{
+				shared_ptr<EXP_OVER> p = make_shared<EXP_OVER>();
+				p->m_ioType = IO_TYPE::IO_TIMER_MONSTER_TARGET;
+				PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)(monster), &p->_wsa_over);
+			}*/
 		}
 	}
 
@@ -419,7 +433,6 @@ void ProcessAccept()
 		shared_ptr<RemoteClient> remoteClient = remoteClientCandidate;
 
 		{
-			lock_guard<recursive_mutex> lock(mx_accept);
 			remoteClient->m_pPlayer = make_shared<Player>();
 			remoteClient->m_pPlayer->start();
 			remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
@@ -735,7 +748,7 @@ void Process_Timer_Event(void* p_Client, IO_TYPE type)
 				SC_MONSTER_ANIMATION_TYPE_PACKET send_packet;
 				send_packet.size = sizeof(SC_MONSTER_ANIMATION_TYPE_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_MOSTER;
-				send_packet.id = ((Goblin*)p_Client)->num;
+				send_packet.id = ((Character*)p_Client)->num;
 				send_packet.Anitype = ((Character*)p_Client)->PresentAniType;
 				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
@@ -751,10 +764,10 @@ void Process_Timer_Event(void* p_Client, IO_TYPE type)
 			SC_MOVE_MONSTER_PACKET send_packet;
 			send_packet.size = sizeof(SC_MOVE_MONSTER_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_MOVE_MONSTER_PACKET;
-			send_packet.id = ((Goblin*)p_Client)->num;
-			send_packet.x = ((Goblin*)p_Client)->GetPosition().x;
-			send_packet.y = ((Goblin*)p_Client)->GetPosition().y;
-			send_packet.z = ((Goblin*)p_Client)->GetPosition().z;
+			send_packet.id = ((Character*)p_Client)->num;
+			send_packet.x = ((Character*)p_Client)->GetPosition().x;
+			send_packet.y = ((Character*)p_Client)->GetPosition().y;
+			send_packet.z = ((Character*)p_Client)->GetPosition().z;
 			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 	}
@@ -767,31 +780,106 @@ void Process_Timer_Event(void* p_Client, IO_TYPE type)
 			SC_LOOK_MONSTER_PACKET send_packet;
 			send_packet.size = sizeof(SC_LOOK_MONSTER_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_LOOK_MONSTER_PACKET;
-			send_packet.id = ((Goblin*)p_Client)->num;
-			send_packet.x = ((Goblin*)p_Client)->GetComponent<CloseTypeFSMComponent>()->WanderPosition.x;
-			send_packet.y = ((Goblin*)p_Client)->GetComponent<CloseTypeFSMComponent>()->WanderPosition.y;
-			send_packet.z = ((Goblin*)p_Client)->GetComponent<CloseTypeFSMComponent>()->WanderPosition.z;
+			send_packet.id = ((Character*)p_Client)->num;
+			send_packet.x = ((Character*)p_Client)->GetComponent<CloseTypeFSMComponent>()->WanderPosition.x;
+			send_packet.y = ((Character*)p_Client)->GetComponent<CloseTypeFSMComponent>()->WanderPosition.y;
+			send_packet.z = ((Character*)p_Client)->GetComponent<CloseTypeFSMComponent>()->WanderPosition.z;
 			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 	}
 		break;
 	case IO_TYPE::IO_TIMER_MONSTER_TARGET: {
 		//Monster Target
-		if (((Goblin*)p_Client)->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()) {
+		if (((Character*)p_Client)->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()) {
 			for (auto& rc_to : RemoteClient::remoteClients) {
 				if (!rc_to.second->b_Enable)
 					continue;
 				SC_AGGRO_PLAYER_PACKET send_packet;
 				send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
-				send_packet.player_id = ((Player*)(((Goblin*)p_Client)
+				send_packet.player_id = ((Player*)(((Character*)p_Client)
 					->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
-				send_packet.monster_id = ((Goblin*)p_Client)->num;
+				send_packet.monster_id = ((Character*)p_Client)->num;
 				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
 		}
 	}
 		break;
+	default:
+		break;
+	}
+}
+
+void Process_Timer_Event_for_NPC(Character* p_NPC, IO_TYPE type)
+{
+	switch (type)
+	{
+	case IO_TYPE::IO_TIMER_MONSTER_ANIMATION: {
+		//Monster Animation
+		if (p_NPC->OldAniType != p_NPC->PresentAniType) {
+			for (auto& rc_to : RemoteClient::remoteClients) {
+				if (!rc_to.second->b_Enable)
+					continue;
+				SC_MONSTER_ANIMATION_TYPE_PACKET send_packet;
+				send_packet.size = sizeof(SC_MONSTER_ANIMATION_TYPE_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_MOSTER;
+				send_packet.id = p_NPC->num;
+				send_packet.Anitype = p_NPC->PresentAniType;
+				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
+			p_NPC->OldAniType = p_NPC->PresentAniType;
+		}
+	}
+											break;
+	case IO_TYPE::IO_TIMER_MONSTER_MOVE: {
+		//Monster Pos
+		for (auto& rc_to : RemoteClient::remoteClients) {
+			if (!rc_to.second->b_Enable)
+				continue;
+			SC_MOVE_MONSTER_PACKET send_packet;
+			send_packet.size = sizeof(SC_MOVE_MONSTER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_MOVE_MONSTER_PACKET;
+			send_packet.id = p_NPC->num;
+			send_packet.x = p_NPC->GetPosition().x;
+			send_packet.y = p_NPC->GetPosition().y;
+			send_packet.z = p_NPC->GetPosition().z;
+			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+	}
+									   break;
+	case IO_TYPE::IO_TIMER_MONSTER_WANDER: {
+		//WanderPosition
+		for (auto& rc_to : RemoteClient::remoteClients) {
+			if (!rc_to.second->b_Enable)
+				continue;
+			SC_LOOK_MONSTER_PACKET send_packet;
+			send_packet.size = sizeof(SC_LOOK_MONSTER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_LOOK_MONSTER_PACKET;
+			send_packet.id = p_NPC->num;
+			send_packet.x = p_NPC->GetComponent<CloseTypeFSMComponent>()->WanderPosition.x;
+			send_packet.y = p_NPC->GetComponent<CloseTypeFSMComponent>()->WanderPosition.y;
+			send_packet.z = p_NPC->GetComponent<CloseTypeFSMComponent>()->WanderPosition.z;
+			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+	}
+										 break;
+	case IO_TYPE::IO_TIMER_MONSTER_TARGET: {
+		//Monster Target
+		if (p_NPC->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()) {
+			for (auto& rc_to : RemoteClient::remoteClients) {
+				if (!rc_to.second->b_Enable)
+					continue;
+				SC_AGGRO_PLAYER_PACKET send_packet;
+				send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
+				send_packet.player_id = ((Player*)(p_NPC
+					->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
+				send_packet.monster_id = p_NPC->num;
+				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
+		}
+	}
+										 break;
 	default:
 		break;
 	}

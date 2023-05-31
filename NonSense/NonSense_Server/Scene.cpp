@@ -40,7 +40,7 @@ void Scene::update()
 		MonsterObjects.push_back(Monster);
 	}
 
-	for (auto Monster : MonsterObjects)
+	for (auto& Monster : MonsterObjects)
 		Monster->update();
 
 	while (deletionMonsterQueue.try_pop(Monster))

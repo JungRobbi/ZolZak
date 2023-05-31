@@ -53,13 +53,13 @@ Object::~Object()
 
 void Object::start()
 {
-	for (auto component : components)
+	for (auto& component : components)
 		component->start();
 }
 
 void Object::update()
 {
-	for (auto component : components)
+	for (auto& component : components)
 		component->update();
 }
 
