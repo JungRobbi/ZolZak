@@ -199,6 +199,10 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 
 		player->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
+		/*cout << "recv_packet->x = " << recv_packet->x << endl;
+		cout << "recv_packet->y = " << recv_packet->y << endl;
+		cout << "recv_packet->z = " << recv_packet->z << endl;
+		cout << "================ " << endl;*/
 
 		break;
 	}

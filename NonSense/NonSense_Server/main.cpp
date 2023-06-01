@@ -312,12 +312,17 @@ int main(int argc, char* argv[])
 			{ 
 				auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
 
-				if (!Vector3::Length(vel))
-					continue;
+				if (Vector3::Length(vel) > 5.0001f) {
+					//cout << "Vector3::Length(vel) = " << Vector3::Length(vel) << endl;
+					//cout << "vel->x = " << vel.x << endl;
+					//cout << "vel->y = " << vel.y << endl;
+					//cout << "vel->z = " << vel.z << endl;
+					//cout << "================ " << endl;
 
-				shared_ptr<EXP_OVER> p = make_shared<EXP_OVER>();
-				p->m_ioType = IO_TYPE::IO_TIMER_PLAYER_MOVE;
-				PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)rc.second.get(), &p->_wsa_over);
+					shared_ptr<EXP_OVER> p = make_shared<EXP_OVER>();
+					p->m_ioType = IO_TYPE::IO_TIMER_PLAYER_MOVE;
+					PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)rc.second.get(), &p->_wsa_over);
+				}
 			}
 
 			// Camera Look Packet
@@ -330,7 +335,6 @@ int main(int argc, char* argv[])
 		}
 
 		//Monster test
-	//	for (auto monster : Scene::scene->MonsterObjects) {
 		++MonsterTimerDelay;
 		if (MonsterTimerDelay <= MAX_MonsterTimerDelay) 
 			continue;
