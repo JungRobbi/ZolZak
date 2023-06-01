@@ -122,222 +122,222 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 					for (int i{}; i < 8; ++i)
 						vCorners[i] = XMLoadFloat3(&Corners[i]);
 			
-					if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
-						vCorners[0], vCorners[1], vCorners[2],
-						nextBB.Radius)) {
-					//	cout << "Player의 다음 움직임에 MapObjectdml 1번 삼각형과 충돌!" << endl;
-						auto Normal = Vector3::CrossProduct(
-							Vector3::Subtract(Corners[1], Corners[0]),
-							Vector3::Subtract(Corners[2], Corners[0]), true);
-						
-						auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
+					//if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
+					//	vCorners[0], vCorners[1], vCorners[2],
+					//	nextBB.Radius)) {
+					////	cout << "Player의 다음 움직임에 MapObjectdml 1번 삼각형과 충돌!" << endl;
+					//	auto Normal = Vector3::CrossProduct(
+					//		Vector3::Subtract(Corners[1], Corners[0]),
+					//		Vector3::Subtract(Corners[2], Corners[0]), true);
+					//	
+					//	auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
 
-						// Normal과 평행하면 충돌 처리 금지
-						if (dotProduct <= 0) {
-							// 슬라이딩 벡터 S = P - n(P·n)
-							xmf3Shift = Vector3::Subtract(xmf3Shift,
-								Vector3::ScalarProduct(Normal, dotProduct, false)
-							);
-						}
-					}
-					else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
-						vCorners[0], vCorners[2], vCorners[3],
-						nextBB.Radius)) {
-					//	cout << "Player의 다음 움직임에 MapObjectdml 2번 삼각형과 충돌!" << endl;
-						auto Normal = Vector3::CrossProduct(
-							Vector3::Subtract(Corners[2], Corners[0]),
-							Vector3::Subtract(Corners[3], Corners[0]), true);
+					//	// Normal과 평행하면 충돌 처리 금지
+					//	if (dotProduct <= 0) {
+					//		// 슬라이딩 벡터 S = P - n(P·n)
+					//		xmf3Shift = Vector3::Subtract(xmf3Shift,
+					//			Vector3::ScalarProduct(Normal, dotProduct, false)
+					//		);
+					//	}
+					//}
+					//else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
+					//	vCorners[0], vCorners[2], vCorners[3],
+					//	nextBB.Radius)) {
+					////	cout << "Player의 다음 움직임에 MapObjectdml 2번 삼각형과 충돌!" << endl;
+					//	auto Normal = Vector3::CrossProduct(
+					//		Vector3::Subtract(Corners[2], Corners[0]),
+					//		Vector3::Subtract(Corners[3], Corners[0]), true);
 
-						auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
+					//	auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
 
-						// Normal과 평행하면 충돌 처리 금지
-						if (dotProduct <= 0) {
-							// 슬라이딩 벡터 S = P - n(P·n)
-							xmf3Shift = Vector3::Subtract(xmf3Shift,
-								Vector3::ScalarProduct(Normal, dotProduct, false)
-							);
-						}
-					}
-					else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
-						vCorners[0], vCorners[3], vCorners[7],
-						nextBB.Radius)) {
-					//	cout << "Player의 다음 움직임에 MapObjectdml 3번 삼각형과 충돌!" << endl;
-						auto Normal = Vector3::CrossProduct(
-							Vector3::Subtract(Corners[3], Corners[0]),
-							Vector3::Subtract(Corners[7], Corners[0]), true);
+					//	// Normal과 평행하면 충돌 처리 금지
+					//	if (dotProduct <= 0) {
+					//		// 슬라이딩 벡터 S = P - n(P·n)
+					//		xmf3Shift = Vector3::Subtract(xmf3Shift,
+					//			Vector3::ScalarProduct(Normal, dotProduct, false)
+					//		);
+					//	}
+					//}
+					//else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
+					//	vCorners[0], vCorners[3], vCorners[7],
+					//	nextBB.Radius)) {
+					////	cout << "Player의 다음 움직임에 MapObjectdml 3번 삼각형과 충돌!" << endl;
+					//	auto Normal = Vector3::CrossProduct(
+					//		Vector3::Subtract(Corners[3], Corners[0]),
+					//		Vector3::Subtract(Corners[7], Corners[0]), true);
 
-						auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
+					//	auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
 
-						// Normal과 평행하면 충돌 처리 금지
-						if (dotProduct <= 0) {
-							// 슬라이딩 벡터 S = P - n(P·n)
-							xmf3Shift = Vector3::Subtract(xmf3Shift,
-								Vector3::ScalarProduct(Normal, dotProduct, false)
-							);
-						}
-					}
-					else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
-						vCorners[0], vCorners[7], vCorners[4],
-						nextBB.Radius)) {
-					//	cout << "Player의 다음 움직임에 MapObjectdml 4번 삼각형과 충돌!" << endl;
-						auto Normal = Vector3::CrossProduct(
-							Vector3::Subtract(Corners[7], Corners[0]),
-							Vector3::Subtract(Corners[4], Corners[0]), true);
+					//	// Normal과 평행하면 충돌 처리 금지
+					//	if (dotProduct <= 0) {
+					//		// 슬라이딩 벡터 S = P - n(P·n)
+					//		xmf3Shift = Vector3::Subtract(xmf3Shift,
+					//			Vector3::ScalarProduct(Normal, dotProduct, false)
+					//		);
+					//	}
+					//}
+					//else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
+					//	vCorners[0], vCorners[7], vCorners[4],
+					//	nextBB.Radius)) {
+					////	cout << "Player의 다음 움직임에 MapObjectdml 4번 삼각형과 충돌!" << endl;
+					//	auto Normal = Vector3::CrossProduct(
+					//		Vector3::Subtract(Corners[7], Corners[0]),
+					//		Vector3::Subtract(Corners[4], Corners[0]), true);
 
-						auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
+					//	auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
 
-						// Normal과 평행하면 충돌 처리 금지
-						if (dotProduct <= 0) {
-							// 슬라이딩 벡터 S = P - n(P·n)
-							xmf3Shift = Vector3::Subtract(xmf3Shift,
-								Vector3::ScalarProduct(Normal, dotProduct, false)
-							);
-						}
-					}
-					else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
-						vCorners[4], vCorners[7], vCorners[5],
-						nextBB.Radius)) {
-					//	cout << "Player의 다음 움직임에 MapObjectdml 5번 삼각형과 충돌!" << endl;
-						auto Normal = Vector3::CrossProduct(
-							Vector3::Subtract(Corners[7], Corners[4]),
-							Vector3::Subtract(Corners[5], Corners[4]), true);
+					//	// Normal과 평행하면 충돌 처리 금지
+					//	if (dotProduct <= 0) {
+					//		// 슬라이딩 벡터 S = P - n(P·n)
+					//		xmf3Shift = Vector3::Subtract(xmf3Shift,
+					//			Vector3::ScalarProduct(Normal, dotProduct, false)
+					//		);
+					//	}
+					//}
+					//else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
+					//	vCorners[4], vCorners[7], vCorners[5],
+					//	nextBB.Radius)) {
+					////	cout << "Player의 다음 움직임에 MapObjectdml 5번 삼각형과 충돌!" << endl;
+					//	auto Normal = Vector3::CrossProduct(
+					//		Vector3::Subtract(Corners[7], Corners[4]),
+					//		Vector3::Subtract(Corners[5], Corners[4]), true);
 
-						auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
+					//	auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
 
-						// Normal과 평행하면 충돌 처리 금지
-						if (dotProduct <= 0) {
-							// 슬라이딩 벡터 S = P - n(P·n)
-							xmf3Shift = Vector3::Subtract(xmf3Shift,
-								Vector3::ScalarProduct(Normal, dotProduct, false)
-							);
-						}
-					}
-					else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
-						vCorners[5], vCorners[7], vCorners[6],
-						nextBB.Radius)) {
-					//	cout << "Player의 다음 움직임에 MapObjectdml 6번 삼각형과 충돌!" << endl;
-						auto Normal = Vector3::CrossProduct(
-							Vector3::Subtract(Corners[7], Corners[5]),
-							Vector3::Subtract(Corners[6], Corners[5]), true);
+					//	// Normal과 평행하면 충돌 처리 금지
+					//	if (dotProduct <= 0) {
+					//		// 슬라이딩 벡터 S = P - n(P·n)
+					//		xmf3Shift = Vector3::Subtract(xmf3Shift,
+					//			Vector3::ScalarProduct(Normal, dotProduct, false)
+					//		);
+					//	}
+					//}
+					//else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
+					//	vCorners[5], vCorners[7], vCorners[6],
+					//	nextBB.Radius)) {
+					////	cout << "Player의 다음 움직임에 MapObjectdml 6번 삼각형과 충돌!" << endl;
+					//	auto Normal = Vector3::CrossProduct(
+					//		Vector3::Subtract(Corners[7], Corners[5]),
+					//		Vector3::Subtract(Corners[6], Corners[5]), true);
 
-						auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
+					//	auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
 
-						// Normal과 평행하면 충돌 처리 금지
-						if (dotProduct <= 0) {
-							// 슬라이딩 벡터 S = P - n(P·n)
-							xmf3Shift = Vector3::Subtract(xmf3Shift,
-								Vector3::ScalarProduct(Normal, dotProduct, false)
-							);
-						}
-					}
-					else if(DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
-						vCorners[1], vCorners[5], vCorners[6],
-						nextBB.Radius)) {
-					//	cout << "Player의 다음 움직임에 MapObjectdml 7번 삼각형과 충돌!" << endl;
-						auto Normal = Vector3::CrossProduct(
-							Vector3::Subtract(Corners[5], Corners[1]),
-							Vector3::Subtract(Corners[6], Corners[1]), true);
+					//	// Normal과 평행하면 충돌 처리 금지
+					//	if (dotProduct <= 0) {
+					//		// 슬라이딩 벡터 S = P - n(P·n)
+					//		xmf3Shift = Vector3::Subtract(xmf3Shift,
+					//			Vector3::ScalarProduct(Normal, dotProduct, false)
+					//		);
+					//	}
+					//}
+					//else if(DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
+					//	vCorners[1], vCorners[5], vCorners[6],
+					//	nextBB.Radius)) {
+					////	cout << "Player의 다음 움직임에 MapObjectdml 7번 삼각형과 충돌!" << endl;
+					//	auto Normal = Vector3::CrossProduct(
+					//		Vector3::Subtract(Corners[5], Corners[1]),
+					//		Vector3::Subtract(Corners[6], Corners[1]), true);
 
-						auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
+					//	auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
 
-						// Normal과 평행하면 충돌 처리 금지
-						if (dotProduct <= 0) {
-							// 슬라이딩 벡터 S = P - n(P·n)
-							xmf3Shift = Vector3::Subtract(xmf3Shift,
-								Vector3::ScalarProduct(Normal, dotProduct, false)
-							);
-						}
-					}
-					else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
-						vCorners[1], vCorners[6], vCorners[2],
-						nextBB.Radius)) {
-					//	cout << "Player의 다음 움직임에 MapObjectdml 8번 삼각형과 충돌!" << endl;
-						auto Normal = Vector3::CrossProduct(
-							Vector3::Subtract(Corners[6], Corners[1]),
-							Vector3::Subtract(Corners[2], Corners[1]), true);
+					//	// Normal과 평행하면 충돌 처리 금지
+					//	if (dotProduct <= 0) {
+					//		// 슬라이딩 벡터 S = P - n(P·n)
+					//		xmf3Shift = Vector3::Subtract(xmf3Shift,
+					//			Vector3::ScalarProduct(Normal, dotProduct, false)
+					//		);
+					//	}
+					//}
+					//else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
+					//	vCorners[1], vCorners[6], vCorners[2],
+					//	nextBB.Radius)) {
+					////	cout << "Player의 다음 움직임에 MapObjectdml 8번 삼각형과 충돌!" << endl;
+					//	auto Normal = Vector3::CrossProduct(
+					//		Vector3::Subtract(Corners[6], Corners[1]),
+					//		Vector3::Subtract(Corners[2], Corners[1]), true);
 
-						auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
+					//	auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
 
-						// Normal과 평행하면 충돌 처리 금지
-						if (dotProduct <= 0) {
-							// 슬라이딩 벡터 S = P - n(P·n)
-							xmf3Shift = Vector3::Subtract(xmf3Shift,
-								Vector3::ScalarProduct(Normal, dotProduct, false)
-							);
-						}
-					}
-					else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
-						vCorners[6], vCorners[3], vCorners[2],
-						nextBB.Radius)) {
-					//	cout << "Player의 다음 움직임에 MapObjectdml 9번 삼각형과 충돌!" << endl;
-						auto Normal = Vector3::CrossProduct(
-							Vector3::Subtract(Corners[3], Corners[6]),
-							Vector3::Subtract(Corners[2], Corners[6]), true);
+					//	// Normal과 평행하면 충돌 처리 금지
+					//	if (dotProduct <= 0) {
+					//		// 슬라이딩 벡터 S = P - n(P·n)
+					//		xmf3Shift = Vector3::Subtract(xmf3Shift,
+					//			Vector3::ScalarProduct(Normal, dotProduct, false)
+					//		);
+					//	}
+					//}
+					//else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
+					//	vCorners[6], vCorners[3], vCorners[2],
+					//	nextBB.Radius)) {
+					////	cout << "Player의 다음 움직임에 MapObjectdml 9번 삼각형과 충돌!" << endl;
+					//	auto Normal = Vector3::CrossProduct(
+					//		Vector3::Subtract(Corners[3], Corners[6]),
+					//		Vector3::Subtract(Corners[2], Corners[6]), true);
 
-						auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
+					//	auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
 
-						// Normal과 평행하면 충돌 처리 금지
-						if (dotProduct <= 0) {
-							// 슬라이딩 벡터 S = P - n(P·n)
-							xmf3Shift = Vector3::Subtract(xmf3Shift,
-								Vector3::ScalarProduct(Normal, dotProduct, false)
-							);
-						}
-					}
-					else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
-						vCorners[7], vCorners[3], vCorners[6],
-						nextBB.Radius)) {
-					//	cout << "Player의 다음 움직임에 MapObjectdml 10번 삼각형과 충돌!" << endl;
-						auto Normal = Vector3::CrossProduct(
-							Vector3::Subtract(Corners[3], Corners[7]),
-							Vector3::Subtract(Corners[6], Corners[7]), true);
+					//	// Normal과 평행하면 충돌 처리 금지
+					//	if (dotProduct <= 0) {
+					//		// 슬라이딩 벡터 S = P - n(P·n)
+					//		xmf3Shift = Vector3::Subtract(xmf3Shift,
+					//			Vector3::ScalarProduct(Normal, dotProduct, false)
+					//		);
+					//	}
+					//}
+					//else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
+					//	vCorners[7], vCorners[3], vCorners[6],
+					//	nextBB.Radius)) {
+					////	cout << "Player의 다음 움직임에 MapObjectdml 10번 삼각형과 충돌!" << endl;
+					//	auto Normal = Vector3::CrossProduct(
+					//		Vector3::Subtract(Corners[3], Corners[7]),
+					//		Vector3::Subtract(Corners[6], Corners[7]), true);
 
-						auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
+					//	auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
 
-						// Normal과 평행하면 충돌 처리 금지
-						if (dotProduct <= 0) {
-							// 슬라이딩 벡터 S = P - n(P·n)
-							xmf3Shift = Vector3::Subtract(xmf3Shift,
-								Vector3::ScalarProduct(Normal, dotProduct, false)
-							);
-						}
-					}
-					else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
-						vCorners[5], vCorners[1], vCorners[0],
-						nextBB.Radius)) {
-					//	cout << "Player의 다음 움직임에 MapObjectdml 11번 삼각형과 충돌!" << endl;
-						auto Normal = Vector3::CrossProduct(
-							Vector3::Subtract(Corners[1], Corners[5]),
-							Vector3::Subtract(Corners[0], Corners[5]), true);
+					//	// Normal과 평행하면 충돌 처리 금지
+					//	if (dotProduct <= 0) {
+					//		// 슬라이딩 벡터 S = P - n(P·n)
+					//		xmf3Shift = Vector3::Subtract(xmf3Shift,
+					//			Vector3::ScalarProduct(Normal, dotProduct, false)
+					//		);
+					//	}
+					//}
+					//else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
+					//	vCorners[5], vCorners[1], vCorners[0],
+					//	nextBB.Radius)) {
+					////	cout << "Player의 다음 움직임에 MapObjectdml 11번 삼각형과 충돌!" << endl;
+					//	auto Normal = Vector3::CrossProduct(
+					//		Vector3::Subtract(Corners[1], Corners[5]),
+					//		Vector3::Subtract(Corners[0], Corners[5]), true);
 
-						auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
+					//	auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
 
-						// Normal과 평행하면 충돌 처리 금지
-						if (dotProduct <= 0) {
-							// 슬라이딩 벡터 S = P - n(P·n)
-							xmf3Shift = Vector3::Subtract(xmf3Shift,
-								Vector3::ScalarProduct(Normal, dotProduct, false)
-							);
-						}
-					}
-					else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
-						vCorners[5], vCorners[0], vCorners[4],
-						nextBB.Radius)) {
-					//	cout << "Player의 다음 움직임에 MapObjectdml 12번 삼각형과 충돌!" << endl;
-						auto Normal = Vector3::CrossProduct(
-							Vector3::Subtract(Corners[0], Corners[5]),
-							Vector3::Subtract(Corners[4], Corners[5]), true);
+					//	// Normal과 평행하면 충돌 처리 금지
+					//	if (dotProduct <= 0) {
+					//		// 슬라이딩 벡터 S = P - n(P·n)
+					//		xmf3Shift = Vector3::Subtract(xmf3Shift,
+					//			Vector3::ScalarProduct(Normal, dotProduct, false)
+					//		);
+					//	}
+					//}
+					//else if (DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
+					//	vCorners[5], vCorners[0], vCorners[4],
+					//	nextBB.Radius)) {
+					////	cout << "Player의 다음 움직임에 MapObjectdml 12번 삼각형과 충돌!" << endl;
+					//	auto Normal = Vector3::CrossProduct(
+					//		Vector3::Subtract(Corners[0], Corners[5]),
+					//		Vector3::Subtract(Corners[4], Corners[5]), true);
 
-						auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
+					//	auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
 
-						// Normal과 평행하면 충돌 처리 금지
-						if (dotProduct <= 0) {
-							// 슬라이딩 벡터 S = P - n(P·n)
-							xmf3Shift = Vector3::Subtract(xmf3Shift,
-								Vector3::ScalarProduct(Normal, dotProduct, false)
-							);
-						}
-					}
+					//	// Normal과 평행하면 충돌 처리 금지
+					//	if (dotProduct <= 0) {
+					//		// 슬라이딩 벡터 S = P - n(P·n)
+					//		xmf3Shift = Vector3::Subtract(xmf3Shift,
+					//			Vector3::ScalarProduct(Normal, dotProduct, false)
+					//		);
+					//	}
+					//}
 
 				}
 			}
@@ -369,9 +369,10 @@ void PlayerMovementComponent::updateValocity()
 	float fMaxVelocityY = m_fMaxVelocityY * fTimeElapsed;
 	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
-	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-	Move(xmf3Velocity, false);
-	
+	if (Vector3::Length(m_xmf3Velocity) > 0.0f) {
+		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
+		Move(xmf3Velocity, false);
+	}
 	if (m_pPlayerUpdatedContext) 
 		OnPlayerUpdateCallback();
 
