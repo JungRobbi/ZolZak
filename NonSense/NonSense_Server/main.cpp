@@ -312,7 +312,7 @@ int main(int argc, char* argv[])
 			{ 
 				auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
 
-				if (Vector3::Length(vel) > 5.0001f) {
+				if (Vector3::Length(vel) > 3.0001f) {
 					//cout << "Vector3::Length(vel) = " << Vector3::Length(vel) << endl;
 					//cout << "vel->x = " << vel.x << endl;
 					//cout << "vel->y = " << vel.y << endl;
