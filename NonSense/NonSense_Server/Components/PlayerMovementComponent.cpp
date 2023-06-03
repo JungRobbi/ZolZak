@@ -148,6 +148,10 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 							xmf3Shift = Vector3::Subtract(xmf3Shift,
 								Vector3::ScalarProduct(Normal, dotProduct, false)
 							);
+							if (i == 8 || i == 9) {
+								CanJump = true;
+								m_xmf3Velocity.y = -3.0f;
+							}
 						}
 					}
 				}
@@ -199,8 +203,9 @@ void PlayerMovementComponent::Jump()
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
 
 	float fHeight = pTerrain->GetHeight(m_xmf3Position.x - pTerrain->GetPosition().x, m_xmf3Position.z - pTerrain->GetPosition().z);
-	if (m_xmf3Position.y <= fHeight) {
+	if (CanJump) {
 		m_xmf3Velocity.y = 22.f;
+		CanJump = false;
 	}
 }
 
@@ -227,5 +232,6 @@ void PlayerMovementComponent::OnPlayerUpdateCallback()
 	if (m_xmf3Position.y <= fHeight) {
 		m_xmf3Velocity.y = -3.0f;
 		m_xmf3Position.y = fHeight;
+		CanJump = true;
 	}
 }

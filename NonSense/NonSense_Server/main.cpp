@@ -541,6 +541,9 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		switch (recv_packet->key)
 		{
 		case VK_SPACE: {
+			if (!p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetJumpAble())
+				break;
+
 			p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->Jump();
 			for (auto& rc : RemoteClient::remoteClients) {
 				if (!rc.second->b_Enable)
