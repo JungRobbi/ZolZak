@@ -133,7 +133,7 @@ VS_PARTICLE_OUTPUT VSParticle(VS_PARTICLE_INPUT input)
 		newPosition.z = input.position.x + newT * (input.velocity.z)*5;
 
 		output.position = newPosition;
-		output.size = newT/25;
+		output.size = 0.1;
 		output.color = input.color/2;
 	}
 
@@ -152,7 +152,7 @@ void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTI
 		float3 positionW = mul(gf3Positions[i] * input[0].size, (float3x3)gmtxInverseView) + input[0].position;
 		output.position = mul(mul(mul(float4(positionW, 1.0f), gmtxObjectWorld), gmtxView), gmtxProjection);
 		output.uv = gf2QuadUVs[i];
-		output.color.xyz = input[0].color;
+		output.color.xyz = 0;
 		outputStream.Append(output);
 	}
 	outputStream.RestartStrip();
@@ -161,7 +161,7 @@ void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTI
 float4 PSParticle(GS_PARTICLE_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtParticleTexture.Sample(gssWrap, input.uv);
-	cColor.xyz = input.color.xyz;
+	//cColor.xyz += input.color.xyz;
 	return(cColor);
 }
 
@@ -196,17 +196,19 @@ VS_BoundingOUTPUT VSBounding(VS_BoundingINPUT input)
 float4 PSBounding(VS_BoundingOUTPUT input) : SV_TARGET
 {
 	if (objectID == 0) // 맵 오브젝트
-		return(float4(1,1,1,1));
+		return(float4(0.1,0.1, 0.1,1));
 	if (objectID == 1) // 아군 플레이어
-		return(float4(0, 1, 0, 1));
+		return(float4(0, 0.1, 0, 1));
 	if (objectID == 2) // 적
-		return(float4(1, 0, 0, 1));
+		return(float4(0.1, 0, 0, 1));
 	if (objectID == 3) // 아군 공격
-		return(float4(0, 0, 1, 1));
+		return(float4(0, 0, 0.1, 1));
 	if (objectID == 4) // 맵 Sphere 오브젝트
-		return(float4(0.5, 0.5, 0.5, 1));
+		return(float4(0.05, 0.05, 0.05, 1));
 	if (objectID == 5) // 적 공격
-		return(float4(0.0, 0.0, 0.0, 1));
+		return(float4(-0.1, -0.1, -0.1, 1));
+	if (objectID == 6) // Explosion
+		return(float4(0.3, 0.1, 0.0, 1));
 	else return(float4(0, 0, 0, 1));
 }
 

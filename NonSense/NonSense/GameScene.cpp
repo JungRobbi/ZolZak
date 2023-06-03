@@ -89,17 +89,14 @@ void GameScene::update()
 
 	for (auto gameObject : gameObjects)
 		gameObject->update();
-
 	for (auto gameObject : blendGameObjects) //Blend Object
 		gameObject->update();
-
 	for (auto gameObject : UIGameObjects) //UI Object
 		gameObject->update();
 	for (auto gameObject : BoundingGameObjects) //Bounding Object
 		gameObject->update();
 	for (auto gameObject : MonsterObjects) //Monster Object
 		gameObject->update();
-
 
 	auto t = deletionQueue;
 	while (!deletionQueue.empty())

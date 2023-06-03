@@ -656,6 +656,7 @@ Object::Object(bool Push_List)
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_xmf4x4ToParent, XMMatrixIdentity());
 	SetNum(OBJNum++);
+
 	if (Push_List) {
 		GameScene::MainScene->creationQueue.push(this);
 	}
@@ -665,6 +666,7 @@ Object::Object(OBJECT_TYPE type)
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_xmf4x4ToParent, XMMatrixIdentity());
 	SetNum(OBJNum++);
+
 	switch (type) {
 	case DEFAULT_OBJECT:
 		GameScene::MainScene->creationQueue.push(this);
@@ -2064,11 +2066,11 @@ bool BoundSphere::Intersects(BoundSphere& sh)
 
 FireBall::FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BLEND_OBJECT)
 {
-	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 500);
+	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 200);
 	SetMesh(pMesh);
 
 	CTexture* pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Particle/BlendParticle.dds", RESOURCE_TEXTURE2D, 0);
+	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Particle/Fire_Particle.dds", RESOURCE_TEXTURE2D, 0);
 
 	ParticleShader* pShader = new ParticleShader();
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -2095,13 +2097,14 @@ FireBall::FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 void FireBall::OnPrepareRender()
 {
 	SetPosition(GetPosition().x + Direction.x, GetPosition().y + Direction.y, GetPosition().z + Direction.z);
+	GetComponent<SphereCollideComponent>()->update();
 	for (auto& o : GameScene::MainScene->gameObjects)
 	{
 		if (o->GetComponent<BoxCollideComponent>())
 		{
 			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
 			{
-				printf("\n벽과 충돌 %d\n",o->GetNum());
+				printf("\n벽과 충돌 %d, %f, %f, %f    %f,%f,%f\n",o->GetNum(),o->GetPosition().x, o->GetPosition().y, o->GetPosition().z, GetPosition().x, GetPosition().y, GetPosition().z);
 				explode->Active = true;
 				explode->SetPosition(GetPosition());
 				Active = false;
@@ -2159,7 +2162,7 @@ Explosion::Explosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 	SetMesh(pMesh);
 
 	CTexture* pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Particle/BlendParticle.dds", RESOURCE_TEXTURE2D, 0);
+	pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Particle/Fire_Particle.dds", RESOURCE_TEXTURE2D, 0);
 
 	ParticleShader* pShader = new ParticleShader();
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -2179,6 +2182,7 @@ Explosion::Explosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 	AddComponent<SphereCollideComponent>();
 	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
 	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, 0.0), 0.0);
+	GetComponent<SphereCollideComponent>()->GetBoundingObject()->SetNum(6);
 
 	SetMaterial(pMaterial);
 	SetNum(1);
@@ -2227,6 +2231,7 @@ void Explosion::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 		{
 			m_pMesh->Render(pd3dCommandList, 0);
 		}
+		GetComponent<SphereCollideComponent>()->GetBoundingObject()->Render(pd3dCommandList, pCamera);
 	}
 }
 

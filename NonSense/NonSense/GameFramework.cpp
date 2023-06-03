@@ -585,8 +585,8 @@ void GameFramework::ChangeScene(unsigned char num)
 {
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
-	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->ReleaseObjects();
+	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
