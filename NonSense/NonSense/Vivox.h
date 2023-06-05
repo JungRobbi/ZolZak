@@ -28,4 +28,7 @@ public:
 	void Disconnect();
 	void JoinChannel(const char* Channel);
 	void LeaveChannel(const char* Channel);
+
+
+	int RequestIssue(vx_req_base_t* request);
 };

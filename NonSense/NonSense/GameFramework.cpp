@@ -39,8 +39,6 @@ GameFramework::GameFramework()
 	MainGameFramework = this;
 	m_pVivoxSystem = new VivoxSystem();
 	m_pVivoxSystem->Initialize();
-	m_pVivoxSystem->Connect();
-	m_pVivoxSystem->Listen();
 	Timer::Initialize();
 }
 
@@ -811,6 +809,8 @@ void GameFramework::MoveToNextFrame()
 void GameFramework::FrameAdvance()
 {
 	Timer::Tick(0.0f);
+
+	m_pVivoxSystem->Listen();
 
 	Sound::SystemUpdate(); //FMOD System Update
 
