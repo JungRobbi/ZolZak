@@ -589,35 +589,35 @@ void GameFramework::ChangeScene(unsigned char num)
 {
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
-	switch (GameSceneState)
-	{
-	case LOGIN_SCENE:
-		m_pVivoxSystem->LeaveChannel("Login");
-		break;
-	case LOBBY_SCENE:
-		m_pVivoxSystem->LeaveChannel("Lobby");
-		break;
-	case GAME_SCENE:
-		m_pVivoxSystem->LeaveChannel("Stage");
-		break;
-	default:
-		break;
-	}
-
-	switch (num)
-	{
-	case LOGIN_SCENE:
-		m_pVivoxSystem->JoinChannel("Login");
-		break;
-	case LOBBY_SCENE:
-		m_pVivoxSystem->JoinChannel("Lobby");
-		break;
-	case GAME_SCENE:
-		m_pVivoxSystem->JoinChannel("Stage");
-		break;
-	default:
-		break;
-	}
+	//switch (GameSceneState)
+	//{
+	//case LOGIN_SCENE:
+	//	m_pVivoxSystem->LeaveChannel("Login");
+	//	break;
+	//case LOBBY_SCENE:
+	//	m_pVivoxSystem->LeaveChannel("Lobby");
+	//	break;
+	//case GAME_SCENE:
+	//	m_pVivoxSystem->LeaveChannel("Stage");
+	//	break;
+	//default:
+	//	break;
+	//}
+	//
+	//switch (num)
+	//{
+	//case LOGIN_SCENE:
+	//	m_pVivoxSystem->JoinChannel("Login");
+	//	break;
+	//case LOBBY_SCENE:
+	//	m_pVivoxSystem->JoinChannel("Lobby");
+	//	break;
+	//case GAME_SCENE:
+	//	m_pVivoxSystem->JoinChannel("Stage");
+	//	break;
+	//default:
+	//	break;
+	//}
 
 	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->ReleaseObjects();
