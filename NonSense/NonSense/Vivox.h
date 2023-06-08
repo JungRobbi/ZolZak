@@ -8,10 +8,15 @@ class VivoxSystem
 {
 private:
 	char* key = "zing795";
-
-public:
+	long long SerialNum = 0;
 	vx_sdk_config_t defaultConfig;
-	vx_message_base_t* VX_Message;
+	vx_message_base_t* VX_Message = NULL;
+
+	VX_HANDLE m_ConnectorHandle = NULL;
+	VX_HANDLE m_AccountHandle = NULL;
+	VX_HANDLE m_SessionHandle = NULL;
+public:
+
 
 public:
 	VivoxSystem() {}
@@ -31,4 +36,5 @@ public:
 
 
 	int RequestIssue(vx_req_base_t* request);
+
 };
