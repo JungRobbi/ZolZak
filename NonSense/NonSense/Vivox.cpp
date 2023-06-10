@@ -55,10 +55,6 @@ void VivoxSystem::MessageHandle(vx_message_base_t* msg)
 		vx_evt_base_t* evt = reinterpret_cast<vx_evt_base_t*>(msg);
 		EventHandle(evt);
 	}
-	else if (msg->type == msg_request)
-	{
-		std::cout << "------------Request-------------" << std::endl;
-	}
 }
 
 void VivoxSystem::ResponseHandle(vx_resp_base_t* resp)
@@ -84,7 +80,7 @@ void VivoxSystem::ResponseHandle(vx_resp_base_t* resp)
 		
 		break;
 	case resp_account_anonymous_login:
-		std::cout << "Login Response MSG";
+		std::cout << "Login Response MSG : ";
 		if (resp->return_code == 1)
 		{
 			std::cout << "Fail - " << vx_get_error_string(resp->status_code) << std::endl;
@@ -105,7 +101,7 @@ void VivoxSystem::ResponseHandle(vx_resp_base_t* resp)
 		}
 		break;
 	case resp_sessiongroup_remove_session:
-		std::cout << "Remove_Session";
+		std::cout << "Remove_Session : ";
 		if (resp->return_code == 1)
 		{
 			std::cout << "Fail - " << vx_get_error_string(resp->status_code) << std::endl;
@@ -116,7 +112,7 @@ void VivoxSystem::ResponseHandle(vx_resp_base_t* resp)
 		}
 		break;
 	case resp_sessiongroup_add_session:
-		std::cout << "Add Session ";
+		std::cout << "Add Session : ";
 		if (resp->return_code == 1)
 		{
 			std::cout << "Fail - " << vx_get_error_string(resp->status_code) << std::endl;
@@ -162,10 +158,10 @@ void VivoxSystem::Connect()
 	vx_req_account_anonymous_login_create(&req); 
 	req->connector_handle = m_ConnectorHandle;
 	req->acct_name = vx_strdup(".Korus.");
-
 	req->displayname = vx_strdup("Korus");
 	//req->account_handle = vx_strdup("sip:.jeawoo0732-no23-dev.Korus.@mt1s.vivox.com");
-	req->access_token = vx_debug_generate_token("jeawoo0732-no23-dev",(vx_time_t)-1,"login", SerialNum++,NULL,"sip:.jeawoo0732-no23-dev.Korus.@mt1s.vivox.com",nullptr, (const unsigned char*)key, strlen(key));
+	req->access_token = vx_debug_generate_token("jeawoo0732-no23-dev",(vx_time_t)-1,"login", SerialNum++,NULL,
+											"sip:.jeawoo0732-no23-dev.Korus.@mt1s.vivox.com",nullptr, (const unsigned char*)key, strlen(key));
 	int vx_issue_request3_response = RequestIssue(&req->base);
 
 }
@@ -181,16 +177,18 @@ void VivoxSystem::Disconnect()
 void VivoxSystem::JoinChannel(const char* Channel)
 {
 	char* uri = vx_get_echo_channel_uri(Channel, "mt1s.vivox.com", "jeawoo0732-no23-dev");
+	std::cout << uri << std::endl;
 	//uri = vx_get_random_channel_uri_ex("confctl-e-", "mt1s.vivox.com", "jeawoo0732-no23-dev");
 	vx_req_sessiongroup_add_session* req;
 	vx_req_sessiongroup_add_session_create(&req);
 	req->sessiongroup_handle = vx_strdup("sg1");
-	//req->session_handle = vx_strdup("Channel");
-	req->uri = vx_strdup("sip:confctl-e-jeawoo0732-no23-dev.mychannel@mt1s.vivox.com");
+	req->session_handle = vx_strdup("Channel");
+	req->uri = vx_strdup(uri);
 	req->account_handle = m_AccountHandle;
 	req->connect_audio = 1;
 	req->connect_text = 1;
-	req->access_token = vx_debug_generate_token("jeawoo0732-no23-dev", (vx_time_t)-1, "join", SerialNum++, NULL, "sip:.Korus.@mt1s.vivox.com", "sip:confctl-e-issuer.mychannel@mt1s.vivox.com", (const unsigned char*)key, strlen(key));
+	req->access_token = vx_debug_generate_token("jeawoo0732-no23-dev", (vx_time_t)-1, "join", SerialNum++, NULL, "sip:.Korus.@mt1s.vivox.com", 
+													"sip:confctl-e-issuer.mychannel@mt1s.vivox.com", (const unsigned char*)key, strlen(key));
 	int vx_issue_request3_response = RequestIssue(&req->base);
 
 
