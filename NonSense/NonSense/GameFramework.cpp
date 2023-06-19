@@ -311,7 +311,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(LOGIN_SCENE);
+	ChangeScene(GAME_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -830,11 +830,11 @@ void GameFramework::FrameAdvance()
 	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
 	// Debug È­¸é
 	
-	//if (DebugMode)
-	//{
-	//	m_pScreen->SetDescriptorHeap(m_pCommandList);
-	//	m_pDebug->Render(m_pCommandList, m_pCamera);
-	//}
+	if (DebugMode)
+	{
+		m_pScreen->SetDescriptorHeap(m_pCommandList);
+		m_pDebug->Render(m_pCommandList, m_pCamera);
+	}
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);

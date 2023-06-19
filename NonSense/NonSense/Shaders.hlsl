@@ -196,17 +196,17 @@ VS_BoundingOUTPUT VSBounding(VS_BoundingINPUT input)
 float4 PSBounding(VS_BoundingOUTPUT input) : SV_TARGET
 {
 	if (objectID == 0) // 맵 오브젝트
-		return(float4(0.1,0.1, 0.1,1));
+		return(float4(0.2,0.2, 0.2,1));
 	if (objectID == 1) // 아군 플레이어
-		return(float4(0, 0.1, 0, 1));
+		return(float4(0, 0.2, 0, 1));
 	if (objectID == 2) // 적
-		return(float4(0.1, 0, 0, 1));
+		return(float4(0.2, 0, 0, 1));
 	if (objectID == 3) // 아군 공격
-		return(float4(0, 0, 0.1, 1));
+		return(float4(0, 0, 0.2, 1));
 	if (objectID == 4) // 맵 Sphere 오브젝트
-		return(float4(0.05, 0.05, 0.05, 1));
+		return(float4(0.07, 0.07, 0.07, 1));
 	if (objectID == 5) // 적 공격
-		return(float4(-0.1, -0.1, -0.1, 1));
+		return(float4(1.2, 1.0, 0.2, 1));
 	if (objectID == 6) // Explosion
 		return(float4(0.3, 0.1, 0.0, 1));
 	else return(float4(0, 0, 0, 1));
@@ -279,10 +279,11 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 	float fObjectID = RenderInfor[1][int2(input.position.xy)].a;
 	for (int i = 0; i < LineSize; i++)
 	{
-			if (fObjectID != RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
+		if (fObjectID != RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
 	}
 
 	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection);
+	cColor = cColor * (1.05 -(RenderInfor[3][int2(input.position.xy)].r));
 	if (Edge)
 		return (LineColor);
 
@@ -414,7 +415,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtAlbedoTexture.Sample(gssDefaultSamplerState, input.uv);
-
+	cColor = float4(cColor.r*(1.05 - (RenderInfor[3][int2(input.position.xy)].r)), cColor.g * (1.05 - (RenderInfor[3][int2(input.position.xy)].r)), cColor.b * (1.05 - (RenderInfor[3][int2(input.position.xy)].r)),cColor.a);
 	return(cColor);
 }
 
@@ -478,7 +479,7 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtSkyCubeTexture.Sample(gssDefaultSamplerState, input.positionL);
-
+	cColor = float4(0, 0, 0, 1);
 	return(cColor);
 }
 

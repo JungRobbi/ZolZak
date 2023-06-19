@@ -9,6 +9,7 @@
 #include "MoveForwardComponent.h"
 #include "RotateComponent.h"
 #include "PlayerMovementComponent.h"
+#include "SphereCollideComponent.h"
 
 WeaponObject::WeaponObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Object(DEFAULT_OBJECT)
 {
@@ -23,6 +24,16 @@ WeaponObject::WeaponObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	AddComponent<RotateComponent>();
 	GetComponent<RotateComponent>()->SetRotationSpeed(360.0f);
 	GetComponent<RotateComponent>()->SetRotationAxis(XMFLOAT3(1.0f, 0.0f, 0.0f));
+
+	BoundingShader* m_pBoundingShader = new BoundingShader();
+	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+	BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
+	bs->SetNum(5);
+	AddComponent<SphereCollideComponent>();
+	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, 0.0), 0.1);
+
 }
 
 WeaponObject::~WeaponObject()
