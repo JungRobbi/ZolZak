@@ -43,6 +43,7 @@ cbuffer cbDrawOptions : register(b5)
 	float4 LineColor : packoffset(c0);
 	uint LineSize : packoffset(c1.x);
 	uint ToonShading : packoffset(c1.y);
+	float darkness : packoffset(c1.z);
 };
 
 cbuffer cbBoneOffsets : register(b6)
@@ -59,7 +60,6 @@ cbuffer cbBoneTransforms : register(b7)
 cbuffer cbParticleInfo : register(b8)
 {
 	float4 Direction : packoffset(c0);
-	float Value : packoffset(c1.x);
 };
 
 cbuffer cbFrameworkInfo : register(b9)
@@ -74,13 +74,10 @@ SamplerState gssDefaultSamplerState : register(s0);
 Texture2D gtxtUITexture : register(t24);
 Texture2D gtxtParticleTexture : register(t25);
 SamplerState gssWrap : register(s0);
-SamplerState gssBorder : register(s1);
-// SkyBox
+SamplerState gssBorder : register(s1); // SkyBox
 TextureCube gtxtSkyCubeTexture : register(t13);
+
 #include "Light1.hlsl"
-
-
-///////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct VS_PARTICLE_INPUT
@@ -228,20 +225,22 @@ struct VS_BillboardOUTPUT
 VS_BillboardOUTPUT VSBillboard(VS_BillboardINPUT input, uint nVertexID : SV_VertexID)
 {
 	VS_BillboardOUTPUT output;
-	if (nVertexID == 0)		 { output.uv = float2(-(1/value-1), 0.0f); }
-	else if (nVertexID == 1) { output.uv = float2(1.0f, 0.0f); }
-	else if (nVertexID == 2) { output.uv = float2(-(1 / value - 1), 1.0f); }
-	else if (nVertexID == 3) { output.uv = float2(-(1 / value - 1), 1.0f); }
-	else if (nVertexID == 4) { output.uv = float2(1.0f, 0.0f); }
-	else if (nVertexID == 5) { output.uv = float2(1.0f, 1.0f); }
+	if (nVertexID == 0)		 { output.uv = float2(1, 0.0f); }
+	else if (nVertexID == 1) { output.uv = float2(-(1 / value - 1), 0.0f); }
+	else if (nVertexID == 2) { output.uv = float2(1, 1.0f); }
+	else if (nVertexID == 3) { output.uv = float2(1, 1.0f); }
+	else if (nVertexID == 4) { output.uv = float2(-(1 / value - 1), 0.0f); }
+	else if (nVertexID == 5) { output.uv = float2(-(1 / value - 1), 1.0f); }
 
-	output.positionW = (mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection));
+	output.positionW = (mul(mul(mul(float4(mul(input.position, (float3x3)gmtxInverseView), 1.0f), gmtxWorld), gmtxView), gmtxProjection));
 	return(output);
 }
 
 float4 PSBillboard(VS_BillboardOUTPUT input) : SV_TARGET
 {
-	return(gtxtUITexture.Sample(gssBorder, input.uv));
+	float4 cColor = gtxtUITexture.Sample(gssBorder, input.uv);
+	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r), 4) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r), 4) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r), 4) * darkness),cColor.a);
+	return(cColor);
 
 }
 
@@ -283,7 +282,7 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 	}
 
 	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection);
-	cColor = cColor * (1.05 -(RenderInfor[3][int2(input.position.xy)].r));
+	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.a);
 	if (Edge)
 		return (LineColor);
 
@@ -415,7 +414,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtAlbedoTexture.Sample(gssDefaultSamplerState, input.uv);
-	cColor = float4(cColor.r*(1.05 - (RenderInfor[3][int2(input.position.xy)].r)), cColor.g * (1.05 - (RenderInfor[3][int2(input.position.xy)].r)), cColor.b * (1.05 - (RenderInfor[3][int2(input.position.xy)].r)),cColor.a);
+	cColor = float4(cColor.r*(1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness),cColor.a);
 	return(cColor);
 }
 
@@ -437,7 +436,7 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 	float4x4 mtxVertexToBoneWorld = (float4x4)0.0f;
 	for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
 	{
-		//		mtxVertexToBoneWorld += input.weights[i] * gpmtxBoneTransforms[input.indices[i]];
+		//mtxVertexToBoneWorld += input.weights[i] * gpmtxBoneTransforms[input.indices[i]];
 		mtxVertexToBoneWorld += input.weights[i] * mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
 	}
 
@@ -479,7 +478,7 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtSkyCubeTexture.Sample(gssDefaultSamplerState, input.positionL);
-	cColor = float4(0, 0, 0, 1);
+	cColor *= 1-darkness;
 	return(cColor);
 }
 

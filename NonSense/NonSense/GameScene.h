@@ -18,6 +18,7 @@ struct CB_SCREEN_INFO
 	XMFLOAT4 LineColor;
 	UINT LineSize;
 	UINT ToonShading;
+	float darkness=0;
 };
 
 struct LIGHT
@@ -72,6 +73,7 @@ public:
 public:
 	static GameScene* MainScene;
 	Player* m_pPlayer = NULL;
+	bool dark = false;
 protected:
 	Object* CreateEmpty();
 	float elapseTime;

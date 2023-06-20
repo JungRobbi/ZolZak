@@ -247,6 +247,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	m_pMappedScreenOptions->darkness = 0;
 }
 
 void GameScene::ReleaseObjects()
@@ -486,7 +487,7 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[20].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	pd3dRootParameters[21].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[21].Constants.Num32BitValues = 4;
+	pd3dRootParameters[21].Constants.Num32BitValues = 3;
 	pd3dRootParameters[21].Descriptor.ShaderRegister = 8; //Particle
 	pd3dRootParameters[21].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[21].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -648,7 +649,6 @@ bool GameScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 	switch (nMessageID)
 	{
 	default:
-
 		break;
 	}
 	return(false);
@@ -670,6 +670,10 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 		case VK_SPACE:
 
 			break;
+		case 'z':
+		case 'Z':
+			(dark) ? (dark = false) : (dark = true);
+			break;
 		default:
 			break;
 		}
@@ -690,6 +694,7 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 void GameScene::AnimateObjects(float fTimeElapsed)
 {
 	elapseTime = fTimeElapsed;
+
 	for (auto& object : gameObjects)
 	{
 
@@ -706,6 +711,16 @@ void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Came
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
 	UpdateShaderVariables(pd3dCommandList);
+	std::cout << dark;
+	if (dark && m_pMappedScreenOptions->darkness <= 1)
+	{
+		std::cout << "¾îµÏ";
+		m_pMappedScreenOptions->darkness += 0.01;
+	}
+	else if (!dark && m_pMappedScreenOptions->darkness >= 0) {
+		std::cout << "¹à";
+		m_pMappedScreenOptions->darkness -= 0.01;
+	}
 }
 
 void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)

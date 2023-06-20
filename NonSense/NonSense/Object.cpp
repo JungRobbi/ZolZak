@@ -2151,8 +2151,6 @@ void FireBall::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	Object::UpdateShaderVariables(pd3dCommandList);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 3, &Direction, 0);
-	float time = Timer::GetTotalTime();
-	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 1, &time, 3);
 }
 
 

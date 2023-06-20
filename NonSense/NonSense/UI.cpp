@@ -1,7 +1,6 @@
 #include "UI.h"
 #include "Shader.h"
 #include "GameScene.h"
-#include "BillboardComponent.h"
 #include "GameFramework.h"
 
 UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(false)
@@ -136,8 +135,6 @@ Monster_HP_UI::Monster_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	PlaneMesh* Plane = new PlaneMesh(pd3dDevice, pd3dCommandList, 0.5,0.05);
 
 	SetMesh(Plane);
-	AddComponent<BillboardComponent>();
-
 	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/HP.dds", RESOURCE_TEXTURE2D, 0);
 
