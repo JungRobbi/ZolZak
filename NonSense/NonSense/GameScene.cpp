@@ -205,6 +205,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
 
+	Aim* aim = new Aim(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Game_Option_UI* m_Game_Option_Dec_UI = new Game_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Graphic_Option_UI* m_Graphic_Option_Dec_UI = new Graphic_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Sound_Option_UI* m_Sound_Option_Dec_UI = new Sound_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
@@ -248,6 +249,8 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_pMappedScreenOptions->darkness = 0;
+
+
 }
 
 void GameScene::ReleaseObjects()
@@ -711,14 +714,11 @@ void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Came
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
 	UpdateShaderVariables(pd3dCommandList);
-	std::cout << dark;
 	if (dark && m_pMappedScreenOptions->darkness <= 1)
 	{
-		std::cout << "¾îµÏ";
 		m_pMappedScreenOptions->darkness += 0.01;
 	}
 	else if (!dark && m_pMappedScreenOptions->darkness >= 0) {
-		std::cout << "¹à";
 		m_pMappedScreenOptions->darkness -= 0.01;
 	}
 }

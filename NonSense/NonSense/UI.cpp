@@ -225,7 +225,6 @@ void Option_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 
 Game_Option_UI::Game_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :Option_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
 {
-	GameScene::MainScene->creationUIQueue.push(this);
 	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/GameOption.dds", RESOURCE_TEXTURE2D, 0);
 
@@ -244,7 +243,6 @@ Game_Option_UI::Game_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 Graphic_Option_UI::Graphic_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :Option_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
 {
-	GameScene::MainScene->creationUIQueue.push(this);
 	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/GraphicOption.dds", RESOURCE_TEXTURE2D, 0);
 
@@ -263,7 +261,6 @@ Graphic_Option_UI::Graphic_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 Sound_Option_UI::Sound_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :Option_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
 {
-	GameScene::MainScene->creationUIQueue.push(this);
 	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/SoundOption.dds", RESOURCE_TEXTURE2D, 0);
 
@@ -340,4 +337,23 @@ Login_UI::Login_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 void Login_UI::OnClick()
 {
 	GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
+}
+
+Aim::Aim(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Aim.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+	CanClick = false;
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.48, 0.47, 0.04, 0.05);
 }

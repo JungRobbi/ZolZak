@@ -25,6 +25,13 @@ private:
 	UI* ParentUI = NULL;
 };
 
+class Aim : public UI
+{
+public:
+	Aim(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Aim() {};
+};
+
 class Monster_HP_UI : public UI
 {
 public:
