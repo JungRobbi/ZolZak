@@ -1,5 +1,6 @@
 #pragma once
 #include "Object.h"
+#include <atomic>
 #include "../AnimationType.h"
 
 enum MonsterType
@@ -21,8 +22,8 @@ protected:
 	XMFLOAT3 m_xmf3Velocity = XMFLOAT3(0,0,0);
 
 public:
-	E_MONSTER_ANIMATION_TYPE OldAniType = E_MONSTER_ANIMATION_TYPE::E_M_IDLE;
-	E_MONSTER_ANIMATION_TYPE PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_IDLE;
+	std::atomic<int> OldAniType{ E_MONSTER_ANIMATION_TYPE::E_M_IDLE };
+	std::atomic<int> PresentAniType{ E_MONSTER_ANIMATION_TYPE::E_M_IDLE };
 
 public:
 	int num;
@@ -34,7 +35,7 @@ public:
 	float GetDefense() { return m_Defense; }
 	float GetAttack() { return m_Attack; }
 	float GetRemainHP() { return m_RemainHP; }
-	E_MONSTER_ANIMATION_TYPE GetAniType() { return PresentAniType; }
+	int GetAniType() { return PresentAniType.load(); }
 
 	void SetHealth(float f) { m_Health = f; }
 	void SetDefense(float f) { m_Defense = f; }

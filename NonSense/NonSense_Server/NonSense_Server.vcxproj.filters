@@ -34,6 +34,9 @@
     <Filter Include="소스 파일\FSM">
       <UniqueIdentifier>{39ef14fe-13f2-468c-b064-b119172eecb3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\DBMGR">
+      <UniqueIdentifier>{d13e6bb5-480a-4e65-9b03-a2812ddc7c50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -86,6 +89,9 @@
     </ClCompile>
     <ClCompile Include="Characters.cpp">
       <Filter>소스 파일\GameFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Server_Term_Project\Server\DBMGR.cpp">
+      <Filter>소스 파일\DBMGR</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +157,9 @@
     </ClInclude>
     <ClInclude Include="..\AnimationType.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Server_Term_Project\Server\DBMGR.h">
+      <Filter>소스 파일\DBMGR</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

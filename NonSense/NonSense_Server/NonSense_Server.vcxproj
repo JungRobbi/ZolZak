@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\Server_Term_Project\Server\DBMGR.cpp" />
     <ClCompile Include="Characters.cpp" />
     <ClCompile Include="CloseTypeState.cpp" />
     <ClCompile Include="Components\AttackComponent.cpp" />
@@ -152,6 +153,7 @@
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\Server_Term_Project\Server\DBMGR.h" />
     <ClInclude Include="..\AnimationType.h" />
     <ClInclude Include="Characters.h" />
     <ClInclude Include="CloseTypeState.h" />
