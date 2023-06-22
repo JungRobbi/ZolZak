@@ -4,7 +4,7 @@
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 
-constexpr int NAME_SIZE = 20;
+constexpr int NAME_SIZE = 15;
 constexpr int CHAT_SIZE = 300;
 
 constexpr int MAX_BUFSIZE_CLIENT = 1024;
@@ -29,8 +29,9 @@ enum E_PACKET
 
 	E_PACKET_SC_TEMP_WANDER_MONSTER_PACKET,
 
-	E_PACKET_SC_CHAT_PACKET
-
+	E_PACKET_SC_CHAT_PACKET,
+	E_PACKET_SC_LOGIN_OK_PACKET,
+	E_PACKET_SC_LOGIN_FAIL_PACKET
 };
 
 #pragma pack (push, 1)
@@ -110,6 +111,20 @@ public:
 class SC_LOGIN_INFO_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	id;
+	char	name[NAME_SIZE];
+	int 	maxHp;
+	float	remainHp;
+	float	x;
+	float	z;
+	int	clearStage;
+};
+
+class SC_LOGIN_OK_PACKET : public PACKET_HEAD {
+public:
+};
+
+class SC_LOGIN_FAIL_PACKET : public PACKET_HEAD {
+public:
 };
 
 class SC_ADD_PLAYER_PACKET : public PACKET_HEAD {

@@ -20,6 +20,8 @@
 #include "Scene.h"
 #include "Terrain.h"
 
+#include "DBMGR.h"
+
 #include "Components/PlayerMovementComponent.h"
 #include "Components/CloseTypeFSMComponent.h"
 #include "Components/SphereCollideComponent.h"
@@ -98,6 +100,7 @@ void Process_Timer_Event_for_NPC(Character* p_NPC, IO_TYPE type);
 
 void Worker_Thread()
 {
+	shared_ptr<DBMGR> p_dbmgr{ make_shared<DBMGR>() };
 	try
 	{
 		while (!stopWorking) {
