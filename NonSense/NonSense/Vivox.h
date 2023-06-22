@@ -15,11 +15,28 @@ private:
 	VX_HANDLE m_ConnectorHandle = NULL;
 	VX_HANDLE m_AccountHandle = NULL;
 	VX_HANDLE m_SessionHandle = NULL;
+
+	char* UserName = "Korus";
+	char* AcctName = NULL;
+	char* UserURI = NULL;
 public:
 
 
 public:
-	VivoxSystem() {}
+	VivoxSystem() {
+		
+		std::string str;
+		str.append("."); 
+		str.append(UserName);
+		str.append(".");
+		AcctName = new char[str.length()+1];
+		strcpy(AcctName ,str.c_str());
+		MakeUserURI(UserName);
+
+		std::cout << UserName << std::endl;
+		std::cout << AcctName << std::endl;
+		std::cout << UserURI << std::endl;
+	}
 	~VivoxSystem() {}
 
 	void Initialize();
@@ -37,4 +54,6 @@ public:
 
 	int RequestIssue(vx_req_base_t* request);
 
+
+	void MakeUserURI(char* UserName);
 };

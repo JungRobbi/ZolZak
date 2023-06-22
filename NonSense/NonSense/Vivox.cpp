@@ -157,26 +157,26 @@ void VivoxSystem::Connect()
 
 	vx_req_account_anonymous_login_create(&req); 
 	req->connector_handle = m_ConnectorHandle;
-	req->acct_name = vx_strdup(".Korus.");
-	req->displayname = vx_strdup("Korus");
+	req->acct_name = vx_strdup(AcctName);
+	req->displayname = vx_strdup(UserName);
 	//req->account_handle = vx_strdup("sip:.jeawoo0732-no23-dev.Korus.@mt1s.vivox.com");
 	req->access_token = vx_debug_generate_token("jeawoo0732-no23-dev",(vx_time_t)-1,"login", SerialNum++,NULL,
-											"sip:.jeawoo0732-no23-dev.Korus.@mt1s.vivox.com",nullptr, (const unsigned char*)key, strlen(key));
+												UserURI,nullptr, (const unsigned char*)key, strlen(key));
 	int vx_issue_request3_response = RequestIssue(&req->base);
-
 }
 
 void VivoxSystem::Disconnect()
 {
 	vx_req_account_logout* req;
 	vx_req_account_logout_create(&req);
-	req->account_handle = vx_strdup(".jeawoo0732-no23-dev.Korus.");
+	
+	req->account_handle = m_AccountHandle;
 	int vx_issue_request3_response = RequestIssue(&req->base);
 }
 
 void VivoxSystem::JoinChannel(const char* Channel)
 {
-	char* uri = vx_get_echo_channel_uri(Channel, "mt1s.vivox.com", "jeawoo0732-no23-dev");
+	char* uri = vx_get_general_channel_uri(Channel, "mt1s.vivox.com", "jeawoo0732-no23-dev");
 	std::cout << uri << std::endl;
 	//uri = vx_get_random_channel_uri_ex("confctl-e-", "mt1s.vivox.com", "jeawoo0732-no23-dev");
 	vx_req_sessiongroup_add_session* req;
@@ -187,8 +187,8 @@ void VivoxSystem::JoinChannel(const char* Channel)
 	req->account_handle = m_AccountHandle;
 	req->connect_audio = 1;
 	req->connect_text = 1;
-	req->access_token = vx_debug_generate_token("jeawoo0732-no23-dev", (vx_time_t)-1, "join", SerialNum++, NULL, "sip:.Korus.@mt1s.vivox.com", 
-													"sip:confctl-e-issuer.mychannel@mt1s.vivox.com", (const unsigned char*)key, strlen(key));
+	req->access_token = vx_debug_generate_token("jeawoo0732-no23-dev", (vx_time_t)-1, "join", SerialNum++, NULL, UserURI, 
+												uri, (const unsigned char*)key, strlen(key));
 	int vx_issue_request3_response = RequestIssue(&req->base);
 
 
@@ -208,4 +208,15 @@ int VivoxSystem::RequestIssue(vx_req_base_t* req)
 {
 	int request_count;
 	return vx_issue_request3(req, &request_count);
+}
+
+void VivoxSystem::MakeUserURI(char* UserName)
+{
+	std::string URI;
+
+	URI.append("sip:");
+	URI.append(AcctName);
+	URI.append("@mt1s.vivox.com");
+	UserURI = new char[URI.length()+1];
+	strcpy(UserURI, URI.c_str());
 }
