@@ -452,9 +452,14 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 					char* p = ConvertWCtoC(ChatMGR::m_textbuf);
 					NetworkMGR::name = string{ p };
 					delete[] p;
-					NetworkMGR::do_connetion();
-					NetworkMGR::do_recv();
-					ChangeScene(GAME_SCENE);
+
+					if (NetworkMGR::b_isLogin) {
+						//로그인 성공
+						ChangeScene(GAME_SCENE);
+					}
+					else {
+						//로그인 실패
+					}
 				}
 				ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
 				break;
@@ -584,22 +589,7 @@ void GameFramework::SetWindowCentser(RECT rect)
 }
 void GameFramework::ChangeScene(unsigned char num)
 {
-	m_pCommandList->Reset(m_pCommandAllocator, NULL);
-
-	GameScene::MainScene = m_GameScenes.at(num);
-	GameScene::MainScene->ReleaseObjects();
-	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
-	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
-
-	if (num != LOGIN_SCENE) {
-		m_OtherPlayers.clear();
-		m_OtherPlayersPool.clear();
-		for (int i{}; i < 3; ++i) {
-			m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
-			dynamic_cast<Player*>(m_OtherPlayersPool.back())->SetCamera(dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f));
-			m_OtherPlayersPool.back()->SetUsed(true);
-		}
-
+	if (scene_type == LOGIN_SCENE) {
 		CS_LOGIN_PACKET send_packet;
 		send_packet.size = sizeof(CS_LOGIN_PACKET);
 		send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
@@ -607,21 +597,39 @@ void GameFramework::ChangeScene(unsigned char num)
 		PacketQueue::AddSendPacket(&send_packet);
 	}
 
-	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
-	if (num == GAME_SCENE) {
-		ChatMGR::SetInGame(m_nWndClientWidth, m_nWndClientHeight);
-	}
-	else if (num == LOGIN_SCENE) {
-		ChatMGR::SetLoginScene(m_nWndClientWidth, m_nWndClientHeight);
-	}
-	scene_type = (SCENE_TYPE)num;
-	m_pCamera = m_pPlayer->GetCamera();
-	GameScene::MainScene->m_pPlayer = m_pPlayer;
-	m_pCommandList->Close();
+	if (NetworkMGR::b_isLogin) {
+		if (num != LOGIN_SCENE) {
+			m_OtherPlayers.clear();
+			m_OtherPlayersPool.clear();
+			for (int i{}; i < 3; ++i) {
+				m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
+				dynamic_cast<Player*>(m_OtherPlayersPool.back())->SetCamera(dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f));
+				m_OtherPlayersPool.back()->SetUsed(true);
+			}
+		}
+		m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
-	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
-	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-	WaitForGpuComplete();
+		GameScene::MainScene = m_GameScenes.at(num);
+		GameScene::MainScene->ReleaseObjects();
+		GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
+		m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+
+		ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
+		if (num == GAME_SCENE) {
+			ChatMGR::SetInGame(m_nWndClientWidth, m_nWndClientHeight);
+		}
+		else if (num == LOGIN_SCENE) {
+			ChatMGR::SetLoginScene(m_nWndClientWidth, m_nWndClientHeight);
+		}
+		scene_type = (SCENE_TYPE)num;
+		m_pCamera = m_pPlayer->GetCamera();
+		GameScene::MainScene->m_pPlayer = m_pPlayer;
+		m_pCommandList->Close();
+
+		ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
+		m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+		WaitForGpuComplete();
+	}
 }
 
 void GameFramework::ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta)

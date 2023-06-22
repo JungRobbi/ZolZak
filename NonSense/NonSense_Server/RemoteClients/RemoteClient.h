@@ -29,8 +29,10 @@ public:
 	Input m_KeyInput;
 	shared_ptr<Player> m_pPlayer;
 
+	std::atomic<int> m_clear_stage;
 	std::atomic<bool> b_Enable;
+	std::atomic<bool> b_Login;
 
-	RemoteClient() : thread(), tcpConnection(SocketType::Tcp), m_KeyInput(), m_pPlayer(), b_Enable(true) {}
-	RemoteClient(SocketType socketType) :tcpConnection(socketType), m_KeyInput(), m_pPlayer(), b_Enable(true) {}
+	RemoteClient() : thread(), tcpConnection(SocketType::Tcp), m_KeyInput(), m_pPlayer(), b_Enable(true), b_Login(false){}
+	RemoteClient(SocketType socketType) :tcpConnection(socketType), m_KeyInput(), m_pPlayer(), b_Enable(true), b_Login(false) {}
 };

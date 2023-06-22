@@ -62,25 +62,19 @@ DBMGR::~DBMGR()
 
 void DBMGR::connect()
 {
-    // Allocate environment handle  
     retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
 
-    // Set the ODBC version environment attribute  
     if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
         retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
 
-        // Allocate connection handle  
         if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
             retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
 
-            // Set login timeout to 5 seconds  
             if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
                 SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
 
-                // Connect to data source  
-                retcode = SQLConnect(hdbc, (SQLWCHAR*)L"mssql", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
+                retcode = SQLConnect(hdbc, DSN_NAME, SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
 
-                // Allocate statement handle  
                 if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
                     show_error(hstmt, SQL_HANDLE_STMT, retcode);
             }
@@ -95,62 +89,12 @@ void DBMGR::disconnect()
     SQLFreeHandle(SQL_HANDLE_ENV, henv);
 }
 
-void DBMGR::Get_SELECT_ALL()
-{
-    SQLLEN cbName{}, cb_password{}, cb_level{};
-    SQLLEN cbx{}, cby{}, cbhp{};
-    SQLLEN cbexp{}, cbstate{};
-
-    wchar_t wstr[100] = L"EXEC [dbo].[Select_All]";
-
-    retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
-    retcode = SQLExecDirect(hstmt, (SQLWCHAR*)wstr, SQL_NTS);
-
-    if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-
-        // Bind columns 1, 2, and 3  
-        retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, szName, NAME_LEN, &cbName);
-        retcode = SQLBindCol(hstmt, 2, SQL_C_WCHAR, player_password, NAME_LEN, &cb_password);
-        retcode = SQLBindCol(hstmt, 3, SQL_C_LONG, &player_x, 10, &cbx);
-        retcode = SQLBindCol(hstmt, 4, SQL_C_LONG, &player_y, 10, &cby);
-        retcode = SQLBindCol(hstmt, 5, SQL_C_LONG, &player_hp, 10, &cbhp);
-        retcode = SQLBindCol(hstmt, 6, SQL_C_LONG, &player_level, 10, &cb_level);
-        retcode = SQLBindCol(hstmt, 7, SQL_C_LONG, &player_exp, 10, &cbexp);
-        retcode = SQLBindCol(hstmt, 8, SQL_C_LONG, &player_state, 10, &cbstate);
-
-        // Fetch and print each row of data. On an error, display a message and exit.  
-        for (int i = 0; ; i++) {
-            retcode = SQLFetch(hstmt);
-            if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
-                show_error(hstmt, SQL_HANDLE_STMT, retcode);
-            if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
-            {
-                //replace wprintf with printf
-                //%S with %ls
-                //warning C4477: 'wprintf' : format string '%S' requires an argument of type 'char *'
-                //but variadic argument 2 has type 'SQLWCHAR *'
-                //wprintf(L"%d: %S %S %S\n", i + 1, sCustID, szName, szPhone);  
-                printf("%d: name: %ls password: %ls x: %d y: %d hp: %d level: %d exp: %d state: %d\n",
-                    i + 1, szName, player_password, player_x, player_y, player_hp, player_level, player_exp, player_state);
-            }
-            else
-                break;
-        }
-
-        SQLCancel(hstmt);
-        SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
-    }
-    else  if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
-        show_error(hstmt, SQL_HANDLE_STMT, retcode);
-}
-
 bool DBMGR::Get_SELECT_PLAYER(const wchar_t* id)
 {
-    wchar_t wstr[100] = L"EXEC [dbo].[Select_player] ";
+    wchar_t wstr[100] = L"EXEC [dbo].[Select_Player] ";
     wcscat(wstr, id);
-    SQLLEN cbName{}, cb_password{}, cb_level{};
-    SQLLEN cbx{}, cby{}, cbhp{};
-    SQLLEN cbexp{}, cbstate{};
+    SQLLEN c_Name{};
+    SQLLEN temp{};
 
     bool result{ false };
 
@@ -159,17 +103,14 @@ bool DBMGR::Get_SELECT_PLAYER(const wchar_t* id)
 
     if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 
-        // Bind columns 1, 2, and 3  
-        retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, szName, NAME_LEN, &cbName);
-        retcode = SQLBindCol(hstmt, 2, SQL_C_WCHAR, player_password, NAME_LEN, &cb_password);
-        retcode = SQLBindCol(hstmt, 3, SQL_C_LONG, &player_x, 10, &cbx);
-        retcode = SQLBindCol(hstmt, 4, SQL_C_LONG, &player_y, 10, &cby);
-        retcode = SQLBindCol(hstmt, 5, SQL_C_LONG, &player_hp, 10, &cbhp);
-        retcode = SQLBindCol(hstmt, 6, SQL_C_LONG, &player_level, 10, &cb_level);
-        retcode = SQLBindCol(hstmt, 7, SQL_C_LONG, &player_exp, 10, &cbexp);
-        retcode = SQLBindCol(hstmt, 8, SQL_C_LONG, &player_state, 10, &cbstate);
+        retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, szName, NAME_LEN, &c_Name);
+        retcode = SQLBindCol(hstmt, 2, SQL_C_LONG, &player_Maxhp, 10, &temp);
+        retcode = SQLBindCol(hstmt, 3, SQL_C_LONG, &player_hp, 10, &temp);
+        retcode = SQLBindCol(hstmt, 4, SQL_C_LONG, &player_x, 10, &temp);
+        retcode = SQLBindCol(hstmt, 5, SQL_C_LONG, &player_z, 10, &temp);
+        retcode = SQLBindCol(hstmt, 6, SQL_C_LONG, &player_clear_stage, 10, &temp);
 
-        // Fetch and print each row of data. On an error, display a message and exit.  
+
         retcode = SQLFetch(hstmt);
         if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
             show_error(hstmt, SQL_HANDLE_STMT, retcode);
@@ -177,13 +118,6 @@ bool DBMGR::Get_SELECT_PLAYER(const wchar_t* id)
         }
         if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
         {
-            //replace wprintf with printf
-            //%S with %ls
-            //warning C4477: 'wprintf' : format string '%S' requires an argument of type 'char *'
-            //but variadic argument 2 has type 'SQLWCHAR *'
-            //wprintf(L"%d: %S %S %S\n", i + 1, sCustID, szName, szPhone);  
-            //printf("name: %ls password: %ls x: %d y: %d hp: %d level: %d exp: %d state: %d\n",
-            //   szName, player_password, player_x, player_y, player_hp, player_level, player_exp, player_state);
             result = true;
         }
        
@@ -198,9 +132,9 @@ bool DBMGR::Get_SELECT_PLAYER(const wchar_t* id)
     return result;
 }
 
-void DBMGR::Set_INSERT_ID(const wchar_t* id, const wchar_t* password)
+void DBMGR::Set_INSERT_ID(const wchar_t* id)
 {    
-    std::wstring wstr{ L"EXEC [dbo].[Insert_player] " };
+    std::wstring wstr{ L"EXEC [dbo].[Insert_Player] " };
     wchar_t buf[20];
 
     wstr += id;
@@ -239,9 +173,9 @@ void DBMGR::Set_INSERT_ID(const wchar_t* id, const wchar_t* password)
         show_error(hstmt, SQL_HANDLE_STMT, retcode);
 }
 
-void DBMGR::Set_UPDATE_PLAYER(const wchar_t* id, int x, int y, int hp, int level, int exp, int state)
+void DBMGR::Set_UPDATE_PLAYER(const wchar_t* id, int x, int z, int hp, int Maxhp, int clear)
 {
-    std::wstring wstr{ L"EXEC [dbo].[Update_player] " };
+    std::wstring wstr{ L"EXEC [dbo].[Update_Player] " };
     wchar_t buf[20];
 
     wstr += id;

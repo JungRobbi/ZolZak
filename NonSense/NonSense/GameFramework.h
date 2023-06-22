@@ -65,6 +65,7 @@ public:
 	std::vector<GameScene*> m_GameScenes;
 	std::list<Object*> m_OtherPlayersPool;
 	std::vector<Object*> m_OtherPlayers;
+	int m_ClearStage{};
 public:
 	HWND m_hWnd;
 	Camera* m_pCamera = NULL;

@@ -1,6 +1,7 @@
 #include "../ImaysNet/ImaysNet.h"
 
 #include <algorithm>
+#include <iostream>
 
 #include "NetworkMGR.h"
 #include "GameScene.h"
@@ -21,6 +22,7 @@ shared_ptr<Socket> NetworkMGR::tcpSocket;
 unsigned int	NetworkMGR::id{};
 string			NetworkMGR::name{};
 bool			NetworkMGR::b_isNet{true};
+bool			NetworkMGR::b_isLogin{false};
 
 void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED recv_over, DWORD recv_flag)
 {
@@ -78,6 +80,7 @@ void NetworkMGR::start()
 
 	if (isnet == 'n') {
 		b_isNet = false;
+		b_isLogin = true;
 		return;
 	}
 	
@@ -95,11 +98,9 @@ void NetworkMGR::start()
 	//SERVERIP[server_s.size()] = '\0';
 	//strcpy(SERVERIP, server_s.c_str());
 
-
-
-
 	tcpSocket->Bind(Endpoint::Any);
-
+	NetworkMGR::do_connetion();
+	NetworkMGR::do_recv();
 }
 
 void NetworkMGR::Tick()
@@ -152,6 +153,10 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	case E_PACKET::E_PACKET_SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* recv_packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(p_Packet);
 		NetworkMGR::id = recv_packet->id;
+		GameFramework::MainGameFramework->m_pPlayer->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
+		GameFramework::MainGameFramework->m_pPlayer->SetHealth(recv_packet->maxHp);
+		GameFramework::MainGameFramework->m_pPlayer->SetRemainHP(recv_packet->remainHp);
+		GameFramework::MainGameFramework->m_ClearStage = recv_packet->clearStage;
 		break;
 	}
 	case E_PACKET::E_PACKET_SC_ADD_PLAYER: {
@@ -434,6 +439,16 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		auto p = ConverCtoWC(recv_packet->chat);
 		ChatMGR::StoreText(p);
 		delete p;
+		break;
+	}
+	case E_PACKET_SC_LOGIN_FAIL_PACKET: {
+		b_isLogin = false;
+		std::cout << "로그인 실패!" << std::endl;
+		break;
+	}
+	case E_PACKET_SC_LOGIN_OK_PACKET: {
+		b_isLogin = true;
+		std::cout << "로그인 성공!" << std::endl;
 		break;
 	}
 	default:

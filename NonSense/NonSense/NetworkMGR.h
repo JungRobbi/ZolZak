@@ -27,6 +27,7 @@ public:
 	static string name;
 
 	static bool b_isNet;
+	static bool b_isLogin;
 public:
 	static void start();
 	static void Tick();

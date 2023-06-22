@@ -94,8 +94,8 @@ shared_ptr<RemoteClient> remoteClientCandidate;
 void CloseServer();
 void ProcessAccept();
 
-void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet);
-void Process_Timer_Event(void* p_Client, IO_TYPE type);
+void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_ptr<DBMGR>& p_dbMGR);
+void Process_Timer_Event(void* p_Client, IO_TYPE type); 
 void Process_Timer_Event_for_NPC(Character* p_NPC, IO_TYPE type);
 
 void Worker_Thread()
@@ -177,7 +177,7 @@ void Worker_Thread()
 										break;
 
 									//패킷 처리
-									Process_Packet(remoteClient, recv_buf);
+									Process_Packet(remoteClient, recv_buf, p_dbmgr);
 
 									//다음 패킷 이동, 남은 데이터 갱신
 									recv_buf += packet_size;
@@ -280,7 +280,7 @@ int main(int argc, char* argv[])
 
 		vector<shared_ptr<RemoteClient>> present_clients;
 		for (auto& rc : RemoteClient::remoteClients) {
-			if (!rc.second->b_Enable.load())
+			if (!rc.second->b_Enable.load() || !rc.second->b_Login.load())
 				continue;
 
 			// Animation Packet
@@ -442,14 +442,6 @@ void ProcessAccept()
 	{
 		shared_ptr<RemoteClient> remoteClient = remoteClientCandidate;
 
-		{
-			remoteClient->m_pPlayer = make_shared<Player>();
-			remoteClient->m_pPlayer->start();
-			remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
-			remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(-16.0f, Scene::terrain->GetHeight(-16.0f, 103.0f), 103.0f));
-			remoteClient->m_pPlayer->SetPosition(XMFLOAT3(-16.0f, Scene::terrain->GetHeight(-16.0f, 103.0f), 103.0f));
-			remoteClient->m_pPlayer->remoteClient = remoteClient.get();
-		}
 		// 새 TCP 소켓도 IOCP에 추가한다.
 		iocp.Add(remoteClient->tcpConnection, remoteClient.get());
 
@@ -490,13 +482,69 @@ void ProcessAccept()
 }
 
 
-void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
+void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_ptr<DBMGR>& p_dbMGR)
 {
 	switch (p_Packet[1]) // 패킷 타입
 	{
 	case E_PACKET::E_PACKET_CS_LOGIN: {
 		CS_LOGIN_PACKET* recv_packet = reinterpret_cast<CS_LOGIN_PACKET*>(p_Packet);
 		memcpy(p_Client->name,recv_packet->name,sizeof(recv_packet->name));
+
+		//DB에 데이터가 있는지 확인하고 아이디 생성 혹은 불러오기
+		wchar_t* wname = ChartoWChar(recv_packet->name);
+		if (!p_dbMGR->Get_SELECT_PLAYER(wname)) { // LOGIN_FAIL - 없는 ID
+			// 새 ID 생성
+			p_dbMGR->Set_INSERT_ID(wname);
+
+			SC_LOGIN_FAIL_PACKET send_packet;
+			send_packet.size = sizeof(SC_LOGIN_FAIL_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_LOGIN_FAIL_PACKET;
+			p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			delete[] wname;
+			break;
+		}
+		else {
+			bool login = false;
+			for (auto& p : RemoteClient::remoteClients) {
+				if ((!strcmp(p.second->name, recv_packet->name)) && p.second->b_Enable) {
+					login = true;
+				}
+			}
+			if (login) { // LOGIN_FAIL - 이미 접속한 ID
+				SC_LOGIN_FAIL_PACKET send_packet;
+				send_packet.size = sizeof(SC_LOGIN_FAIL_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_LOGIN_FAIL_PACKET;
+				p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				delete[] wname;
+				break;
+			}
+			else {	// LOGIN_OK
+				p_Client->m_pPlayer = make_shared<Player>();
+				p_Client->m_pPlayer->start();
+				p_Client->m_pPlayer->remoteClient = p_Client.get();
+				bool expected = false;
+				p_Client->b_Login.compare_exchange_strong(expected, true);
+				p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
+
+				memcpy(p_Client->name, recv_packet->name, sizeof(recv_packet->name));
+
+				p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()
+					->SetPosition(XMFLOAT3{ (float)p_dbMGR->player_x, Scene::terrain->GetHeight((float)p_dbMGR->player_x, (float)p_dbMGR->player_z) ,(float)p_dbMGR->player_z });
+				p_Client->m_pPlayer->SetPosition(XMFLOAT3{ (float)p_dbMGR->player_x, Scene::terrain->GetHeight((float)p_dbMGR->player_x, (float)p_dbMGR->player_z) ,(float)p_dbMGR->player_z });
+				
+				p_Client->m_pPlayer->SetHealth((int)p_dbMGR->player_Maxhp);
+				p_Client->m_pPlayer->SetRemainHP((int)p_dbMGR->player_hp);
+				p_Client->m_clear_stage = (int)p_dbMGR->player_clear_stage;
+				{
+					SC_LOGIN_OK_PACKET send_packet;
+					send_packet.size = sizeof(SC_LOGIN_OK_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_LOGIN_OK_PACKET;
+					p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				}
+				delete[] wname;
+			}
+		}
+
 
 		//id 부여
 		p_Client->m_id = N_CLIENT_ID++;
@@ -506,6 +554,12 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 			send_packet.size = sizeof(SC_LOGIN_INFO_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_LOGIN_INFO;
 			send_packet.id = p_Client->m_id;
+			send_packet.maxHp = p_Client->m_pPlayer->GetHealth();
+			send_packet.remainHp = p_Client->m_pPlayer->GetRemainHP();
+			send_packet.x = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
+			send_packet.y = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
+			send_packet.z = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
+			send_packet.clearStage = p_Client->m_clear_stage;
 			p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 

@@ -115,6 +115,7 @@ public:
 	int 	maxHp;
 	float	remainHp;
 	float	x;
+	float	y;
 	float	z;
 	int	clearStage;
 };
