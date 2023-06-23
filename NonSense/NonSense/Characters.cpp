@@ -25,15 +25,6 @@ WeaponObject::WeaponObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	GetComponent<RotateComponent>()->SetRotationSpeed(360.0f);
 	GetComponent<RotateComponent>()->SetRotationAxis(XMFLOAT3(1.0f, 0.0f, 0.0f));
 
-	BoundingShader* m_pBoundingShader = new BoundingShader();
-	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
-	BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
-	bs->SetNum(5);
-	AddComponent<SphereCollideComponent>();
-	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
-	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, 0.0), 0.1);
-
 }
 
 WeaponObject::~WeaponObject()
@@ -88,7 +79,7 @@ Monster::Monster(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 void Monster::OnPrepareRender()
 {
 	Object::OnPrepareRender();
-	m_pHP->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, GetComponent<BoxCollideComponent>()->GetBoundingObject()->Extents.y * 2 + 0.3, 0)));
+	m_pHP->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, GetComponent<SphereCollideComponent>()->GetBoundingObject()->Radius * 2 + 0.3, 0)));
 	m_pHP->HP = m_RemainHP / m_Health;
 }
 void Monster::FarTypeAttack()
@@ -106,25 +97,28 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	Object* Hand = NULL;
 	m_pBoundingShader = new BoundingShader();
 	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	m_pBoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+
+	CubeMesh* m_pBoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+	BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
 	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pBoundMesh, m_pBoundingShader);
-	BoundBox* bb2 = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pBoundMesh, m_pBoundingShader);
+
 	switch (type)
 	{
 	case MONSTER_TYPE_CLOSE:
+
 		AddComponent<CloseTypeFSMComponent>();
-		bb2->SetNum(5);
+		bb->SetNum(5);
 		AddComponent<AttackComponent>();
 		GetComponent<AttackComponent>()->SetAttackSpeed(3.0f);
 		GetComponent<AttackComponent>()->AttackCombo1_AnineSetNum = 4;
 		GetComponent<AttackComponent>()->Type_ComboAttack = false;
-		GetComponent<AttackComponent>()->SetBoundingObject(bb2);
+		GetComponent<AttackComponent>()->SetBoundingObject(bb);
 
-		bb->SetNum(2);
-		AddComponent<BoxCollideComponent>();
-		GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
-		GetComponent<BoxCollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(0.3, 0.5, 0.3));
-		GetComponent<BoxCollideComponent>()->SetMoveAble(true);
+		bs->SetNum(2);
+		AddComponent<SphereCollideComponent>();
+		GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+		GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.5);
 
 		if (pWeaponL && pWeaponR) {
 			Hand = FindFrame("Weapon_Goblin_2_R_Dummy");
@@ -145,16 +139,14 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		break;
 	case MONSTER_TYPE_FAR:
 		AddComponent<FarTypeFSMComponent>();
-		bb2->SetNum(5);
+		bb->SetNum(5);
 		AddComponent<MonsterAttackComponent>();
 		GetComponent<MonsterAttackComponent>()->SetAttackSpeed(3.0f);
-		GetComponent<MonsterAttackComponent>()->SetBoundingObject(bb2);
 
-		bb->SetNum(2);
-		AddComponent<BoxCollideComponent>();
-		GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
-		GetComponent<BoxCollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(0.3, 0.5, 0.3));
-		GetComponent<BoxCollideComponent>()->SetMoveAble(true);
+		bs->SetNum(2);
+		AddComponent<SphereCollideComponent>();
+		GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+		GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.5);
 
 		if (pWeaponL && pWeaponR) {
 			Hand = FindFrame("Weapon_Goblin_3_R_Dummy");
@@ -164,6 +156,14 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 				LoadedModelInfo* WeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Goblin_Far_Weapon_R.bin", NULL);
 				WeaponFrame = new WeaponObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, WeaponModel);
 				WeaponFrame->SetScale(0.1f, 0.1f, 0.1f);
+				BoundingShader* m_pBoundingShader = new BoundingShader();
+				m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+				SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+				BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
+				bs->SetNum(5);
+				WeaponFrame->AddComponent<SphereCollideComponent>();
+				WeaponFrame->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+				WeaponFrame->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, 0.0), 0.1);
 			}
 			Hand = FindFrame("Weapon_Goblin_3_L_Dummy");
 			if (Hand) {
@@ -177,17 +177,15 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		break;
 	case MONSTER_TYPE_RUSH:
 		AddComponent<RushTypeFSMComponent>();
-		bb2->SetNum(5);
 		AddComponent<MonsterAttackComponent>();
 		GetComponent<MonsterAttackComponent>()->SetAttackSpeed(5.0f);
-		GetComponent<MonsterAttackComponent>()->SetBoundingObject(bb2);
 		GetComponent<MonsterAttackComponent>()->AttackAnimationNumber = 3;
 
-		bb->SetNum(2);
-		AddComponent<BoxCollideComponent>();
-		GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
-		GetComponent<BoxCollideComponent>()->SetCenterExtents(XMFLOAT3(0.0, 0.5, 0.0), XMFLOAT3(0.3, 0.5, 0.3));
-		GetComponent<BoxCollideComponent>()->SetMoveAble(true);
+		bs->SetNum(2);
+		AddComponent<SphereCollideComponent>();
+		GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+		GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.5);
+
 		m_Health = 1130;
 		m_RemainHP = 1130;
 		m_Attack = 460;

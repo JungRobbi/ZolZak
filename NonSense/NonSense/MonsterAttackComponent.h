@@ -12,7 +12,7 @@ public:
     bool WeaponFire = false;
     bool Rushing = false;
     XMFLOAT3 Direction = { 0.0f,0.0f,0.0f };
-    BoundBox* AttackRange = NULL;
+
     int AttackAnimationNumber = 4;
     float AttackDuration = 3.0f;
     float AttackTimeLeft = 0.0;
@@ -27,6 +27,6 @@ public:
     void TargetOn();
     void start();
     void update();
-    void SetBoundingObject(BoundBox* bd) { AttackRange = bd; }
+
 };
 
