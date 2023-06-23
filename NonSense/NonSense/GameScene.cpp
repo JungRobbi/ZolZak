@@ -675,7 +675,7 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 			break;
 		case 'z':
 		case 'Z':
-			(dark) ? (dark = false) : (dark = true);
+			m_pPlayer->Sight_DeBuff(2);
 			break;
 		default:
 			break;
@@ -714,11 +714,11 @@ void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Came
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
 	UpdateShaderVariables(pd3dCommandList);
-	if (dark && m_pMappedScreenOptions->darkness <= 1)
+	if (m_pPlayer->dark && m_pMappedScreenOptions->darkness <= 1)
 	{
 		m_pMappedScreenOptions->darkness += 0.01;
 	}
-	else if (!dark && m_pMappedScreenOptions->darkness >= 0) {
+	else if (!m_pPlayer->dark && m_pMappedScreenOptions->darkness >= 0) {
 		m_pMappedScreenOptions->darkness -= 0.01;
 	}
 }

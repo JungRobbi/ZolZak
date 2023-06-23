@@ -73,7 +73,7 @@ public:
 public:
 	static GameScene* MainScene;
 	Player* m_pPlayer = NULL;
-	bool dark = false;
+
 protected:
 	Object* CreateEmpty();
 	float elapseTime;

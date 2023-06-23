@@ -355,5 +355,5 @@ Aim::Aim(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, I
 	SetMaterial(pUIMaterial);
 	CanClick = false;
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.48, 0.47, 0.04, 0.05);
+	SetMyPos(0.485, 0.47, 0.035, 0.05);
 }

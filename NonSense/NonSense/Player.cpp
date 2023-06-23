@@ -88,6 +88,10 @@ void Player::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 		if (m_pCamera) m_pCamera->Move(xmf3Shift);
 	}
 }
+void Player::Sight_DeBuff(float sec)
+{
+	last_DeBuff = Timer::GetTotalTime() + sec;
+}
 void Player::Rotate(float x, float y, float z)
 {
 	if (NetworkMGR::b_isNet) {
@@ -182,6 +186,13 @@ void Player::Rotate(float x, float y, float z)
 }
 void Player::Update(float fTimeElapsed)
 {
+	if (last_DeBuff >= Timer::GetTotalTime())
+	{
+		dark = true;
+	}
+	else {
+		dark = false;
+	}
 	if (!NetworkMGR::b_isNet) {
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity, fTimeElapsed, false));
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
@@ -197,7 +208,7 @@ void Player::Update(float fTimeElapsed)
 		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 		//GetComponent<SphereCollideComponent>()->Center.x += xmf3Velocity.x;
 		//GetComponent<SphereCollideComponent>()->Center.y += xmf3Velocity.y;
-		//GetComponent<SphereCollideComponent>()->Center.z += xmf3Velocity.z;
+		//GetComponent<SphereCollideComponent>()->Center.z += xmf3Velocity.z;S
 		//GetComponent<SphereCollideComponent>()->update();
 		//bool bound = false;
 
