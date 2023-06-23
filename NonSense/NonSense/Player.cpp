@@ -88,6 +88,10 @@ void Player::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 		if (m_pCamera) m_pCamera->Move(xmf3Shift);
 	}
 }
+void Player::Sight_DeBuff(float sec)
+{
+	last_DeBuff = Timer::GetTotalTime() + sec;
+}
 void Player::Rotate(float x, float y, float z)
 {
 	if (NetworkMGR::b_isNet) {
@@ -182,6 +186,13 @@ void Player::Rotate(float x, float y, float z)
 }
 void Player::Update(float fTimeElapsed)
 {
+	if (last_DeBuff >= Timer::GetTotalTime())
+	{
+		dark = true;
+	}
+	else {
+		dark = false;
+	}
 	if (!NetworkMGR::b_isNet) {
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity, fTimeElapsed, false));
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
@@ -195,28 +206,28 @@ void Player::Update(float fTimeElapsed)
 		fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 		if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-		GetComponent<SphereCollideComponent>()->Center.x += xmf3Velocity.x;
-		GetComponent<SphereCollideComponent>()->Center.y += xmf3Velocity.y;
-		GetComponent<SphereCollideComponent>()->Center.z += xmf3Velocity.z;
-		GetComponent<SphereCollideComponent>()->update();
-		bool bound = false;
+		//GetComponent<SphereCollideComponent>()->Center.x += xmf3Velocity.x;
+		//GetComponent<SphereCollideComponent>()->Center.y += xmf3Velocity.y;
+		//GetComponent<SphereCollideComponent>()->Center.z += xmf3Velocity.z;S
+		//GetComponent<SphereCollideComponent>()->update();
+		//bool bound = false;
 
-		for (auto& o : GameScene::MainScene->gameObjects)
-		{
-			if (o->GetComponent<BoxCollideComponent>())
-			{
-				if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
-				{
-					bound = true;
-					Move(XMFLOAT3(-xmf3Velocity.x, 0, -xmf3Velocity.z), false);
-					break;
-				}
-			}
-		}
-		if (!bound) Move(xmf3Velocity, false);
-		GetComponent<SphereCollideComponent>()->Center.x -= xmf3Velocity.x;
-		GetComponent<SphereCollideComponent>()->Center.y -= xmf3Velocity.y;
-		GetComponent<SphereCollideComponent>()->Center.z -= xmf3Velocity.z;
+		//for (auto& o : GameScene::MainScene->gameObjects)
+		//{
+		//	if (o->GetComponent<BoxCollideComponent>())
+		//	{
+		//		if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
+		//		{
+		//			bound = true;
+		//			Move(XMFLOAT3(-xmf3Velocity.x, 0, -xmf3Velocity.z), false);
+		//			break;
+		//		}
+		//	}
+		//}
+		Move(xmf3Velocity, false);
+		//GetComponent<SphereCollideComponent>()->Center.x -= xmf3Velocity.x;
+		//GetComponent<SphereCollideComponent>()->Center.y -= xmf3Velocity.y;
+		//GetComponent<SphereCollideComponent>()->Center.z -= xmf3Velocity.z;
 
 		fLength = Vector3::Length(m_xmf3Velocity);
 		float fDeceleration = (m_fFriction * fTimeElapsed);
@@ -241,7 +252,7 @@ void Player::OnPlayerUpdateCallback(float fTimeElapsed)
 	XMFLOAT3 xmf3PlayerPosition = GetPosition();
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
 
-	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x+400.0f, xmf3PlayerPosition.z+400.0f);
+	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x + 400.0f, xmf3PlayerPosition.z + 400.0f);
 	if (xmf3PlayerPosition.y < fHeight)
 	{
 		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
@@ -342,7 +353,7 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
-//	if (nCameraMode == THIRD_PERSON_CAMERA)
+	//	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
 		if (m_pMaterial) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
 		Object::Render(pd3dCommandList, pCamera);
@@ -354,9 +365,23 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 
 MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
+	Magical = true;
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)pContext;
 	SetPlayerUpdatedContext(pTerrain);
 	SetCameraUpdatedContext(pTerrain);
+
+	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	fireball = new FireBall(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	if (NetworkMGR::id != id) {
+		printf("다른 ID");
+		m_pUI->SetMyPos(0, 0, 1, 1);
+	}
+
+	m_pHP_UI->SetParentUI(m_pUI);
+	m_pHP_Dec_UI->SetParentUI(m_pUI);
 
 	m_pBoundingShader = new BoundingShader();
 	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -368,12 +393,13 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
 	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
 
-	CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
-	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
-	bb->SetNum(3);
+	//CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+	//BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
+	//bb->SetNum(3);
+	//GetComponent<AttackComponent>()->SetBoundingObject(bb);
 	AddComponent<PlayerMovementComponent>();
 	AddComponent<AttackComponent>();
-	GetComponent<AttackComponent>()->SetBoundingObject(bb);
+	GetComponent<AttackComponent>()->SetAttackDuration(2.2);
 
 	{
 		XMFLOAT3 pos;
@@ -397,10 +423,14 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		if (pWeaponModel) {
 			Object* Hand = FindFrame("Sword_parentR"); // 무기를 붙여줄 팔 찾기
 			if (Hand) {
+				CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 0.1f, 0.1f, 0.1f);
+				BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
+				bb->SetNum(3);
 				Hand->SetChild(pWeaponModel->m_pRoot, true);
 				pWeaponObject = new Object(false);
 				pWeaponObject->SetChild(pWeaponModel->m_pRoot, true);
 				pWeaponObject->SetPosition(0, 5, 0);
+				bb->SetPosition(pWeaponObject->FindFirstMesh()->GetBoundingBox().Center.x, pWeaponObject->FindFirstMesh()->GetBoundingBox().Center.y + pWeaponObject->FindFirstMesh()->GetBoundingBox().Extents.y,pWeaponObject->FindFirstMesh()->GetBoundingBox().Extents.z);
 			}
 		}
 
@@ -422,7 +452,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[11]->m_nType = ANIMATION_TYPE_ONCE;
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[12]->m_nType = ANIMATION_TYPE_ONCE;
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[13]->m_nType = ANIMATION_TYPE_ONCE;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[14]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[14]->m_nType = ANIMATION_TYPE_ONCE; 
 
 	}
 }
@@ -442,7 +472,7 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0, 0.7f, 0.25));
-		m_pCamera->GenerateProjectionMatrix(0.01f, 100.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->GenerateProjectionMatrix(0.1f, 1000.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;

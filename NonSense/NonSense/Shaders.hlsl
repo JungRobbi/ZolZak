@@ -1,3 +1,6 @@
+
+#define MAX_VERTEX_INFLUENCES			4
+#define SKINNED_ANIMATION_BONES			256
 ////////////////////////////////////////////////////////////////////////////
 struct MATERIAL
 {
@@ -6,7 +9,6 @@ struct MATERIAL
 	float4					m_cSpecular; //a = power
 	float4					m_cEmissive;
 };
-
 
 cbuffer cbWorldInfo : register(b0)
 {
@@ -17,10 +19,11 @@ cbuffer cbWorldInfo : register(b0)
 cbuffer cbCameraInfo : register(b1)
 {
 	matrix gmtxView : packoffset(c0);
-	matrix gmtxProjection : packoffset(c4);
-	matrix gmtxInverseProjection : packoffset(c8);
-	float3 gf3CameraPosition : packoffset(c12);
-	float3 gf3CameraDirection : packoffset(c13);
+	matrix gmtxInverseView : packoffset(c4);
+	matrix gmtxProjection : packoffset(c8);
+	matrix gmtxInverseProjection : packoffset(c12);
+	float3 gf3CameraPosition : packoffset(c16);
+	float3 gf3CameraDirection : packoffset(c17);
 };
 
 cbuffer cbGameObjectInfo : register(b2)
@@ -33,13 +36,35 @@ cbuffer cbMaterial : register(b3)
 {
 	MATERIAL gMaterial : packoffset(c0);
 	uint gnTexturesMask : packoffset(c4);
-}
+};
 
 cbuffer cbDrawOptions : register(b5)
 {
 	float4 LineColor : packoffset(c0);
 	uint LineSize : packoffset(c1.x);
 	uint ToonShading : packoffset(c1.y);
+	float darkness : packoffset(c1.z);
+};
+
+cbuffer cbBoneOffsets : register(b6)
+{
+	float4x4 gpmtxBoneOffsets[SKINNED_ANIMATION_BONES];
+};
+
+cbuffer cbBoneTransforms : register(b7)
+{
+	float4x4 gpmtxBoneTransforms[SKINNED_ANIMATION_BONES];
+};
+
+
+cbuffer cbParticleInfo : register(b8)
+{
+	float4 Direction : packoffset(c0);
+};
+
+cbuffer cbFrameworkInfo : register(b9)
+{
+	float gfCurrentTime : packoffset(c0.x);
 };
 
 Texture2DArray gtxtTextureArray : register(t0);
@@ -47,15 +72,96 @@ Texture2D RenderInfor[4] : register(t1); //Position, Normal+ObjectID, Texture, D
 SamplerState gssDefaultSamplerState : register(s0);
 
 Texture2D gtxtUITexture : register(t24);
+Texture2D gtxtParticleTexture : register(t25);
 SamplerState gssWrap : register(s0);
-SamplerState gssBorder : register(s1);
-// SkyBox
+SamplerState gssBorder : register(s1); // SkyBox
 TextureCube gtxtSkyCubeTexture : register(t13);
+
 #include "Light1.hlsl"
 
-uint gnRenderMode = 0x10;
-#define DYNAMIC_TESSELLATION		0x10
-#define DEBUG_TESSELLATION			0x20
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct VS_PARTICLE_INPUT
+{
+	float3 position : POSITION;
+	float3 velocity : VELOCITY;
+	float3 color : COLOR;
+	float emittime : EMITTIME;
+	float lifetime : LIFETIME;
+};
+
+struct VS_PARTICLE_OUTPUT
+{
+	float3 position : POSITION;
+	float size : SCALE;
+	float3 color : COLOR;
+};
+
+struct GS_PARTICLE_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float2 uv : TEXTURE;
+	float4 color : COLOR;
+};
+
+VS_PARTICLE_OUTPUT VSParticle(VS_PARTICLE_INPUT input)
+{
+	VS_PARTICLE_OUTPUT output = (VS_PARTICLE_OUTPUT)0;
+	const float c_PI = 3.141592;
+	float t = gfCurrentTime - input.lifetime;
+	float3 newPosition;
+
+	if (objectID == 0) {
+		float newT = input.lifetime * frac(t / input.lifetime);
+
+		newPosition.x = input.position.x + newT * (-Direction.x + input.velocity.x);
+		newPosition.y = input.position.y + newT * (-Direction.y + input.velocity.y);
+		newPosition.z = input.position.z + newT * (-Direction.z + input.velocity.z);
+
+		output.position = newPosition;
+		output.size = 0.02 - newT / 200;
+		output.color = input.color;
+	}
+
+	else if (objectID == 1) {
+		float newT = input.lifetime * frac(t / input.lifetime);
+
+		newPosition.x = input.position.x + newT * (input.velocity.x)*5;
+		newPosition.y = input.position.x + newT * (input.velocity.y)*5;
+		newPosition.z = input.position.x + newT * (input.velocity.z)*5;
+
+		output.position = newPosition;
+		output.size = 0.1;
+		output.color = input.color/2;
+	}
+
+	return(output);
+}
+
+static float3 gf3Positions[4] = { float3(-1.0f, +1.0f, 0.5f), float3(+1.0f, +1.0f, 0.5f), float3(-1.0f, -1.0f, 0.5f), float3(+1.0f, -1.0f, 0.5f) };
+static float2 gf2QuadUVs[4] = { float2(0.0f, 0.0f), float2(1.0f, 0.0f), float2(0.0f, 1.0f), float2(1.0f, 1.0f) };
+
+[maxvertexcount(4)]
+void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTICLE_OUTPUT> outputStream)
+{
+	GS_PARTICLE_OUTPUT output = (GS_PARTICLE_OUTPUT)0;
+	for (int i = 0; i < 4; i++)
+	{
+		float3 positionW = mul(gf3Positions[i] * input[0].size, (float3x3)gmtxInverseView) + input[0].position;
+		output.position = mul(mul(mul(float4(positionW, 1.0f), gmtxObjectWorld), gmtxView), gmtxProjection);
+		output.uv = gf2QuadUVs[i];
+		output.color.xyz = 0;
+		outputStream.Append(output);
+	}
+	outputStream.RestartStrip();
+}
+
+float4 PSParticle(GS_PARTICLE_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtParticleTexture.Sample(gssWrap, input.uv);
+	//cColor.xyz += input.color.xyz;
+	return(cColor);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
@@ -87,17 +193,19 @@ VS_BoundingOUTPUT VSBounding(VS_BoundingINPUT input)
 float4 PSBounding(VS_BoundingOUTPUT input) : SV_TARGET
 {
 	if (objectID == 0) // 맵 오브젝트
-	return(float4(1,1,1,1));
+		return(float4(0.2,0.2, 0.2,1));
 	if (objectID == 1) // 아군 플레이어
-	return(float4(0, 1, 0, 1));
+		return(float4(0, 0.2, 0, 1));
 	if (objectID == 2) // 적
-	return(float4(1, 0, 0, 1));
+		return(float4(0.2, 0, 0, 1));
 	if (objectID == 3) // 아군 공격
-		return(float4(0, 0, 1, 1));
+		return(float4(0, 0, 0.2, 1));
 	if (objectID == 4) // 맵 Sphere 오브젝트
-		return(float4(0.5, 0.5, 0.5, 1));
+		return(float4(0.07, 0.07, 0.07, 1));
 	if (objectID == 5) // 적 공격
-		return(float4(0.0, 0.0, 0.0, 1));
+		return(float4(1.2, 1.0, 0.2, 1));
+	if (objectID == 6) // Explosion
+		return(float4(0.3, 0.1, 0.0, 1));
 	else return(float4(0, 0, 0, 1));
 }
 
@@ -117,20 +225,22 @@ struct VS_BillboardOUTPUT
 VS_BillboardOUTPUT VSBillboard(VS_BillboardINPUT input, uint nVertexID : SV_VertexID)
 {
 	VS_BillboardOUTPUT output;
-	if (nVertexID == 0)		 { output.uv = float2(-(1/value-1), 0.0f); }
-	else if (nVertexID == 1) { output.uv = float2(1.0f, 0.0f); }
-	else if (nVertexID == 2) { output.uv = float2(-(1 / value - 1), 1.0f); }
-	else if (nVertexID == 3) { output.uv = float2(-(1 / value - 1), 1.0f); }
-	else if (nVertexID == 4) { output.uv = float2(1.0f, 0.0f); }
-	else if (nVertexID == 5) { output.uv = float2(1.0f, 1.0f); }
+	if (nVertexID == 0)		 { output.uv = float2(1, 0.0f); }
+	else if (nVertexID == 1) { output.uv = float2(-(1 / value - 1), 0.0f); }
+	else if (nVertexID == 2) { output.uv = float2(1, 1.0f); }
+	else if (nVertexID == 3) { output.uv = float2(1, 1.0f); }
+	else if (nVertexID == 4) { output.uv = float2(-(1 / value - 1), 0.0f); }
+	else if (nVertexID == 5) { output.uv = float2(-(1 / value - 1), 1.0f); }
 
-	output.positionW = (mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection));
+	output.positionW = (mul(mul(mul(float4(mul(input.position, (float3x3)gmtxInverseView), 1.0f), gmtxWorld), gmtxView), gmtxProjection));
 	return(output);
 }
 
 float4 PSBillboard(VS_BillboardOUTPUT input) : SV_TARGET
 {
-	return(gtxtUITexture.Sample(gssBorder, input.uv));
+	float4 cColor = gtxtUITexture.Sample(gssBorder, input.uv);
+	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r), 4) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r), 4) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r), 4) * darkness),cColor.a);
+	return(cColor);
 
 }
 
@@ -168,10 +278,11 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 	float fObjectID = RenderInfor[1][int2(input.position.xy)].a;
 	for (int i = 0; i < LineSize; i++)
 	{
-			if (fObjectID != RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
+		if (fObjectID != RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
 	}
 
 	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection);
+	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.a);
 	if (Edge)
 		return (LineColor);
 
@@ -303,23 +414,9 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtAlbedoTexture.Sample(gssDefaultSamplerState, input.uv);
-
+	cColor = float4(cColor.r*(1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness),cColor.a);
 	return(cColor);
 }
-
-#define MAX_VERTEX_INFLUENCES			4
-#define SKINNED_ANIMATION_BONES			256
-
-
-cbuffer cbBoneOffsets : register(b7)
-{
-	float4x4 gpmtxBoneOffsets[SKINNED_ANIMATION_BONES];
-};
-
-cbuffer cbBoneTransforms : register(b8)
-{
-	float4x4 gpmtxBoneTransforms[SKINNED_ANIMATION_BONES];
-};
 
 struct VS_SKINNED_STANDARD_INPUT
 {
@@ -339,7 +436,7 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 	float4x4 mtxVertexToBoneWorld = (float4x4)0.0f;
 	for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
 	{
-		//		mtxVertexToBoneWorld += input.weights[i] * gpmtxBoneTransforms[input.indices[i]];
+		//mtxVertexToBoneWorld += input.weights[i] * gpmtxBoneTransforms[input.indices[i]];
 		mtxVertexToBoneWorld += input.weights[i] * mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
 	}
 
@@ -381,7 +478,7 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtSkyCubeTexture.Sample(gssDefaultSamplerState, input.positionL);
-
+	cColor *= 1-darkness;
 	return(cColor);
 }
 
@@ -497,381 +594,4 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 
 	output.Texture = cColor;
 	return output;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
-//struct VS_TESSTERRAIN_OUTPUT
-//{
-//	float3 position : POSITION;
-//	float3 positionW : POSITION1;
-//	float4 color : COLOR;
-//	float2 uv0 : TEXCOORD0;
-//	float2 uv1 : TEXCOORD1;
-//	float3 normal : NORMAL;
-//};
-//
-//
-//VS_TESSTERRAIN_OUTPUT VSTessTerrain(VS_TERRAIN_INPUT input)
-//{
-//	VS_TESSTERRAIN_OUTPUT output;
-//
-//	output.position = input.position;
-//	output.positionW = mul(float4(input.position, 1.0f), gmtxObjectWorld).xyz;
-//	output.color = input.color;
-//	output.uv0 = input.uv0;
-//	output.uv1 = input.uv1;
-//	output.normal = input.normal;
-//
-//	return(output);
-//}
-//
-//struct HS_CONSTANT
-//{
-//	float fTessEdges[4] : SV_TessFactor;
-//	float fTessInsides[2] : SV_InsideTessFactor;
-//};
-//
-//struct HS_TERRAIN_OUTPUT
-//{
-//	float3 position : POSITION; 
-//	float3 positionW : POSITION1;
-//	float4 color : COLOR;
-//	float2 uv0 : TEXCOORD0;
-//	float2 uv1 : TEXCOORD1;
-//	float3 normal : NORMAL;
-//};
-//
-//struct DS_TERRAIN_OUTPUT
-//{
-//	float4 position : SV_POSITION;
-//	float3 positionW : POSITION;
-//	float4 color : COLOR;
-//	float2 uv0 : TEXCOORD0;
-//	float2 uv1 : TEXCOORD1;
-//	float3 normal : NORMAL;
-//	float4 tessellation : TEXCOORD2;
-//};
-//
-//[domain("quad")]
-//[partitioning("integer")]
-//[outputtopology("triangle_cw")]
-//[outputcontrolpoints(25)]
-//[patchconstantfunc("HSTerrainConstant")]
-//[maxtessfactor(64.0f)]
-//HS_TERRAIN_OUTPUT HSTerrain(InputPatch<VS_TESSTERRAIN_OUTPUT, 25> input, uint i : SV_OutputControlPointID)
-//{
-//	HS_TERRAIN_OUTPUT output;
-//
-//	output.position = input[i].position;
-//	output.positionW = input[i].positionW;
-//	output.color = input[i].color;
-//	output.uv0 = input[i].uv0;
-//	output.uv1 = input[i].uv1;
-//	output.normal = input[i].normal;
-//
-//	return(output);
-//}
-//
-//
-float CalculateTessFactor(float3 f3Position)
-{
-	float fDistToCamera = distance(f3Position, gf3CameraPosition);
-	float s = saturate((fDistToCamera - 10.0f) / (300.0f - 10.0f));
-
-	return(lerp(64.0f, 1.0f, s));
-}
-//
-//HS_CONSTANT HSTerrainConstant(InputPatch<VS_TESSTERRAIN_OUTPUT, 25> input)
-//{
-//	HS_CONSTANT output;
-//
-//	float3 e0 = 0.5f * (input[0].positionW + input[4].positionW);
-//	float3 e1 = 0.5f * (input[0].positionW + input[20].positionW);
-//	float3 e2 = 0.5f * (input[4].positionW + input[24].positionW);
-//	float3 e3 = 0.5f * (input[20].positionW + input[24].positionW);
-//
-//	output.fTessEdges[0] = CalculateTessFactor(e0);
-//	output.fTessEdges[1] = CalculateTessFactor(e1);
-//	output.fTessEdges[2] = CalculateTessFactor(e2);
-//	output.fTessEdges[3] = CalculateTessFactor(e3);
-//
-//	float3 f3Sum = float3(0.0f, 0.0f, 0.0f);
-//	for (int i = 0; i < 25; i++)
-//	{
-//		f3Sum += input[i].positionW;
-//	}
-//	float3 f3Center = f3Sum / 25.0f;
-//	output.fTessInsides[0] = output.fTessInsides[1] = CalculateTessFactor(f3Center);
-//
-//	return(output);
-//}
-//
-//void BernsteinCoeffcient5x5(float t, out float fBernstein[5])
-//{
-//	float tInv = 1.0f - t;
-//	fBernstein[0] = tInv * tInv * tInv * tInv;
-//	fBernstein[1] = 4.0f * t * tInv * tInv * tInv;
-//	fBernstein[2] = 6.0f * t * t * tInv * tInv;
-//	fBernstein[3] = 4.0f * t * t * t * tInv;
-//	fBernstein[4] = t * t * t * t;
-//}
-//float3 CubicBezierSum5x5(OutputPatch<HS_TERRAIN_OUTPUT, 25> patch, float uB[5], float vB[5])
-//{
-//	float3 f3Sum = float3(0.0f, 0.0f, 0.0f);
-//	f3Sum = vB[0] * (uB[0] * patch[0].position + uB[1] * patch[1].position + uB[2] * patch[2].position + uB[3] * patch[3].position + uB[4] * patch[4].position);
-//	f3Sum += vB[1] * (uB[0] * patch[5].position + uB[1] * patch[6].position + uB[2] * patch[7].position + uB[3] * patch[8].position + uB[4] * patch[9].position);
-//	f3Sum += vB[2] * (uB[0] * patch[10].position + uB[1] * patch[11].position + uB[2] * patch[12].position + uB[3] * patch[13].position + uB[4] * patch[14].position);
-//	f3Sum += vB[3] * (uB[0] * patch[15].position + uB[1] * patch[16].position + uB[2] * patch[17].position + uB[3] * patch[18].position + uB[4] * patch[19].position);
-//	f3Sum += vB[4] * (uB[0] * patch[20].position + uB[1] * patch[21].position + uB[2] * patch[22].position + uB[3] * patch[23].position + uB[4] * patch[24].position);
-//
-//	return(f3Sum);
-//}
-//
-//[domain("quad")]
-//DS_TERRAIN_OUTPUT DSTerrain(HS_CONSTANT patchConstant, float2 uv : SV_DomainLocation, OutputPatch<HS_TERRAIN_OUTPUT, 25> patch)
-//{
-//	DS_TERRAIN_OUTPUT output = (DS_TERRAIN_OUTPUT)0;
-//
-//	float uB[5], vB[5];
-//	BernsteinCoeffcient5x5(uv.x, uB);
-//	BernsteinCoeffcient5x5(uv.y, vB);
-//
-//	output.color = lerp(lerp(patch[0].color, patch[4].color, uv.x), lerp(patch[20].color, patch[24].color, uv.x), uv.y);
-//	output.uv0 = lerp(lerp(patch[0].uv0, patch[4].uv0, uv.x), lerp(patch[20].uv0, patch[24].uv0, uv.x), uv.y);
-//	output.uv1 = lerp(lerp(patch[0].uv1, patch[4].uv1, uv.x), lerp(patch[20].uv1, patch[24].uv1, uv.x), uv.y);
-//
-//	float3 position = CubicBezierSum5x5(patch, uB, vB);
-//	matrix mtxWorldViewProjection = mul(mul(gmtxWorld, gmtxView), gmtxProjection);
-//	output.position = mul(float4(position, 1.0f), mtxWorldViewProjection);
-//
-//	output.tessellation = float4(patchConstant.fTessEdges[0], patchConstant.fTessEdges[1], patchConstant.fTessEdges[2], patchConstant.fTessEdges[3]);
-//
-//	return(output);
-//}
-//
-//
-//PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTessTerrain(DS_TERRAIN_OUTPUT input) : SV_TARGET
-//{
-//	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
-//	output.Scene = float4(0, 1, 0, 1);
-//	output.Position = float4(input.positionW,1.0f);
-//	output.Normal = float4(input.normal,0.0f);
-//
-//	float4 SplatMap0 = SplatMap_0.Sample(gssWrap, input.uv0);
-//	float4 SplatMap1 = SplatMap_1.Sample(gssWrap, input.uv0);
-//	float4 Dirt = TFF_Terrain_Dirt_1A_D.Sample(gssWrap, input.uv1);
-//	float4 Dirt_Road = TFF_Terrain_Dirt_Road_1A_D.Sample(gssWrap, input.uv1);
-//	float4 Earth_1 = TFF_Terrain_Earth_1A_D.Sample(gssWrap, input.uv1);
-//	float4 Earth_2 = TFF_Terrain_Earth_2A_D.Sample(gssWrap, input.uv1);
-//	float4 Earth_3 = TFF_Terrain_Earth_3A_D.Sample(gssWrap, input.uv1);
-//	float4 Grass_1 = TFF_Terrain_Grass_1A_D.Sample(gssWrap, input.uv1);
-//	float4 Grass_2 = TFF_Terrain_Grass_2A_D.Sample(gssWrap, input.uv1);
-//	float4 Sand = TFF_Terrain_Sand_1A_D.Sample(gssWrap, input.uv1);
-//
-//	float4 cColor = float4(0,0,0,0);
-//
-//	cColor += Grass_1 * SplatMap0.r;
-//	cColor += Grass_2 * SplatMap0.g;
-//	cColor += Earth_1 * SplatMap0.b;
-//	cColor += Earth_2 * SplatMap0.a;
-//
-//	cColor += Earth_3 * SplatMap1.r;
-//	cColor += Dirt * SplatMap1.g;
-//	cColor += Sand * SplatMap1.b;
-//	cColor += Dirt_Road * SplatMap1.a;
-//	output.Texture = cColor;
-//	return output;
-//}
-
-
-
-struct VS_TERRAIN_TESSELLATION_OUTPUT
-{
-	float3 position : POSITION;
-	float3 positionW : POSITION1;
-	float4 color : COLOR;
-	float2 uv0 : TEXCOORD0;
-	float2 uv1 : TEXCOORD1;
-};
-
-VS_TERRAIN_TESSELLATION_OUTPUT VSTerrainTessellation(VS_TERRAIN_INPUT input)
-{
-	VS_TERRAIN_TESSELLATION_OUTPUT output;
-
-	output.position = input.position;
-	output.positionW = mul(float4(input.position, 1.0f), gmtxWorld).xyz;
-	output.color = input.color;
-	output.uv0 = input.uv0;
-	output.uv1 = input.uv1;
-
-	return(output);
-}
-
-struct HS_TERRAIN_TESSELLATION_CONSTANT
-{
-	float fTessEdges[4] : SV_TessFactor;
-	float fTessInsides[2] : SV_InsideTessFactor;
-};
-
-struct HS_TERRAIN_TESSELLATION_OUTPUT
-{
-	float3 position : POSITION;
-	float4 color : COLOR;
-	float2 uv0 : TEXCOORD0;
-	float2 uv1 : TEXCOORD1;
-};
-
-struct DS_TERRAIN_TESSELLATION_OUTPUT
-{
-	float4 position : SV_POSITION;
-	float4 color : COLOR;
-	float2 uv0 : TEXCOORD0;
-	float2 uv1 : TEXCOORD1;
-	float4 tessellation : TEXCOORD2;
-};
-
-[domain("quad")]
-//[partitioning("fractional_even")]
-[partitioning("integer")]
-[outputtopology("triangle_cw")]
-[outputcontrolpoints(25)]
-[patchconstantfunc("HSTerrainTessellationConstant")]
-[maxtessfactor(64.0f)]
-HS_TERRAIN_TESSELLATION_OUTPUT HSTerrainTessellation(InputPatch<VS_TERRAIN_TESSELLATION_OUTPUT, 25> input, uint i : SV_OutputControlPointID)
-{
-	HS_TERRAIN_TESSELLATION_OUTPUT output;
-
-	output.position = input[i].position;
-	output.color = input[i].color;
-	output.uv0 = input[i].uv0;
-	output.uv1 = input[i].uv1;
-
-	return(output);
-}
-
-
-HS_TERRAIN_TESSELLATION_CONSTANT HSTerrainTessellationConstant(InputPatch<VS_TERRAIN_TESSELLATION_OUTPUT, 25> input)
-{
-	HS_TERRAIN_TESSELLATION_CONSTANT output;
-
-	if (gnRenderMode & DYNAMIC_TESSELLATION)
-	{
-		float3 e0 = 0.5f * (input[0].positionW + input[4].positionW);
-		float3 e1 = 0.5f * (input[0].positionW + input[20].positionW);
-		float3 e2 = 0.5f * (input[4].positionW + input[24].positionW);
-		float3 e3 = 0.5f * (input[20].positionW + input[24].positionW);
-
-		output.fTessEdges[0] = CalculateTessFactor(e0);
-		output.fTessEdges[1] = CalculateTessFactor(e1);
-		output.fTessEdges[2] = CalculateTessFactor(e2);
-		output.fTessEdges[3] = CalculateTessFactor(e3);
-
-		float3 f3Sum = float3(0.0f, 0.0f, 0.0f);
-		for (int i = 0; i < 25; i++) f3Sum += input[i].positionW;
-		float3 f3Center = f3Sum / 25.0f;
-		output.fTessInsides[0] = output.fTessInsides[1] = CalculateTessFactor(f3Center);
-	}
-	else
-	{
-		output.fTessEdges[0] = 20.0f;
-		output.fTessEdges[1] = 20.0f;
-		output.fTessEdges[2] = 20.0f;
-		output.fTessEdges[3] = 20.0f;
-
-		output.fTessInsides[0] = 20.0f;
-		output.fTessInsides[1] = 20.0f;
-	}
-
-	return(output);
-}
-
-void BernsteinCoeffcient5x5(float t, out float fBernstein[5])
-{
-	float tInv = 1.0f - t;
-	fBernstein[0] = tInv * tInv * tInv * tInv;
-	fBernstein[1] = 4.0f * t * tInv * tInv * tInv;
-	fBernstein[2] = 6.0f * t * t * tInv * tInv;
-	fBernstein[3] = 4.0f * t * t * t * tInv;
-	fBernstein[4] = t * t * t * t;
-}
-
-float3 CubicBezierSum5x5(OutputPatch<HS_TERRAIN_TESSELLATION_OUTPUT, 25> patch, float uB[5], float vB[5])
-{
-	float3 f3Sum = float3(0.0f, 0.0f, 0.0f);
-	f3Sum = vB[0] * (uB[0] * patch[0].position + uB[1] * patch[1].position + uB[2] * patch[2].position + uB[3] * patch[3].position + uB[4] * patch[4].position);
-	f3Sum += vB[1] * (uB[0] * patch[5].position + uB[1] * patch[6].position + uB[2] * patch[7].position + uB[3] * patch[8].position + uB[4] * patch[9].position);
-	f3Sum += vB[2] * (uB[0] * patch[10].position + uB[1] * patch[11].position + uB[2] * patch[12].position + uB[3] * patch[13].position + uB[4] * patch[14].position);
-	f3Sum += vB[3] * (uB[0] * patch[15].position + uB[1] * patch[16].position + uB[2] * patch[17].position + uB[3] * patch[18].position + uB[4] * patch[19].position);
-	f3Sum += vB[4] * (uB[0] * patch[20].position + uB[1] * patch[21].position + uB[2] * patch[22].position + uB[3] * patch[23].position + uB[4] * patch[24].position);
-
-	return(f3Sum);
-}
-
-[domain("quad")]
-DS_TERRAIN_TESSELLATION_OUTPUT DSTerrainTessellation(HS_TERRAIN_TESSELLATION_CONSTANT patchConstant, float2 uv : SV_DomainLocation, OutputPatch<HS_TERRAIN_TESSELLATION_OUTPUT, 25> patch)
-{
-	DS_TERRAIN_TESSELLATION_OUTPUT output = (DS_TERRAIN_TESSELLATION_OUTPUT)0;
-
-	float uB[5], vB[5];
-	BernsteinCoeffcient5x5(uv.x, uB);
-	BernsteinCoeffcient5x5(uv.y, vB);
-
-	output.color = lerp(lerp(patch[0].color, patch[4].color, uv.x), lerp(patch[20].color, patch[24].color, uv.x), uv.y);
-	output.uv0 = lerp(lerp(patch[0].uv0, patch[4].uv0, uv.x), lerp(patch[20].uv0, patch[24].uv0, uv.x), uv.y);
-	output.uv1 = lerp(lerp(patch[0].uv1, patch[4].uv1, uv.x), lerp(patch[20].uv1, patch[24].uv1, uv.x), uv.y);
-
-	float3 position = CubicBezierSum5x5(patch, uB, vB);
-	matrix mtxWorldViewProjection = mul(mul(gmtxWorld, gmtxView), gmtxProjection);
-	output.position = mul(float4(position, 1.0f), mtxWorldViewProjection);
-
-	output.tessellation = float4(patchConstant.fTessEdges[0], patchConstant.fTessEdges[1], patchConstant.fTessEdges[2], patchConstant.fTessEdges[3]);
-
-	return(output);
-}
-
-float4 PSTerrainTessellation(DS_TERRAIN_TESSELLATION_OUTPUT input) : SV_TARGET
-{
-	float4 cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-
-	if (gnRenderMode & (DEBUG_TESSELLATION | DYNAMIC_TESSELLATION))
-	{
-		if (input.tessellation.w <= 5.0f) cColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
-		else if (input.tessellation.w <= 10.0f) cColor = float4(0.0f, 1.0f, 0.0f, 1.0f);
-		else if (input.tessellation.w <= 20.0f) cColor = float4(0.0f, 0.0f, 1.0f, 1.0f);
-		else if (input.tessellation.w <= 30.0f) cColor = float4(1.0f, 0.0f, 1.0f, 1.0f);
-		else if (input.tessellation.w <= 40.0f) cColor = float4(1.0f, 1.0f, 0.0f, 1.0f);
-		else if (input.tessellation.w <= 50.0f) cColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
-		else if (input.tessellation.w <= 55.0f) cColor = float4(0.2f, 0.2f, 0.72f, 1.0f);
-		else if (input.tessellation.w <= 60.0f) cColor = float4(0.5f, 0.75f, 0.75f, 1.0f);
-		else cColor = float4(0.87f, 0.17f, 1.0f, 1.0f);
-	}
-	else
-	{
-		float4 SplatMap0 = SplatMap_0.Sample(gssWrap, input.uv0);
-		float4 SplatMap1 = SplatMap_1.Sample(gssWrap, input.uv0);
-		float4 Dirt = TFF_Terrain_Dirt_1A_D.Sample(gssWrap, input.uv1);
-		float4 Dirt_Road = TFF_Terrain_Dirt_Road_1A_D.Sample(gssWrap, input.uv1);
-		float4 Earth_1 = TFF_Terrain_Earth_1A_D.Sample(gssWrap, input.uv1);
-		float4 Earth_2 = TFF_Terrain_Earth_2A_D.Sample(gssWrap, input.uv1);
-		float4 Earth_3 = TFF_Terrain_Earth_3A_D.Sample(gssWrap, input.uv1);
-		float4 Grass_1 = TFF_Terrain_Grass_1A_D.Sample(gssWrap, input.uv1);
-		float4 Grass_2 = TFF_Terrain_Grass_2A_D.Sample(gssWrap, input.uv1);
-		float4 Sand = TFF_Terrain_Sand_1A_D.Sample(gssWrap, input.uv1);
-
-		float4 cColor = float4(0, 0, 0, 0);
-
-		cColor += Grass_1 * SplatMap0.r;
-		cColor += Grass_2 * SplatMap0.g;
-		cColor += Earth_1 * SplatMap0.b;
-		cColor += Earth_2 * SplatMap0.a;
-
-		cColor += Earth_3 * SplatMap1.r;
-		cColor += Dirt * SplatMap1.g;
-		cColor += Sand * SplatMap1.b;
-		cColor += Dirt_Road * SplatMap1.a;
-
-	}
-
-	return(cColor);
 }

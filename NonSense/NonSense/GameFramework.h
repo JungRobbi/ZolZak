@@ -67,8 +67,8 @@ public:
 	static GameFramework* MainGameFramework;
 public:
 	std::vector<GameScene*> m_GameScenes;
-	std::list<Object*> m_OtherPlayersPool;
-	std::vector<Object*> m_OtherPlayers;
+	std::list<Player*> m_OtherPlayersPool;
+	std::vector<Player*> m_OtherPlayers;
 public:
 	HWND m_hWnd;
 	Camera* m_pCamera = NULL;
@@ -100,7 +100,9 @@ public:
 	void ProcessInput();
 	void AnimateObjects();
 	void FrameAdvance();
+	void RenderHP();
 	void WaitForGpuComplete();
+
 
 	void ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta);
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -109,6 +111,7 @@ public:
 	void SetWindowCentser(RECT rect);
 	void ChangeScene(unsigned char num);
 
+	void SaveSceneOBB();
 	VivoxSystem* GetVivoxSystem();
 
 	friend NetworkMGR;

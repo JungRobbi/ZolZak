@@ -147,7 +147,6 @@
     <ClInclude Include="..\AnimationType.h" />
     <ClInclude Include="..\Globals.h" />
     <ClInclude Include="AttackComponent.h" />
-    <ClInclude Include="BillboardComponent.h" />
     <ClInclude Include="BoxCollideComponent.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Characters.h" />
@@ -204,7 +203,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AttackComponent.cpp" />
-    <ClCompile Include="BillboardComponent.cpp" />
     <ClCompile Include="BoxCollideComponent.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Characters.cpp" />

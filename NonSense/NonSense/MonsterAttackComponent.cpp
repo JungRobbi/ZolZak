@@ -1,4 +1,5 @@
 #include "MonsterAttackComponent.h"
+#include "GameFramework.h"
 
 void MonsterAttackComponent::FarTypeAttack()
 {
@@ -50,6 +51,11 @@ void MonsterAttackComponent::update()
 	{
 		RushTime -= Timer::GetTimeElapsed();
 		gameObject->MoveForward(6.0f * Timer::GetTimeElapsed());
+		//if (((Monster*)gameObject)->GetComponent<boxcol->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
+		//{
+		//	GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+		//	GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
+		//}
 	}
 }
 

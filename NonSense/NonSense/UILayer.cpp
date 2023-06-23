@@ -186,19 +186,52 @@ void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
     memset(m_textbuf, NULL, sizeof(m_textbuf));
     m_combtext = NULL;
 
-    pd2dBrush = m_pUILayer->CreateBrush(D2D1::ColorF(D2D1::ColorF::Aquamarine, 1.0f));
+    pd2dBrush = m_pUILayer->CreateBrush(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
     pdwTextFormat = m_pUILayer->CreateTextFormat(L"Arial", WndClientHeight / 25.0f);
   //d2dRect = D2D1::RectF((float)WndClientWidth / 3.2f, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
     d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
+    SetInGame(WndClientWidth, WndClientHeight);
+}
+
+void ChatMGR::SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTYPE type)
+{
+    if (type == E_CHAT_SORTTYPE::E_SORTTYPE_LEFT) {
+        pdwTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
+    }
+    else if (type == E_CHAT_SORTTYPE::E_SORTTYPE_MID) {
+        pdwTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); // 가운데 정렬
+    }
 }
 
 void ChatMGR::StoreText()
 {
     WCHAR temp[256];
     wcscpy_s(temp, m_textbuf);
-    m_pPrevTexts.emplace_back(temp);
-
+    m_pPrevTexts.push_back(temp);
     if (m_pPrevTexts.size() >= 10) {
         m_pPrevTexts.pop_front();
     }
+}
+
+void ChatMGR::SetLoginScene(int WndClientWidth, int WndClientHeight)
+{
+    memset(m_textbuf, NULL, sizeof(m_textbuf));
+    m_combtext = NULL;
+
+    SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_MID);
+    d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
+}
+
+void ChatMGR::SetInGame(int WndClientWidth, int WndClientHeight)
+{
+    memset(m_textbuf, NULL, sizeof(m_textbuf));
+    m_combtext = NULL;
+
+    SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_LEFT);
+    d2dRect = D2D1::RectF((float)WndClientWidth / 49.f, (float)WndClientHeight / 1.4f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
+
+    m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
+        DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+        WndClientHeight / 50.0f, L"en-us", &pdwTextFormat);
+
 }

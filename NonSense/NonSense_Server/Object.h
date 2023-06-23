@@ -92,6 +92,9 @@ public:
 
 	void SetMesh(Mesh* pMesh);
 
+	int GetNum() { return Num; }
+	void SetNum(int num) { Num = num; }
+
 	XMFLOAT4X4 m_xmf4x4World;
 
 public:
@@ -155,6 +158,7 @@ public:
 	XMFLOAT3 Center = { 0,0,0 };
 	float Radius = 1.f;           
 	BoundSphere();
+	BoundSphere(bool Push_List);
 	virtual ~BoundSphere() {};
 	virtual void Transform(_Out_ BoundSphere& Out, _In_ FXMMATRIX M);
 	virtual bool Intersects(BoundBox& box);

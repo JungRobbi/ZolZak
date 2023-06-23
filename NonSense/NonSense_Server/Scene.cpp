@@ -1,5 +1,6 @@
 #include "Scene.h"
-
+#include <iostream>
+#include <fstream>
 #include <algorithm>
 
 Scene* Scene::scene{ nullptr };
@@ -46,4 +47,27 @@ void Scene::update()
 	{
 		delete Monster;
 	}
+}
+
+void Scene::LoadSceneObb()
+{
+	std::cout << "Map Obb Loding..." << std::endl;
+	std::ifstream in{ "NonSenseMapOBB.txt" };
+
+	XMFLOAT3 center;
+	XMFLOAT3 extents;
+	XMFLOAT4 orientation;
+	
+	while (in >> center.x) {
+		in >> center.y >> center.z;
+		in >> extents.x >> extents.y >> extents.z;
+		in >> orientation.x >> orientation.y >> orientation.z >> orientation.w;
+		BoundBox* obb = new BoundBox();
+		obb->Center = center;
+		obb->Extents = extents;
+		obb->Orientation = orientation;
+		MapBoundingGameObjects.push_back(obb);
+	}
+
+	std::cout << "Map Obb Loding Complete!" << std::endl;
 }

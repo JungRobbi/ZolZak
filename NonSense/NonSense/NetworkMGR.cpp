@@ -85,14 +85,14 @@ void NetworkMGR::start()
 	// 연결
 	//
 
-	std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
+	//std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
 
-	std::cout << std::endl << "접속 할 서버주소를 입력해주세요(ex 197.xxx.xxx.xxx) : " << std::endl;
-	std::string server_s;
-	std::cin >> server_s;
-	SERVERIP = new char[server_s.size() + 1];
-	SERVERIP[server_s.size()] = '\0';
-	strcpy(SERVERIP, server_s.c_str());
+	//std::cout << std::endl << "접속 할 서버주소를 입력해주세요(ex 197.xxx.xxx.xxx) : " << std::endl;
+	//std::string server_s;
+	//std::cin >> server_s;
+	//SERVERIP = new char[server_s.size() + 1];
+	//SERVERIP[server_s.size()] = '\0';
+	//strcpy(SERVERIP, server_s.c_str());
 
 
 
@@ -238,7 +238,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET_SC_ANIMATION_TYPE_PLAYER: {
 		SC_PLAYER_ANIMATION_TYPE_PACKET* recv_packet = reinterpret_cast<SC_PLAYER_ANIMATION_TYPE_PACKET*>(p_Packet);
-		Player* player = GameFramework::MainGameFramework->m_pPlayer;
+		Player* player = nullptr;
 		if (recv_packet->id == NetworkMGR::id) {
 			player = GameFramework::MainGameFramework->m_pPlayer;
 		}
@@ -254,7 +254,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 
 			player = dynamic_cast<Player*>(*p);
 		}
-
+		
 		if ((E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype == E_PLAYER_ANIMATION_TYPE::E_JUMP) {
 			player->GetComponent<PlayerMovementComponent>()->b_Jump = true;
 		}

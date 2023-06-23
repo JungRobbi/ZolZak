@@ -1,5 +1,7 @@
 #include "../stdafx.h"
 #include "PlayerMovementComponent.h"
+#include "BoxCollideComponent.h"
+#include "SphereCollideComponent.h"
 #include "../Timer.h"
 #include "../RemoteClients/RemoteClient.h"
 #include "../Player.h"
@@ -94,6 +96,25 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	}
 	else
 	{
+		auto cc = gameObject->GetComponent<SphereCollideComponent>();
+		if (cc) {
+			BoundSphere nextBB{ false };
+			nextBB.Center = cc->GetBoundingObject()->Center;
+			nextBB.Radius = cc->GetBoundingObject()->Radius;
+
+			nextBB.Center.x += xmf3Shift.x;
+			nextBB.Center.y += xmf3Shift.y;
+			nextBB.Center.z += xmf3Shift.z;
+
+			for (auto mapObject : Scene::scene->GetMapObjects()) {
+				if (nextBB.Intersects(*(BoundBox*)mapObject)) {
+					cout << "Player의 다음 움직임에 MapObject과 충돌!" << endl;
+					xmf3Shift = XMFLOAT3(0, 0, 0);
+				}
+			}
+		}
+
+
 		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
 		gameObject->SetPosition(m_xmf3Position);
 	}
