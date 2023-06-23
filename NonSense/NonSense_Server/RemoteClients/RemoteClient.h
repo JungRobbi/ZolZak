@@ -7,6 +7,7 @@
 #include <mutex>
 #include <unordered_map>
 #include <concurrent_unordered_map.h>
+#include <atomic>
 
 #include "../Input.h"
 
