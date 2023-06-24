@@ -709,15 +709,10 @@ void GameFramework::ProcessInput()
 		RECT rect;
 		::GetWindowRect(m_hWnd, &rect);
 		SetWindowCentser(rect);
-
-		//���콺 Ŀ���� ȭ�鿡�� ���ش�(������ �ʰ� �Ѵ�).
 		::SetCursor(NULL);
-		//���� ���콺 Ŀ���� ��ġ�� �����´�.
 		::GetCursorPos(&ptCursorPos);
-		//���콺 ��ư�� ���� ���¿��� ���콺�� ������ ���� ���Ѵ�.
 		cxDelta = (float)(ptCursorPos.x - CenterOfWindow.x) / 3.0f;
 		cyDelta = (float)(ptCursorPos.y - CenterOfWindow.y) / 3.0f;
-		//���콺 Ŀ���� ��ġ�� ���콺�� �������� ��ġ�� �����Ѵ�.
 
 		::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 	}
@@ -765,7 +760,6 @@ void GameFramework::ProcessInput()
 		m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 	}
 
-	//���콺 �Ǵ� Ű �Է��� ������ �÷��̾ �̵��ϰų�(dwDirection) ȸ���Ѵ�(cxDelta �Ǵ� cyDelta).
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 	{
 		if (m_pSelectedObject)
@@ -845,7 +839,7 @@ void GameFramework::FrameAdvance()
 
 	//////////// MRT Render Target /////////////
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
-	// ������ ������Ʈ, Terrain
+	// Object , Terrain
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 
 	// �÷��̾�
@@ -868,7 +862,7 @@ void GameFramework::FrameAdvance()
 
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
 
-	// ���� ������Ʈ
+	// Blend Object
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
 	if(GameScene::MainScene->m_pSkyBox)GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
