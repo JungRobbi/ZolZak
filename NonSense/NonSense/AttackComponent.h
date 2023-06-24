@@ -36,6 +36,7 @@ public:
 	void start();
 	void update();
 	void SetAttackSpeed(float speed);
+	void SetAttackDuration(float d) { AttackDuration = d; }
 
 	void Attack();
 	void AttackAnimate();

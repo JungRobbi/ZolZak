@@ -9,8 +9,14 @@ void AttackComponent::Attack()
 {
 	AttackTimeLeft = AttackDuration + NextAttackInputTime;
 	During_Attack = true;
-
-	if (dynamic_cast<Player*>(gameObject)) {
+	if (dynamic_cast<MagePlayer*>(gameObject))	// Mage Player
+	{
+		dynamic_cast<MagePlayer*>(gameObject)->fireball->SetPosition(gameObject->GetPosition().x, gameObject->GetPosition().y+0.5, gameObject->GetPosition().z);
+		dynamic_cast<MagePlayer*>(gameObject)->fireball->Direction = dynamic_cast<Player*>(gameObject)->GetCamera()->GetLookVector();
+		dynamic_cast<MagePlayer*>(gameObject)->fireball->Active = true;
+	}
+	else if (dynamic_cast<Player*>(gameObject))	// Player
+	{
 		if (AttackRange) {
 			for (auto& monster : GameScene::MainScene->MonsterObjects)
 			{
@@ -26,11 +32,11 @@ void AttackComponent::Attack()
 					send_packet.hit_damage = dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100));
 					PacketQueue::AddSendPacket(&send_packet);
 				}
-				printf("%f -> %f = %f", dynamic_cast<Player*>(gameObject)->GetAttack(), monster->GetDefense(), dynamic_cast<Goblin*>(monster)->GetRemainHP());
 			}
 		}
 	}
-	else {
+	else // Monster
+	{	
 		if (AttackRange) {
 			if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
@@ -46,10 +52,11 @@ void AttackComponent::Attack()
 					PacketQueue::AddSendPacket(&send_packet);
 				}
 				printf("%f -> %f = %f", dynamic_cast<Goblin*>(gameObject)->GetAttack(), GameFramework::MainGameFramework->m_pPlayer->GetDefense(), GameFramework::MainGameFramework->m_pPlayer->GetRemainHP());
+			//	GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+				GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
 			}
 		}
 	}
-
 	AttackAnimate();
 }
 

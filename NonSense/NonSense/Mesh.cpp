@@ -1,6 +1,14 @@
 ﻿#include "stdafx.h"
 #include "Object.h"
 #include "Mesh.h"
+#include <random>
+
+std::random_device rd;
+std::default_random_engine dre(rd());
+std::uniform_real_distribution<float> velRand{ -0.1, 0.1 };
+std::uniform_real_distribution<float> emitRand{ -1.0, 1.0 };
+std::uniform_real_distribution<float> lifeRand{ 0.5, 2.0 };
+std::uniform_real_distribution<float> ColorRand{ 0.0, 1.0 };
 
 
 Mesh::Mesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -208,6 +216,7 @@ void IlluminatedMesh::CalculateVertexNormals(XMFLOAT3* pxmf3Normals, XMFLOAT3* p
 		else CalculateTriangleListVertexNormals(pxmf3Normals, pxmf3Positions, nVertices);
 		break;
 	case D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP:
+	case D3D_PRIMITIVE_TOPOLOGY_25_CONTROL_POINT_PATCHLIST:
 		CalculateTriangleStripVertexNormals(pxmf3Normals, pxmf3Positions, nVertices, pnIndices, nIndices);
 		break;
 	default:
@@ -804,7 +813,8 @@ HeightMapGridMesh::HeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 {
 	m_nVertices = nWidth * nLength;
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
-
+	//m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_25_CONTROL_POINT_PATCHLIST;
+	//m_nVertices = 25;
 	m_nWidth = nWidth;
 	m_nLength = nLength;
 	m_xmf3Scale = xmf3Scale;
@@ -820,6 +830,7 @@ HeightMapGridMesh::HeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	int czHeightMap = pHeightMapImage->GetHeightMapLength();
 
 	float fHeight = 0.0f, fMinHeight = +FLT_MAX, fMaxHeight = -FLT_MAX;
+	
 	for (int i = 0, z = zStart; z < (zStart + nLength); z++)
 	{
 		for (int x = xStart; x < (xStart + nWidth); x++, i++)
@@ -967,6 +978,84 @@ void HeightMapGridMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, 
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, 5, pVertexBufferViews);
 }
 
+HeightMapGridMeshTess::HeightMapGridMeshTess(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int xStart, int zStart, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color, void* pContext) : HeightMapGridMesh( pd3dDevice,  pd3dCommandList)
+{
+	m_nWidth = nWidth;
+	m_nLength = nLength;
+	m_xmf3Scale = xmf3Scale;
+
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_25_CONTROL_POINT_PATCHLIST;
+	m_nVertices = 25;
+
+	m_pxmf3Positions = new XMFLOAT3[m_nVertices];
+	m_pxmf4Colors = new XMFLOAT4[m_nVertices];
+	m_pxmf2TextureCoords0 = new XMFLOAT2[m_nVertices];
+	m_pxmf2TextureCoords1 = new XMFLOAT2[m_nVertices];
+	m_pxmf3Normals = new XMFLOAT3[m_nVertices];
+
+	HeightMapImage* pHeightMapImage = (HeightMapImage*)pContext;
+	int cxHeightMap = pHeightMapImage->GetHeightMapWidth();
+	int czHeightMap = pHeightMapImage->GetHeightMapLength();
+
+	float fHeight = 0.0f, fMinHeight = +FLT_MAX, fMaxHeight = -FLT_MAX;
+
+	int nIncrease = 9; //(Block Size == 9) ? 2, (Block Size == 13) ? 3
+	for (int i = 0, z = (zStart + nLength - 1); z >= zStart; z -= nIncrease)
+	{
+		for (int x = xStart; x < (xStart + nWidth); x += nIncrease, i++)
+		{
+			float xPosition = x * m_xmf3Scale.x, zPosition = z * m_xmf3Scale.z;
+			fHeight = pHeightMapImage->GetHeight(xPosition, zPosition);
+			m_pxmf3Positions[i] = XMFLOAT3(xPosition, fHeight, zPosition);
+			m_pxmf4Colors[i] = Vector4::Add(OnGetColor(int(x), int(z), pContext), xmf4Color);
+			m_pxmf2TextureCoords0[i] = XMFLOAT2(float(x) / float(cxHeightMap - 1), float(czHeightMap - 1 - z) / float(czHeightMap - 1));
+			m_pxmf2TextureCoords1[i] = XMFLOAT2(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f));
+			m_pxmf3Normals[i] = pHeightMapImage->GetHeightMapNormal(x, z);
+			if (fHeight < fMinHeight) fMinHeight = fHeight;
+			if (fHeight > fMaxHeight) fMaxHeight = fHeight;
+		}
+	}
+
+	m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Positions, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dPositionUploadBuffer);
+
+	m_d3dPositionBufferView.BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
+	m_d3dPositionBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dPositionBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+
+	m_pd3dColorBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf4Colors, sizeof(XMFLOAT4) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dColorUploadBuffer);
+
+	m_d3dColorBufferView.BufferLocation = m_pd3dColorBuffer->GetGPUVirtualAddress();
+	m_d3dColorBufferView.StrideInBytes = sizeof(XMFLOAT4);
+	m_d3dColorBufferView.SizeInBytes = sizeof(XMFLOAT4) * m_nVertices;
+
+	m_pd3dTextureCoord0Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords0, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord0UploadBuffer);
+
+	m_d3dTextureCoord0BufferView.BufferLocation = m_pd3dTextureCoord0Buffer->GetGPUVirtualAddress();
+	m_d3dTextureCoord0BufferView.StrideInBytes = sizeof(XMFLOAT2);
+	m_d3dTextureCoord0BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
+
+	m_pd3dTextureCoord1Buffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf2TextureCoords1, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoord1UploadBuffer);
+
+	m_d3dTextureCoord1BufferView.BufferLocation = m_pd3dTextureCoord1Buffer->GetGPUVirtualAddress();
+	m_d3dTextureCoord1BufferView.StrideInBytes = sizeof(XMFLOAT2);
+	m_d3dTextureCoord1BufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
+
+	m_pd3dNormalBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Normals, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dNormalUploadBuffer);
+
+	m_d3dNormalBufferView.BufferLocation = m_pd3dNormalBuffer->GetGPUVirtualAddress();
+	m_d3dNormalBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dNormalBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+
+
+
+}
+
+HeightMapGridMeshTess::~HeightMapGridMeshTess()
+{
+
+}
+
+
 PlaneMesh::PlaneMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight) : Mesh(pd3dDevice, pd3dCommandList)
 {
 	m_nVertices =6;
@@ -988,4 +1077,56 @@ PlaneMesh::PlaneMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 	m_d3dPositionBufferView.BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
 	m_d3dPositionBufferView.StrideInBytes = sizeof(XMFLOAT3);
 	m_d3dPositionBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+}
+
+ParticleMesh::ParticleMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT particlenum) : Mesh(pd3dDevice, pd3dCommandList)
+{
+	m_nVertices = particlenum;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+
+	XMFLOAT3* PositionData = new XMFLOAT3[m_nVertices];
+	XMFLOAT3* VelocityData = new XMFLOAT3[m_nVertices];
+	XMFLOAT3* ColorData = new XMFLOAT3[m_nVertices];
+	float* EmitTimeData = new float[m_nVertices];
+	float* LifeTimeData = new float[m_nVertices];
+	for (int i = 0; i < particlenum; ++i) {
+		PositionData[i] = XMFLOAT3(0,0,0);
+		VelocityData[i] = XMFLOAT3(velRand(dre), velRand(dre), velRand(dre));
+		EmitTimeData[i] = emitRand(dre);
+		LifeTimeData[i] = lifeRand(dre);
+		ColorData[i] = XMFLOAT3(ColorRand(dre),ColorRand(dre),ColorRand(dre));
+	}
+
+	m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, PositionData, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dPositionUploadBuffer);
+	m_d3dPositionBufferView.BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
+	m_d3dPositionBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dPositionBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+
+	m_pd3dVelBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, VelocityData, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVelUploadBuffer);
+	m_d3dVelBufferView.BufferLocation = m_pd3dVelBuffer->GetGPUVirtualAddress();
+	m_d3dVelBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dVelBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+	
+	m_pd3dColorBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, ColorData, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dColorUploadBuffer);
+	m_d3dColorBufferView.BufferLocation = m_pd3dColorBuffer->GetGPUVirtualAddress();
+	m_d3dColorBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dColorBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+
+	m_pd3dEmitBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, EmitTimeData, sizeof(float) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dEmitUploadBuffer);
+	m_d3dEmitBufferView.BufferLocation = m_pd3dEmitBuffer->GetGPUVirtualAddress();
+	m_d3dEmitBufferView.StrideInBytes = sizeof(float);
+	m_d3dEmitBufferView.SizeInBytes = sizeof(float) * m_nVertices;
+
+	m_pd3dLifeBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, LifeTimeData, sizeof(float) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dLifeUploadBuffer);
+	m_d3dLifeBufferView.BufferLocation = m_pd3dLifeBuffer->GetGPUVirtualAddress();
+	m_d3dLifeBufferView.StrideInBytes = sizeof(float);
+	m_d3dLifeBufferView.SizeInBytes = sizeof(float) * m_nVertices;
+}
+void ParticleMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
+{
+	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[5] = { m_d3dPositionBufferView, m_d3dVelBufferView, m_d3dColorBufferView, m_d3dEmitBufferView, m_d3dLifeBufferView};
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, 5, pVertexBufferViews);
+}
+ParticleMesh::~ParticleMesh()
+{
 }

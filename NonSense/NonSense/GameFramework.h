@@ -9,6 +9,7 @@
 #include "UI.h"
 #include "NetworkMGR.h"
 #include "UILayer.h"
+#include "Vivox.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
@@ -58,13 +59,16 @@ private:
 	UINT64 m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE m_FenceEventHandle;
 
+	VivoxSystem* m_pVivoxSystem;
+
+	int GameSceneState;
 
 public:
 	static GameFramework* MainGameFramework;
 public:
 	std::vector<GameScene*> m_GameScenes;
-	std::list<Object*> m_OtherPlayersPool;
-	std::vector<Object*> m_OtherPlayers;
+	std::list<Player*> m_OtherPlayersPool;
+	std::vector<Player*> m_OtherPlayers;
 public:
 	HWND m_hWnd;
 	Camera* m_pCamera = NULL;
@@ -96,7 +100,9 @@ public:
 	void ProcessInput();
 	void AnimateObjects();
 	void FrameAdvance();
+	void RenderHP();
 	void WaitForGpuComplete();
+
 
 	void ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta);
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -106,6 +112,7 @@ public:
 	void ChangeScene(unsigned char num);
 
 	void SaveSceneOBB();
+	VivoxSystem* GetVivoxSystem();
 
 	friend NetworkMGR;
 

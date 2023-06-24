@@ -38,7 +38,8 @@ GameFramework::GameFramework()
 	_tcscpy_s(m_FrameRate, _T("NonSense("));
 	
 	MainGameFramework = this;
-
+	m_pVivoxSystem = new VivoxSystem();
+	m_pVivoxSystem->Initialize();
 	Timer::Initialize();
 }
 
@@ -51,18 +52,18 @@ bool GameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
 
-	CreateDirect3DDevice();				// Device »ý¼º
-	CreateCommandQueueAndList();		// Command Å¥, ¸®½ºÆ® »ý¼º
-	CreateRtvAndDsvDescriptorHeaps();	// RTV, DSV Descriptor Heap »ý¼º
-	CreateSwapChain();					// Swap Chain »ý¼º
+	CreateDirect3DDevice();				// Device ï¿½ï¿½ï¿½ï¿½
+	CreateCommandQueueAndList();		// Command Å¥, ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
+	CreateRtvAndDsvDescriptorHeaps();	// RTV, DSV Descriptor Heap ï¿½ï¿½ï¿½ï¿½
+	CreateSwapChain();					// Swap Chain ï¿½ï¿½ï¿½ï¿½
 #ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
-	CreateRenderTargetViews();			// Render Target View »ý¼º
+	CreateRenderTargetViews();			// Render Target View ï¿½ï¿½ï¿½ï¿½
 #endif
-	CreateDepthStencilView();			// Depth Stencil View »ý¼º
+	CreateDepthStencilView();			// Depth Stencil View ï¿½ï¿½ï¿½ï¿½
 	
 	NetworkMGR::start();
-	Sound::InitFmodSystem();			// FMOD System ÃÊ±âÈ­
-	BuildObjects();						// Object »ý¼º
+	Sound::InitFmodSystem();			// FMOD System ï¿½Ê±ï¿½È­
+	BuildObjects();						// Object ï¿½ï¿½ï¿½ï¿½
 	return(true);
 }
 
@@ -88,9 +89,15 @@ void GameFramework::OnDestroy()
 	if (m_pDevice) m_pDevice->Release();
 	if (m_pFactory) m_pFactory->Release();
 
+	if (m_pVivoxSystem)
+	{
+		m_pVivoxSystem->Disconnect();
+		m_pVivoxSystem->Uninitialize();
+		delete m_pVivoxSystem;
+	}
 	m_GameScenes.clear();
 
-	Sound::ReleaseFmodSystem();		// FMOD System ÇØÁ¦
+	Sound::ReleaseFmodSystem();		// FMOD System ï¿½ï¿½ï¿½ï¿½
 #ifdef defined(_DEBUG)
 	IDXGIDebug1* pdxgiDebug = NULL;
 	DXGIGetDebugInterface1(0, __uuidof(IDXGIDebug1), (void**)&pdxgiDebug);
@@ -230,19 +237,19 @@ void GameFramework::CreateCommandQueueAndList()
 
 void GameFramework::CreateRtvAndDsvDescriptorHeaps()
 {
-	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;	// Descriptor HeapÀ» ¸¸µé¾î ÁØ´Ù.
-	::ZeroMemory(&d3dDescriptorHeapDesc, sizeof(D3D12_DESCRIPTOR_HEAP_DESC)); // ¸¸µé¾îÁØ Descriptor HeapÀ» 0À¸·Î ÃÊ±âÈ­ ½ÃÄÑÁØ´Ù.
-	// Render Target Descriptor Heap »ý¼º
-	d3dDescriptorHeapDesc.NumDescriptors = m_nSwapChainBuffers + MRT; // DescriptorÀÇ °³¼ö´Â m_nSwapChainBuffers (2°³)
-	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV; // Render Target ViewÀÇ Descriptor »ý¼º
+	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;	// Descriptor Heapï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø´ï¿½.
+	::ZeroMemory(&d3dDescriptorHeapDesc, sizeof(D3D12_DESCRIPTOR_HEAP_DESC)); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Descriptor Heapï¿½ï¿½ 0ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½ï¿½ï¿½Ø´ï¿½.
+	// Render Target Descriptor Heap ï¿½ï¿½ï¿½ï¿½
+	d3dDescriptorHeapDesc.NumDescriptors = m_nSwapChainBuffers + MRT; // Descriptorï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ m_nSwapChainBuffers (2ï¿½ï¿½)
+	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV; // Render Target Viewï¿½ï¿½ Descriptor ï¿½ï¿½ï¿½ï¿½
 	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	d3dDescriptorHeapDesc.NodeMask = 0;
-	HRESULT hResult = m_pDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_RTVDescriptorHeap); // Render Target Descriptor Heap »ý¼º
+	HRESULT hResult = m_pDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_RTVDescriptorHeap); // Render Target Descriptor Heap ï¿½ï¿½ï¿½ï¿½
 
-	// Depth/Stencil Descriptor Heap »ý¼º
-	d3dDescriptorHeapDesc.NumDescriptors = 1; // DescriptorÀÇ °³¼ö´Â 1°³
-	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV; // Depth/Stencil ViewÀÇ Descriptor »ý¼º
-	hResult = m_pDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_DSVDescriptorHeap); // Depth/Stencil Descriptor Heap »ý¼º
+	// Depth/Stencil Descriptor Heap ï¿½ï¿½ï¿½ï¿½
+	d3dDescriptorHeapDesc.NumDescriptors = 1; // Descriptorï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 1ï¿½ï¿½
+	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV; // Depth/Stencil Viewï¿½ï¿½ Descriptor ï¿½ï¿½ï¿½ï¿½
+	hResult = m_pDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_DSVDescriptorHeap); // Depth/Stencil Descriptor Heap ï¿½ï¿½ï¿½ï¿½
 }
 
 void GameFramework::CreateRenderTargetViews()
@@ -306,11 +313,12 @@ void GameFramework::BuildObjects()
 		m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
 	ChatMGR::SetTextinfos(m_nWndClientWidth, m_nWndClientHeight);
 	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Stage
+
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(LOGIN_SCENE);
+	ChangeScene(GAME_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -320,11 +328,9 @@ void GameFramework::BuildObjects()
 	m_pDebug->CreateShader(m_pDevice, GameScene::MainScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 	DXGI_FORMAT pdxgiResourceFormats[MRT - 1] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
-	//m_pDebug->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT);
 	m_pScreen->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT); //SRV to (Render Targets) + (Depth Buffer)
 	DXGI_FORMAT pdxgiDepthSrvFormats[1] = { DXGI_FORMAT_R24_UNORM_X8_TYPELESS };
 	m_pScreen->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
-	//m_pDebug->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
 	m_pCommandList->Close();
 
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
@@ -348,8 +354,8 @@ void GameFramework::ReleaseObjects()
 	if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
 	if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
 }
-void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
-	LPARAM lParam)
+
+void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	if (NetworkMGR::b_isNet) {
 		if (nMessageID == WM_RBUTTONDOWN || nMessageID == WM_LBUTTONDOWN) {
@@ -373,9 +379,9 @@ void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM 
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
-		//¸¶¿ì½º°¡ ´­·ÁÁö¸é ¸¶¿ì½º ÇÈÅ·À» ÇÏ¿© ¼±ÅÃÇÑ °ÔÀÓ °´Ã¼¸¦ Ã£´Â´Ù.
+		//ï¿½ï¿½ï¿½ì½ºï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½º ï¿½ï¿½Å·ï¿½ï¿½ ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ Ã£ï¿½Â´ï¿½.
 		m_pSelectedObject = GameScene::MainScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pCamera);
-		//¸¶¿ì½º Ä¸ÃÄ¸¦ ÇÏ°í ÇöÀç ¸¶¿ì½º À§Ä¡¸¦ °¡Á®¿Â´Ù.
+		//ï¿½ï¿½ï¿½ì½º Ä¸ï¿½Ä¸ï¿½ ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½º ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Â´ï¿½.
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
 		break;
@@ -520,7 +526,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			case VK_F9:
 				ChangeSwapChainState();
 				break;
-			case VK_F11: // ¸Ê ¹Ù¿îµù ¹Ú½º ÆÄÀÏ·Î ÀúÀå
+			case VK_F11: // ï¿½ï¿½ ï¿½Ù¿ï¿½ï¿½ ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½Ï·ï¿½ ï¿½ï¿½ï¿½ï¿½
 				SaveSceneOBB();
 				break;
 			case '2':
@@ -586,9 +592,47 @@ void GameFramework::ChangeScene(unsigned char num)
 {
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
+	GameScene::MainScene->ReleaseObjects();
+	GameScene::MainScene = m_GameScenes.at(num);
+	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
+
+	//switch (GameSceneState)
+	//{
+	//case LOGIN_SCENE:
+	//	m_pVivoxSystem->LeaveChannel("Login");
+	//	break;
+	//case LOBBY_SCENE:
+	//	m_pVivoxSystem->LeaveChannel("Lobby");
+	//	break;
+	//case GAME_SCENE:
+	//	m_pVivoxSystem->LeaveChannel("Stage");
+	//	break;
+	//default:
+	//	break;
+	//}
+	//
+	//switch (num)
+	//{
+	//case LOGIN_SCENE:
+	//	m_pVivoxSystem->JoinChannel("Login");
+	//	break;
+	//case LOBBY_SCENE:
+	//	m_pVivoxSystem->JoinChannel("Lobby");
+	//	break;
+	//case GAME_SCENE:
+	//	m_pVivoxSystem->JoinChannel("Stage");
+	//	break;
+	//default:
+	//	break;
+	//}
+
 	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->ReleaseObjects();
+	
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
+
+	GameSceneState = num;
+
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 
 	if (num != LOGIN_SCENE) {
@@ -624,9 +668,14 @@ void GameFramework::ChangeScene(unsigned char num)
 	WaitForGpuComplete();
 }
 
+VivoxSystem* GameFramework::GetVivoxSystem()
+{
+	return m_pVivoxSystem;
+}
+
 void GameFramework::ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta)
 {
-	//ÇÈÅ·À¸·Î ¼±ÅÃÇÑ °ÔÀÓ °´Ã¼°¡ ÀÖÀ¸¸é Å°º¸µå¸¦ ´©¸£°Å³ª ¸¶¿ì½º¸¦ ¿òÁ÷ÀÌ¸é °ÔÀÓ °³Ã¼¸¦ ÀÌµ¿ ¶Ç´Â È¸ÀüÇÑ´Ù.
+	//ï¿½ï¿½Å·ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å°ï¿½ï¿½ï¿½å¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½Å³ï¿½ ï¿½ï¿½ï¿½ì½ºï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½Ç´ï¿½ È¸ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (dwDirection != 0)
 	{
 		if (dwDirection & DIR_FORWARD) m_pSelectedObject->MoveForward(+1.0f);
@@ -666,14 +715,14 @@ void GameFramework::ProcessInput()
 		::GetWindowRect(m_hWnd, &rect);
 		SetWindowCentser(rect);
 
-		//¸¶¿ì½º Ä¿¼­¸¦ È­¸é¿¡¼­ ¾ø¾Ø´Ù(º¸ÀÌÁö ¾Ê°Ô ÇÑ´Ù).
+		//ï¿½ï¿½ï¿½ì½º Ä¿ï¿½ï¿½ï¿½ï¿½ È­ï¿½é¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½Ø´ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê°ï¿½ ï¿½Ñ´ï¿½).
 		::SetCursor(NULL);
-		//ÇöÀç ¸¶¿ì½º Ä¿¼­ÀÇ À§Ä¡¸¦ °¡Á®¿Â´Ù.
+		//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½º Ä¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Â´ï¿½.
 		::GetCursorPos(&ptCursorPos);
-		//¸¶¿ì½º ¹öÆ°ÀÌ ´­¸° »óÅÂ¿¡¼­ ¸¶¿ì½º°¡ ¿òÁ÷ÀÎ ¾çÀ» ±¸ÇÑ´Ù.
+		//ï¿½ï¿½ï¿½ì½º ï¿½ï¿½Æ°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½ºï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ñ´ï¿½.
 		cxDelta = (float)(ptCursorPos.x - CenterOfWindow.x) / 3.0f;
 		cyDelta = (float)(ptCursorPos.y - CenterOfWindow.y) / 3.0f;
-		//¸¶¿ì½º Ä¿¼­ÀÇ À§Ä¡¸¦ ¸¶¿ì½º°¡ ´­·ÁÁ³´ø À§Ä¡·Î ¼³Á¤ÇÑ´Ù.
+		//ï¿½ï¿½ï¿½ì½º Ä¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ì½ºï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 
 		::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 	}
@@ -711,7 +760,7 @@ void GameFramework::ProcessInput()
 				if (px >= dynamic_cast<UI*>(ui)->XYWH._41 && px <= dynamic_cast<UI*>(ui)->XYWH._41 + dynamic_cast<UI*>(ui)->XYWH._11 &&
 					py <= 1 - dynamic_cast<UI*>(ui)->XYWH._42 && py >= 1 - (dynamic_cast<UI*>(ui)->XYWH._42 + dynamic_cast<UI*>(ui)->XYWH._22))
 				{
-					if (dynamic_cast<UI*>(ui)->CanClick) printf("ASdf");
+					if (dynamic_cast<UI*>(ui)->CanClick) {}
 				}
 			}
 		}
@@ -721,7 +770,7 @@ void GameFramework::ProcessInput()
 		m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 	}
 
-	//¸¶¿ì½º ¶Ç´Â Å° ÀÔ·ÂÀÌ ÀÖÀ¸¸é ÇÃ·¹ÀÌ¾î¸¦ ÀÌµ¿ÇÏ°Å³ª(dwDirection) È¸ÀüÇÑ´Ù(cxDelta ¶Ç´Â cyDelta).
+	//ï¿½ï¿½ï¿½ì½º ï¿½Ç´ï¿½ Å° ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½Ìµï¿½ï¿½Ï°Å³ï¿½(dwDirection) È¸ï¿½ï¿½ï¿½Ñ´ï¿½(cxDelta ï¿½Ç´ï¿½ cyDelta).
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 	{
 		if (m_pSelectedObject)
@@ -773,7 +822,10 @@ void GameFramework::MoveToNextFrame()
 
 void GameFramework::FrameAdvance()
 {
+
 	Timer::Tick(0.0f);
+
+	m_pVivoxSystem->Listen();
 
 	Sound::SystemUpdate(); //FMOD System Update
 
@@ -781,15 +833,14 @@ void GameFramework::FrameAdvance()
 	if (NetworkMGR::b_isNet)
 		NetworkMGR::Tick();
 
+	HRESULT hResult = m_pCommandAllocator->Reset();
+	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 	ChatMGR::UpdateText();
-
 	ProcessInput();
 
 	AnimateObjects();
 	GameScene::MainScene->update();
 
-	HRESULT hResult = m_pCommandAllocator->Reset();
-	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
@@ -799,10 +850,10 @@ void GameFramework::FrameAdvance()
 
 	//////////// MRT Render Target /////////////
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
-	// ºÒÅõ¸í ¿ÀºêÁ§Æ®, Terrain
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®, Terrain
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 
-	// ÇÃ·¹ÀÌ¾î
+	// ï¿½Ã·ï¿½ï¿½Ì¾ï¿½
 	m_pPlayer->Update(Timer::GetTimeElapsed());
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	for (auto& p : m_OtherPlayers) {
@@ -811,25 +862,24 @@ void GameFramework::FrameAdvance()
 			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
 		}
 	}
-
 	///////////////////////////////////////////
 
 
 	////////// Back Buffer ///////////
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
 
-	// MRT °á°ú
+	// MRT ï¿½ï¿½ï¿½
 	m_pScreen->Render(m_pCommandList, m_pCamera);
 
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
 
-	// Åõ¸í ¿ÀºêÁ§Æ®
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
 	if(GameScene::MainScene->m_pSkyBox)GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
 	// Bounding Box
 	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
-	// Debug È­¸é
+	// Debug È­ï¿½ï¿½
 	
 	if (DebugMode)
 	{
@@ -839,9 +889,12 @@ void GameFramework::FrameAdvance()
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
+	RenderHP();
+	ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+
+	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
-	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
 	hResult = m_pCommandList->Close();
 
@@ -862,11 +915,32 @@ void GameFramework::FrameAdvance()
 	::SetWindowText(m_hWnd, m_FrameRate);
 }
 
+void GameFramework::RenderHP()
+{
+	if (scene_type == GAME_SCENE) {
+		for (auto& p : m_OtherPlayers)
+		{
+			p->m_pHP_Dec_UI->UpdateTransform(NULL);
+			p->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
+			p->m_pHP_UI->UpdateTransform(NULL);
+			p->m_pHP_UI->Render(m_pCommandList, m_pCamera);
+			p->m_pUI->UpdateTransform(NULL);
+			p->m_pUI->Render(m_pCommandList, m_pCamera);
+		}
+		m_pPlayer->m_pHP_Dec_UI->UpdateTransform(NULL);
+		m_pPlayer->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
+		m_pPlayer->m_pHP_UI->UpdateTransform(NULL);
+		m_pPlayer->m_pHP_UI->Render(m_pCommandList, m_pCamera);
+		m_pPlayer->m_pUI->UpdateTransform(NULL);
+		m_pPlayer->m_pUI->Render(m_pCommandList, m_pCamera);
+	}
+}
+
 void GameFramework::SaveSceneOBB()
 {
 	ofstream out{ "NonSenseMapOBB.txt" };
 	
-	cout << "¸Ê ¹Ù¿îµù ¹Ú½º ÀúÀå Áß.." << endl;
+	cout << "ï¿½ï¿½ ï¿½Ù¿ï¿½ï¿½ ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½.." << endl;
 	for (auto p : GameScene::MainScene->BoundingGameObjects) {
 		if (!dynamic_cast<BoundBox*>(p))
 			continue;
@@ -878,5 +952,6 @@ void GameFramework::SaveSceneOBB()
 		out << obb->Extents.x << " " << obb->Extents.y << " " << obb->Extents.z << " ";
 		out << obb->Orientation.x << " " << obb->Orientation.y << " " << obb->Orientation.z << " " << obb->Orientation.w << endl;
 	}
-	cout << "¸Ê ¹Ù¿îµù ¹Ú½º ÀúÀå¿Ï·á!" << endl;
+	cout << "ï¿½ï¿½ ï¿½Ù¿ï¿½ï¿½ ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï·ï¿½!" << endl;
 }
+

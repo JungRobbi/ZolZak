@@ -9,6 +9,7 @@
 #include <string>
 #include "Object.h"
 #include "Shader.h"
+#include "UI.h"
 
 class Camera;
 
@@ -29,7 +30,6 @@ protected:
 	float m_fFriction;
 
 	Camera* m_pCamera = NULL;
-	bool IsWalk = false;
 
 	XMFLOAT3 m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
@@ -39,8 +39,14 @@ protected:
 	float m_RemainHP = 1000;
 public:
 
+	bool Magical = false;
 	unsigned int id = 0;
 	std::string m_name;
+	Player_State_UI* m_pUI = NULL;
+	Player_HP_UI* m_pHP_UI = NULL;
+	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;
+	float last_DeBuff = 0;
+	bool dark = false;
 public:
 
 	LPVOID m_pPlayerUpdatedContext;
@@ -71,8 +77,7 @@ public:
 	void SetUpVector(XMFLOAT3 xmf3Up) { m_xmf3Up = xmf3Up; }
 	void SetRightVector(XMFLOAT3 xmf3Right) { m_xmf3Right = xmf3Right; }
 
-	void SetWalk(bool isWalk) { isWalk = IsWalk; }
-	bool GetWalk() { return IsWalk; }
+	void Sight_DeBuff(float sec);
 
 	float GetHealth() { return m_Health; }
 	float GetDefense() { return m_Defense; }
@@ -111,6 +116,7 @@ public:
 class MagePlayer : public Player
 {
 public:
+	FireBall* fireball;
 	Object* pWeaponObject;
 	Shader* m_pBoundingShader = NULL;
 	CubeMesh* m_pBoundMesh = NULL;

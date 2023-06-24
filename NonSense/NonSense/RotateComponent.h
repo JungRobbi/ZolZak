@@ -7,8 +7,9 @@ class RotateComponent :
 {
     XMFLOAT3 m_xmf3RotationAxis;
     float m_fRotationSpeed;
-
+    
 public:
+    bool RotateOn = true;
     ~RotateComponent() {}
     void start();
     void update();

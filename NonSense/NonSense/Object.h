@@ -334,10 +334,13 @@ public:
 	bool GetUsed() { return isuse; }
 	void SetUsed(bool b) { isuse = b; }
 
+	
 private:
 	int m_nReferences = 0;
 	int Num = 0;
 public:
+
+
 	void AddRef() { m_nReferences++; }
 	void Release() { 
 		if (--m_nReferences <= 0) 
@@ -386,6 +389,7 @@ public:
 	void ReleaseUploadBuffers();
 	virtual bool IsVisible(Camera* pCamera = NULL);
 	virtual void SetMesh(Mesh* pMesh);
+	virtual void SetMesh(int i, Mesh* pMesh);
 	virtual Mesh* GetMesh() { return m_pMesh; }
 	virtual void SetShader(Shader* pShader);
 	virtual void SetNum(int num); 
@@ -417,12 +421,13 @@ public:
 	void LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, Object* pParent, FILE* OpenedFile, Shader* pShader);
 
 	void SetChild(Object* pChild, bool bReferenceUpdate = false);
-
+	void SetDo_Render(bool render);
 
 	Object* m_pParent = NULL;
 	Object* m_pChild = NULL;
 	Object* m_pSibling = NULL;
-
+	Mesh**	m_ppMeshes;
+	int								m_nMeshes;
 	char							m_pFrameName[64];
 
 	int m_nMaterials = 0;
@@ -431,6 +436,7 @@ public:
 	XMFLOAT4X4 m_xmf4x4ToParent;
 
 	AnimationController* m_pSkinnedAnimationController = NULL;
+	bool Do_Render = true;
 
 };
 
@@ -484,6 +490,40 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class Explosion : public Object
+{
+public:
+	Explosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Explosion() {};
+	virtual void OnPrepareRender();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+
+	int particleID = 1;	// 1 : Explosion
+	bool Active = false;
+	Shader* m_pBoundingShader = NULL;
+};
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class FireBall : public Object
+{
+public:
+	FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~FireBall() {};
+	virtual void OnPrepareRender();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+
+	int particleID = 0;	// 0 : Mage Attack
+	XMFLOAT3 Direction = { 0,0,0 };
+	bool Active = false;
+	Shader* m_pBoundingShader = NULL;
+	Explosion* explode = NULL;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SkyBox : public Object
 {
 public:
@@ -527,7 +567,7 @@ public:
 class HeightMapTerrain : public Object
 {
 public:
-	HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color);
+	HeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int nWidth, int nLength,int BlockWidth, int BlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color);
 	virtual ~HeightMapTerrain();
 
 private:

@@ -109,7 +109,7 @@ void CloseTypeFSMComponent::Track()
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(TargetPos, CurrentPos));
 	if (Distance > 1.5f)
-		Move_Run(2.0f * Timer::GetTimeElapsed());
+		Move_Run(2.5f * Timer::GetTimeElapsed());
 	else
 	{
 		Stop();

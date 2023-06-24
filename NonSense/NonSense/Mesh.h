@@ -24,8 +24,8 @@ class Vertex
 {
 protected:
 	//정점의 위치 벡터이다(모든 정점은 최소한 위치 벡터를 가져야 한다).
-	XMFLOAT3 m_xmf3Position;
 public:
+	XMFLOAT3 m_xmf3Position;
 	Vertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); }
 	Vertex(XMFLOAT3 xmf3Position) { m_xmf3Position = xmf3Position; }
 	~Vertex() { }
@@ -78,6 +78,21 @@ public:
 	~CIlluminatedTexturedVertex() { }
 };
 
+class ParticleVertex : public Vertex
+{
+public:
+	XMFLOAT3						m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	float							m_fEmittime = 0.0f;
+	float							m_fLifetime = 0.0f;
+
+public:
+
+
+	ParticleVertex() { m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f); m_fEmittime = 0.0f; m_fLifetime = 0.0f; }
+	ParticleVertex(XMFLOAT3 pos, XMFLOAT3 vel, float emit, float life) { m_xmf3Position = pos;  m_xmf3Velocity = vel; m_fEmittime = emit; m_fLifetime = life; }
+	~ParticleVertex() { }
+};
+
 class Mesh
 {
 public:
@@ -103,7 +118,7 @@ protected:
 	XMFLOAT3* m_pxmf3Positions = NULL;
 	ID3D12Resource* m_pd3dPositionBuffer = NULL;
 	ID3D12Resource* m_pd3dPositionUploadBuffer = NULL;
-	D3D12_VERTEX_BUFFER_VIEW		m_d3dPositionBufferView;
+	D3D12_VERTEX_BUFFER_VIEW m_d3dPositionBufferView;
 
 
 	//메쉬의 인덱스를 저장한다(인덱스 버퍼를 Map()하여 읽지 않아도 되도록).
@@ -184,6 +199,34 @@ public:
 	SphereMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius = 2.0f, UINT nSlices = 20, UINT nStacks = 20);
 	virtual ~SphereMesh() {};
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class ParticleMesh : public Mesh
+{
+public:
+	ID3D12Resource* m_pd3dVelBuffer = NULL;
+	ID3D12Resource* m_pd3dVelUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW m_d3dVelBufferView;
+
+	ID3D12Resource* m_pd3dEmitBuffer = NULL;
+	ID3D12Resource* m_pd3dEmitUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW m_d3dEmitBufferView;
+
+	ID3D12Resource* m_pd3dLifeBuffer = NULL;
+	ID3D12Resource* m_pd3dLifeUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dLifeBufferView;
+
+	ID3D12Resource* m_pd3dColorBuffer = NULL;
+	ID3D12Resource* m_pd3dColorUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dColorBufferView;
+
+	ParticleMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT particlenum);
+	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
+	virtual ~ParticleMesh();
+};
+
+
 
 /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class LoadMesh : public IlluminatedMesh
@@ -333,6 +376,7 @@ protected:
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dNormalBufferView;
 
 public:
+	HeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) : IlluminatedMesh(pd3dDevice, pd3dCommandList) {}
 	HeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int xStart, int zStart, int nWidth, int nLength, XMFLOAT3 xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT4 xmf4Color = XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f), void* pContext = NULL);
 	virtual ~HeightMapGridMesh();
 
@@ -346,4 +390,18 @@ public:
 	virtual void ReleaseUploadBuffers();
 
 	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
+};
+
+class HeightMapGridMeshTess : public HeightMapGridMesh
+{
+protected:
+	int							m_nWidth;
+	int							m_nLength;
+
+	XMFLOAT3					m_xmf3Scale;
+
+public:
+	
+	HeightMapGridMeshTess(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int xStart, int zStart, int nWidth, int nLength, XMFLOAT3 xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT4 xmf4Color = XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f), void* pContext = NULL);
+	virtual ~HeightMapGridMeshTess();
 };

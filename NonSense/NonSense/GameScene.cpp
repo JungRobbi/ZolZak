@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameScene.h"
+#include "Timer.h"
 #include "BoxCollideComponent.h"
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 
@@ -88,17 +89,14 @@ void GameScene::update()
 
 	for (auto gameObject : gameObjects)
 		gameObject->update();
-
 	for (auto gameObject : blendGameObjects) //Blend Object
 		gameObject->update();
-
 	for (auto gameObject : UIGameObjects) //UI Object
 		gameObject->update();
 	for (auto gameObject : BoundingGameObjects) //Bounding Object
 		gameObject->update();
 	for (auto gameObject : MonsterObjects) //Monster Object
 		gameObject->update();
-
 
 	auto t = deletionQueue;
 	while (!deletionQueue.empty())
@@ -207,6 +205,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
 
+	Aim* aim = new Aim(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Game_Option_UI* m_Game_Option_Dec_UI = new Game_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Graphic_Option_UI* m_Graphic_Option_Dec_UI = new Graphic_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Sound_Option_UI* m_Sound_Option_Dec_UI = new Sound_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
@@ -243,7 +242,7 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	//pObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
 
 
-	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, xmf3Scale, xmf4Color);
+	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 801, 801, 41, 41, xmf3Scale, xmf4Color);
 	terrain->SetPosition(-400, 0, -400);
 	m_pTerrain = terrain;
 
@@ -258,6 +257,9 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	m_pMappedScreenOptions->darkness = 0;
+
+
 }
 
 void GameScene::ReleaseObjects()
@@ -277,11 +279,11 @@ void GameScene::ReleaseObjects()
 			delete object;
 		blendGameObjects.clear();
 	}
-	if (&UIGameObjects) {
-		for (auto object : UIGameObjects)
-			delete object;
-		UIGameObjects.clear();
-	}
+	//if (&UIGameObjects) {
+	//	for (auto object : UIGameObjects)
+	//		delete object;
+	//	UIGameObjects.clear();
+	//}
 	if (&BoundingGameObjects) {
 		for (auto object : BoundingGameObjects)
 			delete object;
@@ -306,7 +308,7 @@ ID3D12RootSignature* GameScene::GetGraphicsRootSignature()
 
 ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[12];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[13];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -380,13 +382,19 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dDescriptorRanges[11].RegisterSpace = 0;
 	pd3dDescriptorRanges[11].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	pd3dDescriptorRanges[12].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[12].NumDescriptors = 1;
+	pd3dDescriptorRanges[12].BaseShaderRegister = 25; //t25 Particle
+	pd3dDescriptorRanges[12].RegisterSpace = 0;
+	pd3dDescriptorRanges[12].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
-	D3D12_ROOT_PARAMETER pd3dRootParameters[20];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[23];
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 0; //Player
 	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
-	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[1].Descriptor.ShaderRegister = 1; //Camera
@@ -461,12 +469,12 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[14].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	pd3dRootParameters[15].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[15].Descriptor.ShaderRegister = 7; //Skinned Bone Offsets
+	pd3dRootParameters[15].Descriptor.ShaderRegister = 6; //Skinned Bone Offsets
 	pd3dRootParameters[15].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[15].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 	pd3dRootParameters[16].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[16].Descriptor.ShaderRegister = 8; //Skinned Bone Transforms
+	pd3dRootParameters[16].Descriptor.ShaderRegister = 7; //Skinned Bone Transforms
 	pd3dRootParameters[16].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
@@ -485,6 +493,22 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[19].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[11]);
 	pd3dRootParameters[19].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+	pd3dRootParameters[20].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[20].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[20].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[12]);
+	pd3dRootParameters[20].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	pd3dRootParameters[21].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	pd3dRootParameters[21].Constants.Num32BitValues = 3;
+	pd3dRootParameters[21].Descriptor.ShaderRegister = 8; //Particle
+	pd3dRootParameters[21].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[21].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[22].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	pd3dRootParameters[22].Constants.Num32BitValues = 1;
+	pd3dRootParameters[22].Descriptor.ShaderRegister = 9; //Framework Infor
+	pd3dRootParameters[22].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[22].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -518,8 +542,7 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS;
 	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
 	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
 
@@ -638,7 +661,6 @@ bool GameScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 	switch (nMessageID)
 	{
 	default:
-
 		break;
 	}
 	return(false);
@@ -660,6 +682,10 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 		case VK_SPACE:
 
 			break;
+		case 'z':
+		case 'Z':
+			m_pPlayer->Sight_DeBuff(2);
+			break;
 		default:
 			break;
 		}
@@ -680,6 +706,7 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 void GameScene::AnimateObjects(float fTimeElapsed)
 {
 	elapseTime = fTimeElapsed;
+
 	for (auto& object : gameObjects)
 	{
 
@@ -696,6 +723,13 @@ void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Came
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
 	UpdateShaderVariables(pd3dCommandList);
+	if (m_pPlayer->dark && m_pMappedScreenOptions->darkness <= 1)
+	{
+		m_pMappedScreenOptions->darkness += 0.01;
+	}
+	else if (!m_pPlayer->dark && m_pMappedScreenOptions->darkness >= 0) {
+		m_pMappedScreenOptions->darkness -= 0.01;
+	}
 }
 
 void GameScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -742,6 +776,7 @@ void GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCa
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
 	}
+
 }
 
 void GameScene::RenderBoundingBox(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -757,11 +792,11 @@ void GameScene::RenderBoundingBox(ID3D12GraphicsCommandList* pd3dCommandList, Ca
 
 void GameScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256ÀÇ ¹è¼ö
+	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256ï¿½ï¿½ ï¿½ï¿½ï¿½
 	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dcbLights->Map(0, NULL, (void**)&m_pcbMappedLights);
 
-	UINT ncbElementBytes2 = ((sizeof(CB_SCREEN_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
+	UINT ncbElementBytes2 = ((sizeof(CB_SCREEN_INFO) + 255) & ~255); //256ï¿½ï¿½ ï¿½ï¿½ï¿½
 	m_pScreenOptions = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes2, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pScreenOptions->Map(0, NULL, (void**)&m_pMappedScreenOptions);
 }
@@ -778,6 +813,9 @@ void GameScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress2 = m_pScreenOptions->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(7, d3dGpuVirtualAddress2);
+
+	float time = Timer::GetTotalTime();
+	pd3dCommandList->SetGraphicsRoot32BitConstants(22, 1, &time, 0);
 }
 
 void GameScene::ReleaseShaderVariables()
@@ -797,15 +835,15 @@ Object* GameScene::PickObjectPointedByCursor(int xClient, int yClient, Camera* p
 	XMFLOAT4X4 xmf4x4Projection = pCamera->GetProjectionMatrix();
 	D3D12_VIEWPORT d3dViewport = pCamera->GetViewport();
 	XMFLOAT3 xmf3PickPosition;
-	/*È­¸é ÁÂÇ¥°èÀÇ Á¡ (xClient, yClient)¸¦ È­¸é ÁÂÇ¥ º¯È¯ÀÇ ¿ªº¯È¯°ú Åõ¿µ º¯È¯ÀÇ ¿ªº¯È¯À» ÇÑ´Ù. ±× °á°ú´Â Ä«¸Þ¶ó
-	ÁÂÇ¥°èÀÇ Á¡ÀÌ´Ù. Åõ¿µ Æò¸éÀÌ Ä«¸Þ¶ó¿¡¼­ z-ÃàÀ¸·Î °Å¸®°¡ 1ÀÌ¹Ç·Î z-ÁÂÇ¥´Â 1·Î ¼³Á¤ÇÑ´Ù.*/
+	/*È­ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ (xClient, yClient)ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½Ç¥ ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½ ï¿½Ñ´ï¿½. ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½
+	ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½Þ¶ó¿¡¼ï¿½ z-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ 1ï¿½Ì¹Ç·ï¿½ z-ï¿½ï¿½Ç¥ï¿½ï¿½ 1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.*/
 	xmf3PickPosition.x = (((2.0f * xClient) / d3dViewport.Width) - 1) / xmf4x4Projection._11;
 	xmf3PickPosition.y = -(((2.0f * yClient) / d3dViewport.Height) - 1) / xmf4x4Projection._22;
 	xmf3PickPosition.z = 1.0f;
 	int nIntersected = 0;
 	float fHitDistance = FLT_MAX, fNearestHitDistance = FLT_MAX;
 	Object* pIntersectedObject = NULL, * pNearestObject = NULL;
-	//¼ÎÀÌ´õÀÇ ¸ðµç °ÔÀÓ °´Ã¼µé¿¡ ´ëÇÑ ¸¶¿ì½º ÇÈÅ·À» ¼öÇàÇÏ¿© Ä«¸Þ¶ó¿Í °¡Àå °¡±î¿î °ÔÀÓ °´Ã¼¸¦ ±¸ÇÑ´Ù.
+	//ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½é¿¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½º ï¿½ï¿½Å·ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ Ä«ï¿½Þ¶ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½Ñ´ï¿½.
 	for (int i = 0; i < m_nShaders; i++)
 	{
 		//pIntersectedObject = m_pShaders[i].PickObjectByRayIntersection(xmf3PickPosition,xmf4x4View, &fHitDistance);

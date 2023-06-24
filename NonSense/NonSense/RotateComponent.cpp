@@ -8,5 +8,6 @@ void RotateComponent::start()
 
 void RotateComponent::update()
 {
-	gameObject->Object::Rotate(&m_xmf3RotationAxis, m_fRotationSpeed * Timer::GetTimeElapsed());
+	if(RotateOn)
+		gameObject->Object::Rotate(&m_xmf3RotationAxis, m_fRotationSpeed * Timer::GetTimeElapsed());
 }
