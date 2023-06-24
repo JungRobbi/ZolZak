@@ -626,11 +626,6 @@ void GameFramework::ChangeScene(unsigned char num)
 	//	break;
 	//}
 
-	GameScene::MainScene = m_GameScenes.at(num);
-	GameScene::MainScene->ReleaseObjects();
-	
-	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
-
 	GameSceneState = num;
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
