@@ -19,6 +19,7 @@
 #include "remoteClients/RemoteClient.h"
 #include "Scene.h"
 #include "Terrain.h"
+#include "DBMGR.h"
 
 #include "Components/PlayerMovementComponent.h"
 #include "Components/CloseTypeFSMComponent.h"

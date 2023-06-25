@@ -90,7 +90,7 @@
     <ClCompile Include="Characters.cpp">
       <Filter>소스 파일\GameFramework</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Server_Term_Project\Server\DBMGR.cpp">
+    <ClCompile Include="DBMGR.cpp">
       <Filter>소스 파일\DBMGR</Filter>
     </ClCompile>
   </ItemGroup>
@@ -158,7 +158,7 @@
     <ClInclude Include="..\AnimationType.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Server_Term_Project\Server\DBMGR.h">
+    <ClInclude Include="DBMGR.h">
       <Filter>소스 파일\DBMGR</Filter>
     </ClInclude>
   </ItemGroup>
