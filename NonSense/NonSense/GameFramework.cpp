@@ -318,7 +318,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(GAME_SCENE);
+	ChangeScene(LOGIN_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -879,7 +879,6 @@ void GameFramework::FrameAdvance()
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
 	RenderHP();
-	ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
@@ -893,8 +892,8 @@ void GameFramework::FrameAdvance()
 
 	if (scene_type == LOGIN_SCENE)
 		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
-	else
-		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+//	else if (scene_type == GAME_SCENE)
+//		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 
 	m_pSwapChain->Present(0, 0);
 
