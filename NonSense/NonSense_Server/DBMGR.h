@@ -30,6 +30,7 @@ public:
 	void connect();
 	void disconnect();
 
+	void Get_SELECT_ALL();
 	bool Get_SELECT_PLAYER(const wchar_t* id);
 
 	void Set_INSERT_ID(const wchar_t* id);

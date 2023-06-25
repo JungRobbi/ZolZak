@@ -46,7 +46,7 @@ wchar_t* ChartoWChar(char* chr)
 //////////////////////////
 //////////////////////////
 wchar_t* DBMGR::DSN_NAME = L"NonSense";
-volatile bool DBMGR::db_connection = false;
+volatile bool DBMGR::db_connection = true;
 
 DBMGR::DBMGR()
 {
@@ -94,6 +94,54 @@ void DBMGR::disconnect()
     SQLFreeHandle(SQL_HANDLE_ENV, henv);
 }
 
+void DBMGR::Get_SELECT_ALL()
+{
+    SQLLEN c_Name{};
+    SQLLEN temp{};
+
+    wchar_t wstr[100] = L"EXEC [dbo].[Select_All]";
+
+    retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
+    retcode = SQLExecDirect(hstmt, (SQLWCHAR*)wstr, SQL_NTS);
+
+    if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+        std::cout << "Get_SELECT_ALL 진행!" << std::endl;
+        // Bind columns 1, 2, and 3  
+        retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, szName, NAME_LEN, &c_Name);
+        retcode = SQLBindCol(hstmt, 2, SQL_C_LONG, &player_Maxhp, 10, &temp);
+        retcode = SQLBindCol(hstmt, 3, SQL_C_LONG, &player_hp, 10, &temp);
+        retcode = SQLBindCol(hstmt, 4, SQL_C_FLOAT, &player_x, 10, &temp);
+        retcode = SQLBindCol(hstmt, 5, SQL_C_FLOAT, &player_z, 10, &temp);
+        retcode = SQLBindCol(hstmt, 6, SQL_C_LONG, &player_clear_stage, 10, &temp);
+
+        // Fetch and print each row of data. On an error, display a message and exit.  
+        for (int i = 0; ; i++) {
+            retcode = SQLFetch(hstmt);
+            if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+                show_error(hstmt, SQL_HANDLE_STMT, retcode);
+            if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
+            {
+                //replace wprintf with printf
+                //%S with %ls
+                //warning C4477: 'wprintf' : format string '%S' requires an argument of type 'char *'
+                //but variadic argument 2 has type 'SQLWCHAR *'
+                //wprintf(L"%d: %S %S %S\n", i + 1, sCustID, szName, szPhone);  
+                printf("%d: name: %ls x: %f y: %f hp: %d Maxhp: %d clear: %d\n",
+                    i + 1, szName, player_x, player_z, player_hp, player_Maxhp, player_clear_stage);
+            }
+            else
+                break;
+        }
+
+        SQLCancel(hstmt);
+        SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
+    }
+    else  if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+        std::cout << "Get_SELECT_ALL 실패!" << std::endl;
+        show_error(hstmt, SQL_HANDLE_STMT, retcode);
+    }
+}
+
 bool DBMGR::Get_SELECT_PLAYER(const wchar_t* id)
 {
     if (!db_connection)
@@ -128,13 +176,14 @@ bool DBMGR::Get_SELECT_PLAYER(const wchar_t* id)
         {
             result = true;
         }
-
+        std::cout << "player_x - " << player_x << std::endl;
 
         SQLCancel(hstmt);
         SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
     }
     else  if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
         show_error(hstmt, SQL_HANDLE_STMT, retcode);
+        std::cout << "Select_Player 실패!" << std::endl;
         result = false;
     }
     return result;
