@@ -2137,7 +2137,6 @@ void FireBall::OnPrepareRender()
 		{
 			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
 			{
-				printf("\n벽과 충돌 %d, %f, %f, %f    %f,%f,%f\n",o->GetNum(),o->GetPosition().x, o->GetPosition().y, o->GetPosition().z, GetPosition().x, GetPosition().y, GetPosition().z);
 				explode->Active = true;
 				explode->SetPosition(GetPosition());
 				Active = false;
@@ -2147,11 +2146,10 @@ void FireBall::OnPrepareRender()
 	}
 	for (auto& o : GameScene::MainScene->MonsterObjects)
 	{
-		if (o->GetComponent<BoxCollideComponent>())
+		if (o->GetComponent<SphereCollideComponent>())
 		{
-			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
+			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
-				printf("\n몬스터와 충돌\n");
 				o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
 				explode->Active = true;
 				explode->SetPosition(GetPosition());
