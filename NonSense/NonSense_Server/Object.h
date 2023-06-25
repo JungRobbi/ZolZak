@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include <list>
 #include <concurrent_vector.h>
+#include <atomic>
 #include "Mesh.h"
 #include "Components/Component.h"
 
@@ -39,9 +40,11 @@ public:
 
 class Object
 {
-	char isuse = 1; // Object를 Scene에 사용하는지를 구분하기 위한 변수
+	std::atomic<char> isuse = 1; // Object를 Scene에 사용하는지를 구분하기 위한 변수
 protected:
 	concurrency::concurrent_vector<Component*> components;
+
+	// std::list<Component*> components;
 public:
 	Object();
 	// GameScene의 gameobjects 리스트에 안넣기 위해 만든 생성자
@@ -57,18 +60,13 @@ public:
 
 	template<typename T>
 	T* GetComponent();
-
-	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
-
-	ID3D12Resource* m_pd3dcbGameObjects = NULL;
-	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 	
 	bool GetUsed() { return isuse; }
 	void SetUsed(bool b) { isuse = b; }
 
 private:
-	int m_nReferences = 0;
-	int Num = 0;
+	std::atomic<int> m_nReferences = 0;
+	std::atomic<int> Num = 0;
 public:
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
@@ -112,7 +110,7 @@ public:
 	static LoadedModelInfo* LoadAnimationModel(char* pstrFileName);
 
 	char							m_pFrameName[64];
-
+	
 	XMFLOAT4X4 m_xmf4x4ToParent;
 };
 
@@ -129,7 +127,7 @@ inline T* Object::AddComponent()
 template<typename T>
 inline T* Object::GetComponent()
 {
-	for (auto component : components)
+	for (auto& component : components)
 	{
 		auto c = dynamic_cast<T*>(component);
 		if (c) return c;
@@ -149,6 +147,7 @@ public:
 	virtual void Transform(_Out_ BoundBox& Out, _In_ FXMMATRIX M);
 	virtual bool Intersects(BoundBox& box);
 	virtual bool Intersects(BoundSphere& box);
+	virtual void GetCorners(XMFLOAT3* Corners);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,11 +155,13 @@ class BoundSphere : public Object
 {
 public:
 	XMFLOAT3 Center = { 0,0,0 };
-	float Radius = 1.f;           
+	float Radius = 1.f;
 	BoundSphere();
 	BoundSphere(bool Push_List);
 	virtual ~BoundSphere() {};
 	virtual void Transform(_Out_ BoundSphere& Out, _In_ FXMMATRIX M);
 	virtual bool Intersects(BoundBox& box);
 	virtual bool Intersects(BoundSphere& box);
+	virtual bool Intersects(FXMVECTOR V0, FXMVECTOR V1, FXMVECTOR V2);
+
 };

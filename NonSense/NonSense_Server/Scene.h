@@ -2,6 +2,7 @@
 #include <list>
 #include <queue>
 #include <deque>
+#include <vector>
 #include <atomic>
 #include <concurrent_queue.h>
 #include <concurrent_vector.h>
@@ -28,7 +29,8 @@ public:
 	static Scene* scene;
 	static HeightMapTerrain* terrain;
 
-	concurrency::concurrent_vector<Character*> MonsterObjects;
+//	concurrency::concurrent_vector<Character*> MonsterObjects;
+	std::vector<Character*> MonsterObjects;
 protected:
 	Object* CreateEmpty();
 
@@ -36,11 +38,11 @@ public:
 	Scene();
 	virtual ~Scene()
 	{
-		for (auto object : gameObjects)
+		for (auto& object : gameObjects)
 			delete object;
 		gameObjects.clear();
 
-		for (auto object : MonsterObjects)
+		for (auto& object : MonsterObjects)
 			delete object;
 		MonsterObjects.clear();
 	}

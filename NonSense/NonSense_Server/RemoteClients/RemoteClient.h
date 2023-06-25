@@ -7,6 +7,7 @@
 #include <mutex>
 #include <unordered_map>
 #include <concurrent_unordered_map.h>
+#include <atomic>
 
 #include "../Input.h"
 
@@ -29,8 +30,8 @@ public:
 	Input m_KeyInput;
 	shared_ptr<Player> m_pPlayer;
 
-	bool b_Enable = true;
+	std::atomic<bool> b_Enable;
 
-	RemoteClient() : thread(), tcpConnection(SocketType::Tcp), m_KeyInput(), m_pPlayer() {}
-	RemoteClient(SocketType socketType) :tcpConnection(socketType), m_KeyInput(), m_pPlayer() {}
+	RemoteClient() : thread(), tcpConnection(SocketType::Tcp), m_KeyInput(), m_pPlayer(), b_Enable(true) {}
+	RemoteClient(SocketType socketType) :tcpConnection(socketType), m_KeyInput(), m_pPlayer(), b_Enable(true) {}
 };

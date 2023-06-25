@@ -450,7 +450,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			{
 			case VK_RETURN:
 				ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
-				ChatMGR::StoreText();
+				ChatMGR::StoreTextSelf();
 				ChatMGR::m_textindex = 0;
 
 				if (NetworkMGR::b_isNet && scene_type == LOGIN_SCENE) {
@@ -889,7 +889,10 @@ void GameFramework::FrameAdvance()
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+	if (scene_type == LOGIN_SCENE)
+		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
+//	else if (scene_type == GAME_SCENE)
+//		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 
 	m_pSwapChain->Present(0, 0);
 

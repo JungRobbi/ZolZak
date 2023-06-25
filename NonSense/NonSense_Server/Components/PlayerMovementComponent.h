@@ -29,6 +29,7 @@ class PlayerMovementComponent :
 	float DashCoolTimeLeft = 0.0f;
 	bool Dashing = false;
 	bool CanDash = true;
+	bool CanJump = true;
 
 	void* m_pPlayerUpdatedContext = nullptr;
 
@@ -48,6 +49,8 @@ public:
 	float GetYaw() { return(m_fYaw); }
 	float GetPitch() { return(m_fPitch); }
 	float GetRoll() { return(m_fRoll); }
+
+	bool GetJumpAble() { return(CanJump); }
 
 	void SetPosition(XMFLOAT3 xmf3Position) { XMFLOAT3 pos = { xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z }; Move(pos, false); }
 	void SetLookVector(XMFLOAT3 xmf3Look) { m_xmf3Look = xmf3Look; }

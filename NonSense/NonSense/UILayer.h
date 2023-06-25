@@ -2,6 +2,7 @@
 #include <string>
 #include <list>
 #include <memory>
+#include <vector>
 
 #include <d2d1.h>
 #include <d3d12.h>
@@ -35,8 +36,9 @@ class UILayer
 public:
     UILayer(UINT nFrames, UINT nTextBlocks, ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dCommandQueue, ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHeight);
 
-    void UpdateTextOutputs(UINT nIndex, WCHAR* pstrUIText, D2D1_RECT_F* pd2dLayoutRect, IDWriteTextFormat* pdwFormat, ID2D1SolidColorBrush* pd2dTextBrush);
+    void UpdateTextOutputs(UINT nIndex, WCHAR* pstrUIText, D2D1_RECT_F pd2dLayoutRect, IDWriteTextFormat* pdwFormat, ID2D1SolidColorBrush* pd2dTextBrush);
     void Render(UINT nFrame);
+    void RenderSingle(UINT nFrame);
     void ReleaseResources();
 
     ID2D1SolidColorBrush* CreateBrush(D2D1::ColorF d2dColor);
@@ -60,7 +62,7 @@ public:
     ID2D1Bitmap1**                  m_ppd2dRenderTargets = NULL;
 
     UINT                            m_nTextBlocks = 0;
-    TextBlock*                      m_pTextBlocks = NULL;
+    std::vector<TextBlock>          m_pTextBlocks;
 };
 
 ///////////////////
@@ -122,10 +124,13 @@ public:
     static IDWriteTextFormat* pdwTextFormat;
     static D2D1_RECT_F d2dRect;
 
+    static int fontsize;
+
     static void SetTextinfos(int WndClientWidth, int WndClientHeight);
     static void SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTYPE type);
     static void UpdateText();
-    static void StoreText();
+    static void StoreTextSelf();
+    static void StoreText(WCHAR* buf);
 
     static void SetLoginScene(int WndClientWidth, int WndClientHeight);
     static void SetInGame(int WndClientWidth, int WndClientHeight);

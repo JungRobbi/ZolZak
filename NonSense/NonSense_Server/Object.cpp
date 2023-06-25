@@ -53,13 +53,13 @@ Object::~Object()
 
 void Object::start()
 {
-	for (auto component : components)
+	for (auto& component : components)
 		component->start();
 }
 
 void Object::update()
 {
-	for (auto component : components)
+	for (auto& component : components)
 		component->update();
 }
 
@@ -710,6 +710,25 @@ bool BoundBox::Intersects(BoundSphere& sh)
 	return XMVector4LessOrEqual(d2, XMVectorMultiply(SphereRadius, SphereRadius)) ? true : false;
 }
 
+void BoundBox::GetCorners(XMFLOAT3* Corners)
+{
+	assert(Corners != nullptr);
+
+	// Load the box
+	XMVECTOR vCenter = XMLoadFloat3(&Center);
+	XMVECTOR vExtents = XMLoadFloat3(&Extents);
+	XMVECTOR vOrientation = XMLoadFloat4(&Orientation);
+
+	assert(DirectX::Internal::XMQuaternionIsUnit(vOrientation));
+
+	for (size_t i = 0; i < 8; ++i)
+	{
+		XMVECTOR C = XMVectorAdd(XMVector3Rotate(XMVectorMultiply(vExtents, g_BoxOffset[i]), vOrientation), vCenter);
+		XMStoreFloat3(&Corners[i], C);
+	}
+}
+
+
 BoundSphere::BoundSphere() : Object(BOUNDING_OBJECT)
 {
 }
@@ -760,4 +779,58 @@ bool BoundSphere::Intersects(BoundSphere& sh)
 	RadiusSquared = XMVectorMultiply(RadiusSquared, RadiusSquared);
 
 	return XMVector3LessOrEqual(DistanceSquared, RadiusSquared);
+}
+
+bool BoundSphere::Intersects(FXMVECTOR V0, FXMVECTOR V1, FXMVECTOR V2)
+{
+	// Load the sphere.
+	XMVECTOR vCenter = XMLoadFloat3(&Center);
+	XMVECTOR vRadius = XMVectorReplicatePtr(&Radius);
+
+	// Compute the plane of the triangle (has to be normalized).
+	XMVECTOR N = XMVector3Normalize(XMVector3Cross(XMVectorSubtract(V1, V0), XMVectorSubtract(V2, V0)));
+
+	// Assert that the triangle is not degenerate.
+	assert(!XMVector3Equal(N, XMVectorZero()));
+
+	// Find the nearest feature on the triangle to the sphere.
+	XMVECTOR Dist = XMVector3Dot(XMVectorSubtract(vCenter, V0), N);
+
+	// If the center of the sphere is farther from the plane of the triangle than
+	// the radius of the sphere, then there cannot be an intersection.
+	XMVECTOR NoIntersection = XMVectorLess(Dist, XMVectorNegate(vRadius));
+	NoIntersection = XMVectorOrInt(NoIntersection, XMVectorGreater(Dist, vRadius));
+
+	// Project the center of the sphere onto the plane of the triangle.
+	XMVECTOR Point = XMVectorNegativeMultiplySubtract(N, Dist, vCenter);
+
+	// Is it inside all the edges? If so we intersect because the distance
+	// to the plane is less than the radius.
+	XMVECTOR Intersection = DirectX::Internal::PointOnPlaneInsideTriangle(Point, V0, V1, V2);
+
+	// Find the nearest point on each edge.
+	XMVECTOR RadiusSq = XMVectorMultiply(vRadius, vRadius);
+
+	// Edge 0,1
+	Point = DirectX::Internal::PointOnLineSegmentNearestPoint(V0, V1, vCenter);
+
+	// If the distance to the center of the sphere to the point is less than
+	// the radius of the sphere then it must intersect.
+	Intersection = XMVectorOrInt(Intersection, XMVectorLessOrEqual(XMVector3LengthSq(XMVectorSubtract(vCenter, Point)), RadiusSq));
+
+	// Edge 1,2
+	Point = DirectX::Internal::PointOnLineSegmentNearestPoint(V1, V2, vCenter);
+
+	// If the distance to the center of the sphere to the point is less than
+	// the radius of the sphere then it must intersect.
+	Intersection = XMVectorOrInt(Intersection, XMVectorLessOrEqual(XMVector3LengthSq(XMVectorSubtract(vCenter, Point)), RadiusSq));
+
+	// Edge 2,0
+	Point = DirectX::Internal::PointOnLineSegmentNearestPoint(V2, V0, vCenter);
+
+	// If the distance to the center of the sphere to the point is less than
+	// the radius of the sphere then it must intersect.
+	Intersection = XMVectorOrInt(Intersection, XMVectorLessOrEqual(XMVector3LengthSq(XMVectorSubtract(vCenter, Point)), RadiusSq));
+
+	return XMVector4EqualInt(XMVectorAndCInt(Intersection, NoIntersection), XMVectorTrueInt());
 }

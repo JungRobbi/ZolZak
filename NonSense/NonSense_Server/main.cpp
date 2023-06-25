@@ -11,6 +11,7 @@
 #include <thread>
 #include <memory>
 #include <mutex>
+#include <atomic>
 
 #include "Input.h"
 #include "Timer.h"
@@ -24,6 +25,8 @@
 #include "Components/SphereCollideComponent.h"
 #include "Components/BoxCollideComponent.h"
 
+// unordered map 탐색 사용하기 위해 index 추가
+// Player 간, Monster 간 시야 처리
 using namespace std;
 using namespace concurrency;
 
@@ -55,7 +58,8 @@ void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
 	// 에러 혹은 소켓 종료이다.
 	// 해당 소켓은 제거해버리자. 
 	remoteClient->tcpConnection.Close();
-	remoteClient->b_Enable = false;
+	bool b_expected = true;
+	remoteClient->b_Enable.compare_exchange_strong(b_expected, false);
 	
 	{
 //		lock_guard<recursive_mutex> lock_rc(RemoteClient::mx_rc);
@@ -65,7 +69,7 @@ void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
 
 	//플레이어가 떠났다고 알림
 	for (auto rc : RemoteClient::remoteClients) {
-		if (!rc.second->b_Enable)
+		if (!rc.second->b_Enable.load())
 			continue;
 		SC_REMOVE_PLAYER_PACKET send_packet;
 		send_packet.size = sizeof(SC_REMOVE_PLAYER_PACKET);
@@ -77,7 +81,7 @@ void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
 }
 
 // IOCP를 준비한다.
-Iocp iocp(N_THREAD); // 5개의 스레드 사용을 API에 힌트로 준다.
+Iocp iocp(N_THREAD); // N_THREAD개의 스레드 사용을 API에 힌트로 준다.
 
 recursive_mutex mx_accept;
 recursive_mutex mx_scene;
@@ -89,6 +93,8 @@ void CloseServer();
 void ProcessAccept();
 
 void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet);
+void Process_Timer_Event(void* p_Client, IO_TYPE type);
+void Process_Timer_Event_for_NPC(Character* p_NPC, IO_TYPE type);
 
 void Worker_Thread()
 {
@@ -112,15 +118,32 @@ void Worker_Thread()
 					continue;
 				}
 
-				if (readEvent.lpCompletionKey == 0) // 리슨소켓이면
+				if (readEvent.lpCompletionKey == (ULONG_PTR)p_listenSocket.get()) // 리슨소켓이면
 				{
 					ProcessAccept(); // 클라이언트 연결 작업
 				}
 				else  // TCP 연결 소켓이면
 				{
+					if (IO_TYPE::IO_RECV != p_readOverlapped->m_ioType &&
+						IO_TYPE::IO_TIMER_MONSTER_ANIMATION <= p_readOverlapped->m_ioType &&
+						IO_TYPE::IO_TIMER_MONSTER_TARGET >= p_readOverlapped->m_ioType) {
+						// Monster Event 처리
+					//	cout << "Timer_Monster! index - " << readEvent.lpCompletionKey << endl;
+						Process_Timer_Event_for_NPC((Character*)readEvent.lpCompletionKey, p_readOverlapped->m_ioType);
+						continue;
+					}
+
 					// 처리할 클라이언트 받아오기
 					shared_ptr<RemoteClient> remoteClient;
 					remoteClient = RemoteClient::remoteClients[(RemoteClient*)readEvent.lpCompletionKey];
+
+					// Timer Event 처리
+					if (IO_TYPE::IO_RECV != p_readOverlapped->m_ioType) {
+						// Player Event 처리
+						if (remoteClient)
+							Process_Timer_Event(remoteClient.get(), p_readOverlapped->m_ioType);
+						continue;
+					}
 
 					//
 					if (remoteClient)
@@ -199,9 +222,11 @@ int main(int argc, char* argv[])
 
 	Scene::scene->LoadSceneObb();
 
+	std::cout << "Terrain Loding..." << std::endl;
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	Scene::terrain = new HeightMapTerrain(_T("Terrain/terrain.raw"), 800, 800, xmf3Scale);
 	Scene::terrain->SetPosition(-400, 0, -400);
+	std::cout << "Terrain Loding Complete!" << std::endl;
 
 	Object* TempObject = NULL;
 	TempObject = new Goblin(MONSTER_TYPE_CLOSE);
@@ -230,7 +255,7 @@ int main(int argc, char* argv[])
 	p_listenSocket->Bind(Endpoint("0.0.0.0", SERVERPORT));
 	p_listenSocket->Listen();
 	// IOCP에 추가한다.
-	iocp.Add(*p_listenSocket, nullptr);
+	iocp.Add(*p_listenSocket, p_listenSocket.get());
 
 	remoteClientCandidate = make_shared<RemoteClient>(SocketType::Tcp);
 
@@ -244,17 +269,110 @@ int main(int argc, char* argv[])
 
 	for (int i{}; i < N_THREAD; ++i)
 		worker_threads.emplace_back(make_shared<thread>(Worker_Thread));
-
+	int MAX_MonsterTimerDelay = 10000;
+	int MonsterTimerDelay = 0;
 	while (true) {
 		Timer::Tick(0.0f);
 		Scene::scene->update();
+
+		//for (auto& rc : RemoteClient::remoteClients) {
+		//	if (!rc.second->b_Enable.load())
+		//		continue;
+
+		//	// Animation Packet
+		//	{ 
+		//		if (rc.second->m_KeyInput.keys['w'] || rc.second->m_KeyInput.keys['W'] ||
+		//			rc.second->m_KeyInput.keys['s'] || rc.second->m_KeyInput.keys['S'] ||
+		//			rc.second->m_KeyInput.keys['a'] || rc.second->m_KeyInput.keys['A'] ||
+		//			rc.second->m_KeyInput.keys['d'] || rc.second->m_KeyInput.keys['D']) {
+		//			if (rc.second->m_KeyInput.keys[16]) { // LSHIFT
+		//				rc.second->m_pPlayer->PresentAniType = E_PLAYER_ANIMATION_TYPE::E_WALK;
+		//			}
+		//			else {
+		//				rc.second->m_pPlayer->PresentAniType = E_PLAYER_ANIMATION_TYPE::E_RUN;
+		//			}
+		//		}
+		//		else {
+		//			//	if (!((Player*)gameObject)->GetComponent<AttackComponent>()->During_Attack) 컴포넌트 추가 해야함
+		//			rc.second->m_pPlayer->PresentAniType = E_PLAYER_ANIMATION_TYPE::E_IDLE;
+		//		}
+
+		//		if (rc.second->m_pPlayer->OldAniType.load() != rc.second->m_pPlayer->PresentAniType) {
+
+		//			shared_ptr<EXP_OVER> p = make_shared<EXP_OVER>();
+		//			p->m_ioType = IO_TYPE::IO_TIMER_PLAYER_ANIMATION;
+		//			PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)rc.second.get(), &p->_wsa_over);
+
+		//			int expected = rc.second->m_pPlayer->OldAniType.load();
+		//			rc.second->m_pPlayer->OldAniType.compare_exchange_strong(expected, rc.second->m_pPlayer->PresentAniType.load());
+		//		}
+		//	}
+
+		//	rc.second->m_pPlayer->update();
+		//	
+		//	// Move Packet
+		//	{ 
+		//		auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
+
+		//		if (Vector3::Length(vel) > 3.0001f) {
+		//			//cout << "Vector3::Length(vel) = " << Vector3::Length(vel) << endl;
+		//			//cout << "vel->x = " << vel.x << endl;
+		//			//cout << "vel->y = " << vel.y << endl;
+		//			//cout << "vel->z = " << vel.z << endl;
+		//			//cout << "================ " << endl;
+
+		//			shared_ptr<EXP_OVER> p = make_shared<EXP_OVER>();
+		//			p->m_ioType = IO_TYPE::IO_TIMER_PLAYER_MOVE;
+		//			PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)rc.second.get(), &p->_wsa_over);
+		//		}
+		//	}
+
+		//	// Camera Look Packet
+		//	if (rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->is_Rotate){
+		//		shared_ptr<EXP_OVER> p = make_shared<EXP_OVER>();
+		//		p->m_ioType = IO_TYPE::IO_TIMER_PLAYER_LOOK;
+		//		PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)rc.second.get(), &p->_wsa_over);
+		//		rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->is_Rotate = false;
+		//	}
+		//}
+
+		////Monster test
+		//++MonsterTimerDelay;
+		//if (MonsterTimerDelay <= MAX_MonsterTimerDelay) 
+		//	continue;
+		//MonsterTimerDelay = 0;
+		//for (auto& monster : Scene::scene->MonsterObjects) {
+		//	if (monster->GetRemainHP() <= 0.f)
+		//		continue;
+
+		//	/*{
+		//		shared_ptr<EXP_OVER> p = make_shared<EXP_OVER>();
+		//		p->m_ioType = IO_TYPE::IO_TIMER_MONSTER_MOVE;
+		//		PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)(monster), &p->_wsa_over);
+		//	}*/
+		//	/*{
+		//		shared_ptr<EXP_OVER> p = make_shared<EXP_OVER>();
+		//		p->m_ioType = IO_TYPE::IO_TIMER_MONSTER_WANDER;
+		//		PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)(monster), &p->_wsa_over);
+		//	}
+		//	{
+		//		shared_ptr<EXP_OVER> p = make_shared<EXP_OVER>();
+		//		p->m_ioType = IO_TYPE::IO_TIMER_MONSTER_ANIMATION;
+		//		PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)(monster), &p->_wsa_over);
+		//	}
+		//	{
+		//		shared_ptr<EXP_OVER> p = make_shared<EXP_OVER>();
+		//		p->m_ioType = IO_TYPE::IO_TIMER_MONSTER_TARGET;
+		//		PostQueuedCompletionStatus(iocp.m_hIocp, 1, (ULONG_PTR)(monster), &p->_wsa_over);
+		//	}*/
+		//}
 
 		for (auto& rc : RemoteClient::remoteClients) {
 			if (!rc.second->b_Enable)
 				continue;
 
 			// Animation Packet
-			{ 
+			{
 				if (rc.second->m_KeyInput.keys['w'] || rc.second->m_KeyInput.keys['W'] ||
 					rc.second->m_KeyInput.keys['s'] || rc.second->m_KeyInput.keys['S'] ||
 					rc.second->m_KeyInput.keys['a'] || rc.second->m_KeyInput.keys['A'] ||
@@ -282,14 +400,15 @@ int main(int argc, char* argv[])
 						send_packet.Anitype = (char)rc.second->m_pPlayer->PresentAniType;
 						rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 					}
-					rc.second->m_pPlayer->OldAniType = rc.second->m_pPlayer->PresentAniType;
-				}
+					int expected = rc.second->m_pPlayer->OldAniType.load();
+					rc.second->m_pPlayer->OldAniType.compare_exchange_strong(expected, rc.second->m_pPlayer->PresentAniType.load());
+				}	
 			}
 
 			rc.second->m_pPlayer->update();
-			
+
 			// Move Packet
-			{ 
+			{
 				auto vel = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetVelocity();
 
 				if (!Vector3::Length(vel))
@@ -311,7 +430,7 @@ int main(int argc, char* argv[])
 			}
 
 			// Camera Look Packet
-			if (rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->is_Rotate){ 
+			if (rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->is_Rotate) {
 				XMFLOAT3 xmf3FinalLook = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetLookVector();
 				for (auto& rc_to : RemoteClient::remoteClients) {
 					if (!rc_to.second->b_Enable)
@@ -375,7 +494,8 @@ int main(int argc, char* argv[])
 						send_packet.Anitype = ((Character*)monster)->PresentAniType;
 						rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 					}
-					((Character*)monster)->OldAniType = ((Character*)monster)->PresentAniType;
+					int expected = ((Character*)monster)->OldAniType.load();
+					((Character*)monster)->OldAniType.compare_exchange_strong(expected, ((Character*)monster)->PresentAniType.load());
 				}
 
 				if (RemoteClient::remoteClients.empty())
@@ -470,7 +590,6 @@ void ProcessAccept()
 		shared_ptr<RemoteClient> remoteClient = remoteClientCandidate;
 
 		{
-			lock_guard<recursive_mutex> lock(mx_accept);
 			remoteClient->m_pPlayer = make_shared<Player>();
 			remoteClient->m_pPlayer->start();
 			remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
@@ -539,7 +658,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 
 		// 접속한 클라이언트에게 모든 플레이어 정보 송신
 		for (auto& rc : RemoteClient::remoteClients) {
-			if (!rc.second->b_Enable)
+			if (!rc.second->b_Enable.load())
 				continue;
 			if (rc.second->m_id == p_Client->m_id) 
 				continue;
@@ -553,7 +672,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 
 		// 다른 클라이언트들에게 접속한 클라이언트 정보 송신
 		for (auto& rc : RemoteClient::remoteClients) {
-			if (!rc.second->b_Enable)
+			if (!rc.second->b_Enable.load())
 				continue;
 			if (rc.second->m_id == p_Client->m_id)
 				continue;
@@ -575,9 +694,12 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		switch (recv_packet->key)
 		{
 		case VK_SPACE: {
+			if (!p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetJumpAble())
+				break;
+
 			p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->Jump();
 			for (auto& rc : RemoteClient::remoteClients) {
-				if (!rc.second->b_Enable)
+				if (!rc.second->b_Enable.load())
 					continue;
 				SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
 				send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
@@ -591,7 +713,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		case VK_RBUTTON: {
 			p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->Dash();
 			for (auto& rc : RemoteClient::remoteClients) {
-				if (!rc.second->b_Enable)
+				if (!rc.second->b_Enable.load())
 					continue;
 				SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
 				send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
@@ -604,7 +726,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 			break;
 		case VK_LBUTTON: {
 			for (auto& rc : RemoteClient::remoteClients) {
-				if (!rc.second->b_Enable)
+				if (!rc.second->b_Enable.load())
 					continue;
 				SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
 				send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
@@ -671,7 +793,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 
 		// 다른 클라이언트들에게 남은 HP 정보 통신
 		for (auto& rc : RemoteClient::remoteClients) {
-			if (!rc.second->b_Enable)
+			if (!rc.second->b_Enable.load())
 				continue;
 			SC_TEMP_HIT_MONSTER_PACKET send_packet;
 			send_packet.size = sizeof(SC_TEMP_HIT_MONSTER_PACKET);
@@ -682,6 +804,245 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 		}
 		break;
 	}
+	case E_PACKET::E_PACKET_CS_TEMP_HIT_PLAYER_PACKET: {
+		CS_TEMP_HIT_PLAYER_PACKET* recv_packet = reinterpret_cast<CS_TEMP_HIT_PLAYER_PACKET*>(p_Packet);
+		shared_ptr<Player> player;
+		for (auto& rc : RemoteClient::remoteClients) {
+			if (!rc.second->b_Enable.load())
+				continue;
+			if (rc.second->m_id == recv_packet->player_id)
+				player = rc.second->m_pPlayer;
+		}
+
+		player->GetHit(recv_packet->hit_damage);
+
+		// 다른 클라이언트들에게 남은 HP 정보 통신
+		for (auto& rc : RemoteClient::remoteClients) {
+			if (!rc.second->b_Enable.load())
+				continue;
+			SC_TEMP_HIT_PLAYER_PACKET send_packet;
+			send_packet.size = sizeof(SC_TEMP_HIT_PLAYER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_TEMP_HIT_PLAYER_PACKET;
+			send_packet.player_id = recv_packet->player_id;
+			send_packet.remain_hp = player->GetRemainHP();
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+		break;
+	}
+	case E_PACKET::E_PACKET_CS_CHAT_PACKET: {
+		CS_CHAT_PACKET* recv_packet = reinterpret_cast<CS_CHAT_PACKET*>(p_Packet);
+
+		for (auto& rc : RemoteClient::remoteClients) {
+			if (!rc.second->b_Enable.load())
+				continue;
+			if (rc.second->m_id == p_Client->m_id)
+				continue;
+			SC_CHAT_PACKET send_packet;
+			send_packet.size = sizeof(SC_CHAT_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_CHAT_PACKET;
+			memcpy(send_packet.chat, recv_packet->chat, sizeof(recv_packet->chat));
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+	}
+		break;
+	default:
+		break;
+	}
+}
+
+void Process_Timer_Event(void* p_Client, IO_TYPE type)
+{
+	switch (type)
+	{
+	case IO_TYPE::IO_TIMER_PLAYER_ANIMATION: {
+		for (auto& rc_to : RemoteClient::remoteClients) {
+			if (!rc_to.second->b_Enable.load())
+				continue;
+			SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
+			send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
+			send_packet.id = ((RemoteClient*)p_Client)->m_id;
+			send_packet.Anitype = (char)((RemoteClient*)p_Client)->m_pPlayer->PresentAniType;
+			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+	}
+		break;
+	case IO_TYPE::IO_TIMER_PLAYER_MOVE: {
+		auto rc_pos = ((RemoteClient*)p_Client)->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
+		for (auto& rc_to : RemoteClient::remoteClients) {
+			if (!rc_to.second->b_Enable.load())
+				continue;
+			SC_MOVE_PLAYER_PACKET send_packet;
+			send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_MOVE_PLAYER;
+			send_packet.id = ((RemoteClient*)p_Client)->m_id;
+			send_packet.x = rc_pos.x;
+			send_packet.y = rc_pos.y;
+			send_packet.z = rc_pos.z;
+			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+	}
+		break;
+	case IO_TYPE::IO_TIMER_PLAYER_LOOK: {
+		XMFLOAT3 xmf3FinalLook = ((RemoteClient*)p_Client)->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetLookVector();
+		for (auto& rc_to : RemoteClient::remoteClients) {
+			if (!rc_to.second->b_Enable.load())
+				continue;
+			SC_LOOK_PLAYER_PACKET send_packet;
+			send_packet.size = sizeof(SC_LOOK_PLAYER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_LOOK_PLAYER;
+			send_packet.id = ((RemoteClient*)p_Client)->m_id;
+			send_packet.x = xmf3FinalLook.x;
+			send_packet.y = xmf3FinalLook.y;
+			send_packet.z = xmf3FinalLook.z;
+			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+	}
+		break;
+	case IO_TYPE::IO_TIMER_MONSTER_ANIMATION: {
+		//Monster Animation
+		if (((Character*)p_Client)->OldAniType.load() != ((Character*)p_Client)->PresentAniType) {
+			for (auto& rc_to : RemoteClient::remoteClients) {
+				if (!rc_to.second->b_Enable.load())
+					continue;
+				SC_MONSTER_ANIMATION_TYPE_PACKET send_packet;
+				send_packet.size = sizeof(SC_MONSTER_ANIMATION_TYPE_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_MOSTER;
+				send_packet.id = ((Character*)p_Client)->num;
+				send_packet.Anitype = ((Character*)p_Client)->PresentAniType;
+				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
+			int expected = ((Character*)p_Client)->OldAniType.load();
+			((Character*)p_Client)->OldAniType.compare_exchange_strong(expected, ((Character*)p_Client)->PresentAniType.load());
+		}
+	}
+		break;
+	case IO_TYPE::IO_TIMER_MONSTER_MOVE: {
+		//Monster Pos
+		for (auto& rc_to : RemoteClient::remoteClients) {
+			if (!rc_to.second->b_Enable.load())
+				continue;
+			SC_MOVE_MONSTER_PACKET send_packet;
+			send_packet.size = sizeof(SC_MOVE_MONSTER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_MOVE_MONSTER_PACKET;
+			send_packet.id = ((Character*)p_Client)->num;
+			send_packet.x = ((Character*)p_Client)->GetPosition().x;
+			send_packet.y = ((Character*)p_Client)->GetPosition().y;
+			send_packet.z = ((Character*)p_Client)->GetPosition().z;
+			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+	}
+		break;
+	case IO_TYPE::IO_TIMER_MONSTER_WANDER: {
+		//WanderPosition
+		for (auto& rc_to : RemoteClient::remoteClients) {
+			if (!rc_to.second->b_Enable.load())
+				continue;
+			SC_LOOK_MONSTER_PACKET send_packet;
+			send_packet.size = sizeof(SC_LOOK_MONSTER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_LOOK_MONSTER_PACKET;
+			send_packet.id = ((Character*)p_Client)->num;
+			send_packet.x = ((Character*)p_Client)->GetComponent<CloseTypeFSMComponent>()->WanderPosition.x;
+			send_packet.y = ((Character*)p_Client)->GetComponent<CloseTypeFSMComponent>()->WanderPosition.y;
+			send_packet.z = ((Character*)p_Client)->GetComponent<CloseTypeFSMComponent>()->WanderPosition.z;
+			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+	}
+		break;
+	case IO_TYPE::IO_TIMER_MONSTER_TARGET: {
+		//Monster Target
+		if (((Character*)p_Client)->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()) {
+			for (auto& rc_to : RemoteClient::remoteClients) {
+				if (!rc_to.second->b_Enable.load())
+					continue;
+				SC_AGGRO_PLAYER_PACKET send_packet;
+				send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
+				send_packet.player_id = ((Player*)(((Character*)p_Client)
+					->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
+				send_packet.monster_id = ((Character*)p_Client)->num;
+				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
+		}
+	}
+		break;
+	default:
+		break;
+	}
+}
+
+void Process_Timer_Event_for_NPC(Character* p_NPC, IO_TYPE type)
+{
+	switch (type)
+	{
+	case IO_TYPE::IO_TIMER_MONSTER_ANIMATION: {
+		//Monster Animation
+		if (p_NPC->OldAniType.load() != p_NPC->PresentAniType) {
+			for (auto& rc_to : RemoteClient::remoteClients) {
+				if (!rc_to.second->b_Enable.load())
+					continue;
+				SC_MONSTER_ANIMATION_TYPE_PACKET send_packet;
+				send_packet.size = sizeof(SC_MONSTER_ANIMATION_TYPE_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_MOSTER;
+				send_packet.id = p_NPC->num;
+				send_packet.Anitype = p_NPC->PresentAniType.load();
+				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
+			int expected = p_NPC->OldAniType.load();
+			p_NPC->OldAniType.compare_exchange_strong(expected, p_NPC->PresentAniType.load());
+		//	p_NPC->OldAniType = p_NPC->PresentAniType;
+		}
+	}
+											break;
+	case IO_TYPE::IO_TIMER_MONSTER_MOVE: {
+		//Monster Pos
+		for (auto& rc_to : RemoteClient::remoteClients) {
+			if (!rc_to.second->b_Enable.load())
+				continue;
+			SC_MOVE_MONSTER_PACKET send_packet;
+			send_packet.size = sizeof(SC_MOVE_MONSTER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_MOVE_MONSTER_PACKET;
+			send_packet.id = p_NPC->num;
+			send_packet.x = p_NPC->GetPosition().x;
+			send_packet.y = p_NPC->GetPosition().y;
+			send_packet.z = p_NPC->GetPosition().z;
+			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+	}
+									   break;
+	case IO_TYPE::IO_TIMER_MONSTER_WANDER: {
+		//WanderPosition
+		for (auto& rc_to : RemoteClient::remoteClients) {
+			if (!rc_to.second->b_Enable.load())
+				continue;
+			SC_LOOK_MONSTER_PACKET send_packet;
+			send_packet.size = sizeof(SC_LOOK_MONSTER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_LOOK_MONSTER_PACKET;
+			send_packet.id = p_NPC->num;
+			send_packet.x = p_NPC->GetComponent<CloseTypeFSMComponent>()->WanderPosition.x;
+			send_packet.y = p_NPC->GetComponent<CloseTypeFSMComponent>()->WanderPosition.y;
+			send_packet.z = p_NPC->GetComponent<CloseTypeFSMComponent>()->WanderPosition.z;
+			rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+	}
+										 break;
+	case IO_TYPE::IO_TIMER_MONSTER_TARGET: {
+		//Monster Target
+		if (p_NPC->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()) {
+			for (auto& rc_to : RemoteClient::remoteClients) {
+				if (!rc_to.second->b_Enable.load())
+					continue;
+				SC_AGGRO_PLAYER_PACKET send_packet;
+				send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
+				send_packet.player_id = ((Player*)(p_NPC
+					->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
+				send_packet.monster_id = p_NPC->num;
+				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
+		}
+	}
+										 break;
 	default:
 		break;
 	}
