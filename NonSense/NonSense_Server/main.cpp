@@ -50,7 +50,7 @@ void ProcessSignalAction(int sig_number)
 
 list<shared_ptr<RemoteClient>> deleteClinets;
 
-void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
+void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient, shared_ptr<DBMGR> p_DBMGR)
 {
 	unsigned long long leave_id = remoteClient->m_id;
 	//Scene의 ObjectList에서 떠난 Player 제거
@@ -99,6 +99,7 @@ void Process_Timer_Event_for_NPC(Character* p_NPC, IO_TYPE type);
 
 void Worker_Thread()
 {
+	shared_ptr<DBMGR> db_mgr{ make_shared<DBMGR>() };
 	try
 	{
 		while (!stopWorking) {
@@ -157,7 +158,7 @@ void Worker_Thread()
 						{
 							// 읽은 결과가 0 즉 TCP 연결이 끝났다...
 							// 혹은 음수 즉 뭔가 에러가 난 상태이다...
-							ProcessClientLeave(remoteClient);
+							ProcessClientLeave(remoteClient, db_mgr);
 						}
 						else
 						{
@@ -195,7 +196,7 @@ void Worker_Thread()
 							if (remoteClient->tcpConnection.ReceiveOverlapped() != 0
 								&& WSAGetLastError() != ERROR_IO_PENDING)
 							{
-								ProcessClientLeave(remoteClient);
+								ProcessClientLeave(remoteClient, db_mgr);
 							}
 							else
 							{

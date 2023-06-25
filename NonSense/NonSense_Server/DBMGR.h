@@ -30,10 +30,10 @@ public:
 	void connect();
 	void disconnect();
 
-    bool Get_SELECT_PLAYER(const wchar_t* id);
+	bool Get_SELECT_PLAYER(const wchar_t* id);
 
-    void Set_INSERT_ID(const wchar_t* id);
-    void Set_UPDATE_PLAYER(const wchar_t* id, int x, int z, int hp, int Maxhp, int clear);
+	void Set_INSERT_ID(const wchar_t* id);
+	void Set_UPDATE_PLAYER(const wchar_t* id, int x, int z, int hp, int Maxhp, int clear);
 
 };
 

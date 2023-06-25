@@ -128,7 +128,7 @@ bool DBMGR::Get_SELECT_PLAYER(const wchar_t* id)
         {
             result = true;
         }
-       
+
 
         SQLCancel(hstmt);
         SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
@@ -141,7 +141,7 @@ bool DBMGR::Get_SELECT_PLAYER(const wchar_t* id)
 }
 
 void DBMGR::Set_INSERT_ID(const wchar_t* id)
-{    
+{
     if (!db_connection)
         return;
 
@@ -194,8 +194,8 @@ void DBMGR::Set_UPDATE_PLAYER(const wchar_t* id, int x, int z, int hp, int Maxhp
     _itow(x, buf, 10);
     wstr += buf;
     wstr += L", ";
-    wcsset(buf, 0);    
-    
+    wcsset(buf, 0);
+
     _itow(z, buf, 10);
     wstr += buf;
     wstr += L", ";
@@ -213,7 +213,7 @@ void DBMGR::Set_UPDATE_PLAYER(const wchar_t* id, int x, int z, int hp, int Maxhp
         (SQLWCHAR*)wstr_c_str
         , SQL_NTS);
 
-    if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {      
+    if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
         SQLCancel(hstmt);
         SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
     }
