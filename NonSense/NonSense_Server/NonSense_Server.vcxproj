@@ -133,7 +133,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Server_Term_Project\Server\DBMGR.cpp" />
     <ClCompile Include="Characters.cpp" />
     <ClCompile Include="CloseTypeState.cpp" />
     <ClCompile Include="Components\AttackComponent.cpp" />
@@ -142,6 +141,7 @@
     <ClCompile Include="Components\Component.cpp" />
     <ClCompile Include="Components\PlayerMovementComponent.cpp" />
     <ClCompile Include="Components\SphereCollideComponent.cpp" />
+    <ClCompile Include="DBMGR.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -153,7 +153,6 @@
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Server_Term_Project\Server\DBMGR.h" />
     <ClInclude Include="..\AnimationType.h" />
     <ClInclude Include="Characters.h" />
     <ClInclude Include="CloseTypeState.h" />
@@ -163,6 +162,7 @@
     <ClInclude Include="Components\Component.h" />
     <ClInclude Include="Components\PlayerMovementComponent.h" />
     <ClInclude Include="Components\SphereCollideComponent.h" />
+    <ClInclude Include="DBMGR.h" />
     <ClInclude Include="FSM.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Mesh.h" />

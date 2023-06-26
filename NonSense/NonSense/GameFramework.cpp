@@ -457,9 +457,20 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 					char* p = ConvertWCtoC(ChatMGR::m_textbuf);
 					NetworkMGR::name = string{ p };
 					delete[] p;
-					NetworkMGR::do_connetion();
-					NetworkMGR::do_recv();
-					ChangeScene(GAME_SCENE);
+					if(!NetworkMGR::b_isNet) // 클라 모드일 때 
+						ChangeScene(GAME_SCENE);
+					else if (!NetworkMGR::b_isLogin && !NetworkMGR::b_isLoginProg) { // 로그인 하지 않은 상태
+						NetworkMGR::b_isLoginProg = true; // 로그인 진행
+						CS_LOGIN_PACKET send_packet;
+						send_packet.size = sizeof(CS_LOGIN_PACKET);
+						send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
+						memcpy(send_packet.name, NetworkMGR::name.c_str(), NetworkMGR::name.size());
+						PacketQueue::AddSendPacket(&send_packet);
+					}
+					else {
+						//로그인 실패
+					}
+
 				}
 				ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
 				break;
@@ -637,12 +648,6 @@ void GameFramework::ChangeScene(unsigned char num)
 			dynamic_cast<Player*>(m_OtherPlayersPool.back())->SetCamera(dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f));
 			m_OtherPlayersPool.back()->SetUsed(true);
 		}
-
-		CS_LOGIN_PACKET send_packet;
-		send_packet.size = sizeof(CS_LOGIN_PACKET);
-		send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
-		memcpy(send_packet.name, NetworkMGR::name.c_str(), NetworkMGR::name.size());
-		PacketQueue::AddSendPacket(&send_packet);
 	}
 
 	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
@@ -877,7 +882,7 @@ void GameFramework::FrameAdvance()
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
-	RenderHP();
+//	RenderHP();
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
@@ -889,8 +894,9 @@ void GameFramework::FrameAdvance()
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	if (scene_type == LOGIN_SCENE)
+	if (scene_type == LOGIN_SCENE) {
 		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
+	}
 //	else if (scene_type == GAME_SCENE)
 //		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 

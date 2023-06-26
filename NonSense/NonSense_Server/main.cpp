@@ -19,6 +19,7 @@
 #include "remoteClients/RemoteClient.h"
 #include "Scene.h"
 #include "Terrain.h"
+#include "DBMGR.h"
 
 #include "Components/PlayerMovementComponent.h"
 #include "Components/CloseTypeFSMComponent.h"
@@ -49,7 +50,7 @@ void ProcessSignalAction(int sig_number)
 
 list<shared_ptr<RemoteClient>> deleteClinets;
 
-void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
+void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient, shared_ptr<DBMGR> p_DBMGR)
 {
 	unsigned long long leave_id = remoteClient->m_id;
 	//Scene의 ObjectList에서 떠난 Player 제거
@@ -67,6 +68,18 @@ void ProcessClientLeave(shared_ptr<RemoteClient> remoteClient)
 		cout << "Client left. There are " << RemoteClient::remoteClients.size() << " connections.\n";
 	}
 
+	wchar_t* wstr = ChartoWChar(remoteClient->name);
+	
+	p_DBMGR->Set_UPDATE_PLAYER(
+		wstr,
+		remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x,
+		remoteClient->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z,
+		remoteClient->m_pPlayer->GetRemainHP(),
+		remoteClient->m_pPlayer->GetHealth(),
+		remoteClient->m_clear_stage
+	);
+	
+	delete[] wstr;
 	//플레이어가 떠났다고 알림
 	for (auto rc : RemoteClient::remoteClients) {
 		if (!rc.second->b_Enable.load())
@@ -92,12 +105,13 @@ shared_ptr<RemoteClient> remoteClientCandidate;
 void CloseServer();
 void ProcessAccept();
 
-void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet);
+void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_ptr<DBMGR> p_DBMGR);
 void Process_Timer_Event(void* p_Client, IO_TYPE type);
 void Process_Timer_Event_for_NPC(Character* p_NPC, IO_TYPE type);
 
 void Worker_Thread()
 {
+	shared_ptr<DBMGR> db_mgr{ make_shared<DBMGR>() };
 	try
 	{
 		while (!stopWorking) {
@@ -156,7 +170,7 @@ void Worker_Thread()
 						{
 							// 읽은 결과가 0 즉 TCP 연결이 끝났다...
 							// 혹은 음수 즉 뭔가 에러가 난 상태이다...
-							ProcessClientLeave(remoteClient);
+							ProcessClientLeave(remoteClient, db_mgr);
 						}
 						else
 						{
@@ -174,7 +188,7 @@ void Worker_Thread()
 										break;
 
 									//패킷 처리
-									Process_Packet(remoteClient, recv_buf);
+									Process_Packet(remoteClient, recv_buf, db_mgr);
 
 									//다음 패킷 이동, 남은 데이터 갱신
 									recv_buf += packet_size;
@@ -194,7 +208,7 @@ void Worker_Thread()
 							if (remoteClient->tcpConnection.ReceiveOverlapped() != 0
 								&& WSAGetLastError() != ERROR_IO_PENDING)
 							{
-								ProcessClientLeave(remoteClient);
+								ProcessClientLeave(remoteClient, db_mgr);
 							}
 							else
 							{
@@ -221,6 +235,9 @@ int main(int argc, char* argv[])
 	scene = make_shared<Scene>();
 
 	Scene::scene->LoadSceneObb();
+
+	shared_ptr<DBMGR> db_mgr{ make_shared<DBMGR>() };
+	db_mgr->Get_SELECT_ALL();
 
 	std::cout << "Terrain Loding..." << std::endl;
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
@@ -637,13 +654,81 @@ void ProcessAccept()
 }
 
 
-void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
+void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_ptr<DBMGR> p_DBMGR)
 {
 	switch (p_Packet[1]) // 패킷 타입
 	{
 	case E_PACKET::E_PACKET_CS_LOGIN: {
 		CS_LOGIN_PACKET* recv_packet = reinterpret_cast<CS_LOGIN_PACKET*>(p_Packet);
 		memcpy(p_Client->name,recv_packet->name,sizeof(recv_packet->name));
+
+		if (DBMGR::db_connection) {
+			//DB에 데이터가 있는지 확인하고 아이디 생성 혹은 불러오기
+			wchar_t* wname = ChartoWChar(recv_packet->name);
+			if (!p_DBMGR->Get_SELECT_PLAYER(wname)) { // LOGIN_FAIL - 없는 ID
+				// 새 ID 생성
+				p_DBMGR->Set_INSERT_ID(wname);
+				cout << "Login FAIL! (새 아이디 생성) " << endl;
+				SC_LOGIN_FAIL_PACKET send_packet;
+				send_packet.size = sizeof(SC_LOGIN_FAIL_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_LOGIN_FAIL_PACKET;
+				p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				delete[] wname;
+				break;
+			}
+			else {
+				bool login = false;
+				for (auto& p : RemoteClient::remoteClients) {
+					if ((!strcmp(p.second->name, recv_packet->name)) && p.second->b_Enable) {
+						login = true;
+					}
+				}
+				if (login) { // LOGIN_FAIL - 이미 접속한 ID
+					cout << "Login FAIL! (이미 접속) " << endl;
+					SC_LOGIN_FAIL_PACKET send_packet;
+					send_packet.size = sizeof(SC_LOGIN_FAIL_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_LOGIN_FAIL_PACKET;
+					p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+					delete[] wname;
+					break;
+				}
+				else {	// LOGIN_OK
+					p_Client->m_pPlayer = make_shared<Player>();
+					p_Client->m_pPlayer->start();
+					p_Client->m_pPlayer->remoteClient = p_Client.get();
+					bool expected = false;
+					p_Client->b_Login.compare_exchange_strong(expected, true);
+					p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
+
+					memcpy(p_Client->name, recv_packet->name, sizeof(recv_packet->name));
+
+					p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()
+						->SetPosition(XMFLOAT3{ (float)p_DBMGR->player_x, Scene::terrain->GetHeight((float)p_DBMGR->player_x, (float)p_DBMGR->player_z) ,(float)p_DBMGR->player_z });
+					p_Client->m_pPlayer->SetPosition(XMFLOAT3{ (float)p_DBMGR->player_x, Scene::terrain->GetHeight((float)p_DBMGR->player_x, (float)p_DBMGR->player_z) ,(float)p_DBMGR->player_z });
+
+					p_Client->m_pPlayer->SetHealth((int)p_DBMGR->player_Maxhp);
+					p_Client->m_pPlayer->SetRemainHP((int)p_DBMGR->player_hp);
+					p_Client->m_clear_stage = (int)p_DBMGR->player_clear_stage;
+					cout << "Login OK! (DB) " << endl;
+					{
+						SC_LOGIN_OK_PACKET send_packet;
+						send_packet.size = sizeof(SC_LOGIN_OK_PACKET);
+						send_packet.type = E_PACKET::E_PACKET_SC_LOGIN_OK_PACKET;
+						p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+					}
+					delete[] wname;
+				}
+			}
+		}
+		else {
+			cout << "Login OK! " << endl;
+			{
+				SC_LOGIN_OK_PACKET send_packet;
+				send_packet.size = sizeof(SC_LOGIN_OK_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_LOGIN_OK_PACKET;
+				p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
+		}
 
 		//id 부여
 		p_Client->m_id = N_CLIENT_ID++;
@@ -653,6 +738,12 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 			send_packet.size = sizeof(SC_LOGIN_INFO_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_LOGIN_INFO;
 			send_packet.id = p_Client->m_id;
+			send_packet.maxHp = p_Client->m_pPlayer->GetHealth();
+			send_packet.remainHp = p_Client->m_pPlayer->GetRemainHP();
+			send_packet.x = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
+			send_packet.y = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
+			send_packet.z = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
+			send_packet.clearStage = p_Client->m_clear_stage;
 			p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 
@@ -667,6 +758,12 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 			send_packet.type = E_PACKET::E_PACKET_SC_ADD_PLAYER;
 			send_packet.id = rc.second->m_id;
 			memcpy(send_packet.name, rc.second->name, sizeof(rc.second->name));
+			send_packet.maxHp = rc.second->m_pPlayer->GetHealth();
+			send_packet.remainHp = rc.second->m_pPlayer->GetRemainHP();
+			send_packet.x = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
+			send_packet.y = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
+			send_packet.z = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
+			send_packet.clearStage = rc.second->m_clear_stage;
 			p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 
@@ -681,6 +778,12 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet)
 			send_packet.type = E_PACKET::E_PACKET_SC_ADD_PLAYER;
 			send_packet.id = p_Client->m_id;
 			memcpy(send_packet.name, p_Client->name, sizeof(p_Client->name));
+			send_packet.maxHp = p_Client->m_pPlayer->GetHealth();
+			send_packet.remainHp = p_Client->m_pPlayer->GetRemainHP();
+			send_packet.x = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
+			send_packet.y = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
+			send_packet.z = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
+			send_packet.clearStage = p_Client->m_clear_stage;
 			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 

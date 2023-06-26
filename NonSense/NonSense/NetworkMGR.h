@@ -26,7 +26,9 @@ public:
 	static unsigned int id;
 	static string name;
 
-	static bool b_isNet;
+	static bool b_isNet; // 서버 연결 여부
+	static bool b_isLogin; // 로그인 완료 여부
+	static bool b_isLoginProg; // 로그인 진행 중인지 여부
 public:
 	static void start();
 	static void Tick();
