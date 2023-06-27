@@ -4,8 +4,6 @@
 class PlayerMovementComponent :
     public Component
 {
-    class Scene* scene;
-
 	XMFLOAT3 m_xmf3Position;
 	XMFLOAT3 m_xmf3Right;
 	XMFLOAT3 m_xmf3Up;

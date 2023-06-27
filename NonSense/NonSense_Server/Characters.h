@@ -1,5 +1,6 @@
 #pragma once
 #include "Object.h"
+#include <memory>
 #include <atomic>
 #include "../AnimationType.h"
 
@@ -28,6 +29,7 @@ public:
 public:
 	int num;
 	Character();
+	Character(int roomNum);
 	virtual ~Character();
 	virtual void GetHit(float damage) { m_RemainHP -= damage; }
 
@@ -48,6 +50,6 @@ class Goblin : public Character
 {
 public:
 
-	Goblin(MonsterType type);
+	Goblin(MonsterType type, int roomNum);
 	virtual ~Goblin();
 };

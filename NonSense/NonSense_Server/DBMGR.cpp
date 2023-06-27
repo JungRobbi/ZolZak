@@ -45,7 +45,7 @@ wchar_t* ChartoWChar(char* chr)
 //////////////////////////
 //////////////////////////
 //////////////////////////
-wchar_t* DBMGR::DSN_NAME = L"NonSense";
+wchar_t* DBMGR::DSN_NAME = L"nonsense";
 volatile bool DBMGR::db_connection = false;
 
 DBMGR::DBMGR()
@@ -79,9 +79,11 @@ void DBMGR::connect()
                 SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
 
                 retcode = SQLConnect(hdbc, DSN_NAME, SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
-
                 if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
                     show_error(hstmt, SQL_HANDLE_STMT, retcode);
+                else {
+                    std::cout << "connect!" << std::endl;
+                }
             }
         }
     }

@@ -4,6 +4,7 @@
 #include <deque>
 #include <vector>
 #include <atomic>
+#include <memory>
 #include <concurrent_queue.h>
 #include <concurrent_vector.h>
 
@@ -26,7 +27,7 @@ class Scene
 	std::list<Object*> MapBoundingGameObjects;
 
 public:
-	static Scene* scene;
+	static std::shared_ptr<Scene> scene;
 	static HeightMapTerrain* terrain;
 
 //	concurrency::concurrent_vector<Character*> MonsterObjects;

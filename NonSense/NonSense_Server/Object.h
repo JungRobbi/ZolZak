@@ -112,6 +112,8 @@ public:
 	char							m_pFrameName[64];
 	
 	XMFLOAT4X4 m_xmf4x4ToParent;
+
+	int m_roomNum = 0;
 };
 
 
