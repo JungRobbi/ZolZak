@@ -2219,7 +2219,7 @@ Explosion::Explosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 
 void Explosion::OnPrepareRender()
 {
-	GetComponent<SphereCollideComponent>()->Radius += 0.02;
+	GetComponent<SphereCollideComponent>()->Radius += 0.035;
 	for (auto& o : GameScene::MainScene->MonsterObjects)
 	{
 		if (o->GetComponent<BoxCollideComponent>())

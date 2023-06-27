@@ -25,6 +25,17 @@ WeaponObject::WeaponObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	GetComponent<RotateComponent>()->SetRotationSpeed(360.0f);
 	GetComponent<RotateComponent>()->SetRotationAxis(XMFLOAT3(1.0f, 0.0f, 0.0f));
 
+	BoundingShader* m_pBoundingShader = new BoundingShader();
+	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+	BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
+
+	bs->SetNum(2);
+	AddComponent<SphereCollideComponent>();
+	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.5);
+
 }
 
 WeaponObject::~WeaponObject()
