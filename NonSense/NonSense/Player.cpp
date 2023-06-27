@@ -377,7 +377,11 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 
 	if (NetworkMGR::id != id) {
 		printf("´Ù¸¥ ID");
-		m_pUI->SetMyPos(0, 0, 1, 1);
+		//m_pUI->SetMyPos(0, 0, 1, 1);
+	}
+	else
+	{
+		printf("³» ID");
 	}
 
 	m_pHP_UI->SetParentUI(m_pUI);

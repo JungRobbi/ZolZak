@@ -828,7 +828,7 @@ void GameFramework::FrameAdvance()
 
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
-	ChatMGR::UpdateText();
+	//ChatMGR::UpdateText();
 	ProcessInput();
 
 	AnimateObjects();
@@ -895,7 +895,7 @@ void GameFramework::FrameAdvance()
 	WaitForGpuComplete();
 
 	if (scene_type == LOGIN_SCENE) {
-		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
+		//ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
 	}
 //	else if (scene_type == GAME_SCENE)
 //		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
@@ -911,15 +911,15 @@ void GameFramework::FrameAdvance()
 void GameFramework::RenderHP()
 {
 	if (scene_type == GAME_SCENE) {
-		for (auto& p : m_OtherPlayers)
-		{
-			p->m_pHP_Dec_UI->UpdateTransform(NULL);
-			p->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
-			p->m_pHP_UI->UpdateTransform(NULL);
-			p->m_pHP_UI->Render(m_pCommandList, m_pCamera);
-			p->m_pUI->UpdateTransform(NULL);
-			p->m_pUI->Render(m_pCommandList, m_pCamera);
-		}
+		//for (auto& p : m_OtherPlayers)
+		//{
+		//	p->m_pHP_Dec_UI->UpdateTransform(NULL);
+		//	p->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
+		//	p->m_pHP_UI->UpdateTransform(NULL);
+		//	p->m_pHP_UI->Render(m_pCommandList, m_pCamera);
+		//	p->m_pUI->UpdateTransform(NULL);
+		//	p->m_pUI->Render(m_pCommandList, m_pCamera);
+		//}
 		m_pPlayer->m_pHP_Dec_UI->UpdateTransform(NULL);
 		m_pPlayer->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
 		m_pPlayer->m_pHP_UI->UpdateTransform(NULL);
