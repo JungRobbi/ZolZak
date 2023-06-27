@@ -31,6 +31,7 @@ public:
 	shared_ptr<Player> m_pPlayer;
 	bool m_clear_stage = 0;
 
+	std::atomic<int> m_roomNum = 0;
 	std::atomic<bool> b_Enable;
 	std::atomic<bool> b_Login = false;
 
