@@ -5,6 +5,8 @@
 #include "Characters.h"
 #include "GameFramework.h"
 #include "AttackComponent.h"
+#include "SphereCollideComponent.h"
+#include "MoveForwardComponent.h"
 void FarTypeFSMComponent::start()
 {
 	m_pFSM = new FSM<FarTypeFSMComponent>(this);
@@ -16,6 +18,15 @@ void FarTypeFSMComponent::start()
 void FarTypeFSMComponent::update()
 {
 	m_pFSM->Update();
+	if (((Monster*)gameObject)->WeaponFrame) {
+		if (((Monster*)gameObject)->WeaponFrame->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()) && ((Monster*)gameObject)->WeaponFrame->GetComponent<MoveForwardComponent>()->MoveTimeLeft > 0)
+		{
+			GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+			GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
+			printf("%f -> %f = %f\n", dynamic_cast<Goblin*>(gameObject)->GetAttack(), GameFramework::MainGameFramework->m_pPlayer->GetDefense(), GameFramework::MainGameFramework->m_pPlayer->GetRemainHP());
+			((Monster*)gameObject)->WeaponFrame->GetComponent<MoveForwardComponent>()->MoveTimeLeft = 0;
+		}
+	}
 }
 
 FSM<FarTypeFSMComponent>* FarTypeFSMComponent::GetFSM()
