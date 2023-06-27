@@ -90,7 +90,6 @@ void Monster::FarTypeAttack()
 }
 void Monster::RushTypeAttack()
 {
-	std::cout << "돌진 공격" << std::endl;
 }
 Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) : Monster(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {

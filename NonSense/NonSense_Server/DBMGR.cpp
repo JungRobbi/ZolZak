@@ -46,7 +46,7 @@ wchar_t* ChartoWChar(char* chr)
 //////////////////////////
 //////////////////////////
 wchar_t* DBMGR::DSN_NAME = L"NonSense";
-volatile bool DBMGR::db_connection = true;
+volatile bool DBMGR::db_connection = false;
 
 DBMGR::DBMGR()
 {

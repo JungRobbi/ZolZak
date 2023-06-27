@@ -882,7 +882,7 @@ void GameFramework::FrameAdvance()
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
-//	RenderHP();
+	RenderHP();
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
