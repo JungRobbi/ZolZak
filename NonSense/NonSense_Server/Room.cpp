@@ -266,7 +266,7 @@ void Room::update()
 						continue;
 					SC_MONSTER_ANIMATION_TYPE_PACKET send_packet;
 					send_packet.size = sizeof(SC_MONSTER_ANIMATION_TYPE_PACKET);
-					send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_MOSTER;
+					send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_MONSTER;
 					send_packet.id = ((Goblin*)monster)->num;
 					send_packet.Anitype = ((Character*)monster)->PresentAniType;
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));

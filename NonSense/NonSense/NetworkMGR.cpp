@@ -8,6 +8,10 @@
 #include "PlayerMovementComponent.h"
 #include "CloseTypeFSMComponent.h"
 #include "CloseTypeState.h"
+#include "FarTypeFSMComponent.h"
+#include "FarTypeState.h"
+#include "RushTypeFSMComponent.h"
+#include "RushTypeState.h"
 #include "AttackComponent.h"
 #include "UILayer.h"
 #pragma comment(lib, "WS2_32.LIB")
@@ -164,10 +168,10 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			player->SetRemainHP(recv_packet->remainHp);
 			GameFramework::MainGameFramework->m_clearStage = recv_packet->clearStage;
 		}
-
-		if (NetworkMGR::b_isLoginProg) { // 로그인 진행 하는 동안 
+		cout << "로그인 정보 수신!" << endl;
+		if (b_isLoginProg) { // 로그인 진행 하는 동안 
 			GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
-			NetworkMGR::b_isLoginProg = false;
+			b_isLoginProg = false;
 		}
 
 		break;
@@ -296,7 +300,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		break;
 	}
-	case E_PACKET_SC_ANIMATION_TYPE_MOSTER: {
+	case E_PACKET_SC_ANIMATION_TYPE_MONSTER: {
 		SC_MONSTER_ANIMATION_TYPE_PACKET* recv_packet = reinterpret_cast<SC_MONSTER_ANIMATION_TYPE_PACKET*>(p_Packet);
 		
 		Character* Monster;
@@ -310,8 +314,12 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			break;
 
 		Monster = dynamic_cast<Character*>(*p);
-		Monster->GetComponent<CloseTypeFSMComponent>()->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
-
+		if (Monster->GetComponent<CloseTypeFSMComponent>())
+			Monster->GetComponent<CloseTypeFSMComponent>()->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
+		else if (Monster->GetComponent<FarTypeFSMComponent>())
+			Monster->GetComponent<FarTypeFSMComponent>()->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
+		else if (Monster->GetComponent<RushTypeFSMComponent>())
+			Monster->GetComponent<RushTypeFSMComponent>()->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
 		break;
 	}
 	case E_PACKET_SC_MOVE_MONSTER_PACKET: {
@@ -366,7 +374,12 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			Monster = dynamic_cast<Character*>(*p);
 		}
 
-		Monster->GetComponent<CloseTypeFSMComponent>()->SetTargetPlayer(player);
+		if(Monster->GetComponent<CloseTypeFSMComponent>())
+			Monster->GetComponent<CloseTypeFSMComponent>()->SetTargetPlayer(player);
+		else if (Monster->GetComponent<FarTypeFSMComponent>())
+			Monster->GetComponent<FarTypeFSMComponent>()->SetTargetPlayer(player);
+		else if (Monster->GetComponent<RushTypeFSMComponent>())
+			Monster->GetComponent<RushTypeFSMComponent>()->SetTargetPlayer(player);
 
 		break;
 	}
@@ -426,8 +439,12 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 
 			Monster = dynamic_cast<Character*>(*p);
 		}
-
-		Monster->GetComponent<CloseTypeFSMComponent>()->WanderPosition = XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z);
+		if (Monster->GetComponent<CloseTypeFSMComponent>())
+			Monster->GetComponent<CloseTypeFSMComponent>()->WanderPosition = XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z);
+		else if (Monster->GetComponent<FarTypeFSMComponent>())
+			Monster->GetComponent<FarTypeFSMComponent>()->WanderPosition = XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z);
+		else if (Monster->GetComponent<RushTypeFSMComponent>())
+			Monster->GetComponent<RushTypeFSMComponent>()->WanderPosition = XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z);
 		break;
 	}
 	case E_PACKET_SC_TEMP_WANDER_MONSTER_PACKET: {
@@ -445,8 +462,12 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 
 			Monster = dynamic_cast<Character*>(*p);
 		}
-		if (Monster->GetComponent<CloseTypeFSMComponent>()->GetFSM()->GetCurrentState() != WanderState::GetInstance())
+		if (Monster->GetComponent<CloseTypeFSMComponent>() && Monster->GetComponent<CloseTypeFSMComponent>()->GetFSM()->GetCurrentState() != WanderState::GetInstance())
 			Monster->GetComponent<CloseTypeFSMComponent>()->GetFSM()->ChangeState(WanderState::GetInstance());
+		else if (Monster->GetComponent<FarTypeFSMComponent>() && Monster->GetComponent<FarTypeFSMComponent>()->GetFSM()->GetCurrentState() != WanderState_Far::GetInstance())
+			Monster->GetComponent<FarTypeFSMComponent>()->GetFSM()->ChangeState(WanderState_Far::GetInstance());
+		else if (Monster->GetComponent<RushTypeFSMComponent>() && Monster->GetComponent<RushTypeFSMComponent>()->GetFSM()->GetCurrentState() != WanderState_Rush::GetInstance())
+			Monster->GetComponent<RushTypeFSMComponent>()->GetFSM()->ChangeState(WanderState_Rush::GetInstance());
 		break;
 	}
 	case E_PACKET_SC_CHAT_PACKET: {
@@ -459,13 +480,11 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET_SC_LOGIN_FAIL_PACKET: {
 		b_isLogin = false;
-		b_isLoginProg = false;
 		std::cout << "로그인 실패!" << std::endl;
 		break;
 	}
 	case E_PACKET_SC_LOGIN_OK_PACKET: {
 		b_isLogin = true;
-		b_isLoginProg = false;
 		std::cout << "로그인 성공!" << std::endl;
 		break;
 	}
