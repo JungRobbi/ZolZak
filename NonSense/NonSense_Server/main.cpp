@@ -233,13 +233,6 @@ int main(int argc, char* argv[])
 	// 사용자가 ctl-c를 누르면 메인루프를 종료하게 만듭니다.
 	signal(SIGINT, ProcessSignalAction);
 
-	// 임시 방 생성
-	Room::roomlist.emplace_back(make_shared<Room>());
-	Room::roomlist.at(0)->m_roomNum = 0;
-
-	for (auto& room : Room::roomlist)
-		room->start();
-
 	Scene::scene = make_shared<Scene>();
 	Scene::scene->LoadSceneObb();
 
@@ -251,6 +244,13 @@ int main(int argc, char* argv[])
 	Scene::terrain = new HeightMapTerrain(_T("Terrain/terrain.raw"), 800, 800, xmf3Scale);
 	Scene::terrain->SetPosition(-400, 0, -400);
 	std::cout << "Terrain Loding Complete!" << std::endl;
+
+	// 임시 방 생성
+	Room::roomlist.emplace_back(make_shared<Room>());
+	Room::roomlist.at(0)->m_roomNum = 0;
+
+	for (auto& room : Room::roomlist)
+		room->start();
 
 	Timer::Initialize();
 	Timer::Reset();

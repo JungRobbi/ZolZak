@@ -1,6 +1,5 @@
 #pragma once
 #include "Object.h"
-#include "Scene.h"
 #include <memory>
 #include <atomic>
 #include "../AnimationType.h"
@@ -30,7 +29,7 @@ public:
 public:
 	int num;
 	Character();
-	Character(std::shared_ptr<Scene> p_scene);
+	Character(int roomNum);
 	virtual ~Character();
 	virtual void GetHit(float damage) { m_RemainHP -= damage; }
 
@@ -51,6 +50,6 @@ class Goblin : public Character
 {
 public:
 
-	Goblin(MonsterType type, std::shared_ptr<Scene> p_scene);
+	Goblin(MonsterType type, int roomNum);
 	virtual ~Goblin();
 };

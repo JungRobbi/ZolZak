@@ -16,60 +16,61 @@ void AttackComponent::Attack()
 		if (AttackRange) {
 			if (dynamic_cast<Player*>(gameObject)) {
 				for (auto& monster : Room::roomlist.at(dynamic_cast<Player*>(gameObject)->m_roomNum)->GetScene()->MonsterObjects)
-			{
-				if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject()))monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense()/(monster->GetDefense() + 100)));
-			//	printf("%f -> %f = %f", dynamic_cast<Player*>(gameObject)->GetAttack(), monster->GetDefense(), dynamic_cast<Goblin*>(monster)->GetRemainHP());
+				{
+					if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject()))monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100)));
+					//	printf("%f -> %f = %f", dynamic_cast<Player*>(gameObject)->GetAttack(), monster->GetDefense(), dynamic_cast<Goblin*>(monster)->GetRemainHP());
+				}
 			}
 		}
-	}
-	else {
-		if (AttackRange) {
-			if (Room::roomlist.at(dynamic_cast<Player*>(gameObject)->m_roomNum)->Clients.empty())
-				return;
-			auto firstPlayer = Room::roomlist.at(dynamic_cast<Player*>(gameObject)->m_roomNum)->Clients.begin()->second->m_pPlayer;
-			if (AttackRange->Intersects(*firstPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
-			{
-				firstPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (firstPlayer->GetDefense() / (firstPlayer->GetDefense() + 100)));
-				printf("%f -> %f = %f", dynamic_cast<Goblin*>(gameObject)->GetAttack(), firstPlayer->GetDefense(), firstPlayer->GetRemainHP());
+		else {
+			if (AttackRange) {
+				if (Room::roomlist.at(dynamic_cast<Player*>(gameObject)->m_roomNum)->Clients.empty())
+					return;
+				auto firstPlayer = Room::roomlist.at(dynamic_cast<Player*>(gameObject)->m_roomNum)->Clients.begin()->second->m_pPlayer;
+				if (AttackRange->Intersects(*firstPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
+				{
+					firstPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (firstPlayer->GetDefense() / (firstPlayer->GetDefense() + 100)));
+					printf("%f -> %f = %f", dynamic_cast<Goblin*>(gameObject)->GetAttack(), firstPlayer->GetDefense(), firstPlayer->GetRemainHP());
+				}
 			}
 		}
-	}
 
-	if (!Type_ComboAttack)
-	{
-		/*gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo1_AnineSetNum);
-		gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo1_AnineSetNum);
-		gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo1_AnineSetNum);
-		gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);*/
-	}
-	else
-	{
-
-		switch (type)
+		if (!Type_ComboAttack)
 		{
-		case Combo1:
 			/*gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo1_AnineSetNum);
 			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo1_AnineSetNum);
 			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo1_AnineSetNum);
 			gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);*/
-			type = Combo2;
-			break;
-		case Combo2:
-			/*gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo2_AnineSetNum);
-			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo2_AnineSetNum);
-			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo2_AnineSetNum);
-			gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);*/
-			type = Combo3;
-			break;
-		case Combo3:
-			/*gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo3_AnineSetNum);
-			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo3_AnineSetNum);
-			gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo3_AnineSetNum);
-			gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);	*/		
-			type = Combo1;
-			break;
 		}
+		else
+		{
 
+			switch (type)
+			{
+			case Combo1:
+				/*gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo1_AnineSetNum);
+				gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo1_AnineSetNum);
+				gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo1_AnineSetNum);
+				gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);*/
+				type = Combo2;
+				break;
+			case Combo2:
+				/*gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo2_AnineSetNum);
+				gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo2_AnineSetNum);
+				gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo2_AnineSetNum);
+				gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);*/
+				type = Combo3;
+				break;
+			case Combo3:
+				/*gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, AttackCombo3_AnineSetNum);
+				gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(1, AttackCombo3_AnineSetNum);
+				gameObject->m_pSkinnedAnimationController->SetTrackAnimationSet(2, AttackCombo3_AnineSetNum);
+				gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);	*/
+				type = Combo1;
+				break;
+			}
+
+		}
 	}
 }
 

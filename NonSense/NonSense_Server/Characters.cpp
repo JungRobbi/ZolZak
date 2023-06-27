@@ -1,5 +1,6 @@
 ﻿#include "Characters.h"
 #include "Scene.h"
+#include "Room.h"
 #include "Components/BoxCollideComponent.h"
 #include "Components/CloseTypeFSMComponent.h"
 #include "Components/AttackComponent.h"
@@ -10,10 +11,10 @@ Character::Character() :
 	Scene::scene->creationMonsterQueue.push((Character*)this);
 }
 
-Character::Character(std::shared_ptr<Scene> p_scene) :
+Character::Character(int roomNum) :
 	Object(false)
 {
-	p_scene->creationMonsterQueue.push((Character*)this);
+	Room::roomlist.at(roomNum)->GetScene()->creationMonsterQueue.push((Character*)this);
 }
 
 
@@ -24,8 +25,8 @@ Character::~Character()
 	components.clear();
 }
 
-Goblin::Goblin(MonsterType type, std::shared_ptr<Scene> p_scene) :
-	Character(p_scene)
+Goblin::Goblin(MonsterType type, int roomNum) :
+	Character(roomNum)
 {
 	BoundBox* bb = new BoundBox();
 	BoundBox* bb2 = new BoundBox();
