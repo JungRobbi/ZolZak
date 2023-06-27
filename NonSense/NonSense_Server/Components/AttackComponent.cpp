@@ -3,6 +3,7 @@
 #include "../RemoteClients/RemoteClient.h"
 #include "../Player.h"
 #include "../Scene.h"
+#include "../Room.h"
 #include "BoxCollideComponent.h"
 #include "SphereCollideComponent.h"
 
@@ -13,7 +14,8 @@ void AttackComponent::Attack()
 
 	if (dynamic_cast<Player*>(gameObject)) {
 		if (AttackRange) {
-			for (auto& monster : Scene::scene->MonsterObjects)
+			if (dynamic_cast<Player*>(gameObject)) {
+				for (auto& monster : Room::roomlist.at(dynamic_cast<Player*>(gameObject)->m_roomNum)->GetScene()->MonsterObjects)
 			{
 				if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject()))monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense()/(monster->GetDefense() + 100)));
 			//	printf("%f -> %f = %f", dynamic_cast<Player*>(gameObject)->GetAttack(), monster->GetDefense(), dynamic_cast<Goblin*>(monster)->GetRemainHP());
@@ -22,9 +24,9 @@ void AttackComponent::Attack()
 	}
 	else {
 		if (AttackRange) {
-			if (RemoteClient::remoteClients.empty())
+			if (Room::roomlist.at(dynamic_cast<Player*>(gameObject)->m_roomNum)->Clients.empty())
 				return;
-			auto firstPlayer = RemoteClient::remoteClients.begin()->second->m_pPlayer;
+			auto firstPlayer = Room::roomlist.at(dynamic_cast<Player*>(gameObject)->m_roomNum)->Clients.begin()->second->m_pPlayer;
 			if (AttackRange->Intersects(*firstPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
 				firstPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (firstPlayer->GetDefense() / (firstPlayer->GetDefense() + 100)));

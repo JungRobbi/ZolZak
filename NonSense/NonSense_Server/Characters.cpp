@@ -10,6 +10,13 @@ Character::Character() :
 	Scene::scene->creationMonsterQueue.push((Character*)this);
 }
 
+Character::Character(std::shared_ptr<Scene> p_scene) :
+	Object(false)
+{
+	p_scene->creationMonsterQueue.push((Character*)this);
+}
+
+
 Character::~Character() 
 {
 	for (auto& p : components)
@@ -17,8 +24,8 @@ Character::~Character()
 	components.clear();
 }
 
-Goblin::Goblin(MonsterType type) :
-	Character()
+Goblin::Goblin(MonsterType type, std::shared_ptr<Scene> p_scene) :
+	Character(p_scene)
 {
 	BoundBox* bb = new BoundBox();
 	BoundBox* bb2 = new BoundBox();

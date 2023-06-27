@@ -3,12 +3,12 @@
 #include <fstream>
 #include <algorithm>
 
-Scene* Scene::scene{ nullptr };
+std::shared_ptr<Scene> Scene::scene{};
 HeightMapTerrain* Scene::terrain{ nullptr };
 
 Scene::Scene()
 {
-	scene = this;
+
 }
 
 Object* Scene::CreateEmpty()
