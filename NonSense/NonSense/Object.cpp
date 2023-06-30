@@ -499,6 +499,11 @@ float AnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, f
 	return(m_fPosition);
 }
 
+void AnimationTrack::AddEvent(std::string EventName, int nAnimationSet, float Position, void(*Callback)())
+{
+	m_AnimationEvents.emplace_back(EventName, nAnimationSet, Position, Callback);
+}
+
 void AnimationController::SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet)
 {
 	if (m_pAnimationTracks)
@@ -642,6 +647,13 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 		}
 		pRootGameObject->UpdateTransform(NULL);
 	}
+}
+
+void AnimationController::AddEvent(std::string EventName, int nAnimationSet, float Position, void(*Callback)())
+{
+	m_pAnimationTracks[0].AddEvent(EventName, nAnimationSet, Position, Callback);
+	m_pAnimationTracks[1].AddEvent(EventName, nAnimationSet, Position, Callback);
+
 }
 
 
