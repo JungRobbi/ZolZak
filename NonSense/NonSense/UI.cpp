@@ -373,5 +373,5 @@ NPCScript::NPCScript(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 	SetMaterial(pUIMaterial);
 	CanClick = false;
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.05, 0.05, 0.9, 0.3);
+	SetMyPos(0.05, 0.0, 0.9, 0.4);
 }
