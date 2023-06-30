@@ -46,7 +46,22 @@ public:
 	void SetAniType(E_MONSTER_ANIMATION_TYPE ani_type) { PresentAniType = ani_type; }
 };
 
-class Goblin : public Character
+class Monster : public Character
+{
+public:
+	Monster();
+	Monster(int roomNum);
+	Monster_HP_UI* m_pHP = NULL;
+
+	bool MageDamage = false;
+	Object* HandFrame = NULL;
+	Object* WeaponFrame = NULL;
+public:
+	void FarTypeAttack();
+	void RushTypeAttack();
+};
+
+class Goblin : public Monster
 {
 public:
 

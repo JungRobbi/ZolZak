@@ -1,32 +1,48 @@
+#include "FarTypeFSMComponent.h"
 #include <algorithm>
-#include "CloseTypeFSMComponent.h"
-#include "../Characters.h"
+#include <memory>
 #include "../RemoteClients/RemoteClient.h"
-#include "../Scene.h"
-#include "../CloseTypeState.h"
 #include "AttackComponent.h"
-void CloseTypeFSMComponent::start()
+#include "MonsterAttackComponent.h"
+#include "../FarTypeState.h"
+#include "../Characters.h"
+#include "../Scene.h"
+#include "AttackComponent.h"
+#include "SphereCollideComponent.h"
+#include "MoveForwardComponent.h"
+void FarTypeFSMComponent::start()
 {
-	m_pFSM = new FSM<CloseTypeFSMComponent>(this);
-	m_pFSM->SetCurrentState(IdleState::GetInstance());
+	m_pFSM = new FSM<FarTypeFSMComponent>(this);
+	m_pFSM->SetCurrentState(IdleState_Far::GetInstance());
+
+//	SetTargetPlayer(GameFramework::MainGameFramework->m_pPlayer);
 }
 
-void CloseTypeFSMComponent::update()
+void FarTypeFSMComponent::update()
 {
 	m_pFSM->Update();
+	/*if (((Monster*)gameObject)->WeaponFrame) {
+		if (((Monster*)gameObject)->WeaponFrame->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()) && ((Monster*)gameObject)->WeaponFrame->GetComponent<MoveForwardComponent>()->MoveTimeLeft > 0)
+		{
+			GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+			GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
+			printf("%f -> %f = %f\n", dynamic_cast<Goblin*>(gameObject)->GetAttack(), GameFramework::MainGameFramework->m_pPlayer->GetDefense(), GameFramework::MainGameFramework->m_pPlayer->GetRemainHP());
+			((Monster*)gameObject)->WeaponFrame->GetComponent<MoveForwardComponent>()->MoveTimeLeft = 0;
+		}
+	}*/
 }
 
-FSM<CloseTypeFSMComponent>* CloseTypeFSMComponent::GetFSM()
+FSM<FarTypeFSMComponent>* FarTypeFSMComponent::GetFSM()
 {
 	return m_pFSM;
 }
 
-bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
+bool FarTypeFSMComponent::CheckDistanceFromPlayer()
 {
 	XMFLOAT3 OwnerPos = gameObject->GetPosition();
 
 	float Distance = ChangeStateDistance;
-	shared_ptr<Player> cand_player = nullptr;
+	std::shared_ptr<Player> cand_player = nullptr;
 	for (auto& rc : RemoteClient::remoteClients) {
 		if (!rc.second->b_Enable)
 			continue;
@@ -48,7 +64,7 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 	return true;
 }
 
-void CloseTypeFSMComponent::ResetWanderPosition(float posx, float posz)
+void FarTypeFSMComponent::ResetWanderPosition(float posx, float posz)
 {
 	XMFLOAT3 pos;
 	if (Scene::terrain)
@@ -66,17 +82,17 @@ void CloseTypeFSMComponent::ResetWanderPosition(float posx, float posz)
 	WanderPosition = pos;
 }
 
-void CloseTypeFSMComponent::ResetIdleTime(float time)
+void FarTypeFSMComponent::ResetIdleTime(float time)
 {
 	IdleLeftTime = time;
 }
 
-XMFLOAT3 CloseTypeFSMComponent::GetOwnerPosition()
+XMFLOAT3 FarTypeFSMComponent::GetOwnerPosition()
 {
 	return gameObject->GetPosition();
 }
 
-bool CloseTypeFSMComponent::Idle()
+bool FarTypeFSMComponent::Idle()
 {
 	if (IdleLeftTime > 0.0f)
 	{
@@ -86,28 +102,26 @@ bool CloseTypeFSMComponent::Idle()
 	return true;
 }
 
-void CloseTypeFSMComponent::Stop()
+void FarTypeFSMComponent::Stop()
 {
 	((Monster*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_IDLE;
 }
 
-void CloseTypeFSMComponent::Move_Walk(float dist)
+void FarTypeFSMComponent::Move_Walk(float dist)
 {
 	((Monster*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_WALK;
-	gameObject->MoveForward(dist);
 }
-void CloseTypeFSMComponent::Move_Run(float dist)
+void FarTypeFSMComponent::Move_Run(float dist)
 {
 	((Monster*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_RUN;
-	gameObject->MoveForward(dist);
 }
-void CloseTypeFSMComponent::Attack()
+void FarTypeFSMComponent::Attack()
 {
-	if (!gameObject->GetComponent<AttackComponent>()->During_Attack)
-		gameObject->GetComponent<AttackComponent>()->Attack();
+	if (!gameObject->GetComponent<MonsterAttackComponent>()->During_Attack)
+		gameObject->GetComponent<MonsterAttackComponent>()->FarTypeAttack();
 }
 
-void CloseTypeFSMComponent::Track()
+void FarTypeFSMComponent::Track()
 {
 	XMFLOAT3 TargetPos = TargetPlayer->GetPosition();
 	XMFLOAT3 CurrentPos = gameObject->GetPosition();
@@ -120,7 +134,7 @@ void CloseTypeFSMComponent::Track()
 	if (ToTargetAngle > 7.0f)
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(TargetPos, CurrentPos));
-	if (Distance > 1.5f)
+	if (Distance > 5.0f)
 		Move_Run(2.0f * Timer::GetTimeElapsed());
 	else
 	{
@@ -128,7 +142,7 @@ void CloseTypeFSMComponent::Track()
 		Attack();
 	}
 }
-bool CloseTypeFSMComponent::Wander()
+bool FarTypeFSMComponent::Wander()
 {
 	XMFLOAT3 CurrentPos = gameObject->GetPosition();
 	XMFLOAT3 Direction = Vector3::Normalize(Vector3::Subtract(WanderPosition, CurrentPos));
@@ -140,16 +154,6 @@ bool CloseTypeFSMComponent::Wander()
 	if (ToTargetAngle > 7.0f)
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(WanderPosition, CurrentPos));
-	
-	for (auto& rc_to : RemoteClient::remoteClients) {
-		if (!rc_to.second->b_Enable)
-			continue;
-		SC_TEMP_WANDER_MONSTER_PACKET send_packet;
-		send_packet.size = sizeof(SC_TEMP_WANDER_MONSTER_PACKET);
-		send_packet.type = E_PACKET::E_PACKET_SC_TEMP_WANDER_MONSTER_PACKET;
-		send_packet.id = ((Goblin*)gameObject)->num;
-		rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
-	}
 
 	if (Distance > 0.5f)
 	{
@@ -157,5 +161,4 @@ bool CloseTypeFSMComponent::Wander()
 		return false;
 	}
 	return true;
-
 }
