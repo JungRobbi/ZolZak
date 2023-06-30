@@ -496,14 +496,27 @@ float AnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, f
 		break;
 	}
 
+	TriggerEvent(fTrackPosition);
+
 	return(m_fPosition);
 }
 
-void AnimationTrack::AddEvent(std::string EventName, int nAnimationSet, float Position, void(*Callback)())
+void AnimationTrack::AddAnimationEvent(std::string EventName, int nAnimationSet, float Position, std::function<void()>Callback)
 {
-	m_AnimationEvents.emplace_back(EventName, nAnimationSet, Position, Callback);
+	m_AnimationEvents.emplace_back(AnimationEvent{ EventName, nAnimationSet, Position, Callback });
 }
-
+void AnimationTrack::TriggerEvent(float fTrackPosition)
+{
+	for (auto ev : m_AnimationEvents)
+	{
+		if (ev.AnimationSet == m_nAnimationSet) {							// 이벤트의 애니메이션과 현재 애니메이션이 동일할 때
+			if (ev.Position <= m_fPosition && ev.Position > fTrackPosition)	// 이벤트 위치가 현재위치보다 작거나 갖고 이전 위치보다 클 때
+			{
+				ev.Callback();
+			}
+		}
+	}
+}
 void AnimationController::SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet)
 {
 	if (m_pAnimationTracks)
@@ -649,11 +662,20 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 	}
 }
 
-void AnimationController::AddEvent(std::string EventName, int nAnimationSet, float Position, void(*Callback)())
+void AnimationController::AddAnimationEvent(std::string EventName, int nAnimationSet, float Position, std::function<void()>Callback)
 {
-	m_pAnimationTracks[0].AddEvent(EventName, nAnimationSet, Position, Callback);
-	m_pAnimationTracks[1].AddEvent(EventName, nAnimationSet, Position, Callback);
-
+	if (m_pAnimationSets->m_pAnimationSets[nAnimationSet]->m_Length < Position || Position < 0)
+	{
+		std::cerr << "AddAnimationEventError - " << EventName << "이벤트의 설정 길이가 애니메이션의 설정 길이와 맞지 않습니다. " << std::endl;
+		return;
+	}
+	else if (m_pAnimationSets->m_nAnimationSets <= nAnimationSet || nAnimationSet < 0)
+	{
+		std::cerr << "AddAnimationEventError - " << EventName << "이벤트를 설정할 애니메이션이 존재하지 않습니다. " << std::endl;
+		return;
+	}
+	m_pAnimationTracks[0].AddAnimationEvent(EventName, nAnimationSet, Position, Callback);
+	m_pAnimationTracks[1].AddAnimationEvent(EventName, nAnimationSet, Position, Callback);
 }
 
 
@@ -1505,26 +1527,26 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 				}
 			}
 		}
-		if (m_ppMeshes)
-		{
-			UpdateShaderVariables(pd3dCommandList);
-			if (m_nMaterials > 0)
-			{
-				for (int i = 0; i < m_nMaterials; ++i)
-				{
-					if (m_ppMaterials[i])
-					{
-						if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
-						m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
-					}
-					for (int j = 0; j < m_nMeshes; j++)
-					{
-						if (m_ppMeshes[j]) m_ppMeshes[j]->Render(pd3dCommandList, i);
-					}
-				}
-			}
+		//if (m_ppMeshes)
+		//{
+		//	UpdateShaderVariables(pd3dCommandList);
+		//	if (m_nMaterials > 0)
+		//	{
+		//		for (int i = 0; i < m_nMaterials; ++i)
+		//		{
+		//			if (m_ppMaterials[i])
+		//			{
+		//				if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+		//				m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
+		//			}
+		//			for (int j = 0; j < m_nMeshes; j++)
+		//			{
+		//				if (m_ppMeshes[j]) m_ppMeshes[j]->Render(pd3dCommandList, i);
+		//			}
+		//		}
+		//	}
 
-		}
+		//}
 
 		if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
 		if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);

@@ -136,6 +136,12 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		m_RemainHP = 965;
 		m_Attack = 200;
 		m_Defense = 90;
+		{
+			std::function<void()> AttackEvent = [this]() {
+				this->CloseAttackEvent();
+			};
+			m_pSkinnedAnimationController->AddAnimationEvent("AttackEvent", E_M_ATTACK, 0.6, AttackEvent);
+		}
 		break;
 	case MONSTER_TYPE_FAR:
 		AddComponent<FarTypeFSMComponent>();
@@ -204,9 +210,16 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	Monster_HP_UI* m_HP_UI = new Monster_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pHP = m_HP_UI;
 
+	
+	
 }
 
 Goblin::~Goblin()
 {
+}
+
+void Goblin::CloseAttackEvent()
+{
+	GetComponent<AttackComponent>()->CheckMonsterAttackRange();
 }
 

@@ -37,15 +37,21 @@ void AttackComponent::Attack()
 	}
 	else // Monster
 	{	
-		if (AttackRange) {
-			if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
-			{
-				GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
-				GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
-			}
-		}
+		
 	}
 	AttackAnimate();
+}
+
+void AttackComponent::CheckMonsterAttackRange()
+{
+	std::cout << "Attack" << std::endl;
+	if (AttackRange) {
+		if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
+		{
+			GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+			GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
+		}
+	}
 }
 
 void AttackComponent::AttackAnimate() 

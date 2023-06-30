@@ -3,6 +3,8 @@
 #include "stdafx.h"
 #include <list>
 #include <array>
+#include <vector>
+#include <functional>
 #include "Mesh.h"
 #include "../AnimationType.h"
 #include "Camera.h"
@@ -219,13 +221,14 @@ public:
 	int								m_nAnimatedBoneFrames = 0;
 	Object** m_ppAnimatedBoneFrameCaches = NULL; //[m_nAnimatedBoneFrames]
 };
+
+
 struct AnimationEvent
 {
 	std::string EventName;	// 무슨 이벤트인지 눈으로 확인하기 위한 문자열 게임 로직에 사용되는 일 없음
 	int AnimationSet;		// 이벤트 만들 애니메이션 번호
 	float Position;			// 이벤트가 발생할 위치
-	void(*CallbackFunc)();	// 해당 이벤트가 발생하면 사용할 함수
-	bool IsCalled = false;	// 해당 이벤트가 발생했는가 (딱 한번만 호출하기 위한 변수)
+	std::function<void()> Callback;		// 해당 이벤트가 발생하면 사용할 함수
 };
 
 class AnimationTrack
@@ -252,7 +255,8 @@ public:
 	void SetWeight(float fWeight) { m_fWeight = fWeight; }
 	void SetPosition(float fPosition) { m_fPosition = fPosition; }
 	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength);
-	void AddEvent(std::string EventName, int nAnimationSet, float Position, void(*Callback)());
+	void AddAnimationEvent(std::string EventName, int nAnimationSet, float Position, std::function<void()>Callback);
+	void TriggerEvent(float fTrackPosition);
 };
 class LoadedModelInfo
 {
@@ -313,7 +317,7 @@ public:
 	void SetTrackWeight(int nAnimationTrack, float fWeight);
 	void EndAnimation();
 	void AdvanceTime(float fElapsedTime, Object* pRootGameObject);
-	void AddEvent(std::string EventName, int nAnimationSet, float Position, void(*Callback)());
+	void AddAnimationEvent(std::string EventName, int nAnimationSet, float Position, std::function<void()>Callback);
 };
 
 
