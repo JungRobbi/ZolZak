@@ -73,6 +73,9 @@ public:
 public:
 	static GameScene* MainScene;
 	Player* m_pPlayer = NULL;
+	NPC* StartNPC = NULL;
+	NPC* EndNPC = NULL;
+	NPCScript* ScriptUI = NULL;
 
 protected:
 	Object* CreateEmpty();

@@ -153,7 +153,7 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 				bs2->SetNum(5);
 				WeaponFrame->AddComponent<SphereCollideComponent>();
 				WeaponFrame->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs2);
-				WeaponFrame->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, -0.05), 10);
+				WeaponFrame->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, -0.05), 7);
 			}
 			Hand = FindFrame("Weapon_Goblin_3_L_Dummy");
 			if (Hand) {
@@ -210,3 +210,19 @@ Goblin::~Goblin()
 {
 }
 
+NPC::NPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Character(pd3dDevice,  pd3dCommandList, pd3dGraphicsRootSignature, pModel)
+{
+	GameScene::MainScene->creationQueue.push((Object*)this);
+
+	m_pBoundingShader = new BoundingShader();
+	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+	BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
+
+	bs->SetNum(2);
+	AddComponent<SphereCollideComponent>();
+	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 3);
+	
+}

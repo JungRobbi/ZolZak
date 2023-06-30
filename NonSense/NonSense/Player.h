@@ -130,3 +130,21 @@ public:
 	virtual void Update(float fTimeElapsed);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 };
+
+class WarriorPlayer : public Player
+{
+public:
+	FireBall* fireball;
+	Object* pWeaponObject;
+	Shader* m_pBoundingShader = NULL;
+	CubeMesh* m_pBoundMesh = NULL;
+	SphereMesh* m_pSphereMesh = NULL;
+
+	WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext);
+	virtual ~WarriorPlayer() {}
+
+	virtual Camera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
+
+	virtual void Update(float fTimeElapsed);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+};

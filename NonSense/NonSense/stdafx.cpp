@@ -12,6 +12,7 @@ UINT gnDsvDescriptorIncrementSize = 0;
 FLOAT ClearColor[4] = { 1.0f, 1.0f, 0.0f, 1.0f };
 bool DebugMode = false;
 bool OptionMode = false;
+bool ScriptMode = false;
 UINT OBJNum = 2;
 
 ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
