@@ -8,8 +8,8 @@ private:
 	XMFLOAT3 Direction = { 0,0,0 };
 	float Speed = 10.0f;
 	float MoveTime = 1.5f;
-	float MoveTimeLeft = 0.0f;
 public:
+	float MoveTimeLeft = 0.0f;
 	void start();
 	void update();
 

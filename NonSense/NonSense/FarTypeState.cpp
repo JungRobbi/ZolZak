@@ -16,7 +16,7 @@ WanderState_Far* WanderState_Far::GetInstance()
 
 void WanderState_Far::Enter(FarTypeFSMComponent* pOwner)
 {
-	std::cout << "Start Wandering" << std::endl;
+	//std::cout << "Start Wandering" << std::endl;
 	pOwner->Stop();
 	XMFLOAT3 OwnerPos = pOwner->GetOwnerPosition();
 	float NewPosx = OwnerPos.x + RandomPosDistance(dre);
@@ -43,7 +43,7 @@ void WanderState_Far::Execute(FarTypeFSMComponent* pOwner)
 
 void WanderState_Far::Exit(FarTypeFSMComponent* pOwner)
 {
-	std::cout << "Stop Wandering" << std::endl;
+	//std::cout << "Stop Wandering" << std::endl;
 }
 
 TrackEnemyState_Far* TrackEnemyState_Far::GetInstance()
@@ -54,7 +54,7 @@ TrackEnemyState_Far* TrackEnemyState_Far::GetInstance()
 
 void TrackEnemyState_Far::Enter(FarTypeFSMComponent* pOwner)
 {
-	std::cout << "Start Tracking" << std::endl;
+	//std::cout << "Start Tracking" << std::endl;
 
 }
 
@@ -73,7 +73,7 @@ void TrackEnemyState_Far::Execute(FarTypeFSMComponent* pOwner)
 
 void TrackEnemyState_Far::Exit(FarTypeFSMComponent* pOwner)
 {
-	std::cout << "Stop Tracking" << std::endl;
+	//std::cout << "Stop Tracking" << std::endl;
 }
 
 IdleState_Far* IdleState_Far::GetInstance()
@@ -84,7 +84,7 @@ IdleState_Far* IdleState_Far::GetInstance()
 
 void IdleState_Far::Enter(FarTypeFSMComponent* pOwner)
 {
-	std::cout << "Start Idle" << std::endl;
+	//std::cout << "Start Idle" << std::endl;
 	pOwner->Stop();
 	pOwner->ResetIdleTime(RandomIdleTime(rd));
 }
@@ -107,7 +107,7 @@ void IdleState_Far::Execute(FarTypeFSMComponent* pOwner)
 
 void IdleState_Far::Exit(FarTypeFSMComponent* pOwner)
 {
-	std::cout << "Stop Idel" << std::endl;
+	//std::cout << "Stop Idel" << std::endl;
 }
 
 DeathState_Far* DeathState_Far::GetInstance()
@@ -118,7 +118,7 @@ DeathState_Far* DeathState_Far::GetInstance()
 
 void DeathState_Far::Enter(FarTypeFSMComponent* pOwner)
 {
-	std::cout << "Unit Die" << std::endl;
+	//std::cout << "Unit Die" << std::endl;
 	pOwner->gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_DEATH);
 }
 

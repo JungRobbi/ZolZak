@@ -309,8 +309,7 @@ void GameFramework::BuildObjects()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
-	ChatMGR::m_pUILayer = new UILayer(m_nSwapChainBuffers, 1, m_pDevice, m_pCommandQueue, 
-		m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
+	ChatMGR::m_pUILayer = new UILayer(m_nSwapChainBuffers, 1, m_pDevice, m_pCommandQueue, m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
 	ChatMGR::SetTextinfos(m_nWndClientWidth, m_nWndClientHeight);
 	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Stage
 
@@ -318,7 +317,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(GAME_SCENE);
+	ChangeScene(LOBBY_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -351,8 +350,8 @@ void GameFramework::ReleaseObjects()
 {
 	GameScene::MainScene->ReleaseObjects();
 
-	if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
-	if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
+	//if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
+	//if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
 }
 
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -451,16 +450,27 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			{
 			case VK_RETURN:
 				ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
-				ChatMGR::StoreText();
+				ChatMGR::StoreTextSelf();
 				ChatMGR::m_textindex = 0;
 
 				if (NetworkMGR::b_isNet && scene_type == LOGIN_SCENE) {
 					char* p = ConvertWCtoC(ChatMGR::m_textbuf);
 					NetworkMGR::name = string{ p };
 					delete[] p;
-					NetworkMGR::do_connetion();
-					NetworkMGR::do_recv();
-					ChangeScene(GAME_SCENE);
+					if(!NetworkMGR::b_isNet) // 클라 모드일 때 
+						ChangeScene(GAME_SCENE);
+					else if (!NetworkMGR::b_isLogin && !NetworkMGR::b_isLoginProg) { // 로그인 하지 않은 상태
+						NetworkMGR::b_isLoginProg = true; // 로그인 진행
+						CS_LOGIN_PACKET send_packet;
+						send_packet.size = sizeof(CS_LOGIN_PACKET);
+						send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
+						memcpy(send_packet.name, NetworkMGR::name.c_str(), NetworkMGR::name.size());
+						PacketQueue::AddSendPacket(&send_packet);
+					}
+					else {
+						//로그인 실패
+					}
+
 				}
 				ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
 				break;
@@ -530,12 +540,58 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				SaveSceneOBB();
 				break;
 			case '2':
-				//m_pHP_UI->HP -= 0.05;
-				//m_pHP_Dec_UI->Dec_HP -= 0.05;
-				//m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * m_pHP_UI->HP, 0.32);
+				cout << m_pPlayer->GetPosition().x << ", " << m_pPlayer->GetPosition().y << ", " << m_pPlayer->GetPosition().z << endl;
 				break;
-			case '3':
-				m_pPlayer->DeleteComponent<AttackComponent>();
+			case 'f':	// 상호작용
+			case 'F':
+				if (scene_type == GAME_SCENE)
+				{
+					if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameScene::MainScene->StartNPC->GetComponent<SphereCollideComponent>()->GetBoundingObject()))	// Start NPC
+					{
+						if (!ScriptMode)	// 대화 시작
+						{
+							m_pCamera = m_pPlayer->ChangeCamera(THIRD_PERSON_CAMERA, Timer::GetTimeElapsed());
+							ScriptMode = true;
+							cout << GameScene::MainScene->StartNPC->script[0] << endl;
+						}
+						else
+						{
+							ScriptNum++;
+							if (ScriptNum >= GameScene::MainScene->StartNPC->script.size())	// 대화 끝
+							{
+								::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
+								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
+								ScriptMode = false;
+								ScriptNum = 0;
+								break;
+							}
+							cout << GameScene::MainScene->StartNPC->script[ScriptNum] << endl;
+						}
+					}
+
+					if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameScene::MainScene->EndNPC->GetComponent<SphereCollideComponent>()->GetBoundingObject()))		// End NPC
+					{
+						if (!ScriptMode)	// 대화 시작
+						{
+							m_pCamera = m_pPlayer->ChangeCamera(THIRD_PERSON_CAMERA, Timer::GetTimeElapsed());
+							ScriptMode = true;
+							cout << GameScene::MainScene->EndNPC->script[0] << endl;
+						}
+						else
+						{
+							ScriptNum++;
+							if (ScriptNum >= GameScene::MainScene->EndNPC->script.size())	// 대화 끝
+							{
+								::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
+								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
+								ScriptMode = false;
+								ScriptNum = 0;
+								break;
+							}
+							cout << GameScene::MainScene->EndNPC->script[ScriptNum] << endl;
+						}
+					}
+				}
 				break;
 			case '7':
 				ChangeScene(0);
@@ -638,12 +694,6 @@ void GameFramework::ChangeScene(unsigned char num)
 			dynamic_cast<Player*>(m_OtherPlayersPool.back())->SetCamera(dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f));
 			m_OtherPlayersPool.back()->SetUsed(true);
 		}
-
-		CS_LOGIN_PACKET send_packet;
-		send_packet.size = sizeof(CS_LOGIN_PACKET);
-		send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
-		memcpy(send_packet.name, NetworkMGR::name.c_str(), NetworkMGR::name.size());
-		PacketQueue::AddSendPacket(&send_packet);
 	}
 
 	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
@@ -688,43 +738,61 @@ void GameFramework::ProcessSelectedObject(DWORD dwDirection, float cxDelta, floa
 
 void GameFramework::ProcessInput()
 {
-	Input::update();
-	static UCHAR pKeyBuffer[256];
-	DWORD dwDirection = 0;
-	if (::GetKeyboardState(pKeyBuffer))
-	{
-		if (pKeyBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;
-		if (pKeyBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;
-		if (pKeyBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;
-		if (pKeyBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;
-		if (pKeyBuffer[0x45] & 0xF0) dwDirection |= DIR_UP;
-		if (pKeyBuffer[0x51] & 0xF0) dwDirection |= DIR_DOWN;
-	}
-	float cxDelta = 0.0f, cyDelta = 0.0f;
-	POINT ptCursorPos;
-
-	if (!m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose)
-	{
-		::SetCapture(m_hWnd);
-		RECT rect;
-		::GetWindowRect(m_hWnd, &rect);
-		SetWindowCentser(rect);
-		::SetCursor(NULL);
-		::GetCursorPos(&ptCursorPos);
-		cxDelta = (float)(ptCursorPos.x - CenterOfWindow.x) / 3.0f;
-		cyDelta = (float)(ptCursorPos.y - CenterOfWindow.y) / 3.0f;
-
-		::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
-	}
-	else
-	{
-		::SetCursor(LoadCursor(m_hInstance, MAKEINTRESOURCE(IDC_CURSOR1)));
-		if (::GetCapture() == m_hWnd)
+	if (!ScriptMode) {
+		Input::update();
+		static UCHAR pKeyBuffer[256];
+		DWORD dwDirection = 0;
+		if (::GetKeyboardState(pKeyBuffer))
 		{
+			if (pKeyBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;
+			if (pKeyBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;
+			if (pKeyBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;
+			if (pKeyBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;
+			if (pKeyBuffer[0x45] & 0xF0) dwDirection |= DIR_UP;
+			if (pKeyBuffer[0x51] & 0xF0) dwDirection |= DIR_DOWN;
+		}
+		float cxDelta = 0.0f, cyDelta = 0.0f;
+		POINT ptCursorPos;
+
+		if (!m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose)
+		{
+			::SetCapture(m_hWnd);
 			RECT rect;
-			::GetCursorPos(&ptCursorPos);
 			::GetWindowRect(m_hWnd, &rect);
-			if (scene_type != GAME_SCENE) {
+			SetWindowCentser(rect);
+			::SetCursor(NULL);
+			::GetCursorPos(&ptCursorPos);
+			cxDelta = (float)(ptCursorPos.x - CenterOfWindow.x) / 3.0f;
+			cyDelta = (float)(ptCursorPos.y - CenterOfWindow.y) / 3.0f;
+
+			::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
+		}
+		else
+		{
+			::SetCursor(LoadCursor(m_hInstance, MAKEINTRESOURCE(IDC_CURSOR1)));
+			if (::GetCapture() == m_hWnd)
+			{
+				RECT rect;
+				::GetCursorPos(&ptCursorPos);
+				::GetWindowRect(m_hWnd, &rect);
+				if (scene_type != GAME_SCENE) {
+					float px = (ptCursorPos.x - rect.left) / (float)FRAME_BUFFER_WIDTH;
+					float py = (ptCursorPos.y - rect.top - 10) / (float)FRAME_BUFFER_HEIGHT;
+
+					for (auto& ui : GameScene::MainScene->UIGameObjects)
+					{
+						if (px >= dynamic_cast<UI*>(ui)->XYWH._41 && px <= dynamic_cast<UI*>(ui)->XYWH._41 + dynamic_cast<UI*>(ui)->XYWH._11 &&
+							py <= 1 - dynamic_cast<UI*>(ui)->XYWH._42 && py >= 1 - (dynamic_cast<UI*>(ui)->XYWH._42 + dynamic_cast<UI*>(ui)->XYWH._22))
+						{
+							dynamic_cast<UI*>(ui)->OnClick();
+						}
+					}
+				}
+			}
+			else {
+				RECT rect;
+				::GetCursorPos(&ptCursorPos);
+				::GetWindowRect(m_hWnd, &rect);
 				float px = (ptCursorPos.x - rect.left) / (float)FRAME_BUFFER_WIDTH;
 				float py = (ptCursorPos.y - rect.top - 10) / (float)FRAME_BUFFER_HEIGHT;
 
@@ -733,49 +801,33 @@ void GameFramework::ProcessInput()
 					if (px >= dynamic_cast<UI*>(ui)->XYWH._41 && px <= dynamic_cast<UI*>(ui)->XYWH._41 + dynamic_cast<UI*>(ui)->XYWH._11 &&
 						py <= 1 - dynamic_cast<UI*>(ui)->XYWH._42 && py >= 1 - (dynamic_cast<UI*>(ui)->XYWH._42 + dynamic_cast<UI*>(ui)->XYWH._22))
 					{
-						dynamic_cast<UI*>(ui)->OnClick();
+						if (dynamic_cast<UI*>(ui)->CanClick) {}
 					}
 				}
 			}
 		}
-		else {
-			RECT rect;
-			::GetCursorPos(&ptCursorPos);
-			::GetWindowRect(m_hWnd, &rect);
-			float px = (ptCursorPos.x - rect.left) / (float)FRAME_BUFFER_WIDTH;
-			float py = (ptCursorPos.y - rect.top - 10) / (float)FRAME_BUFFER_HEIGHT;
+		if (cxDelta || cyDelta)
+		{
+			m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+		}
 
-			for (auto& ui : GameScene::MainScene->UIGameObjects)
+		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+		{
+			if (m_pSelectedObject)
 			{
-				if (px >= dynamic_cast<UI*>(ui)->XYWH._41 && px <= dynamic_cast<UI*>(ui)->XYWH._41 + dynamic_cast<UI*>(ui)->XYWH._11 &&
-					py <= 1 - dynamic_cast<UI*>(ui)->XYWH._42 && py >= 1 - (dynamic_cast<UI*>(ui)->XYWH._42 + dynamic_cast<UI*>(ui)->XYWH._22))
+				ProcessSelectedObject(dwDirection, cxDelta, cyDelta);
+			}
+			else
+			{
+
+				if (cxDelta || cyDelta)
 				{
-					if (dynamic_cast<UI*>(ui)->CanClick) {}
+
 				}
-			}
-		}
-	}
-	if (cxDelta || cyDelta)
-	{
-		m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-	}
+				if (dwDirection) {
+					m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
 
-	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
-	{
-		if (m_pSelectedObject)
-		{
-			ProcessSelectedObject(dwDirection, cxDelta, cyDelta);
-		}
-		else
-		{
-	
-			if (cxDelta || cyDelta)
-			{
-
-			}
-			if (dwDirection) {
-				m_pPlayer->Move(dwDirection, 50.0f * Timer::GetTimeElapsed(), true);
-
+				}
 			}
 		}
 	}
@@ -824,7 +876,7 @@ void GameFramework::FrameAdvance()
 
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
-	ChatMGR::UpdateText();
+	//ChatMGR::UpdateText();
 	ProcessInput();
 
 	AnimateObjects();
@@ -878,8 +930,7 @@ void GameFramework::FrameAdvance()
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
-	RenderHP();
-	ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+	if(!ScriptMode)RenderHP();
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
@@ -891,7 +942,11 @@ void GameFramework::FrameAdvance()
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	//ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+	if (scene_type == LOGIN_SCENE) {
+		//ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
+	}
+//	else if (scene_type == GAME_SCENE)
+//		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 
 	m_pSwapChain->Present(0, 0);
 
@@ -904,15 +959,15 @@ void GameFramework::FrameAdvance()
 void GameFramework::RenderHP()
 {
 	if (scene_type == GAME_SCENE) {
-		for (auto& p : m_OtherPlayers)
-		{
-			p->m_pHP_Dec_UI->UpdateTransform(NULL);
-			p->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
-			p->m_pHP_UI->UpdateTransform(NULL);
-			p->m_pHP_UI->Render(m_pCommandList, m_pCamera);
-			p->m_pUI->UpdateTransform(NULL);
-			p->m_pUI->Render(m_pCommandList, m_pCamera);
-		}
+		//for (auto& p : m_OtherPlayers)
+		//{
+		//	p->m_pHP_Dec_UI->UpdateTransform(NULL);
+		//	p->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
+		//	p->m_pHP_UI->UpdateTransform(NULL);
+		//	p->m_pHP_UI->Render(m_pCommandList, m_pCamera);
+		//	p->m_pUI->UpdateTransform(NULL);
+		//	p->m_pUI->Render(m_pCommandList, m_pCamera);
+		//}
 		m_pPlayer->m_pHP_Dec_UI->UpdateTransform(NULL);
 		m_pPlayer->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
 		m_pPlayer->m_pHP_UI->UpdateTransform(NULL);

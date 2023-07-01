@@ -4,7 +4,8 @@
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 
-constexpr int NAME_SIZE = 20;
+constexpr int NAME_SIZE = 15;
+constexpr int CHAT_SIZE = 300;
 
 constexpr int MAX_BUFSIZE_CLIENT = 1024;
 
@@ -16,6 +17,8 @@ enum E_PACKET
 	E_PACKET_CS_LOGIN, E_PACKET_CS_KEYDOWN, E_PACKET_CS_KEYUP, E_PACKET_CS_MOVE, E_PACKET_CS_ROTATE,
 
 	E_PACKET_CS_TEMP_HIT_MONSTER_PACKET, E_PACKET_SC_TEMP_HIT_MONSTER_PACKET,
+	E_PACKET_CS_TEMP_HIT_PLAYER_PACKET, E_PACKET_SC_TEMP_HIT_PLAYER_PACKET,
+	E_PACKET_CS_CHAT_PACKET,
 
 	// Server -> Client packet
 	E_PACKET_SC_LOGIN_INFO, E_PACKET_SC_ADD_PLAYER, E_PACKET_SC_REMOVE_PLAYER,
@@ -24,8 +27,11 @@ enum E_PACKET
 	E_PACKET_SC_MOVE_MONSTER_PACKET, E_PACKET_SC_LOOK_MONSTER_PACKET,
 	E_PACKET_SC_AGGRO_PLAYER_PACKET,
 
-	E_PACKET_SC_TEMP_WANDER_MONSTER_PACKET
+	E_PACKET_SC_TEMP_WANDER_MONSTER_PACKET,
 
+	E_PACKET_SC_CHAT_PACKET,
+	E_PACKET_SC_LOGIN_OK_PACKET,
+	E_PACKET_SC_LOGIN_FAIL_PACKET
 };
 
 #pragma pack (push, 1)
@@ -68,10 +74,33 @@ public:
 	unsigned int	hit_damage;
 };
 
+class CS_TEMP_HIT_PLAYER_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	player_id;
+	unsigned int	hit_damage;
+};
+
+class CS_CHAT_PACKET : public PACKET_HEAD {
+public:
+	char    chat[CHAT_SIZE];
+};
+
+
 class SC_TEMP_HIT_MONSTER_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	monster_id;
 	int				remain_hp;
+};
+
+class SC_TEMP_HIT_PLAYER_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	player_id;
+	int				remain_hp;
+};
+
+class SC_CHAT_PACKET : public PACKET_HEAD {
+public:
+	char    chat[CHAT_SIZE];
 };
 
 class SC_TEMP_WANDER_MONSTER_PACKET : public PACKET_HEAD {
@@ -82,12 +111,33 @@ public:
 class SC_LOGIN_INFO_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	id;
+	char	name[NAME_SIZE];
+	int 	maxHp;
+	float	remainHp;
+	float	x;
+	float	y;
+	float	z;
+	int	clearStage;
+};
+
+class SC_LOGIN_OK_PACKET : public PACKET_HEAD {
+public:
+};
+
+class SC_LOGIN_FAIL_PACKET : public PACKET_HEAD {
+public:
 };
 
 class SC_ADD_PLAYER_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	id;
 	char	name[NAME_SIZE];
+	int 	maxHp;
+	float	remainHp;
+	float	x;
+	float	y;
+	float	z;
+	int	clearStage;
 };
 
 class SC_REMOVE_PLAYER_PACKET : public PACKET_HEAD {

@@ -90,7 +90,6 @@ void Monster::FarTypeAttack()
 }
 void Monster::RushTypeAttack()
 {
-	std::cout << "돌진 공격" << std::endl;
 }
 Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) : Monster(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
@@ -144,15 +143,6 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		}
 		break;
 	case MONSTER_TYPE_FAR:
-		AddComponent<FarTypeFSMComponent>();
-		bb->SetNum(5);
-		AddComponent<MonsterAttackComponent>();
-		GetComponent<MonsterAttackComponent>()->SetAttackSpeed(3.0f);
-
-		bs->SetNum(2);
-		AddComponent<SphereCollideComponent>();
-		GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
-		GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.5);
 
 		if (pWeaponL && pWeaponR) {
 			Hand = FindFrame("Weapon_Goblin_3_R_Dummy");
@@ -165,17 +155,27 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 				BoundingShader* m_pBoundingShader = new BoundingShader();
 				m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 				SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
-				BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
-				bs->SetNum(5);
+				BoundSphere* bs2 = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
+				bs2->SetNum(5);
 				WeaponFrame->AddComponent<SphereCollideComponent>();
-				WeaponFrame->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
-				WeaponFrame->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, 0.0), 0.1);
+				WeaponFrame->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs2);
+				WeaponFrame->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, -0.05), 7);
 			}
 			Hand = FindFrame("Weapon_Goblin_3_L_Dummy");
 			if (Hand) {
 				Hand->SetChild(pWeaponL->m_pRoot, true);
 			}
 		}
+		AddComponent<MonsterAttackComponent>();
+		GetComponent<MonsterAttackComponent>()->SetAttackSpeed(3.0f);
+
+		bs->SetNum(2);
+		AddComponent<SphereCollideComponent>();
+		GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+		GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.5);
+
+		AddComponent<FarTypeFSMComponent>();
+
 		m_Health = 675;
 		m_RemainHP = 675;
 		m_Attack = 180;
@@ -218,8 +218,25 @@ Goblin::~Goblin()
 {
 }
 
+
 void Goblin::CloseAttackEvent()
 {
 	GetComponent<AttackComponent>()->CheckMonsterAttackRange();
 }
 
+NPC::NPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Character(pd3dDevice,  pd3dCommandList, pd3dGraphicsRootSignature, pModel)
+{
+	GameScene::MainScene->creationQueue.push((Object*)this);
+
+	m_pBoundingShader = new BoundingShader();
+	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+	BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
+
+	bs->SetNum(2);
+	AddComponent<SphereCollideComponent>();
+	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 3);
+	
+}

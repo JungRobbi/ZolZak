@@ -1,6 +1,7 @@
 #include "MoveForwardComponent.h"
 #include "RotateComponent.h"
 #include "SphereCollideComponent.h"
+#include "GameFramework.h"
 void MoveForwardComponent::start()
 {
 }
@@ -18,8 +19,6 @@ void MoveForwardComponent::update()
 			gameObject->GetComponent<RotateComponent>()->RotateOn = false;
 		gameObject->SetDo_Render(false);
 	}
-	std::cout << gameObject->GetComponent<SphereCollideComponent>()->GetBoundingObject()->GetPosition().x << " - " << gameObject->GetComponent<SphereCollideComponent>()->GetBoundingObject()->GetPosition().y << " - " << gameObject->GetComponent<SphereCollideComponent>()->GetBoundingObject()->GetPosition().z << std::endl;
-
 }
 
 void MoveForwardComponent::ReadyToMove(XMFLOAT3& look)

@@ -9,6 +9,7 @@
 #include "CloseTypeFSMComponent.h"
 #include "CloseTypeState.h"
 #include "AttackComponent.h"
+#include "UILayer.h"
 #pragma comment(lib, "WS2_32.LIB")
 
 char* NetworkMGR::SERVERIP = "127.0.0.1";
@@ -20,6 +21,8 @@ shared_ptr<Socket> NetworkMGR::tcpSocket;
 unsigned int	NetworkMGR::id{};
 string			NetworkMGR::name{};
 bool			NetworkMGR::b_isNet{true};
+bool			NetworkMGR::b_isLogin{ false };
+bool			NetworkMGR::b_isLoginProg{ false };
 
 void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED recv_over, DWORD recv_flag)
 {
@@ -77,6 +80,7 @@ void NetworkMGR::start()
 
 	if (isnet == 'n') {
 		b_isNet = false;
+		b_isLogin = true;
 		return;
 	}
 	
@@ -98,7 +102,8 @@ void NetworkMGR::start()
 
 
 	tcpSocket->Bind(Endpoint::Any);
-
+	NetworkMGR::do_connetion();
+	NetworkMGR::do_recv();
 }
 
 void NetworkMGR::Tick()
@@ -151,6 +156,20 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	case E_PACKET::E_PACKET_SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* recv_packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(p_Packet);
 		NetworkMGR::id = recv_packet->id;
+		auto& player = GameFramework::MainGameFramework->m_pPlayer;
+		if (player) {
+			player->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
+			player->GetCamera()->Update(player->GetPosition(), Timer::GetTimeElapsed());
+			player->SetHealth(recv_packet->maxHp);
+			player->SetRemainHP(recv_packet->remainHp);
+			GameFramework::MainGameFramework->m_clearStage = recv_packet->clearStage;
+		}
+
+		if (NetworkMGR::b_isLoginProg) { // 로그인 진행 하는 동안 
+			GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
+			NetworkMGR::b_isLoginProg = false;
+		}
+
 		break;
 	}
 	case E_PACKET::E_PACKET_SC_ADD_PLAYER: {
@@ -159,6 +178,9 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			auto player = GameFramework::MainGameFramework->m_OtherPlayersPool.back();
 			dynamic_cast<Player*>(player)->id = recv_packet->id;
 			dynamic_cast<Player*>(player)->m_name = recv_packet->name;
+			dynamic_cast<Player*>(player)->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
+			dynamic_cast<Player*>(player)->SetHealth(recv_packet->maxHp);
+			dynamic_cast<Player*>(player)->SetRemainHP(recv_packet->remainHp);
 			GameFramework::MainGameFramework->m_OtherPlayers.push_back(player);
 
 			GameFramework::MainGameFramework->m_OtherPlayersPool.pop_back();
@@ -198,6 +220,11 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 
 		player->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
+		player->GetCamera()->Update(player->GetPosition(), Timer::GetTimeElapsed());
+		/*cout << "recv_packet->x = " << recv_packet->x << endl;
+		cout << "recv_packet->y = " << recv_packet->y << endl;
+		cout << "recv_packet->z = " << recv_packet->z << endl;
+		cout << "================ " << endl;*/
 
 		break;
 	}
@@ -362,6 +389,28 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		Monster->SetRemainHP(recv_packet->remain_hp);
 		break;
 	}
+	case E_PACKET_SC_TEMP_HIT_PLAYER_PACKET: {
+		SC_TEMP_HIT_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_TEMP_HIT_PLAYER_PACKET*>(p_Packet);
+		Player* player;
+		if (recv_packet->player_id == NetworkMGR::id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->player_id;
+				});
+
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
+
+			player = dynamic_cast<Player*>(*p);
+		}
+
+		player->SetRemainHP(recv_packet->remain_hp);
+		break;
+	}
 	case E_PACKET_SC_LOOK_MONSTER_PACKET: {
 		SC_LOOK_MONSTER_PACKET* recv_packet = reinterpret_cast<SC_LOOK_MONSTER_PACKET*>(p_Packet);
 		Character* Monster;
@@ -398,6 +447,26 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		if (Monster->GetComponent<CloseTypeFSMComponent>()->GetFSM()->GetCurrentState() != WanderState::GetInstance())
 			Monster->GetComponent<CloseTypeFSMComponent>()->GetFSM()->ChangeState(WanderState::GetInstance());
+		break;
+	}
+	case E_PACKET_SC_CHAT_PACKET: {
+		SC_CHAT_PACKET* recv_packet = reinterpret_cast<SC_CHAT_PACKET*>(p_Packet);
+		
+		auto p = ConverCtoWC(recv_packet->chat);
+		ChatMGR::StoreText(p);
+		delete p;
+		break;
+	}
+	case E_PACKET_SC_LOGIN_FAIL_PACKET: {
+		b_isLogin = false;
+		b_isLoginProg = false;
+		std::cout << "로그인 실패!" << std::endl;
+		break;
+	}
+	case E_PACKET_SC_LOGIN_OK_PACKET: {
+		b_isLogin = true;
+		b_isLoginProg = false;
+		std::cout << "로그인 성공!" << std::endl;
 		break;
 	}
 	default:

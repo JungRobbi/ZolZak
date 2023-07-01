@@ -46,12 +46,24 @@ void AttackComponent::CheckMonsterAttackRange()
 {
 	std::cout << "Attack" << std::endl;
 	if (AttackRange) {
-		if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
-		{
-			GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
-			GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
+			if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
+			{
+				if (!NetworkMGR::b_isNet) {
+					GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+				}
+				else {
+					CS_TEMP_HIT_PLAYER_PACKET send_packet;
+					send_packet.size = sizeof(CS_TEMP_HIT_PLAYER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_PLAYER_PACKET;
+					send_packet.player_id = NetworkMGR::id;
+					send_packet.hit_damage = dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100));
+					PacketQueue::AddSendPacket(&send_packet);
+				}
+				printf("%f -> %f = %f", dynamic_cast<Goblin*>(gameObject)->GetAttack(), GameFramework::MainGameFramework->m_pPlayer->GetDefense(), GameFramework::MainGameFramework->m_pPlayer->GetRemainHP());
+			//	GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+				GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
+			}
 		}
-	}
 }
 
 void AttackComponent::AttackAnimate() 
@@ -105,7 +117,7 @@ void AttackComponent::update()
 
 		AttackRange->Transform(*AttackRange, XMLoadFloat4x4(&gameObject->GetWorld()));
 
-		/// ±×¸®±â À§ÇÑ ÄÚµå
+		/// ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½
 		AttackRange->m_xmf4x4ToParent = gameObject->GetWorld();
 		AttackRange->SetScale(AttackRange->Extents.x, AttackRange->Extents.y, AttackRange->Extents.z);
 		AttackRange->SetPosition(AttackRange->Center.x, AttackRange->Center.y, AttackRange->Center.z);

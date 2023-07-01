@@ -377,7 +377,11 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 
 	if (NetworkMGR::id != id) {
 		printf("다른 ID");
-		m_pUI->SetMyPos(0, 0, 1, 1);
+		//m_pUI->SetMyPos(0, 0, 1, 1);
+	}
+	else
+	{
+		printf("내 ID");
 	}
 
 	m_pHP_UI->SetParentUI(m_pUI);
@@ -526,6 +530,197 @@ void MagePlayer::Update(float fTimeElapsed)
 }
 
 void MagePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (GameScene::MainScene->m_pPlayer == this)
+	{
+		DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
+		if (nCameraMode == FIRST_PERSON_CAMERA)
+		{
+			m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
+
+			FindFrame("Wand")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Body_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Arm_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Leg_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+		}
+		else
+		{
+			Player::Render(pd3dCommandList, pCamera);
+		}
+	}
+	else
+	{
+		Player::Render(pd3dCommandList, pCamera);
+	}
+}
+
+WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
+{
+	Magical = true;
+	HeightMapTerrain* pTerrain = (HeightMapTerrain*)pContext;
+	SetPlayerUpdatedContext(pTerrain);
+	SetCameraUpdatedContext(pTerrain);
+
+	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	fireball = new FireBall(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	if (NetworkMGR::id != id) {
+		printf("다른 ID");
+		//m_pUI->SetMyPos(0, 0, 1, 1);
+	}
+	else
+	{
+		printf("내 ID");
+	}
+
+	m_pHP_UI->SetParentUI(m_pUI);
+	m_pHP_Dec_UI->SetParentUI(m_pUI);
+
+	m_pBoundingShader = new BoundingShader();
+	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+	BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
+	bs->SetNum(1);
+	AddComponent<SphereCollideComponent>();
+	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
+
+	//CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+	//BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
+	//bb->SetNum(3);
+	//GetComponent<AttackComponent>()->SetBoundingObject(bb);
+	AddComponent<PlayerMovementComponent>();
+	AddComponent<AttackComponent>();
+	GetComponent<AttackComponent>()->SetAttackDuration(2.2);
+
+	{
+		XMFLOAT3 pos;
+		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
+		CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		if (GameScene::MainScene->GetTerrain())
+		{
+			float h = GameScene::MainScene->GetTerrain()->GetHeight(-16.0f, 103.0f);
+			pos = XMFLOAT3(-16.0f, h, 103.0f);
+		}
+		else
+		{
+			pos = XMFLOAT3(0, 0, 0);
+		}
+		SetPosition(pos);
+		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
+		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);
+
+		if (pModel)
+			SetChild(pModel->m_pRoot, true);
+		if (pWeaponModel) {
+			Object* Hand = FindFrame("Sword_parentR"); // 무기를 붙여줄 팔 찾기
+			if (Hand) {
+				CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 0.1f, 0.1f, 0.1f);
+				BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
+				bb->SetNum(3);
+				Hand->SetChild(pWeaponModel->m_pRoot, true);
+				pWeaponObject = new Object(false);
+				pWeaponObject->SetChild(pWeaponModel->m_pRoot, true);
+				pWeaponObject->SetPosition(0, 5, 0);
+				bb->SetPosition(pWeaponObject->FindFirstMesh()->GetBoundingBox().Center.x, pWeaponObject->FindFirstMesh()->GetBoundingBox().Center.y + pWeaponObject->FindFirstMesh()->GetBoundingBox().Extents.y, pWeaponObject->FindFirstMesh()->GetBoundingBox().Extents.z);
+			}
+		}
+
+		SetNum(9);
+		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 3, pModel);
+		m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		m_pSkinnedAnimationController->SetTrackAnimationSet(2, 0);
+		m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		m_pSkinnedAnimationController->SetTrackEnable(2, false);
+
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[3]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[4]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[6]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[7]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[8]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[9]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[10]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[11]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[12]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[13]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[14]->m_nType = ANIMATION_TYPE_ONCE;
+
+	}
+}
+
+Camera* WarriorPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
+{
+	DWORD nCurrentCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
+	if (nCurrentCameraMode == nNewCameraMode) return(m_pCamera);
+	switch (nNewCameraMode)
+	{
+	case FIRST_PERSON_CAMERA:
+		//플레이어의 특성을 1인칭 카메라 모드에 맞게 변경한다. 중력은 적용하지 않는다.
+		SetFriction(30.0f);
+		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
+		SetMaxVelocityXZ(5.0f);
+		SetMaxVelocityY(400.0f);
+		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
+		m_pCamera->SetTimeLag(0.0f);
+		m_pCamera->SetOffset(XMFLOAT3(0, 0.7f, 0.25));
+		m_pCamera->GenerateProjectionMatrix(0.1f, 1000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		break;
+	case SPACESHIP_CAMERA:
+		//플레이어의 특성을 스페이스-쉽 카메라 모드에 맞게 변경한다. 중력은 적용하지 않는다.
+		SetFriction(50.0f);
+		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		SetMaxVelocityXZ(100.0f);
+		SetMaxVelocityY(100.0f);
+		m_pCamera = OnChangeCamera(SPACESHIP_CAMERA, nCurrentCameraMode);
+		m_pCamera->SetTimeLag(0.0f);
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pCamera->GenerateProjectionMatrix(0.01f, 1000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		break;
+	case THIRD_PERSON_CAMERA:
+		//플레이어의 특성을 3인칭 카메라 모드에 맞게 변경한다. 지연 효과와 카메라 오프셋을 설정한다.
+		SetFriction(30.0f);
+		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
+		SetMaxVelocityXZ(5.0f);
+		SetMaxVelocityY(400.0f);
+		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
+		//3인칭 카메라의 지연 효과를 설정한다. 값을 0.25f 대신에 0.0f와 1.0f로 설정한 결과를 비교하기 바란다.
+		m_pCamera->SetTimeLag(0.25f);
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 1.5f, -3.0f));
+		//m_pCamera->SetOffset(XMFLOAT3(0, 0.8f, 0.2));
+
+		m_pCamera->GenerateProjectionMatrix(0.01f, 100.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		break;
+	default:
+		break;
+	}
+	m_pCamera->SetPosition(Vector3::Add(m_xmf3Position, m_pCamera->GetOffset()));
+	//플레이어를 시간의 경과에 따라 갱신(위치와 방향을 변경: 속도, 마찰력, 중력 등을 처리)한다.
+	Update(fTimeElapsed);
+	return(m_pCamera);
+}
+
+void WarriorPlayer::Update(float fTimeElapsed)
+{
+	Player::Update(fTimeElapsed);
+	DWORD nCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
+	UpdateTransform(NULL);
+	if (nCameraMode == FIRST_PERSON_CAMERA && FindFrame("Face"))
+	{
+
+	}
+}
+
+void WarriorPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	if (GameScene::MainScene->m_pPlayer == this)
 	{

@@ -1,4 +1,6 @@
 #include "../stdafx.h"
+#include <directxcollision.h>
+#include <vector>
 #include "PlayerMovementComponent.h"
 #include "BoxCollideComponent.h"
 #include "SphereCollideComponent.h"
@@ -7,18 +9,17 @@
 #include "../Player.h"
 #include "../Scene.h"
 
+
 void PlayerMovementComponent::start()
 {
-	scene = dynamic_cast<Scene*>(Scene::scene);
-
 	m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_xmf3Gravity = XMFLOAT3(0.0f, -60.0f, 0.0f);
-	m_fMaxVelocityXZ = 6.5f;
-	m_fMaxVelocityY = 400.0f;
+	m_fMaxVelocityXZ = 3.5f;
+	m_fMaxVelocityY = 100.0f;
 	m_fFriction = 30.0f;
 	m_fPitch = 0.0f;
 	m_fRoll = 0.0f;
@@ -108,8 +109,49 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 
 			for (auto mapObject : Scene::scene->GetMapObjects()) {
 				if (nextBB.Intersects(*(BoundBox*)mapObject)) {
-					cout << "Player의 다음 움직임에 MapObject과 충돌!" << endl;
-					xmf3Shift = XMFLOAT3(0, 0, 0);
+					XMFLOAT3 Corners[8];
+					XMVECTOR vCorners[8];
+					XMVECTOR vOrigin = XMLoadFloat3(&cc->GetBoundingObject()->Center);
+					XMVECTOR vDirection = XMLoadFloat3(&xmf3Shift);
+					XMVECTOR vNorDirection = XMVector3Normalize(vDirection);
+
+					((BoundBox*)mapObject)->GetCorners(Corners);
+		
+					// XMFLOAT3 to XMVECTOR
+					for (int i{}; i < 8; ++i)
+						vCorners[i] = XMLoadFloat3(&Corners[i]);
+			
+					std::vector<std::vector<int>> CornersIndex{
+						{0, 1, 2},{0, 2, 3},
+						{0, 3, 7},{0, 7, 4},
+						{4, 7, 5},{5, 7, 6},
+						{1, 5, 6},{1, 6, 2},
+						{6, 3, 2},{7, 3, 6},
+						{5, 1, 0},{5, 0, 4}
+					};
+					
+					for (int i{}; i < 12; ++i) {
+						auto Normal = Vector3::CrossProduct(
+							Vector3::Subtract(Corners[CornersIndex[i][1]], Corners[CornersIndex[i][0]]),
+							Vector3::Subtract(Corners[CornersIndex[i][2]], Corners[CornersIndex[i][0]]), true);
+
+						// Normal과 평행하면 충돌 처리 금지
+						auto dotProduct = Vector3::DotProduct(xmf3Shift, Normal);
+
+						if (dotProduct < 0 && DirectX::TriangleTests::Intersects(vOrigin, vNorDirection,
+							vCorners[CornersIndex[i][0]], vCorners[CornersIndex[i][1]], vCorners[CornersIndex[i][2]],
+							nextBB.Radius)) {
+							//	cout << "Player의 다음 움직임에 MapObjectdml 1번 삼각형과 충돌!" << endl;
+							// 슬라이딩 벡터 S = P - n(P·n)
+							xmf3Shift = Vector3::Subtract(xmf3Shift,
+								Vector3::ScalarProduct(Normal, dotProduct, false)
+							);
+							if (i == 8 || i == 9) {
+								CanJump = true;
+								m_xmf3Velocity.y = -3.0f;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -123,10 +165,10 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 void PlayerMovementComponent::updateValocity()
 {
 	if (dynamic_cast<Player*>(gameObject)->PresentAniType == E_PLAYER_ANIMATION_TYPE::E_WALK) {
-		SetMaxVelocityXZ(1.8f);
+		SetMaxVelocityXZ(1.f);
 	}
 	else {
-		SetMaxVelocityXZ(6.5f);
+		SetMaxVelocityXZ(3.5f);
 	}
 
 	auto fTimeElapsed = Timer::GetTimeElapsed();
@@ -136,20 +178,22 @@ void PlayerMovementComponent::updateValocity()
 	if (fLength > m_fMaxVelocityXZ) {
 		m_xmf3Velocity.x *= (m_fMaxVelocityXZ / fLength);
 		m_xmf3Velocity.z *= (m_fMaxVelocityXZ / fLength);
-	}
+	} 
 	float fMaxVelocityY = m_fMaxVelocityY * fTimeElapsed;
 	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
-	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-	Move(xmf3Velocity, false);
-	
-	if (m_pPlayerUpdatedContext) 
-		OnPlayerUpdateCallback();
+//	if (Vector3::Length(m_xmf3Velocity) > 3.0f) {
+		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
+		Move(xmf3Velocity, false);
+//	}
 
 	fLength = Vector3::Length(m_xmf3Velocity);
 	float fDeceleration = (m_fFriction * fTimeElapsed);
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+	
+	if (m_pPlayerUpdatedContext) 
+		OnPlayerUpdateCallback();
 }
 
 void PlayerMovementComponent::Jump()
@@ -157,8 +201,9 @@ void PlayerMovementComponent::Jump()
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)m_pPlayerUpdatedContext;
 
 	float fHeight = pTerrain->GetHeight(m_xmf3Position.x - pTerrain->GetPosition().x, m_xmf3Position.z - pTerrain->GetPosition().z);
-	if (m_xmf3Position.y <= fHeight) {
+	if (CanJump) {
 		m_xmf3Velocity.y = 22.f;
+		CanJump = false;
 	}
 }
 
@@ -183,7 +228,8 @@ void PlayerMovementComponent::OnPlayerUpdateCallback()
 
 	float fHeight = pTerrain->GetHeight(m_xmf3Position.x - pTerrain->GetPosition().x, m_xmf3Position.z - pTerrain->GetPosition().z);
 	if (m_xmf3Position.y <= fHeight) {
-		m_xmf3Velocity.y = -5.0f;
+		m_xmf3Velocity.y = -3.0f;
 		m_xmf3Position.y = fHeight;
+		CanJump = true;
 	}
 }

@@ -2,7 +2,11 @@
 #include "UILayer.h"
 #include <iostream>
 #include <wchar.h>
+#include <vector>
+#include <string>
 
+#include "NetworkMGR.h"
+#include "../ImaysNet/PacketQueue.h"
 using namespace std;
 
 UILayer::UILayer(UINT nFrames, UINT nTextBlocks, ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dCommandQueue, ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHeight)
@@ -14,7 +18,9 @@ UILayer::UILayer(UINT nFrames, UINT nTextBlocks, ID3D12Device* pd3dDevice, ID3D1
     m_ppd2dRenderTargets = new ID2D1Bitmap1*[nFrames];
 
     m_nTextBlocks = nTextBlocks;
-    m_pTextBlocks = new TextBlock[nTextBlocks];
+    m_pTextBlocks.reserve(nTextBlocks);
+    for (int i{}; i < m_nTextBlocks; ++i)
+        m_pTextBlocks.emplace_back();
 
     InitializeDevice(pd3dDevice, pd3dCommandQueue, ppd3dRenderTargets);
 }
@@ -102,10 +108,10 @@ IDWriteTextFormat* UILayer::CreateTextFormat(WCHAR* pszFontName, float fFontSize
     return(pdwDefaultTextFormat);
 }
 
-void UILayer::UpdateTextOutputs(UINT nIndex, WCHAR* pstrUIText, D2D1_RECT_F* pd2dLayoutRect, IDWriteTextFormat* pdwFormat, ID2D1SolidColorBrush* pd2dTextBrush)
+void UILayer::UpdateTextOutputs(UINT nIndex, WCHAR* pstrUIText, D2D1_RECT_F pd2dLayoutRect, IDWriteTextFormat* pdwFormat, ID2D1SolidColorBrush* pd2dTextBrush)
 {
     if (pstrUIText) wcscpy_s(m_pTextBlocks[nIndex].m_pstrText, 256, pstrUIText);
-    if (pd2dLayoutRect) m_pTextBlocks[nIndex].m_d2dLayoutRect = *pd2dLayoutRect;
+    memcpy(&(m_pTextBlocks[nIndex].m_d2dLayoutRect), &pd2dLayoutRect, sizeof(pd2dLayoutRect));
     if (pdwFormat) m_pTextBlocks[nIndex].m_pdwFormat = pdwFormat;
     if (pd2dTextBrush) m_pTextBlocks[nIndex].m_pd2dTextBrush = pd2dTextBrush;
 }
@@ -118,15 +124,33 @@ void UILayer::Render(UINT nFrame)
     m_pd3d11On12Device->AcquireWrappedResources(ppResources, _countof(ppResources));
 
     m_pd2dDeviceContext->BeginDraw();
-    for (UINT i = 0; i < m_nTextBlocks; i++)
+    for (auto& textblock : m_pTextBlocks)
     {
-       m_pd2dDeviceContext->DrawText(m_pTextBlocks[i].m_pstrText, (UINT)wcslen(m_pTextBlocks[i].m_pstrText), m_pTextBlocks[i].m_pdwFormat, m_pTextBlocks[i].m_d2dLayoutRect, m_pTextBlocks[i].m_pd2dTextBrush);
+        m_pd2dDeviceContext->DrawText(textblock.m_pstrText, (UINT)wcslen(textblock.m_pstrText), textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
     }
+
     m_pd2dDeviceContext->EndDraw();
 
     m_pd3d11On12Device->ReleaseWrappedResources(ppResources, _countof(ppResources));
     m_pd3d11DeviceContext->Flush();
 }
+
+void UILayer::RenderSingle(UINT nFrame)
+{
+    ID3D11Resource* ppResources[] = { m_ppd3d11WrappedRenderTargets[nFrame] };
+
+    m_pd2dDeviceContext->SetTarget(m_ppd2dRenderTargets[nFrame]);
+    m_pd3d11On12Device->AcquireWrappedResources(ppResources, _countof(ppResources));
+
+    m_pd2dDeviceContext->BeginDraw();
+    m_pd2dDeviceContext->DrawText(m_pTextBlocks[0].m_pstrText, (UINT)wcslen(m_pTextBlocks[0].m_pstrText), m_pTextBlocks[0].m_pdwFormat, m_pTextBlocks[0].m_d2dLayoutRect, m_pTextBlocks[0].m_pd2dTextBrush);
+
+    m_pd2dDeviceContext->EndDraw();
+
+    m_pd3d11On12Device->ReleaseWrappedResources(ppResources, _countof(ppResources));
+    m_pd3d11DeviceContext->Flush();
+}
+
 
 void UILayer::ReleaseResources()
 {
@@ -175,22 +199,29 @@ std::list<WCHAR*> ChatMGR::m_pPrevTexts;
 ID2D1SolidColorBrush* ChatMGR::pd2dBrush;
 IDWriteTextFormat* ChatMGR::pdwTextFormat;
 D2D1_RECT_F ChatMGR::d2dRect;
+int ChatMGR::fontsize = 0;
 
 void ChatMGR::UpdateText()
 {
-    m_pUILayer->UpdateTextOutputs(0, m_textbuf, &d2dRect, pdwTextFormat, pd2dBrush);
+    m_pUILayer->UpdateTextOutputs(0, m_textbuf, d2dRect, pdwTextFormat, pd2dBrush);
+    int i{1};
+    for (auto p{ m_pPrevTexts.begin() }; p != m_pPrevTexts.end(); ++p) {
+        auto rect = d2dRect;
+        rect.top -= i * fontsize + 2;
+        rect.bottom -= i * fontsize + 2;
+        m_pUILayer->UpdateTextOutputs(i++, *p, rect, pdwTextFormat, pd2dBrush);
+    }
 }
 
 void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
 {
     memset(m_textbuf, NULL, sizeof(m_textbuf));
     m_combtext = NULL;
-
+ 
     pd2dBrush = m_pUILayer->CreateBrush(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
     pdwTextFormat = m_pUILayer->CreateTextFormat(L"Arial", WndClientHeight / 25.0f);
   //d2dRect = D2D1::RectF((float)WndClientWidth / 3.2f, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
     d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
-    SetInGame(WndClientWidth, WndClientHeight);
 }
 
 void ChatMGR::SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTYPE type)
@@ -203,13 +234,45 @@ void ChatMGR::SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTY
     }
 }
 
-void ChatMGR::StoreText()
+void ChatMGR::StoreTextSelf()
 {
-    WCHAR temp[256];
-    wcscpy_s(temp, m_textbuf);
-    m_pPrevTexts.push_back(temp);
+    char cname[NAME_SIZE];
+    memcpy(cname, NetworkMGR::name.c_str(), sizeof(NetworkMGR::name.c_str()));
+    cname[NetworkMGR::name.size()] = ' ';
+    cname[NetworkMGR::name.size() + 1] = ':';
+    cname[NetworkMGR::name.size() + 2] = ' ';
+    auto p = ConverCtoWC(cname);
+
+    WCHAR* temp = new WCHAR[CHAT_SIZE];
+
+    wcscpy(temp, p);
+    wcscpy(temp + NetworkMGR::name.size() + 3, m_textbuf);
+    m_pPrevTexts.push_front(temp);
+
+    auto ctemp = ConvertWCtoC(temp);
+
+    CS_CHAT_PACKET send_Packet;
+    send_Packet.size = sizeof(CS_CHAT_PACKET);
+    send_Packet.type = E_PACKET_CS_CHAT_PACKET;
+    strcpy(send_Packet.chat, ctemp);
+    PacketQueue::AddSendPacket(&send_Packet);
+
+    delete p;
+    delete ctemp;
     if (m_pPrevTexts.size() >= 10) {
-        m_pPrevTexts.pop_front();
+        delete m_pPrevTexts.back();
+        m_pPrevTexts.pop_back();
+    }
+}
+
+void ChatMGR::StoreText(WCHAR* buf)
+{
+    WCHAR* temp = new WCHAR[CHAT_SIZE];
+    wcscpy(temp, buf);
+    m_pPrevTexts.push_front(temp);
+    if (m_pPrevTexts.size() >= 10) {
+        delete m_pPrevTexts.back();
+        m_pPrevTexts.pop_back();
     }
 }
 
@@ -219,7 +282,11 @@ void ChatMGR::SetLoginScene(int WndClientWidth, int WndClientHeight)
     m_combtext = NULL;
 
     SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_MID);
-    d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
+    d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, 
+        (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
+
+    fontsize = WndClientHeight / 25.0f;
+
 }
 
 void ChatMGR::SetInGame(int WndClientWidth, int WndClientHeight)
@@ -227,11 +294,22 @@ void ChatMGR::SetInGame(int WndClientWidth, int WndClientHeight)
     memset(m_textbuf, NULL, sizeof(m_textbuf));
     m_combtext = NULL;
 
+    for (auto p{ m_pPrevTexts.begin() }; p != m_pPrevTexts.end(); ++p) {
+        delete (*p);
+    }
+    m_pPrevTexts.clear();
+
     SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_LEFT);
-    d2dRect = D2D1::RectF((float)WndClientWidth / 49.f, (float)WndClientHeight / 1.4f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
+    d2dRect = D2D1::RectF((float)WndClientWidth / 48.f, (float)WndClientHeight / 1.4f, 
+        (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
+
+    fontsize = WndClientHeight / 50.0f;
+
+    for (int i{}; i < 9; ++i)
+        m_pPrevTexts.emplace_back();
 
     m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
         DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-        WndClientHeight / 50.0f, L"en-us", &pdwTextFormat);
+        fontsize, L"en-us", &pdwTextFormat);
 
 }
