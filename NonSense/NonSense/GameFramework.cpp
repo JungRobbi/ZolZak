@@ -317,7 +317,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(LOGIN_SCENE);
+	ChangeScene(LOBBY_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -350,8 +350,8 @@ void GameFramework::ReleaseObjects()
 {
 	GameScene::MainScene->ReleaseObjects();
 
-	if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
-	if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
+	//if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
+	//if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
 }
 
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -571,7 +571,25 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 
 					if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameScene::MainScene->EndNPC->GetComponent<SphereCollideComponent>()->GetBoundingObject()))		// End NPC
 					{
-
+						if (!ScriptMode)	// 대화 시작
+						{
+							m_pCamera = m_pPlayer->ChangeCamera(THIRD_PERSON_CAMERA, Timer::GetTimeElapsed());
+							ScriptMode = true;
+							cout << GameScene::MainScene->EndNPC->script[0] << endl;
+						}
+						else
+						{
+							ScriptNum++;
+							if (ScriptNum >= GameScene::MainScene->EndNPC->script.size())	// 대화 끝
+							{
+								::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
+								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
+								ScriptMode = false;
+								ScriptNum = 0;
+								break;
+							}
+							cout << GameScene::MainScene->EndNPC->script[ScriptNum] << endl;
+						}
 					}
 				}
 				break;

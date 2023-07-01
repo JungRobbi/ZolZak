@@ -154,12 +154,10 @@ void UILayer::RenderSingle(UINT nFrame)
 
 void UILayer::ReleaseResources()
 {
-    if (m_nTextBlocks) {
-        for (UINT i = 0; i < m_nTextBlocks; i++)
-        {
-            m_pTextBlocks[i].m_pdwFormat->Release();
-            m_pTextBlocks[i].m_pd2dTextBrush->Release();
-        }
+    for (UINT i = 0; i < m_nTextBlocks; i++)
+    {
+        m_pTextBlocks[i].m_pdwFormat->Release();
+        m_pTextBlocks[i].m_pd2dTextBrush->Release();
     }
 
     for (UINT i = 0; i < m_nRenderTargets; i++)
