@@ -319,11 +319,13 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		else if (Monster->GetComponent<FarTypeFSMComponent>()) {
 			Monster->GetComponent<FarTypeFSMComponent>()->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
-			Monster->GetComponent<FarTypeFSMComponent>()->Attack();
+			if ((E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype == E_MONSTER_ANIMATION_TYPE::E_M_ATTACK)
+				Monster->GetComponent<FarTypeFSMComponent>()->Attack();
 		}
 		else if (Monster->GetComponent<RushTypeFSMComponent>()) {
 			Monster->GetComponent<RushTypeFSMComponent>()->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
-			Monster->GetComponent<RushTypeFSMComponent>()->Attack();
+			if ((E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype == E_MONSTER_ANIMATION_TYPE::E_M_ATTACK)
+				Monster->GetComponent<RushTypeFSMComponent>()->Attack();
 		}
 		break;
 	}
