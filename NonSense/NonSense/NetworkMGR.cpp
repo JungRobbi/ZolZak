@@ -314,12 +314,17 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			break;
 
 		Monster = dynamic_cast<Character*>(*p);
-		if (Monster->GetComponent<CloseTypeFSMComponent>())
+		if (Monster->GetComponent<CloseTypeFSMComponent>()) {
 			Monster->GetComponent<CloseTypeFSMComponent>()->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
-		else if (Monster->GetComponent<FarTypeFSMComponent>())
+		}
+		else if (Monster->GetComponent<FarTypeFSMComponent>()) {
 			Monster->GetComponent<FarTypeFSMComponent>()->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
-		else if (Monster->GetComponent<RushTypeFSMComponent>())
+			Monster->GetComponent<FarTypeFSMComponent>()->Attack();
+		}
+		else if (Monster->GetComponent<RushTypeFSMComponent>()) {
 			Monster->GetComponent<RushTypeFSMComponent>()->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
+			Monster->GetComponent<RushTypeFSMComponent>()->Attack();
+		}
 		break;
 	}
 	case E_PACKET_SC_MOVE_MONSTER_PACKET: {

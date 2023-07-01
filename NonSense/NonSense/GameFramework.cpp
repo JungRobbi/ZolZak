@@ -815,7 +815,6 @@ void GameFramework::MoveToNextFrame()
 
 void GameFramework::FrameAdvance()
 {
-
 	Timer::Tick(0.0f);
 
 	m_pVivoxSystem->Listen();
