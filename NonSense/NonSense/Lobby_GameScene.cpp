@@ -11,5 +11,13 @@ void Lobby_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	
+	Lobby_UI* m_Lobby_UI = new Lobby_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Make_Room_UI* m_Make_Room_UI = new Make_Room_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Join_Room_UI* m_Join_Room_UI = new Join_Room_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Back_UI* m_Back_UI = new Back_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Right_UI* m_Right_UI = new Right_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Left_UI* m_Left_UI = new Left_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Title_UI* m_Title_UI = new Title_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }

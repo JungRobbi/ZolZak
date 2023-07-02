@@ -130,3 +130,59 @@ public:
 	virtual ~Login_UI() {};
 	virtual void OnClick();
 };
+
+class Lobby_BackGround_UI : public UI
+{
+public:
+	Lobby_BackGround_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Lobby_BackGround_UI() {};
+};
+
+class Lobby_UI : public UI
+{
+public:
+	Lobby_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Lobby_UI() {};
+};
+
+class Make_Room_UI : public UI
+{
+public:
+	Make_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Make_Room_UI() {};
+};
+
+class Join_Room_UI : public UI
+{
+public:
+	Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Join_Room_UI() {};
+};
+
+class Back_UI : public UI
+{
+public:
+	Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Back_UI() {};
+};
+
+class Right_UI : public UI
+{
+public:
+	Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Right_UI() {};
+};
+
+class Left_UI : public UI
+{
+public:
+	Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Left_UI() {};
+};
+
+class Title_UI : public UI
+{
+public:
+	Title_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Title_UI() {};
+};
