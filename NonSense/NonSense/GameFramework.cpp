@@ -801,7 +801,12 @@ void GameFramework::ProcessInput()
 					if (px >= dynamic_cast<UI*>(ui)->XYWH._41 && px <= dynamic_cast<UI*>(ui)->XYWH._41 + dynamic_cast<UI*>(ui)->XYWH._11 &&
 						py <= 1 - dynamic_cast<UI*>(ui)->XYWH._42 && py >= 1 - (dynamic_cast<UI*>(ui)->XYWH._42 + dynamic_cast<UI*>(ui)->XYWH._22))
 					{
-						if (dynamic_cast<UI*>(ui)->CanClick) {}
+						if (dynamic_cast<UI*>(ui)->CanClick) {
+							dynamic_cast<UI*>(ui)->MouseOn = true;
+						}
+					}
+					else {
+						dynamic_cast<UI*>(ui)->MouseOn = false;
 					}
 				}
 			}

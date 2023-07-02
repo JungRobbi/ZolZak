@@ -509,6 +509,7 @@ VS_UI_OUTPUT VSUI(uint nVertexID : SV_VertexID)
 float4 PSUI(VS_UI_OUTPUT input) : SV_Target
 {
 	float4 cColor = gtxtUITexture.Sample(gssWrap, input.uv);
+	if (value) cColor -= 0.4;
 
 	return(cColor);
 }

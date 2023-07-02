@@ -10,6 +10,7 @@ public:
 	virtual ~UI();
 	XMFLOAT4X4 XYWH;
 	bool CanClick = false;
+	bool MouseOn = false;
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
@@ -149,6 +150,7 @@ class Make_Room_UI : public UI
 {
 public:
 	Make_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
 	virtual ~Make_Room_UI() {};
 };
 
@@ -156,6 +158,7 @@ class Join_Room_UI : public UI
 {
 public:
 	Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
 	virtual ~Join_Room_UI() {};
 };
 
@@ -163,6 +166,7 @@ class Back_UI : public UI
 {
 public:
 	Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
 	virtual ~Back_UI() {};
 };
 
@@ -170,6 +174,7 @@ class Right_UI : public UI
 {
 public:
 	Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
 	virtual ~Right_UI() {};
 };
 
@@ -177,6 +182,7 @@ class Left_UI : public UI
 {
 public:
 	Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
 	virtual ~Left_UI() {};
 };
 
@@ -185,4 +191,11 @@ class Title_UI : public UI
 public:
 	Title_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~Title_UI() {};
+};
+
+class Make_Title_UI : public UI
+{
+public:
+	Make_Title_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Make_Title_UI() {};
 };
