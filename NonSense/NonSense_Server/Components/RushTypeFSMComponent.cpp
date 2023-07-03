@@ -101,10 +101,12 @@ void RushTypeFSMComponent::Stop()
 void RushTypeFSMComponent::Move_Walk(float dist)
 {
 	((Monster*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_WALK;
+	gameObject->MoveForward(dist);
 }
 void RushTypeFSMComponent::Move_Run(float dist)
 {
 	((Monster*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_RUN;
+	gameObject->MoveForward(dist);
 }
 void RushTypeFSMComponent::Attack()
 {
@@ -157,6 +159,16 @@ bool RushTypeFSMComponent::Wander()
 	if (ToTargetAngle > 7.0f)
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(WanderPosition, CurrentPos));
+
+	for (auto& rc_to : Room::roomlist.at(gameObject->m_roomNum)->Clients) {
+		if (!rc_to.second->b_Enable)
+			continue;
+		SC_TEMP_WANDER_MONSTER_PACKET send_packet;
+		send_packet.size = sizeof(SC_TEMP_WANDER_MONSTER_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_SC_TEMP_WANDER_MONSTER_PACKET;
+		send_packet.id = ((Goblin*)gameObject)->num;
+		rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+	}
 
 	if (Distance > 0.5f)
 	{

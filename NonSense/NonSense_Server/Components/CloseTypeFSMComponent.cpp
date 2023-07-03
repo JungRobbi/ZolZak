@@ -141,7 +141,7 @@ bool CloseTypeFSMComponent::Wander()
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(WanderPosition, CurrentPos));
 	
-	for (auto& rc_to : RemoteClient::remoteClients) {
+	for (auto& rc_to : Room::roomlist.at(gameObject->m_roomNum)->Clients) {
 		if (!rc_to.second->b_Enable)
 			continue;
 		SC_TEMP_WANDER_MONSTER_PACKET send_packet;
