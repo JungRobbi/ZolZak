@@ -27,7 +27,7 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 
 	float Distance = ChangeStateDistance;
 	shared_ptr<Player> cand_player = nullptr;
-	for (auto& rc : RemoteClient::remoteClients) {
+	for (auto& rc : Room::roomlist.at(gameObject->m_roomNum)->Clients) {
 		if (!rc.second->b_Enable)
 			continue;
 		auto PlayerPos = rc.second->m_pPlayer->GetPosition();
@@ -40,7 +40,7 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 	TargetPlayer = cand_player.get();
 
 	if (Distance >= ChangeStateDistance ||
-		RemoteClient::remoteClients.empty() ||
+		Room::roomlist.at(gameObject->m_roomNum)->Clients.empty() ||
 		cand_player->remoteClient->m_id == 0 ||
 		!cand_player)
 		return false;

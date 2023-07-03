@@ -4,6 +4,7 @@
 #include "../Object.h"
 #include "../State.h"
 #include "../FSM.h"
+#include "../Room.h"
 
 class BoundBox;
 

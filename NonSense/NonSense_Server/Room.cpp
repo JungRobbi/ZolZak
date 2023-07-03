@@ -1,8 +1,11 @@
 #include "Room.h"
 #include "Characters.h"
+#include "RemoteClients/RemoteClient.h"
 
 #include "Components/PlayerMovementComponent.h"
 #include "Components/CloseTypeFSMComponent.h"
+#include "Components/FarTypeFSMComponent.h"
+#include "Components/RushTypeFSMComponent.h"
 #include "Components/SphereCollideComponent.h"
 #include "Components/BoxCollideComponent.h"
 
@@ -21,11 +24,11 @@ Room::~Room()
 void Room::start()
 {
 	Object* TempObject = NULL;
-	TempObject = new Goblin(MONSTER_TYPE_CLOSE, m_roomNum);
+	TempObject = new Goblin(MONSTER_TYPE_FAR, m_roomNum);
 	TempObject->SetPosition(-9.0f, Scene::terrain->GetHeight(-9.0f, 9.0f), 87);
 	((Goblin*)TempObject)->num = 10001;
 	TempObject->m_roomNum = m_roomNum;
-	TempObject = new Goblin(MONSTER_TYPE_CLOSE, m_roomNum);
+	TempObject = new Goblin(MONSTER_TYPE_FAR, m_roomNum);
 	TempObject->SetPosition(-1.0f, Scene::terrain->GetHeight(-1.0f, 42.0f), 42.0f);
 	((Goblin*)TempObject)->num = 10002;
 	TempObject->m_roomNum = m_roomNum;
@@ -226,7 +229,7 @@ void Room::update()
 	}
 
 	//Monster test
-	for (auto monster : scene->MonsterObjects) {
+	for (auto& monster : scene->MonsterObjects) {
 		if (monster->GetRemainHP() < 0.f)
 			continue;
 
@@ -253,9 +256,28 @@ void Room::update()
 				send_packet.size = sizeof(SC_LOOK_MONSTER_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_SC_LOOK_MONSTER_PACKET;
 				send_packet.id = ((Goblin*)monster)->num;
-				send_packet.x = monster->GetComponent<CloseTypeFSMComponent>()->WanderPosition.x;
-				send_packet.y = monster->GetComponent<CloseTypeFSMComponent>()->WanderPosition.y;
-				send_packet.z = monster->GetComponent<CloseTypeFSMComponent>()->WanderPosition.z;
+				switch (monster->GetMonsterType())
+				{
+				case MONSTER_TYPE_CLOSE:
+					send_packet.x = monster->GetComponent<CloseTypeFSMComponent>()->WanderPosition.x;
+					send_packet.y = monster->GetComponent<CloseTypeFSMComponent>()->WanderPosition.y;
+					send_packet.z = monster->GetComponent<CloseTypeFSMComponent>()->WanderPosition.z;
+					break;
+				case MONSTER_TYPE_FAR:
+					send_packet.x = monster->GetComponent<FarTypeFSMComponent>()->WanderPosition.x;
+					send_packet.y = monster->GetComponent<FarTypeFSMComponent>()->WanderPosition.y;
+					send_packet.z = monster->GetComponent<FarTypeFSMComponent>()->WanderPosition.z;
+					break;
+				case MONSTER_TYPE_RUSH:
+					send_packet.x = monster->GetComponent<RushTypeFSMComponent>()->WanderPosition.x;
+					send_packet.y = monster->GetComponent<RushTypeFSMComponent>()->WanderPosition.y;
+					send_packet.z = monster->GetComponent<RushTypeFSMComponent>()->WanderPosition.z;
+					break;
+				case MONSTER_TYPE_BOSS:
+					break;
+				default:
+					break;
+				}
 				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
 
@@ -279,7 +301,9 @@ void Room::update()
 				continue;
 
 			//Monster Target
-			if ((Goblin*)(monster)->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()) {
+			switch (monster->GetMonsterType())
+			{
+			case MONSTER_TYPE_CLOSE:
 				for (auto& rc_to : Clients) {
 					if (!rc_to.second->b_Enable)
 						continue;
@@ -289,8 +313,43 @@ void Room::update()
 					send_packet.player_id = ((Player*)((Goblin*)(monster)
 						->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
 					send_packet.monster_id = ((Goblin*)monster)->num;
+					cout << "Far send_packet.player_id - " << send_packet.player_id << endl;
+				//	rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				}
+				break;
+			case MONSTER_TYPE_FAR:
+				for (auto& rc_to : Clients) {
+					if (!rc_to.second->b_Enable)
+						continue;
+					SC_AGGRO_PLAYER_PACKET send_packet;
+					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
+					send_packet.player_id = ((Player*)((Goblin*)(monster)
+						->GetComponent<FarTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
+					send_packet.monster_id = ((Goblin*)monster)->num;
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
+				break;
+			case MONSTER_TYPE_RUSH:
+				for (auto& rc_to : Clients) {
+					if (!rc_to.second->b_Enable)
+						continue;
+					SC_AGGRO_PLAYER_PACKET send_packet;
+					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
+					send_packet.player_id = ((Player*)((Goblin*)(monster)
+						->GetComponent<RushTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
+					send_packet.monster_id = ((Goblin*)monster)->num;
+					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				}
+				break;
+			case MONSTER_TYPE_BOSS:
+				for (auto& rc_to : Clients) {
+				
+				}
+				break;
+			default:
+				break;
 			}
 		}
 	}

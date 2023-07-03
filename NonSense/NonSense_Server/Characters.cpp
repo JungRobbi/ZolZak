@@ -56,6 +56,7 @@ void Monster::RushTypeAttack()
 Goblin::Goblin(MonsterType type, int roomNum) :
 	Monster(roomNum)
 {
+	m_type = type;
 	BoundBox* bb = new BoundBox();
 	BoundBox* bb2 = new BoundBox();
 	BoundSphere* bs = new BoundSphere();

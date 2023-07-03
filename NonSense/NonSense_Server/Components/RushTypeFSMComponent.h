@@ -38,6 +38,7 @@ public:
     bool Wander();
 
     void SetTargetPlayer(Object* target) { TargetPlayer = target; };
+    Object* GetTargetPlayer() { return TargetPlayer; }
 
     E_MONSTER_ANIMATION_TYPE Animation_type = E_MONSTER_ANIMATION_TYPE::E_M_IDLE;
 };
