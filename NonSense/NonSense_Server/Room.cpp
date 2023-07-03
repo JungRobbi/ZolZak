@@ -315,7 +315,6 @@ void Room::update()
 					send_packet.player_id = ((Player*)((Goblin*)(monster)
 						->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
 					send_packet.monster_id = ((Goblin*)monster)->num;
-					cout << "Close send_packet.player_id - " << send_packet.player_id << endl;
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
 				break;
@@ -331,7 +330,6 @@ void Room::update()
 					send_packet.player_id = ((Player*)((Goblin*)(monster)
 						->GetComponent<FarTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
 					send_packet.monster_id = ((Goblin*)monster)->num;
-					cout << "Far send_packet.player_id - " << send_packet.player_id << endl;
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
 				break;
@@ -347,7 +345,6 @@ void Room::update()
 					send_packet.player_id = ((Player*)((Goblin*)(monster)
 						->GetComponent<RushTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
 					send_packet.monster_id = ((Goblin*)monster)->num;
-					cout << "Rush send_packet.player_id - " << send_packet.player_id << endl;
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
 				break;
