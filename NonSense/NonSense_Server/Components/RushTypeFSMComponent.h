@@ -5,6 +5,7 @@
 #include "../State.h"
 #include "../FSM.h"
 #include "../../AnimationType.h"
+#include "../Room.h"
 #include <iostream>
 
 
