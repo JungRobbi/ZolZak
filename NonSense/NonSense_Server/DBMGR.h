@@ -10,6 +10,8 @@
 class DBMGR
 {
 	static wchar_t* DSN_NAME;
+	static wchar_t* DSN_USER_ID;
+	static wchar_t* DSN_USER_PASSWORD;
 public:
 	SQLHENV henv{};
 	SQLHDBC hdbc{};

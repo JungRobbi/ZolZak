@@ -46,7 +46,9 @@ wchar_t* ChartoWChar(char* chr)
 //////////////////////////
 //////////////////////////
 wchar_t* DBMGR::DSN_NAME = L"nonsense";
-volatile bool DBMGR::db_connection = false;
+wchar_t* DBMGR::DSN_USER_ID = L"robbi";
+wchar_t* DBMGR::DSN_USER_PASSWORD = L"fhqql9423";
+volatile bool DBMGR::db_connection = true;
 
 DBMGR::DBMGR()
 {
@@ -68,19 +70,20 @@ DBMGR::~DBMGR()
 void DBMGR::connect()
 {
     retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
-
+   
     if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
         retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
-
+       
         if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
             retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
 
             if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
                 SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
-
-                retcode = SQLConnect(hdbc, DSN_NAME, SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
-                if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+              
+                retcode = SQLConnect(hdbc, DSN_NAME, SQL_NTS, (SQLWCHAR*)DSN_USER_ID, SQL_NTS, (SQLWCHAR*)DSN_USER_PASSWORD, SQL_NTS);
+                if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
                     show_error(hstmt, SQL_HANDLE_STMT, retcode);
+                }
                 else {
                     std::cout << "connect!" << std::endl;
                 }
