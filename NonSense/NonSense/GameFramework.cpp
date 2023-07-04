@@ -343,6 +343,7 @@ void GameFramework::BuildObjects()
 		m_pPlayer->ReleaseUploadBuffers();
 	for(auto& p : m_OtherPlayersPool)
 		p->ReleaseUploadBuffers();
+	m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
 	Timer::Reset();
 }
 

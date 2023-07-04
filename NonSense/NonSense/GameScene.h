@@ -109,7 +109,7 @@ public:
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
-	void RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual void RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void RenderBoundingBox(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void ReleaseUploadBuffers();
 	HeightMapTerrain* GetTerrain() { return(m_pTerrain); }

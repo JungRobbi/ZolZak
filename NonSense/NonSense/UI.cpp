@@ -412,7 +412,7 @@ Lobby_UI::Lobby_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 	SetMaterial(pUIMaterial);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.01, 0.012, 0.7, 0.8);
+	SetMyPos(0.01, 0.012, 0.7, 0.787);
 }
 
 Make_Room_UI::Make_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -436,8 +436,14 @@ Make_Room_UI::Make_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 void Make_Room_UI::OnClick()
 {
-	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom = true;
-	cout << "规 积己" << endl;
+	//if (!dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom)
+	//{
+	//	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom = true;
+	//}
+	std::string name;
+	cout << "规 力格阑 涝仿窍技夸 : " << std::endl;
+	cin >> name;
+	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(name);
 }
 
 Join_Room_UI::Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -509,6 +515,9 @@ Right_UI::Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 void Right_UI::OnClick()
 {
+	if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Rooms.size() > dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page * 6 + 6)
+		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page++;
+	std::cout << dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page << std::endl;
 }
 
 Left_UI::Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -532,6 +541,9 @@ Left_UI::Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 
 void Left_UI::OnClick()
 {
+	if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page > 0)
+		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page--;
+	std::cout << dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page << std::endl;
 }
 
 Title_UI::Title_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -555,7 +567,6 @@ Title_UI::Title_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 Make_Title_UI::Make_Title_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
 {
-	GameScene::MainScene->creationUIQueue.push(this);
 	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Make_Title.dds", RESOURCE_TEXTURE2D, 0);
 
@@ -570,4 +581,30 @@ Make_Title_UI::Make_Title_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	SetMyPos(0.25, 0.25, 0.54, 0.44);
+}
+
+Room_UI::Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int num, std::string name, std::string owner) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Room.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+	RoomName = name;
+	RoomNum = num;
+	RoomOwner = owner;
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.25, 0.25, 0.54, 0.44);
+}
+
+void Room_UI::OnClick()
+{
+	std::cout << RoomNum << "锅 规 - " << RoomName << " - 规厘 - " << RoomOwner << std::endl;
 }
