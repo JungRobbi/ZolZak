@@ -71,6 +71,7 @@ public:
 	std::vector<Player*> m_OtherPlayers;
 	int m_clearStage = 0;
 	int ScriptNum = 0;
+	float LastClick = 0;
 public:
 	HWND m_hWnd;
 	Camera* m_pCamera = NULL;

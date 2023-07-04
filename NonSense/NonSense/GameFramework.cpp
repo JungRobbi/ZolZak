@@ -782,7 +782,7 @@ void GameFramework::ProcessInput()
 				RECT rect;
 				::GetCursorPos(&ptCursorPos);
 				::GetWindowRect(m_hWnd, &rect);
-				if (scene_type != GAME_SCENE) {
+				if (scene_type != GAME_SCENE && (Timer::GetTotalTime() - LastClick > 0.5)) {
 					float px = (ptCursorPos.x - rect.left) / (float)FRAME_BUFFER_WIDTH;
 					float py = (ptCursorPos.y - rect.top - 10) / (float)FRAME_BUFFER_HEIGHT;
 
@@ -805,6 +805,7 @@ void GameFramework::ProcessInput()
 							}
 						}
 					}
+					LastClick = Timer::GetTotalTime();
 				}
 			}
 			else {
