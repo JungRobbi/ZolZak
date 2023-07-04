@@ -68,7 +68,7 @@ void PlayerMovementComponent::start()
 void PlayerMovementComponent::update()
 {
 
-	if (!ScriptMode) {
+	if (!ScriptMode && !OptionMode) {
 		if (((Player*)gameObject)->m_pSkinnedAnimationController)
 		{
 			if (Input::InputKeyBuffer[VK_SPACE] & 0xF0 && !NetworkMGR::b_isNet)

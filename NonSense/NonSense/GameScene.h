@@ -15,9 +15,9 @@
 
 struct CB_SCREEN_INFO
 {
-	XMFLOAT4 LineColor;
-	UINT LineSize;
-	UINT ToonShading;
+	XMFLOAT4 LineColor = XMFLOAT4(0,0,0,1);
+	UINT LineSize=3;
+	UINT ToonShading=1;
 	float darkness=0;
 };
 
@@ -69,6 +69,10 @@ public:
 	std::queue<Object*> creationBoundingQueue;
 	std::deque<Object*> deletionBoundingQueue;
 	std::list<Object*> BoundingGameObjects;
+
+	XMFLOAT4 LineColor = XMFLOAT4(0, 0, 0, 1);
+	UINT LineSize = 3;
+	UINT ToonShading = 10;
 
 public:
 	static GameScene* MainScene;
@@ -125,6 +129,8 @@ public:
 	static D3D12_GPU_DESCRIPTOR_HANDLE CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nRootParameter, bool bAutoIncrement);
 	static D3D12_GPU_DESCRIPTOR_HANDLE CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride);
 	static ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap;
+	CB_SCREEN_INFO* m_pMappedScreenOptions = NULL;
+	ID3D12Resource* m_pScreenOptions = NULL;
 
 protected:
 
@@ -142,8 +148,6 @@ protected:
 	ID3D12Resource* m_pd3dcbMaterials = NULL;
 	MATERIAL* m_pcbMappedMaterials = NULL;
 	// Screen option
-	ID3D12Resource* m_pScreenOptions = NULL;
-	CB_SCREEN_INFO* m_pMappedScreenOptions = NULL;
 
 	int m_nObjects = 0;
 	Object** m_GameObjects = NULL;

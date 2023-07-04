@@ -122,13 +122,13 @@ void AttackComponent::update()
 		{
 			if ((Input::InputKeyBuffer[VK_LBUTTON] & 0xF0) && !NetworkMGR::b_isNet)
 			{
-				if (!During_Attack)
+				if (!During_Attack && !ScriptMode && !OptionMode)
 				{
 					Attack();
 				}
 			}
 			else {
-				if (!During_Attack && b_Attack)
+				if (!During_Attack && b_Attack && !ScriptMode && !OptionMode)
 				{
 					Attack();
 					b_Attack = false;

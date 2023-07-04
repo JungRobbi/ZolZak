@@ -89,27 +89,6 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 };
 
-class Game_Option_UI : public Option_UI
-{
-public:
-	Game_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual ~Game_Option_UI() {};
-};
-
-class Graphic_Option_UI : public Option_UI
-{
-public:
-	Graphic_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual ~Graphic_Option_UI() {};
-};
-
-class Sound_Option_UI : public Option_UI
-{
-public:
-	Sound_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual ~Sound_Option_UI() {};
-};
-
 class Login_BackGround_UI : public UI
 {
 public:
@@ -209,4 +188,76 @@ public:
 	int RoomNum = -1;
 	std::string RoomName = "";
 	std::string RoomOwner = "";
+};
+
+class Line_Right_UI : public UI
+{
+public:
+	Line_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual ~Line_Right_UI() {};
+};
+
+class Line_Left_UI : public UI
+{
+public:
+	Line_Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual ~Line_Left_UI() {};
+};
+
+class Color_Right_UI : public UI
+{
+public:
+	Color_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual ~Color_Right_UI() {};
+};
+
+class Color_Left_UI : public UI
+{
+public:
+	Color_Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual ~Color_Left_UI() {};
+};
+
+class Toon_Right_UI : public UI
+{
+public:
+	Toon_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual ~Toon_Right_UI() {};
+};
+
+class Toon_Left_UI : public UI
+{
+public:
+	Toon_Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual ~Toon_Left_UI() {};
+};
+
+class Mouse_Right_UI : public UI
+{
+public:
+	Mouse_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual ~Mouse_Right_UI() {};
+};
+
+class Mouse_Left_UI : public UI
+{
+public:
+	Mouse_Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual ~Mouse_Left_UI() {};
 };

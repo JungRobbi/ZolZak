@@ -317,7 +317,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(LOBBY_SCENE);
+	ChangeScene(GAME_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -653,6 +653,7 @@ void GameFramework::ChangeScene(unsigned char num)
 	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
+	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 	//switch (GameSceneState)
 	//{
 	//case LOGIN_SCENE:
@@ -691,7 +692,6 @@ void GameFramework::ChangeScene(unsigned char num)
 
 	GameSceneState = num;
 
-	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 
 	if (num != LOGIN_SCENE) {
 		m_OtherPlayers.clear();
@@ -769,8 +769,8 @@ void GameFramework::ProcessInput()
 			SetWindowCentser(rect);
 			::SetCursor(NULL);
 			::GetCursorPos(&ptCursorPos);
-			cxDelta = (float)(ptCursorPos.x - CenterOfWindow.x) / 3.0f;
-			cyDelta = (float)(ptCursorPos.y - CenterOfWindow.y) / 3.0f;
+			cxDelta = (float)(ptCursorPos.x - CenterOfWindow.x) / MouseSen;
+			cyDelta = (float)(ptCursorPos.y - CenterOfWindow.y) / MouseSen;
 
 			::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 		}
@@ -782,7 +782,7 @@ void GameFramework::ProcessInput()
 				RECT rect;
 				::GetCursorPos(&ptCursorPos);
 				::GetWindowRect(m_hWnd, &rect);
-				if (scene_type != GAME_SCENE && (Timer::GetTotalTime() - LastClick > 0.5)) {
+				if (((scene_type != GAME_SCENE) || (scene_type == GAME_SCENE && OptionMode)) && (Timer::GetTotalTime() - LastClick > 0.2)) {
 					float px = (ptCursorPos.x - rect.left) / (float)FRAME_BUFFER_WIDTH;
 					float py = (ptCursorPos.y - rect.top - 10) / (float)FRAME_BUFFER_HEIGHT;
 
@@ -968,7 +968,7 @@ void GameFramework::FrameAdvance()
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
-	if(!ScriptMode)RenderHP();
+	if(!ScriptMode && !OptionMode)RenderHP();
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

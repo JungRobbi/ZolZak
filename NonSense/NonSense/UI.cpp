@@ -224,59 +224,6 @@ void Option_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCame
 
 }
 
-Game_Option_UI::Game_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :Option_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
-{
-	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/GameOption.dds", RESOURCE_TEXTURE2D, 0);
-
-	UIShader* pUIShader = new UIShader();
-	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
-	CanClick = true;
-	Material* pUIMaterial = new Material();
-	pUIMaterial->SetTexture(pUITexture);
-	pUIMaterial->SetShader(pUIShader);
-	SetMaterial(pUIMaterial);
-
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.05, 0.6, 0.2, 0.2);
-}
-
-Graphic_Option_UI::Graphic_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :Option_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
-{
-	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/GraphicOption.dds", RESOURCE_TEXTURE2D, 0);
-
-	UIShader* pUIShader = new UIShader();
-	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
-	CanClick = true;
-	Material* pUIMaterial = new Material();
-	pUIMaterial->SetTexture(pUITexture);
-	pUIMaterial->SetShader(pUIShader);
-	SetMaterial(pUIMaterial);
-
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.05, 0.35, 0.2, 0.2);
-}
-
-Sound_Option_UI::Sound_Option_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :Option_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
-{
-	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/SoundOption.dds", RESOURCE_TEXTURE2D, 0);
-
-	UIShader* pUIShader = new UIShader();
-	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
-	CanClick = true;
-	Material* pUIMaterial = new Material();
-	pUIMaterial->SetTexture(pUITexture);
-	pUIMaterial->SetShader(pUIShader);
-	SetMaterial(pUIMaterial);
-
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.05, 0.1, 0.2, 0.2);
-}
 
 Login_BackGround_UI::Login_BackGround_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
 {
@@ -441,8 +388,8 @@ void Make_Room_UI::OnClick()
 	//	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom = true;
 	//}
 	std::string name;
-	cout << "방 제목을 입력하세요 : " << std::endl;
-	cin >> name;
+	std::cout << "방 제목을 입력하세요 : " << std::endl;
+	std::cin >> name;
 	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(name);
 }
 
@@ -609,4 +556,417 @@ void Room_UI::OnClick()
 {
 	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum = RoomNum;
 	std::cout << RoomNum << "번 방 - " << RoomName << " - 방장 - " << RoomOwner << std::endl;
+}
+
+//////////////////////////////////////////////
+
+Line_Right_UI::Line_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Right.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.4, 0.615, 0.02, 0.05);
+}
+
+void Line_Right_UI::OnClick()
+{
+	if (OptionMode) {
+		if (GameScene::MainScene->LineSize < 9)
+			GameScene::MainScene->LineSize++;
+	}
+}
+
+void Line_Right_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (OptionMode) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
+}
+
+Line_Left_UI::Line_Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Left.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.17, 0.615, 0.02, 0.05);
+}
+
+void Line_Left_UI::OnClick()
+{
+	if (OptionMode) {
+		if (GameScene::MainScene->LineSize > 0)
+			GameScene::MainScene->LineSize--;
+	}
+}
+
+void Line_Left_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (OptionMode) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
+}
+
+Color_Right_UI::Color_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Right.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.4, 0.475, 0.02, 0.05);
+}
+
+void Color_Right_UI::OnClick()
+{
+	if (OptionMode) {
+		if (GameScene::MainScene->LineColor.x == 0 && GameScene::MainScene->LineColor.y == 0 && GameScene::MainScene->LineColor.z == 0)
+		{
+				GameScene::MainScene->LineColor.x = 1; GameScene::MainScene->LineColor.y = 0; GameScene::MainScene->LineColor.z = 0;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 1 && GameScene::MainScene->LineColor.y == 0 && GameScene::MainScene->LineColor.z == 0)
+		{
+				GameScene::MainScene->LineColor.x = 1; GameScene::MainScene->LineColor.y = 1; GameScene::MainScene->LineColor.z = 0;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 1 && GameScene::MainScene->LineColor.y == 1 && GameScene::MainScene->LineColor.z == 0)
+		{
+			GameScene::MainScene->LineColor.x = 0; GameScene::MainScene->LineColor.y = 1; GameScene::MainScene->LineColor.z = 0;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 0 && GameScene::MainScene->LineColor.y == 1 && GameScene::MainScene->LineColor.z == 0)
+		{
+			GameScene::MainScene->LineColor.x = 0; GameScene::MainScene->LineColor.y = 1; GameScene::MainScene->LineColor.z = 1;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 0 && GameScene::MainScene->LineColor.y == 1 && GameScene::MainScene->LineColor.z == 1)
+		{
+			GameScene::MainScene->LineColor.x = 0; GameScene::MainScene->LineColor.y = 0; GameScene::MainScene->LineColor.z = 1;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 0 && GameScene::MainScene->LineColor.y == 0 && GameScene::MainScene->LineColor.z == 1)
+		{
+			GameScene::MainScene->LineColor.x = 1; GameScene::MainScene->LineColor.y = 0; GameScene::MainScene->LineColor.z = 1;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 1 && GameScene::MainScene->LineColor.y == 0 && GameScene::MainScene->LineColor.z == 1)
+		{
+			GameScene::MainScene->LineColor.x = 1; GameScene::MainScene->LineColor.y = 1; GameScene::MainScene->LineColor.z = 1;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 1 && GameScene::MainScene->LineColor.y == 1 && GameScene::MainScene->LineColor.z == 1)
+		{
+			GameScene::MainScene->LineColor.x = 0; GameScene::MainScene->LineColor.y = 0; GameScene::MainScene->LineColor.z = 0;
+		}
+	}
+}
+
+void Color_Right_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (OptionMode) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
+}
+
+Color_Left_UI::Color_Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Left.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.17, 0.475, 0.02, 0.05);
+}
+
+void Color_Left_UI::OnClick()
+{
+	if (OptionMode) {
+		if (GameScene::MainScene->LineColor.x == 0 && GameScene::MainScene->LineColor.y == 0 && GameScene::MainScene->LineColor.z == 0)
+		{
+			GameScene::MainScene->LineColor.x = 1; GameScene::MainScene->LineColor.y = 1; GameScene::MainScene->LineColor.z = 1;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 1 && GameScene::MainScene->LineColor.y == 0 && GameScene::MainScene->LineColor.z == 0)
+		{
+			GameScene::MainScene->LineColor.x = 0; GameScene::MainScene->LineColor.y = 0; GameScene::MainScene->LineColor.z = 0;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 1 && GameScene::MainScene->LineColor.y == 1 && GameScene::MainScene->LineColor.z == 0)
+		{
+			GameScene::MainScene->LineColor.x = 1; GameScene::MainScene->LineColor.y = 0; GameScene::MainScene->LineColor.z = 0;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 0 && GameScene::MainScene->LineColor.y == 1 && GameScene::MainScene->LineColor.z == 0)
+		{
+			GameScene::MainScene->LineColor.x = 1; GameScene::MainScene->LineColor.y = 1; GameScene::MainScene->LineColor.z = 0;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 0 && GameScene::MainScene->LineColor.y == 1 && GameScene::MainScene->LineColor.z == 1)
+		{
+			GameScene::MainScene->LineColor.x = 0; GameScene::MainScene->LineColor.y = 1; GameScene::MainScene->LineColor.z = 0;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 0 && GameScene::MainScene->LineColor.y == 0 && GameScene::MainScene->LineColor.z == 1)
+		{
+			GameScene::MainScene->LineColor.x = 0; GameScene::MainScene->LineColor.y = 1; GameScene::MainScene->LineColor.z = 1;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 1 && GameScene::MainScene->LineColor.y == 0 && GameScene::MainScene->LineColor.z == 1)
+		{
+			GameScene::MainScene->LineColor.x = 0; GameScene::MainScene->LineColor.y = 0; GameScene::MainScene->LineColor.z = 1;
+		}
+
+		else if (GameScene::MainScene->LineColor.x == 1 && GameScene::MainScene->LineColor.y == 1 && GameScene::MainScene->LineColor.z == 1)
+		{
+			GameScene::MainScene->LineColor.x = 1; GameScene::MainScene->LineColor.y = 0; GameScene::MainScene->LineColor.z = 1;
+		}
+	}
+}
+
+void Color_Left_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (OptionMode) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
+}
+
+Toon_Right_UI::Toon_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Right.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.4, 0.320, 0.02, 0.05);
+}
+
+void Toon_Right_UI::OnClick()
+{
+	if (OptionMode) {
+		if (GameScene::MainScene->LineSize < 10)
+			GameScene::MainScene->ToonShading++;
+	}
+}
+
+void Toon_Right_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (OptionMode) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
+}
+
+Toon_Left_UI::Toon_Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Left.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.17, 0.320, 0.02, 0.05);
+}
+
+void Toon_Left_UI::OnClick()
+{
+	if (OptionMode) {
+		if (GameScene::MainScene->ToonShading > 0)
+			GameScene::MainScene->ToonShading--;
+	}
+}
+
+void Toon_Left_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (OptionMode) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
+}
+
+
+Mouse_Right_UI::Mouse_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Right.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.82, 0.615, 0.02, 0.05);
+}
+
+void Mouse_Right_UI::OnClick()
+{
+	if (OptionMode) {
+		if (GameFramework::MainGameFramework->MouseSen > 1)
+			GameFramework::MainGameFramework->MouseSen--;
+	}
+
+}
+
+void Mouse_Right_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (OptionMode) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
+}
+
+Mouse_Left_UI::Mouse_Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Left.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.59, 0.615, 0.02, 0.05);
+}
+
+void Mouse_Left_UI::OnClick()
+{
+	if (OptionMode) {
+		GameFramework::MainGameFramework->MouseSen++;
+	}
+}
+
+void Mouse_Left_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (OptionMode) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
 }

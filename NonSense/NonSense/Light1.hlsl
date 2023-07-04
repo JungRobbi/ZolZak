@@ -87,7 +87,7 @@ float4 PointLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera
 	return(float4(0.0f, 0.0f, 0.0f, 0.0f));
 }
 
-float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera)
+float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera, float Toon)
 {
 	float3 vToLight = gLights[nIndex].m_vPosition - vPosition;
 	float fDistance = length(vToLight);
@@ -118,13 +118,13 @@ float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera)
 #endif
 		float fAttenuationFactor = 1.0f / dot(gLights[nIndex].m_vAttenuation, float3(1.0f, fDistance, fDistance * fDistance));
 
-		return(((gLights[nIndex].m_cAmbient) + (gLights[nIndex].m_cDiffuse * (round(fDiffuseFactor * TOON_SHADING) / TOON_SHADING)) + (gLights[nIndex].m_cSpecular * fSpecularFactor)) * fAttenuationFactor * fSpotFactor);
+		return(((gLights[nIndex].m_cAmbient) + (gLights[nIndex].m_cDiffuse * (round(fDiffuseFactor * Toon) / Toon)) + (gLights[nIndex].m_cSpecular * fSpecularFactor)) * fAttenuationFactor * fSpotFactor);
 	}
 	return(float4(0.0f, 0.0f, 0.0f, 0.0f));
 }
 
 
-float4 Lighting(float3 vPosition, float3 vNormal, float3 CameraPosition)
+float4 Lighting(float3 vPosition, float3 vNormal, float3 CameraPosition, float Toon)
 {
 	float3 vCameraPosition = CameraPosition;
 	float3 vToCamera = normalize(vCameraPosition - vPosition);
@@ -144,7 +144,7 @@ float4 Lighting(float3 vPosition, float3 vNormal, float3 CameraPosition)
 			}
 			else if (gLights[i].m_nType == SPOT_LIGHT)
 			{
-				cColor += SpotLight(i, vPosition, vNormal, vToCamera);
+				cColor += SpotLight(i, vPosition, vNormal, vToCamera, Toon);
 			}
 		}
 	}
