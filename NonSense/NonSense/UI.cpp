@@ -467,6 +467,7 @@ Join_Room_UI::Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 void Join_Room_UI::OnClick()
 {
+	GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
 }
 
 Back_UI::Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -606,5 +607,6 @@ Room_UI::Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 
 void Room_UI::OnClick()
 {
+	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum = RoomNum;
 	std::cout << RoomNum << "번 방 - " << RoomName << " - 방장 - " << RoomOwner << std::endl;
 }

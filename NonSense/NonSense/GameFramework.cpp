@@ -668,20 +668,26 @@ void GameFramework::ChangeScene(unsigned char num)
 	//	break;
 	//}
 	//
-	//switch (num)
-	//{
-	//case LOGIN_SCENE:
-	//	m_pVivoxSystem->JoinChannel("Login");
-	//	break;
-	//case LOBBY_SCENE:
-	//	m_pVivoxSystem->JoinChannel("Lobby");
-	//	break;
-	//case GAME_SCENE:
-	//	m_pVivoxSystem->JoinChannel("Stage");
-	//	break;
-	//default:
-	//	break;
-	//}
+	switch (num)
+	{
+	case LOGIN_SCENE:
+		//m_pVivoxSystem->JoinChannel("Login");
+		if (m_pPlayer)
+		m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
+		break;
+	case LOBBY_SCENE:
+		//m_pVivoxSystem->JoinChannel("Lobby");
+		if(m_pPlayer)
+		m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
+		break;
+	case GAME_SCENE:
+		//m_pVivoxSystem->JoinChannel("Stage");
+		if (m_pPlayer)
+		m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = false;
+		break;
+	default:
+		break;
+	}
 
 	GameSceneState = num;
 
@@ -788,6 +794,17 @@ void GameFramework::ProcessInput()
 							dynamic_cast<UI*>(ui)->OnClick();
 						}
 					}
+					if (scene_type == LOBBY_SCENE)
+					{
+						for (auto& room : dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Rooms)
+						{
+							if (px >= room->XYWH._41 && px <= room->XYWH._41 + room->XYWH._11 &&
+								py <= 1 - room->XYWH._42 && py >= 1 - (room->XYWH._42 + room->XYWH._22))
+							{
+								room->OnClick();
+							}
+						}
+					}
 				}
 			}
 			else {
@@ -808,6 +825,20 @@ void GameFramework::ProcessInput()
 					}
 					else {
 						dynamic_cast<UI*>(ui)->MouseOn = false;
+					}
+				}
+				if (scene_type == LOBBY_SCENE)
+				{
+					for (auto& room : dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Rooms)
+					{
+						if (px >= room->XYWH._41 && px <= room->XYWH._41 + room->XYWH._11 &&
+							py <= 1 - room->XYWH._42 && py >= 1 - (room->XYWH._42 + room->XYWH._22))
+						{
+							room->MouseOn = true;
+						}
+						else {
+							room->MouseOn = false;
+						}
 					}
 				}
 			}
