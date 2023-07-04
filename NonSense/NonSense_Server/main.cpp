@@ -236,9 +236,6 @@ int main(int argc, char* argv[])
 	Scene::scene = make_shared<Scene>();
 	Scene::scene->LoadSceneObb();
 
-	shared_ptr<DBMGR> db_mgr{ make_shared<DBMGR>() };
-	db_mgr->Get_SELECT_ALL();
-
 	std::cout << "Terrain Loding..." << std::endl;
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
 	Scene::terrain = new HeightMapTerrain(_T("Terrain/terrain.raw"), 800, 800, xmf3Scale);
@@ -405,8 +402,6 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	{
 	case E_PACKET::E_PACKET_CS_LOGIN: {
 		CS_LOGIN_PACKET* recv_packet = reinterpret_cast<CS_LOGIN_PACKET*>(p_Packet);
-		memcpy(p_Client->name,recv_packet->name,sizeof(recv_packet->name));
-
 		if (DBMGR::db_connection) {
 			//DB에 데이터가 있는지 확인하고 아이디 생성 혹은 불러오기
 			wchar_t* wname = ChartoWChar(recv_packet->name);
@@ -424,6 +419,8 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			else {
 				bool login = false;
 				for (auto& p : RemoteClient::remoteClients) {
+					if (!p.second->b_Enable.load())
+						continue;
 					if ((!strcmp(p.second->name, recv_packet->name)) && p.second->b_Enable) {
 						login = true;
 					}
@@ -451,6 +448,9 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 						->SetPosition(XMFLOAT3{ (float)p_DBMGR->player_x, Scene::terrain->GetHeight((float)p_DBMGR->player_x, (float)p_DBMGR->player_z) ,(float)p_DBMGR->player_z });
 					p_Client->m_pPlayer->SetPosition(XMFLOAT3{ (float)p_DBMGR->player_x, Scene::terrain->GetHeight((float)p_DBMGR->player_x, (float)p_DBMGR->player_z) ,(float)p_DBMGR->player_z });
 
+					cout << "(float)p_DBMGR->player_x - " << (float)p_DBMGR->player_x << endl;
+					cout << "(float)p_DBMGR->player_z - " << (float)p_DBMGR->player_z << endl;
+
 					p_Client->m_pPlayer->SetHealth((int)p_DBMGR->player_Maxhp);
 					p_Client->m_pPlayer->SetRemainHP((int)p_DBMGR->player_hp);
 					p_Client->m_clear_stage = (int)p_DBMGR->player_clear_stage;
@@ -475,6 +475,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			}
 		}
 
+		memcpy(p_Client->name, recv_packet->name, sizeof(recv_packet->name));
 		//id 부여
 		p_Client->m_id = N_CLIENT_ID++;
 

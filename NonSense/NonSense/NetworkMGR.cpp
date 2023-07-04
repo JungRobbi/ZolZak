@@ -169,7 +169,8 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			GameFramework::MainGameFramework->m_clearStage = recv_packet->clearStage;
 		}
 		cout << "로그인 정보 수신!" << endl;
-		if (b_isLoginProg) { // 로그인 진행 하는 동안 
+		if (b_isLoginProg) { // 로그인 진행 하는 동안
+			b_isLogin = true;
 			GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
 			b_isLoginProg = false;
 		}
@@ -486,12 +487,12 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		break;
 	}
 	case E_PACKET_SC_LOGIN_FAIL_PACKET: {
+		b_isLoginProg = false;
 		b_isLogin = false;
 		std::cout << "로그인 실패!" << std::endl;
 		break;
 	}
 	case E_PACKET_SC_LOGIN_OK_PACKET: {
-		b_isLogin = true;
 		std::cout << "로그인 성공!" << std::endl;
 		break;
 	}

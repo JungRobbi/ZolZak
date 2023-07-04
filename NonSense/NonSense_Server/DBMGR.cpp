@@ -84,9 +84,9 @@ void DBMGR::connect()
                 if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
                     show_error(hstmt, SQL_HANDLE_STMT, retcode);
                 }
-                else {
-                    std::cout << "connect!" << std::endl;
-                }
+                //else {
+                //    std::cout << "connect!" << std::endl;
+                //}
             }
         }
     }
@@ -152,23 +152,28 @@ bool DBMGR::Get_SELECT_PLAYER(const wchar_t* id)
     if (!db_connection)
         return false;
 
-    wchar_t wstr[100] = L"EXEC [dbo].[Select_Player] ";
-    wcscat(wstr, id);
+    std::wstring wstr{ L"EXEC [dbo].[Select_Player] " };
+    wchar_t buf[20];
+
+    wstr += id;
+
+    wchar_t wstr_c_str[100];
+    wcscpy(wstr_c_str, wstr.c_str());
     SQLLEN c_Name{};
     SQLLEN temp{};
 
     bool result{ false };
 
     retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
-    retcode = SQLExecDirect(hstmt, (SQLWCHAR*)wstr, SQL_NTS);
+    retcode = SQLExecDirect(hstmt, (SQLWCHAR*)wstr_c_str, SQL_NTS);
 
     if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 
         retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, szName, NAME_LEN, &c_Name);
         retcode = SQLBindCol(hstmt, 2, SQL_C_LONG, &player_Maxhp, 10, &temp);
         retcode = SQLBindCol(hstmt, 3, SQL_C_LONG, &player_hp, 10, &temp);
-        retcode = SQLBindCol(hstmt, 4, SQL_C_FLOAT, &player_x, 10, &temp);
-        retcode = SQLBindCol(hstmt, 5, SQL_C_FLOAT, &player_z, 10, &temp);
+        retcode = SQLBindCol(hstmt, 4, SQL_C_LONG, &player_x, 10, &temp);
+        retcode = SQLBindCol(hstmt, 5, SQL_C_LONG, &player_z, 10, &temp);
         retcode = SQLBindCol(hstmt, 6, SQL_C_LONG, &player_clear_stage, 10, &temp);
 
 
@@ -182,6 +187,7 @@ bool DBMGR::Get_SELECT_PLAYER(const wchar_t* id)
             result = true;
         }
         std::cout << "player_x - " << player_x << std::endl;
+        std::cout << "player_z - " << player_z << std::endl;
 
         SQLCancel(hstmt);
         SQLFreeHandle(SQL_HANDLE_STMT, hstmt);

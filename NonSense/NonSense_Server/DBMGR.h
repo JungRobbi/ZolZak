@@ -18,8 +18,8 @@ public:
 	SQLHSTMT hstmt{};
 	SQLRETURN retcode{};
 	SQLWCHAR szName[NAME_LEN], player_id[NAME_LEN];
-	SQLFLOAT player_x{};
-	SQLFLOAT player_z{};
+	SQLINTEGER player_x{};
+	SQLINTEGER player_z{};
 	SQLINTEGER player_Maxhp{};
 	SQLINTEGER player_hp{};
 	SQLINTEGER player_clear_stage{};
