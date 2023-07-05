@@ -118,7 +118,7 @@ DeathState* DeathState::GetInstance()
 
 void DeathState::Enter(CloseTypeFSMComponent* pOwner)
 {
-	std::cout << "Unit Die" << std::endl;
+	//std::cout << "Unit Die" << std::endl;
 	pOwner->gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_DEATH);
 }
 

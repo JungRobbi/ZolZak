@@ -201,14 +201,11 @@ FirstPersonCamera::FirstPersonCamera(Camera* pCamera) : Camera(pCamera)
 	m_nMode = FIRST_PERSON_CAMERA;
 	if (pCamera)
 	{
-		if (pCamera->GetMode() == SPACESHIP_CAMERA)
-		{
-			m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-			m_xmf3Right.y = 0.0f;
-			m_xmf3Look.y = 0.0f;
-			m_xmf3Right = Vector3::Normalize(m_xmf3Right);
-			m_xmf3Look = Vector3::Normalize(m_xmf3Look);
-		}
+		m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		m_xmf3Right.y = 0.0f;
+		m_xmf3Look.y = 0.0f;
+		m_xmf3Right = Vector3::Normalize(m_xmf3Right);
+		m_xmf3Look = Vector3::Normalize(m_xmf3Look);
 	}
 }
 
@@ -255,43 +252,6 @@ void FirstPersonCamera::Rotate(float x, float y, float z)
 		m_xmf3Position = Vector3::TransformCoord(m_xmf3Position, xmmtxRotate);
 		m_xmf3Position = Vector3::Add(m_xmf3Position, m_pPlayer->GetPosition());
 	}
-	//if (x != 0.0f)
-	//{
-	//	//카메라의 로컬 x-축을 기준으로 회전하는 행렬을 생성한다. 사람의 경우 고개를 끄떡이는 동작이다.
-	//	XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Right),
-	//	XMConvertToRadians(x));
-	//	//카메라의 로컬 x-축, y-축, z-축을 회전 행렬을 사용하여 회전한다.
-	//	m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-	//	m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
-	//	m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-	//}
-	//if (m_pPlayer && (y != 0.0f))
-	//{
-	//	//플레이어의 로컬 y-축을 기준으로 회전하는 행렬을 생성한다.
-	//	XMFLOAT3 xmf3Up = m_pPlayer->GetUpVector();
-	//	XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(y));
-	//	//카메라의 로컬 x-축, y-축, z-축을 회전 행렬을 사용하여 회전한다.
-	//	m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-	//	m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
-	//	m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-	//}
-	//if (m_pPlayer && (z != 0.0f))
-	//{
-	//	//플레이어의 로컬 z-축을 기준으로 회전하는 행렬을 생성한다.
-	//	XMFLOAT3 xmf3Look = m_pPlayer->GetLookVector();
-	//	XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Look),
-	//		XMConvertToRadians(z));
-	//	//카메라의 위치 벡터를 플레이어 좌표계로 표현한다(오프셋 벡터).
-	//	m_xmf3Position = Vector3::Subtract(m_xmf3Position, m_pPlayer->GetPosition());
-	//	//오프셋 벡터 벡터를 회전한다.
-	//	m_xmf3Position = Vector3::TransformCoord(m_xmf3Position, xmmtxRotate);
-	//	//회전한 카메라의 위치를 월드 좌표계로 표현한다.
-	//	m_xmf3Position = Vector3::Add(m_xmf3Position, m_pPlayer->GetPosition());
-	//	//카메라의 로컬 x-축, y-축, z-축을 회전한다.
-	//	m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-	//	m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
-	//	m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-	//}
 }
 
 void FirstPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
@@ -335,14 +295,11 @@ ThirdPersonCamera::ThirdPersonCamera(Camera* pCamera) : Camera(pCamera)
 	m_nMode = THIRD_PERSON_CAMERA;
 	if (pCamera)
 	{
-		if (pCamera->GetMode() == SPACESHIP_CAMERA)
-		{
-			m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-			m_xmf3Right.y = 0.0f;
-			m_xmf3Look.y = 0.0f;
-			m_xmf3Right = Vector3::Normalize(m_xmf3Right);
-			m_xmf3Look = Vector3::Normalize(m_xmf3Look);
-		}
+		m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		m_xmf3Right.y = 0.0f;
+		m_xmf3Look.y = 0.0f;
+		m_xmf3Right = Vector3::Normalize(m_xmf3Right);
+		m_xmf3Look = Vector3::Normalize(m_xmf3Look);
 	}
 }
 

@@ -4,6 +4,7 @@
 #define FIRST_PERSON_CAMERA 0x01
 #define SPACESHIP_CAMERA 0x02
 #define THIRD_PERSON_CAMERA 0x03
+#define SCRIPT_CAMERA 0x04
 
 class Player;
 

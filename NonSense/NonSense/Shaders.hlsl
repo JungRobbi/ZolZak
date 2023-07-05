@@ -281,7 +281,7 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 		if (fObjectID != RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
 	}
 
-	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection);
+	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection, ToonShading);
 	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.a);
 	if (Edge)
 		return (LineColor);
@@ -509,6 +509,7 @@ VS_UI_OUTPUT VSUI(uint nVertexID : SV_VertexID)
 float4 PSUI(VS_UI_OUTPUT input) : SV_Target
 {
 	float4 cColor = gtxtUITexture.Sample(gssWrap, input.uv);
+	if (value) cColor -= 0.4;
 
 	return(cColor);
 }
