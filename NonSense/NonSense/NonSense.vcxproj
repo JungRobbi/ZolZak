@@ -149,6 +149,9 @@
     <ClInclude Include="..\AnimationType.h" />
     <ClInclude Include="..\Globals.h" />
     <ClInclude Include="AttackComponent.h" />
+    <ClInclude Include="BossAttackComponent.h" />
+    <ClInclude Include="BossFSMComponent.h" />
+    <ClInclude Include="BossState.h" />
     <ClInclude Include="BoxCollideComponent.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Characters.h" />
@@ -205,6 +208,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AttackComponent.cpp" />
+    <ClCompile Include="BossAttackComponent.cpp" />
+    <ClCompile Include="BossFSMComponent.cpp" />
+    <ClCompile Include="BossState.cpp" />
     <ClCompile Include="BoxCollideComponent.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Characters.cpp" />

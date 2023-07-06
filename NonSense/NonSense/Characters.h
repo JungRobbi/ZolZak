@@ -76,3 +76,17 @@ public:
 
 	void CloseAttackEvent();
 };
+
+class Shield : public Monster
+{
+public:
+	Shield(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type);
+	virtual ~Shield();
+
+	void BossAttackEvent();
+	void BossStealSenseEvent();
+	void BossSummonEvent();
+	void BossDefenceEvent();
+	void BossJumpAttackEvent();
+	void BossTorandoEvent();
+};

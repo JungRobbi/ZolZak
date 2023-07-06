@@ -4,6 +4,8 @@
 #include "CloseTypeFSMComponent.h"
 #include "FarTypeFSMComponent.h"
 #include "RushTypeFSMComponent.h"
+#include "BossFSMComponent.h"
+#include "BossAttackComponent.h"
 #include "MonsterAttackComponent.h"
 #include "AttackComponent.h"
 #include "MoveForwardComponent.h"
@@ -239,4 +241,161 @@ NPC::NPC(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, I
 	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
 	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 3);
 	
+}
+
+Shield::Shield(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) : Monster(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
+{
+	m_pBoundingShader = new BoundingShader();
+	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	CubeMesh* m_pBoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+	BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
+	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, m_pBoundMesh, m_pBoundingShader);
+
+	switch (type)
+	{
+	case MONSTER_TYPE_CLOSE:
+		AddComponent<CloseTypeFSMComponent>();
+		bb->SetNum(5);
+		AddComponent<AttackComponent>();
+		GetComponent<AttackComponent>()->SetAttackSpeed(3.0f);
+		GetComponent<AttackComponent>()->AttackCombo1_AnineSetNum = 4;
+		GetComponent<AttackComponent>()->Type_ComboAttack = false;
+		GetComponent<AttackComponent>()->SetBoundingObject(bb);
+
+		bs->SetNum(2);
+		AddComponent<SphereCollideComponent>();
+		GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+		GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.5);
+
+		m_Health = 965;
+		m_RemainHP = 965;
+		m_Attack = 200;
+		m_Defense = 90;
+
+		break;
+	case MONSTER_TYPE_FAR:
+		AddComponent<MonsterAttackComponent>();
+		GetComponent<MonsterAttackComponent>()->SetAttackSpeed(3.0f);
+
+		bs->SetNum(2);
+		AddComponent<SphereCollideComponent>();
+		GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+		GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.5);
+
+		AddComponent<FarTypeFSMComponent>();
+
+		m_Health = 675;
+		m_RemainHP = 675;
+		m_Attack = 180;
+		m_Defense = 80;
+		break;
+	case MONSTER_TYPE_RUSH:
+		AddComponent<RushTypeFSMComponent>();
+		AddComponent<MonsterAttackComponent>();
+		GetComponent<MonsterAttackComponent>()->SetAttackSpeed(5.0f);
+		GetComponent<MonsterAttackComponent>()->AttackAnimationNumber = 3;
+
+		bs->SetNum(2);
+		AddComponent<SphereCollideComponent>();
+		GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+		GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.5);
+
+		m_Health = 1130;
+		m_RemainHP = 1130;
+		m_Attack = 460;
+		m_Defense = 110;
+		break;
+	case MONSTER_TYPE_BOSS:
+
+		bs->SetNum(2);
+		AddComponent<SphereCollideComponent>();
+		GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+		GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.5);
+
+		m_Health = 20000;
+		m_RemainHP = 20000;
+		m_Attack = 200;
+		m_Defense = 90;
+
+		{
+			std::function<void()> AttackEvent = [this]() {
+				this->BossAttackEvent();
+			};
+			m_pSkinnedAnimationController->AddAnimationEvent("AttackEvent", E_M_ATTACK, 0.6, AttackEvent);
+		}
+		{
+			std::function<void()> StealSenseEvent = [this]() {
+				this->BossStealSenseEvent();
+			};
+			m_pSkinnedAnimationController->AddAnimationEvent("StealSenseEvent", E_M_ATTACK, 0.6, StealSenseEvent);
+		}
+		{
+			std::function<void()> SummonEvent = [this]() {
+				this->BossSummonEvent();
+			};
+			m_pSkinnedAnimationController->AddAnimationEvent("SummonEvent", E_M_ATTACK, 0.6, SummonEvent);
+		}
+		{
+			std::function<void()> DefenceEvent = [this]() {
+				this->BossDefenceEvent();
+			};
+			m_pSkinnedAnimationController->AddAnimationEvent("DefenceEvent", E_M_ATTACK, 0.6, DefenceEvent);
+		}
+		{
+			std::function<void()> JumpAttackEvent = [this]() {
+				this->BossJumpAttackEvent();
+			};
+			m_pSkinnedAnimationController->AddAnimationEvent("JumpAttackEvent", E_M_ATTACK, 0.6, JumpAttackEvent);
+		}
+		{
+			std::function<void()> ToranodoEvent = [this]() {
+				this->BossTorandoEvent();
+			};
+			m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_M_ATTACK, 0.6, ToranodoEvent);
+		}
+
+
+		break;
+	default:
+		break;
+	}
+
+	Monster_HP_UI* m_HP_UI = new Monster_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pHP = m_HP_UI;
+}
+
+Shield::~Shield()
+{
+}
+
+void Shield::BossAttackEvent()
+{
+	GetComponent<BossAttackComponent>()->Attack();
+}
+
+void Shield::BossStealSenseEvent()
+{
+	GetComponent<BossAttackComponent>()->StealSense();
+}
+
+void Shield::BossSummonEvent()
+{
+	GetComponent<BossAttackComponent>()->Summon();
+}
+
+void Shield::BossDefenceEvent()
+{
+	GetComponent<BossAttackComponent>()->Defence();
+}
+
+void Shield::BossJumpAttackEvent()
+{
+	GetComponent<BossAttackComponent>()->JumpAttack();
+}
+
+void Shield::BossTorandoEvent()
+{
+	GetComponent<BossAttackComponent>()->Tornado();
 }
