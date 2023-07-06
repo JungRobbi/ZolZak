@@ -170,6 +170,7 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerMovementComponent.h" />
+    <ClInclude Include="Room_GameScene.h" />
     <ClInclude Include="RotateComponent.h" />
     <ClInclude Include="RushTypeFSMComponent.h" />
     <ClInclude Include="RushTypeState.h" />
@@ -226,6 +227,7 @@
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerMovementComponent.cpp" />
+    <ClCompile Include="Room_GameScene.cpp" />
     <ClCompile Include="RotateComponent.cpp" />
     <ClCompile Include="RushTypeFSMComponent.cpp" />
     <ClCompile Include="RushTypeState.cpp" />

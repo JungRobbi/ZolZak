@@ -2232,9 +2232,9 @@ void Explosion::OnPrepareRender()
 	GetComponent<SphereCollideComponent>()->Radius += 0.05;
 	for (auto& o : GameScene::MainScene->MonsterObjects)
 	{
-		if (o->GetComponent<BoxCollideComponent>())
+		if (o->GetComponent<SphereCollideComponent>())
 		{
-			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
+			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
 				if (!o->MageDamage)
 				{

@@ -103,8 +103,27 @@ Player_HP_UI::Player_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	SetMaterial(pUIMaterial);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.2, 0.04, 0.8, 0.32);
+	SetMyPos(0.17, 0.04, 0.82, 0.32);
 }
+
+Warrior_Player_State_UI::Warrior_Player_State_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Player_State.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+	CanClick = false;
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.02, 0.02, 0.5, 0.2);
+}
+
 
 Player_HP_DEC_UI::Player_HP_DEC_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
 {
@@ -128,7 +147,7 @@ void Player_HP_DEC_UI::update() {
 		HP -= (HP - Dec_HP) / 65;
 		if (HP < Dec_HP) HP = Dec_HP;
 	}
-	SetMyPos(0.2, 0.04, 0.8 * HP, 0.32);
+	SetMyPos(0.17, 0.04, 0.82 * HP, 0.32);
 }
 
 Monster_HP_UI::Monster_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)

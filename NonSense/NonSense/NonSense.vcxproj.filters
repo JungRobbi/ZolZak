@@ -222,6 +222,9 @@
     <ClInclude Include="Vivox.h">
       <Filter>소스 파일\Vivox</Filter>
     </ClInclude>
+    <ClInclude Include="Room_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -337,6 +340,9 @@
     </ClCompile>
     <ClCompile Include="Vivox.cpp">
       <Filter>소스 파일\Vivox</Filter>
+    </ClCompile>
+    <ClCompile Include="Room_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

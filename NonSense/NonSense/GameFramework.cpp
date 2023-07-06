@@ -10,6 +10,7 @@
 
 #include "Login_GameScene.h"
 #include "Lobby_GameScene.h"
+#include "Room_GameScene.h"
 #include "Stage_GameScene.h"
 
 #include "resource.h"
@@ -315,9 +316,10 @@ void GameFramework::BuildObjects()
 
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
+	m_GameScenes.emplace_back(new Room_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(GAME_SCENE);
+	ChangeScene(ROOM_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -662,7 +664,7 @@ void GameFramework::ChangeScene(unsigned char num)
 	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
-	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+	m_pPlayer = new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 
 	//switch (GameSceneState)
 	//{
@@ -690,6 +692,11 @@ void GameFramework::ChangeScene(unsigned char num)
 		//m_pVivoxSystem->JoinChannel("Lobby");
 		if(m_pPlayer)
 		m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
+		break;
+	case ROOM_SCENE:
+		//m_pVivoxSystem->JoinChannel("Stage");
+		if (m_pPlayer)
+			m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
 		break;
 	case GAME_SCENE:
 		//m_pVivoxSystem->JoinChannel("Stage");

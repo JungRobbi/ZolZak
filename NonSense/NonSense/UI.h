@@ -62,6 +62,13 @@ public:
 	virtual ~Player_State_UI() {};
 };
 
+class Warrior_Player_State_UI : public Player_State_UI
+{
+public:
+	Warrior_Player_State_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Warrior_Player_State_UI() {};
+};
+
 class Player_HP_UI : public UI
 {
 public:

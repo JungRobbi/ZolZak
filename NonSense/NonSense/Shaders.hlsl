@@ -239,7 +239,7 @@ VS_BillboardOUTPUT VSBillboard(VS_BillboardINPUT input, uint nVertexID : SV_Vert
 float4 PSBillboard(VS_BillboardOUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtUITexture.Sample(gssBorder, input.uv);
-	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r), 4) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r), 4) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r), 4) * darkness),cColor.a);
+	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r), 40) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r), 40) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r), 40) * darkness),cColor.a);
 	return(cColor);
 
 }
@@ -282,7 +282,7 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 	}
 
 	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection, ToonShading);
-	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.a);
+	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 40) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 40) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 40) * darkness), cColor.a);
 	if (Edge)
 		return (LineColor);
 
@@ -414,7 +414,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtAlbedoTexture.Sample(gssDefaultSamplerState, input.uv);
-	cColor = float4(cColor.r*(1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 4) * darkness),cColor.a);
+	cColor = float4(cColor.r*(1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 40) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 40) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 40) * darkness),cColor.a);
 	return(cColor);
 }
 

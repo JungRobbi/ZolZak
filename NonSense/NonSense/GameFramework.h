@@ -17,7 +17,8 @@ extern enum SCENE_TYPE
 {
 	LOGIN_SCENE = 0,
 	LOBBY_SCENE = 1,
-	GAME_SCENE = 2,
+	ROOM_SCENE = 2,
+	GAME_SCENE = 3,
 };
 
 class GameFramework
