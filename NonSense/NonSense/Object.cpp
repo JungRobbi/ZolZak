@@ -2150,7 +2150,17 @@ void FireBall::OnPrepareRender()
 		{
 			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
-				o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
+				if (NetworkMGR::b_isNet) {
+					CS_TEMP_HIT_MONSTER_PACKET send_packet;
+					send_packet.size = sizeof(CS_TEMP_HIT_MONSTER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_MONSTER_PACKET;
+					send_packet.monster_id = o->GetNum();
+					send_packet.hit_damage = GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100));
+					PacketQueue::AddSendPacket(&send_packet);
+				}
+				else {
+					o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
+				}
 				explode->Active = true;
 				explode->SetPosition(GetPosition());
 				Active = false;

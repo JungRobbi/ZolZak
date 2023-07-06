@@ -470,6 +470,8 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 					}
 					else {
 						//로그인 실패
+						cout << "로그인 시도 실패!" << endl;
+						cout << "Login Try Fail!" << endl;
 					}
 
 				}
@@ -909,7 +911,6 @@ void GameFramework::MoveToNextFrame()
 
 void GameFramework::FrameAdvance()
 {
-
 	Timer::Tick(0.0f);
 
 	m_pVivoxSystem->Listen();
