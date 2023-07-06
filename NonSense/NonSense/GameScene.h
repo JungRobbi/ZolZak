@@ -88,7 +88,7 @@ protected:
 public:
 	virtual void update();
 	virtual void render();
-
+	bool change = false;
 	void PushDelete(Object* gameObject);
 
 	friend Object;
@@ -105,7 +105,7 @@ public:
 	virtual void ReleaseShaderVariables();
 	//씬에서 마우스와 키보드 메시지를 처리한다.
 	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	virtual bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseObjects();
 	bool ProcessInput(UCHAR* pKeysBuffer);

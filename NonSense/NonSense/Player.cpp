@@ -403,7 +403,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	//GetComponent<AttackComponent>()->SetBoundingObject(bb);
 	AddComponent<PlayerMovementComponent>();
 	AddComponent<AttackComponent>();
-	GetComponent<AttackComponent>()->SetAttackDuration(2.2);
+	GetComponent<AttackComponent>()->SetAttackDuration(1.5);
 
 	{
 		XMFLOAT3 pos;
@@ -554,9 +554,10 @@ void MagePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCam
 	}
 }
 
+
 WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
-	Magical = true;
+	Magical = false;
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)pContext;
 	SetPlayerUpdatedContext(pTerrain);
 	SetCameraUpdatedContext(pTerrain);
@@ -588,13 +589,13 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
 	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
 
-	//CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
-	//BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
-	//bb->SetNum(3);
-	//GetComponent<AttackComponent>()->SetBoundingObject(bb);
+	CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
+	bb->SetNum(3);
 	AddComponent<PlayerMovementComponent>();
 	AddComponent<AttackComponent>();
-	GetComponent<AttackComponent>()->SetAttackDuration(2.2);
+	GetComponent<AttackComponent>()->SetBoundingObject(bb);
+	GetComponent<AttackComponent>()->SetAttackDuration(1);
 
 	{
 		XMFLOAT3 pos;
@@ -610,8 +611,8 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			pos = XMFLOAT3(0, 0, 0);
 		}
 		SetPosition(pos);
-		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
-		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);
+		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/M05.bin", NULL);
+		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Sword_M05.bin", NULL);
 
 		if (pModel)
 			SetChild(pModel->m_pRoot, true);
@@ -729,10 +730,10 @@ void WarriorPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* p
 		{
 			m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
-			FindFrame("Wand")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-			FindFrame("Body_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-			FindFrame("Arm_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-			FindFrame("Leg_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Sword_M05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Body_m05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Arm_m05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Leg_M05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
 		}
 		else
 		{

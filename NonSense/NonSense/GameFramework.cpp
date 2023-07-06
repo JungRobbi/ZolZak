@@ -594,6 +594,13 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 					}
 				}
 				break;
+			case 'G':
+			case 'g':
+				delete m_pPlayer;
+				m_pPlayer = new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+				m_pCamera = m_pPlayer->GetCamera();
+				GameScene::MainScene->m_pPlayer = m_pPlayer;
+				break;
 			case '7':
 				ChangeScene(0);
 				break;
@@ -654,6 +661,7 @@ void GameFramework::ChangeScene(unsigned char num)
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+
 	//switch (GameSceneState)
 	//{
 	//case LOGIN_SCENE:

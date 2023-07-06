@@ -680,7 +680,7 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 			break;
 		case 'z':
 		case 'Z':
-			m_pPlayer->Sight_DeBuff(2);
+			change = true;
 			break;
 		default:
 			break;

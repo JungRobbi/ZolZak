@@ -6,7 +6,7 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 170);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 200);
 
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();
@@ -98,6 +98,8 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	bgm = new Sound("Sound/TestMusic.mp3", true);
 	bgm->Play();
+	m_pd3dDevice = pd3dDevice;
+	m_pd3dCommandList = pd3dCommandList;
 }
 void Stage_GameScene::ReleaseObjects()
 {
@@ -118,7 +120,7 @@ bool Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WP
 		switch (wParam)
 		{
 		case VK_SPACE:
-			
+
 			break;
 		default:
 			break;
