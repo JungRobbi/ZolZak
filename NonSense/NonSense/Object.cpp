@@ -575,6 +575,7 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++) m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = Matrix4x4::Zero();
 
 		for (int k = 0; k < m_nAnimationTracks; k++) {
+			
 			if (m_pAnimationTracks[k].m_bEnable)
 			{
 				bool IsAnimationEnd = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet]->SetPosition(fTimeElapsed * m_pAnimationTracks[k].m_fSpeed);
@@ -603,7 +604,7 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 
 		}
 
-		if (!m_pAnimationTracks[1].m_bEnable) {										//�Ϲ� ���
+		if(!m_pAnimationTracks[1].m_bEnable) {										//�Ϲ� ���
 			for (int k = 0; k < m_nAnimationTracks; k++)
 			{
 				if (m_pAnimationTracks[k].m_bEnable)
@@ -666,12 +667,12 @@ void AnimationController::AddAnimationEvent(std::string EventName, int nAnimatio
 {
 	if (m_pAnimationSets->m_pAnimationSets[nAnimationSet]->m_Length < Position || Position < 0)
 	{
-		std::cerr << "AddAnimationEventError - " << EventName << "�̺�Ʈ�� ���� ���̰� �ִϸ��̼��� ���� ���̿� ���� �ʽ��ϴ�. " << std::endl;
+		std::cerr << "AddAnimationEventError - " << EventName << "Animation Length Over. " << std::endl;
 		return;
 	}
 	else if (m_pAnimationSets->m_nAnimationSets <= nAnimationSet || nAnimationSet < 0)
 	{
-		std::cerr << "AddAnimationEventError - " << EventName << "�̺�Ʈ�� ������ �ִϸ��̼��� �������� �ʽ��ϴ�. " << std::endl;
+		std::cerr << "AddAnimationEventError - " << EventName << "No Animation Exist. " << std::endl;
 		return;
 	}
 	m_pAnimationTracks[0].AddAnimationEvent(EventName, nAnimationSet, Position, Callback);
