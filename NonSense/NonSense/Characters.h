@@ -89,4 +89,6 @@ public:
 	void BossDefenceEvent();
 	void BossJumpAttackEvent();
 	void BossTorandoEvent();
+
+	void EndSkillEvent();
 };

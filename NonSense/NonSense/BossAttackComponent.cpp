@@ -10,6 +10,15 @@ void BossAttackComponent::start()
 
 void BossAttackComponent::update()
 {
+
+	if(AttackTimeLeft <= 0.0f)
+	{
+		During_Attack = false;
+	}
+	else
+	{
+		AttackTimeLeft -= Timer::GetTimeElapsed();
+	}
 }
 
 void BossAttackComponent::SetAttackSpeed(float speed)
@@ -21,6 +30,8 @@ void BossAttackComponent::AttackAnimation()
 {
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_B_ATTACK);
 	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+	During_Attack = true;
+	AttackTimeLeft = AttackDuration;
 }
 
 void BossAttackComponent::Attack()
@@ -50,6 +61,7 @@ void BossAttackComponent::StealSenseAnimation()
 {
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_B_ROAR);
 	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+	During_Skill = true;
 }
 
 void BossAttackComponent::StealSense()
@@ -60,6 +72,7 @@ void BossAttackComponent::SummonAnimation()
 {
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_B_SUMMON);
 	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+	During_Skill = true;
 }
 
 void BossAttackComponent::Summon()
@@ -70,6 +83,7 @@ void BossAttackComponent::DefenceAnimation()
 {
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_B_DEFENCE);
 	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+	During_Skill = true;
 }
 
 void BossAttackComponent::Defence()
@@ -80,6 +94,7 @@ void BossAttackComponent::JumpAttackAnimation()
 {
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_B_JUMPATTACK);
 	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+	During_Skill = true;
 }
 
 void BossAttackComponent::JumpAttack()
@@ -90,6 +105,7 @@ void BossAttackComponent::TornadoAnimation()
 {
 	gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_B_TORNADO);
 	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+	During_Skill = true;
 }
 
 void BossAttackComponent::Tornado()

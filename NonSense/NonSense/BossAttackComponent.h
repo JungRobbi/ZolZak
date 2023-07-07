@@ -3,16 +3,16 @@
 #include "Timer.h"
 #include "Object.h"
 
-class BossAttackComponent : Component
+class BossAttackComponent : public Component
 {
 public:
 	bool During_Attack = false;
 	BoundBox* AttackRange = NULL;
-
+	bool During_Skill = false;
+	bool End_Skill = false;
 private:
-	float AttackDuration = 1.06;
+	float AttackDuration = 2.0;
 	float AttackTimeLeft = 0.0;
-
 public:
 	~BossAttackComponent() {}
 	void start();

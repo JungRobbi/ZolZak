@@ -55,6 +55,16 @@ void BossFSMComponent::ResetIdleTime(float time)
 	IdleLeftTime = time;
 }
 
+float BossFSMComponent::GetSkillCoolTime()
+{
+	return SkillCoolTime;
+}
+
+void BossFSMComponent::SetSkillCoolTime(float time)
+{
+	SkillCoolTime = time;
+}
+
 XMFLOAT3 BossFSMComponent::GetOwnerPosition()
 {
 	return gameObject->GetPosition();
@@ -92,11 +102,13 @@ void BossFSMComponent::Move_Run(float dist)
 void BossFSMComponent::Attack()
 {
 	if (!gameObject->GetComponent<BossAttackComponent>()->During_Attack)
-		gameObject->GetComponent<BossAttackComponent>()->Attack();
+		gameObject->GetComponent<BossAttackComponent>()->AttackAnimation();
 }
 
 void BossFSMComponent::Track()
 {
+	SkillCoolTime -= Timer::GetTimeElapsed();
+
 	XMFLOAT3 TargetPos = TargetPlayer->GetPosition();
 	XMFLOAT3 CurrentPos = gameObject->GetPosition();
 	XMFLOAT3 Direction = Vector3::Normalize(Vector3::Subtract(TargetPos, CurrentPos));
@@ -147,4 +159,29 @@ void BossFSMComponent::Death()
 		GameScene::MainScene->deletionMonsterQueue.push_back((Monster*)gameObject);
 		gameObject->m_pSkinnedAnimationController->SetTrackEnable(0, false);
 	}
+}
+
+void BossFSMComponent::StealSense()
+{
+	gameObject->GetComponent<BossAttackComponent>()->StealSenseAnimation();
+}
+
+void BossFSMComponent::Summon()
+{
+	gameObject->GetComponent<BossAttackComponent>()->SummonAnimation();
+}
+
+void BossFSMComponent::Defence()
+{
+	gameObject->GetComponent<BossAttackComponent>()->DefenceAnimation();
+}
+
+void BossFSMComponent::JumpAttack()
+{
+	gameObject->GetComponent<BossAttackComponent>()->JumpAttackAnimation();
+}
+
+void BossFSMComponent::Torando()
+{
+	gameObject->GetComponent<BossAttackComponent>()->TornadoAnimation();
 }

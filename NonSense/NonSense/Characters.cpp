@@ -308,7 +308,8 @@ Shield::Shield(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		m_Defense = 110;
 		break;
 	case MONSTER_TYPE_BOSS:
-
+		AddComponent<BossFSMComponent>();
+		AddComponent<BossAttackComponent>();
 		bs->SetNum(2);
 		AddComponent<SphereCollideComponent>();
 		GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
@@ -318,45 +319,66 @@ Shield::Shield(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		m_RemainHP = 20000;
 		m_Attack = 200;
 		m_Defense = 90;
+		{
+			std::function<void()>EndEvent = [this]() {
+				this->EndSkillEvent();
+			};
+			{
+				std::function<void()> AttackEvent = [this]() {
+					this->BossAttackEvent();
+				};
+				m_pSkinnedAnimationController->AddAnimationEvent("AttackEvent", E_B_ATTACK, 0.6, AttackEvent);
+			}
+			{
+				std::function<void()> StealSenseEvent = [this]() {
+					this->BossStealSenseEvent();
+				};
+				m_pSkinnedAnimationController->AddAnimationEvent("StealSenseEvent", E_B_ROAR, 1.5, StealSenseEvent);
 
-		{
-			std::function<void()> AttackEvent = [this]() {
-				this->BossAttackEvent();
-			};
-			m_pSkinnedAnimationController->AddAnimationEvent("AttackEvent", E_M_ATTACK, 0.6, AttackEvent);
-		}
-		{
-			std::function<void()> StealSenseEvent = [this]() {
-				this->BossStealSenseEvent();
-			};
-			m_pSkinnedAnimationController->AddAnimationEvent("StealSenseEvent", E_M_ATTACK, 0.6, StealSenseEvent);
-		}
-		{
-			std::function<void()> SummonEvent = [this]() {
-				this->BossSummonEvent();
-			};
-			m_pSkinnedAnimationController->AddAnimationEvent("SummonEvent", E_M_ATTACK, 0.6, SummonEvent);
-		}
-		{
-			std::function<void()> DefenceEvent = [this]() {
-				this->BossDefenceEvent();
-			};
-			m_pSkinnedAnimationController->AddAnimationEvent("DefenceEvent", E_M_ATTACK, 0.6, DefenceEvent);
-		}
-		{
-			std::function<void()> JumpAttackEvent = [this]() {
-				this->BossJumpAttackEvent();
-			};
-			m_pSkinnedAnimationController->AddAnimationEvent("JumpAttackEvent", E_M_ATTACK, 0.6, JumpAttackEvent);
-		}
-		{
-			std::function<void()> ToranodoEvent = [this]() {
-				this->BossTorandoEvent();
-			};
-			m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_M_ATTACK, 0.6, ToranodoEvent);
-		}
+				float len = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_ROAR]->m_Length - 0.1;
+				m_pSkinnedAnimationController->AddAnimationEvent("EndEvent", E_B_ROAR, len, EndEvent);
+			}
+			{
+				std::function<void()> SummonEvent = [this]() {
+					this->BossSummonEvent();
+				};
+				m_pSkinnedAnimationController->AddAnimationEvent("SummonEvent", E_B_SUMMON, 1.5, SummonEvent);
 
+				float len = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_SUMMON]->m_Length - 0.1;
+				m_pSkinnedAnimationController->AddAnimationEvent("EndEvent", E_B_SUMMON, len, EndEvent);
+			}
+			{
+				std::function<void()> DefenceEvent = [this]() {
+					this->BossDefenceEvent();
+				};
+				m_pSkinnedAnimationController->AddAnimationEvent("DefenceEvent", E_B_DEFENCE, 0.6, DefenceEvent);
 
+				float len = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_DEFENCE]->m_Length - 0.1;
+				m_pSkinnedAnimationController->AddAnimationEvent("EndEvent", E_B_DEFENCE, len, EndEvent);
+			}
+			{
+				std::function<void()> JumpAttackEvent = [this]() {
+					this->BossJumpAttackEvent();
+				};
+				m_pSkinnedAnimationController->AddAnimationEvent("JumpAttackEvent", E_B_JUMPATTACK, 2.3, JumpAttackEvent);
+
+				float len = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_JUMPATTACK]->m_Length - 0.1;
+				m_pSkinnedAnimationController->AddAnimationEvent("EndEvent", E_B_JUMPATTACK, len, EndEvent);
+			}
+			{
+				std::function<void()> ToranodoEvent = [this]() {
+					this->BossTorandoEvent();
+				};
+				m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 0.6, ToranodoEvent);
+				float len = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_TORNADO]->m_Length - 0.1;
+				m_pSkinnedAnimationController->AddAnimationEvent("EndEvent", E_B_TORNADO, len, EndEvent);
+			}
+		}
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_ROAR]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_SUMMON]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_DEFENCE]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_JUMPATTACK]->m_nType = ANIMATION_TYPE_ONCE;
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_TORNADO]->m_nType = ANIMATION_TYPE_ONCE;
 		break;
 	default:
 		break;
@@ -399,3 +421,10 @@ void Shield::BossTorandoEvent()
 {
 	GetComponent<BossAttackComponent>()->Tornado();
 }
+
+void Shield::EndSkillEvent()
+{
+	std::cout << "end" << std::endl;
+	GetComponent<BossAttackComponent>()->End_Skill = true;
+}
+
