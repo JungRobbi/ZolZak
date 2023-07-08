@@ -54,3 +54,9 @@ void Lobby_GameScene::MakeRoom(std::string name)
 	Room_UI* room = new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, 0, name, m_pPlayer->m_name);
 	Rooms.emplace_back(room);
 }
+
+void Lobby_GameScene::MakeRoom(int roomNum, std::string name, std::string owner)
+{
+	Room_UI* room = new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, roomNum, name, owner);
+	Rooms.emplace_back(room);
+}

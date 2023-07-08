@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
 	std::cout << "Terrain Loding Complete!" << std::endl;
 
 	for (auto& room : Room::roomlist)
-		room->start();
+		room.second->start();
 
 	Timer::Initialize();
 	Timer::Reset();
@@ -271,7 +271,7 @@ int main(int argc, char* argv[])
 	while (true) {
 		Timer::Tick(0.0f);
 		for (auto& room : Room::roomlist) {
-			room->update();
+			room.second->update();
 		}
 	}
 
@@ -620,10 +620,9 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	case E_PACKET_CS_ROOM_CREATE_PACKET: {
 		CS_ROOM_CREATE_PACKET* recv_packet = reinterpret_cast<CS_ROOM_CREATE_PACKET*>(p_Packet);
 		// 임시 방 생성
-		Room::roomlist.emplace_back(make_shared<Room>());
-		auto rN = Room::roomlist.size() - 1;
-		Room::roomlist.at(rN)->m_roomNum = rN;
-		cout << "Room::roomlist.size() - " << Room::roomlist.size() << endl;
+		int rN = Room::g_roomNum++;
+		Room::roomlist.insert({ rN, make_shared<Room>() });
+		Room::roomlist[rN]->m_roomNum = rN;
 		for (auto& rc : RemoteClient::remoteClients) {
 			if (!rc.second->b_Enable.load())
 				continue;
@@ -658,7 +657,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		p_Client->m_clear_stage = (int)p_DBMGR->player_clear_stage;
 
 		// 접속 시도
-		Room::roomlist.at(recv_packet->roomNum)->Clients.insert({ p_Client->m_id, p_Client });
+		Room::roomlist[recv_packet->roomNum]->Clients.insert({ p_Client->m_id, p_Client });
 		p_Client->m_pPlayer->m_roomNum = recv_packet->roomNum;
 
 		{ // 접속한 클라이언트 본인 정보 송신
@@ -676,7 +675,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		}
 
 		// 접속한 클라이언트에게 모든 플레이어 정보 송신
-		for (auto& rc : Room::roomlist.at(recv_packet->roomNum)->Clients) {
+		for (auto& rc : Room::roomlist[recv_packet->roomNum]->Clients) {
 			if (!rc.second->b_Enable.load())
 				continue;
 			if (rc.second->m_id == p_Client->m_id)
@@ -696,7 +695,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		}
 
 		// 다른 클라이언트들에게 접속한 클라이언트 정보 송신
-		for (auto& rc : Room::roomlist.at(recv_packet->roomNum)->Clients) {
+		for (auto& rc : Room::roomlist[recv_packet->roomNum]->Clients) {
 			if (!rc.second->b_Enable.load())
 				continue;
 			if (rc.second->m_id == p_Client->m_id)

@@ -9,7 +9,8 @@
 #include "Components/SphereCollideComponent.h"
 #include "Components/BoxCollideComponent.h"
 
-std::vector<shared_ptr<Room>> Room::roomlist{};
+std::unordered_map<int, shared_ptr<Room>> Room::roomlist{};
+int Room::g_roomNum = 0;
 
 Room::Room()
 {

@@ -14,7 +14,8 @@ class Room
 	std::shared_ptr<Scene> scene;
 public:
 	std::unordered_map<int, std::shared_ptr<RemoteClient>> Clients;
-	static std::vector<shared_ptr<Room>> roomlist;
+	static std::unordered_map<int, shared_ptr<Room>> roomlist;
+	static int g_roomNum;
 	std::atomic<int> m_roomNum = 0;
 public:
 	Room();
