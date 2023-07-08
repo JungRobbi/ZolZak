@@ -3,6 +3,7 @@
 #include "GameScene.h"
 #include "GameFramework.h"
 #include "Lobby_GameScene.h"
+#include "NetworkMGR.h"
 
 UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(false)
 {
@@ -387,10 +388,19 @@ void Make_Room_UI::OnClick()
 	//{
 	//	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom = true;
 	//}
-	std::string name;
-	std::cout << "방 제목을 입력하세요 : " << std::endl;
-	std::cin >> name;
-	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(name);
+	std::string name = "Test Room";
+//	std::cout << "방 제목을 입력하세요 : " << std::endl;
+//	std::cin >> name;
+	if (NetworkMGR::b_isNet) {
+		CS_ROOM_CREATE_PACKET send_packet;
+		send_packet.size = sizeof(CS_ROOM_CREATE_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_CS_ROOM_CREATE_PACKET;
+		memcpy(send_packet.roomName, name.c_str(), name.size());
+		PacketQueue::AddSendPacket(&send_packet);
+	}
+	else {
+		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(name);
+	}
 }
 
 Join_Room_UI::Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -414,7 +424,16 @@ Join_Room_UI::Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 void Join_Room_UI::OnClick()
 {
-	GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
+	if (NetworkMGR::b_isNet) {
+		CS_ROOM_JOIN_PACKET send_packet;
+		send_packet.size = sizeof(CS_ROOM_JOIN_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_CS_ROOM_JOIN_PACKET;
+		send_packet.roomNum = dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum;
+		PacketQueue::AddSendPacket(&send_packet);
+	}
+	else {
+		GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
+	}
 }
 
 Back_UI::Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)

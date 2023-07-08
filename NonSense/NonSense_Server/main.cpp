@@ -242,10 +242,6 @@ int main(int argc, char* argv[])
 	Scene::terrain->SetPosition(-400, 0, -400);
 	std::cout << "Terrain Loding Complete!" << std::endl;
 
-	// 임시 방 생성
-	Room::roomlist.emplace_back(make_shared<Room>());
-	Room::roomlist.at(0)->m_roomNum = 0;
-
 	for (auto& room : Room::roomlist)
 		room->start();
 
@@ -434,26 +430,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 					delete[] wname;
 					break;
 				}
-				else {	// LOGIN_OK
-					p_Client->m_pPlayer = make_shared<Player>();
-					p_Client->m_pPlayer->start();
-					p_Client->m_pPlayer->remoteClient = p_Client.get();
-					bool expected = false;
-					p_Client->b_Login.compare_exchange_strong(expected, true);
-					p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
-
-					memcpy(p_Client->name, recv_packet->name, sizeof(recv_packet->name));
-
-					p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()
-						->SetPosition(XMFLOAT3{ (float)p_DBMGR->player_x, Scene::terrain->GetHeight((float)p_DBMGR->player_x, (float)p_DBMGR->player_z) ,(float)p_DBMGR->player_z });
-					p_Client->m_pPlayer->SetPosition(XMFLOAT3{ (float)p_DBMGR->player_x, Scene::terrain->GetHeight((float)p_DBMGR->player_x, (float)p_DBMGR->player_z) ,(float)p_DBMGR->player_z });
-
-					cout << "(float)p_DBMGR->player_x - " << (float)p_DBMGR->player_x << endl;
-					cout << "(float)p_DBMGR->player_z - " << (float)p_DBMGR->player_z << endl;
-
-					p_Client->m_pPlayer->SetHealth((int)p_DBMGR->player_Maxhp);
-					p_Client->m_pPlayer->SetRemainHP((int)p_DBMGR->player_hp);
-					p_Client->m_clear_stage = (int)p_DBMGR->player_clear_stage;
+				else {	
 					cout << "Login OK! (DB) " << endl;
 					{
 						SC_LOGIN_OK_PACKET send_packet;
@@ -478,64 +455,6 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		memcpy(p_Client->name, recv_packet->name, sizeof(recv_packet->name));
 		//id 부여
 		p_Client->m_id = N_CLIENT_ID++;
-
-		// 임시로 room 0 에 추가
-		Room::roomlist.at(0)->Clients.insert({ p_Client->m_id, p_Client });
-		p_Client->m_pPlayer->m_roomNum = 0;
-
-		{ // 접속한 클라이언트 본인 정보 송신
-			SC_LOGIN_INFO_PACKET send_packet;
-			send_packet.size = sizeof(SC_LOGIN_INFO_PACKET);
-			send_packet.type = E_PACKET::E_PACKET_SC_LOGIN_INFO;
-			send_packet.id = p_Client->m_id;
-			send_packet.maxHp = p_Client->m_pPlayer->GetHealth();
-			send_packet.remainHp = p_Client->m_pPlayer->GetRemainHP();
-			send_packet.x = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
-			send_packet.y = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
-			send_packet.z = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
-			send_packet.clearStage = p_Client->m_clear_stage;
-			p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
-		}
-
-		// 접속한 클라이언트에게 모든 플레이어 정보 송신
-		for (auto& rc : RemoteClient::remoteClients) {
-			if (!rc.second->b_Enable.load())
-				continue;
-			if (rc.second->m_id == p_Client->m_id) 
-				continue;
-			SC_ADD_PLAYER_PACKET send_packet;
-			send_packet.size = sizeof(SC_ADD_PLAYER_PACKET);
-			send_packet.type = E_PACKET::E_PACKET_SC_ADD_PLAYER;
-			send_packet.id = rc.second->m_id;
-			memcpy(send_packet.name, rc.second->name, sizeof(rc.second->name));
-			send_packet.maxHp = rc.second->m_pPlayer->GetHealth();
-			send_packet.remainHp = rc.second->m_pPlayer->GetRemainHP();
-			send_packet.x = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
-			send_packet.y = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
-			send_packet.z = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
-			send_packet.clearStage = rc.second->m_clear_stage;
-			p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
-		}
-
-		// 다른 클라이언트들에게 접속한 클라이언트 정보 송신
-		for (auto& rc : RemoteClient::remoteClients) {
-			if (!rc.second->b_Enable.load())
-				continue;
-			if (rc.second->m_id == p_Client->m_id)
-				continue;
-			SC_ADD_PLAYER_PACKET send_packet;
-			send_packet.size = sizeof(SC_ADD_PLAYER_PACKET);
-			send_packet.type = E_PACKET::E_PACKET_SC_ADD_PLAYER;
-			send_packet.id = p_Client->m_id;
-			memcpy(send_packet.name, p_Client->name, sizeof(p_Client->name));
-			send_packet.maxHp = p_Client->m_pPlayer->GetHealth();
-			send_packet.remainHp = p_Client->m_pPlayer->GetRemainHP();
-			send_packet.x = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
-			send_packet.y = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
-			send_packet.z = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
-			send_packet.clearStage = p_Client->m_clear_stage;
-			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
-		}
 
 		break;
 	}
@@ -696,8 +615,109 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			memcpy(send_packet.chat, recv_packet->chat, sizeof(recv_packet->chat));
 			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
-	}
 		break;
+	}
+	case E_PACKET_CS_ROOM_CREATE_PACKET: {
+		CS_ROOM_CREATE_PACKET* recv_packet = reinterpret_cast<CS_ROOM_CREATE_PACKET*>(p_Packet);
+		// 임시 방 생성
+		Room::roomlist.emplace_back(make_shared<Room>());
+		auto rN = Room::roomlist.size() - 1;
+		Room::roomlist.at(rN)->m_roomNum = rN;
+		cout << "Room::roomlist.size() - " << Room::roomlist.size() << endl;
+		for (auto& rc : RemoteClient::remoteClients) {
+			if (!rc.second->b_Enable.load())
+				continue;
+			SC_ROOM_CREATE_PACKET send_packet;
+			send_packet.size = sizeof(SC_ROOM_CREATE_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_ROOM_CREATE_PACKET;
+			send_packet.roomNum = rN;
+			memcpy(send_packet.hostName, p_Client->name, sizeof(p_Client->name));
+			memcpy(send_packet.roomName, recv_packet->roomName, sizeof(recv_packet->roomName));
+			send_packet.connection_playerNum = 0;
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+		break;
+	}
+	case E_PACKET_CS_ROOM_JOIN_PACKET: {
+		CS_ROOM_JOIN_PACKET* recv_packet = reinterpret_cast<CS_ROOM_JOIN_PACKET*>(p_Packet);
+
+		// LOGIN_OK
+		p_Client->m_pPlayer = make_shared<Player>();
+		p_Client->m_pPlayer->start();
+		p_Client->m_pPlayer->remoteClient = p_Client.get();
+		bool expected = false;
+		p_Client->b_Login.compare_exchange_strong(expected, true);
+		p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetContext(Scene::terrain);
+
+		p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()
+			->SetPosition(XMFLOAT3{ (float)p_DBMGR->player_x, Scene::terrain->GetHeight((float)p_DBMGR->player_x, (float)p_DBMGR->player_z) ,(float)p_DBMGR->player_z });
+		p_Client->m_pPlayer->SetPosition(XMFLOAT3{ (float)p_DBMGR->player_x, Scene::terrain->GetHeight((float)p_DBMGR->player_x, (float)p_DBMGR->player_z) ,(float)p_DBMGR->player_z });
+
+		p_Client->m_pPlayer->SetHealth((int)p_DBMGR->player_Maxhp);
+		p_Client->m_pPlayer->SetRemainHP((int)p_DBMGR->player_hp);
+		p_Client->m_clear_stage = (int)p_DBMGR->player_clear_stage;
+
+		// 접속 시도
+		Room::roomlist.at(recv_packet->roomNum)->Clients.insert({ p_Client->m_id, p_Client });
+		p_Client->m_pPlayer->m_roomNum = recv_packet->roomNum;
+
+		{ // 접속한 클라이언트 본인 정보 송신
+			SC_LOGIN_INFO_PACKET send_packet;
+			send_packet.size = sizeof(SC_LOGIN_INFO_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_LOGIN_INFO;
+			send_packet.id = p_Client->m_id;
+			send_packet.maxHp = p_Client->m_pPlayer->GetHealth();
+			send_packet.remainHp = p_Client->m_pPlayer->GetRemainHP();
+			send_packet.x = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
+			send_packet.y = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
+			send_packet.z = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
+			send_packet.clearStage = p_Client->m_clear_stage;
+			p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+
+		// 접속한 클라이언트에게 모든 플레이어 정보 송신
+		for (auto& rc : Room::roomlist.at(recv_packet->roomNum)->Clients) {
+			if (!rc.second->b_Enable.load())
+				continue;
+			if (rc.second->m_id == p_Client->m_id)
+				continue;
+			SC_ADD_PLAYER_PACKET send_packet;
+			send_packet.size = sizeof(SC_ADD_PLAYER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_ADD_PLAYER;
+			send_packet.id = rc.second->m_id;
+			memcpy(send_packet.name, rc.second->name, sizeof(rc.second->name));
+			send_packet.maxHp = rc.second->m_pPlayer->GetHealth();
+			send_packet.remainHp = rc.second->m_pPlayer->GetRemainHP();
+			send_packet.x = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
+			send_packet.y = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
+			send_packet.z = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
+			send_packet.clearStage = rc.second->m_clear_stage;
+			p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+
+		// 다른 클라이언트들에게 접속한 클라이언트 정보 송신
+		for (auto& rc : Room::roomlist.at(recv_packet->roomNum)->Clients) {
+			if (!rc.second->b_Enable.load())
+				continue;
+			if (rc.second->m_id == p_Client->m_id)
+				continue;
+			SC_ADD_PLAYER_PACKET send_packet;
+			send_packet.size = sizeof(SC_ADD_PLAYER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_ADD_PLAYER;
+			send_packet.id = p_Client->m_id;
+			memcpy(send_packet.name, p_Client->name, sizeof(p_Client->name));
+			send_packet.maxHp = p_Client->m_pPlayer->GetHealth();
+			send_packet.remainHp = p_Client->m_pPlayer->GetRemainHP();
+			send_packet.x = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
+			send_packet.y = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
+			send_packet.z = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
+			send_packet.clearStage = p_Client->m_clear_stage;
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+
+
+		break;
+	}
 	default:
 		break;
 	}

@@ -317,7 +317,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(GAME_SCENE);
+	ChangeScene(LOGIN_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -459,7 +459,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 					NetworkMGR::name = string{ p };
 					delete[] p;
 					if(!NetworkMGR::b_isNet) // 클라 모드일 때 
-						ChangeScene(GAME_SCENE);
+						ChangeScene(LOBBY_SCENE);
 					else if (!NetworkMGR::b_isLogin && !NetworkMGR::b_isLoginProg) { // 로그인 하지 않은 상태
 						NetworkMGR::b_isLoginProg = true; // 로그인 진행
 						CS_LOGIN_PACKET send_packet;

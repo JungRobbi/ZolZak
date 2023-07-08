@@ -19,6 +19,7 @@ enum E_PACKET
 	E_PACKET_CS_TEMP_HIT_MONSTER_PACKET, E_PACKET_SC_TEMP_HIT_MONSTER_PACKET,
 	E_PACKET_CS_TEMP_HIT_PLAYER_PACKET, E_PACKET_SC_TEMP_HIT_PLAYER_PACKET,
 	E_PACKET_CS_CHAT_PACKET,
+	E_PACKET_CS_ROOM_CREATE_PACKET, E_PACKET_CS_ROOM_JOIN_PACKET,
 
 	// Server -> Client packet
 	E_PACKET_SC_LOGIN_INFO, E_PACKET_SC_ADD_PLAYER, E_PACKET_SC_REMOVE_PLAYER,
@@ -31,7 +32,9 @@ enum E_PACKET
 
 	E_PACKET_SC_CHAT_PACKET,
 	E_PACKET_SC_LOGIN_OK_PACKET,
-	E_PACKET_SC_LOGIN_FAIL_PACKET
+	E_PACKET_SC_LOGIN_FAIL_PACKET,
+	E_PACKET_SC_ROOM_CREATE_PACKET, E_PACKET_SC_ROOM_JOIN_FAIL_PACKET,
+
 };
 
 #pragma pack (push, 1)
@@ -83,6 +86,16 @@ public:
 class CS_CHAT_PACKET : public PACKET_HEAD {
 public:
 	char    chat[CHAT_SIZE];
+};
+
+class CS_ROOM_CREATE_PACKET : public PACKET_HEAD {
+public:
+	char roomName[NAME_SIZE] = "TEST ROOM";
+};
+
+class CS_ROOM_JOIN_PACKET : public PACKET_HEAD {
+public:
+	int roomNum;
 };
 
 
@@ -192,5 +205,18 @@ public:
 	unsigned int	id;
 	float	x, y, z;
 };
+
+class SC_ROOM_CREATE_PACKET : public PACKET_HEAD {
+public:
+	int roomNum;
+	char roomName[NAME_SIZE];
+	char hostName[NAME_SIZE];
+	int connection_playerNum;
+};
+
+class SC_ROOM_JOIN_FAIL_PACKET : public PACKET_HEAD {
+public:
+};
+
 
 #pragma pack (pop)
