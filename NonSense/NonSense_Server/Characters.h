@@ -16,6 +16,7 @@ enum MonsterType
 class Character : public Object
 {
 protected:
+	MonsterType m_type;
 	float m_Health = 100;
 	float m_Defense = 100;
 	float m_Attack = 100;
@@ -38,6 +39,7 @@ public:
 	float GetAttack() { return m_Attack; }
 	float GetRemainHP() { return m_RemainHP; }
 	int GetAniType() { return PresentAniType.load(); }
+	MonsterType GetMonsterType() { return m_type; }
 
 	void SetHealth(float f) { m_Health = f; }
 	void SetDefense(float f) { m_Defense = f; }
@@ -46,7 +48,22 @@ public:
 	void SetAniType(E_MONSTER_ANIMATION_TYPE ani_type) { PresentAniType = ani_type; }
 };
 
-class Goblin : public Character
+class Monster : public Character
+{
+public:
+	Monster();
+	Monster(int roomNum);
+	Monster_HP_UI* m_pHP = NULL;
+
+	bool MageDamage = false;
+	Object* HandFrame = NULL;
+	Object* WeaponFrame = NULL;
+public:
+	void FarTypeAttack();
+	void RushTypeAttack();
+};
+
+class Goblin : public Monster
 {
 public:
 

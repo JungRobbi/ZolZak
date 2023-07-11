@@ -27,7 +27,7 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 
 	float Distance = ChangeStateDistance;
 	shared_ptr<Player> cand_player = nullptr;
-	for (auto& rc : RemoteClient::remoteClients) {
+	for (auto& rc : Room::roomlist.at(gameObject->m_roomNum)->Clients) {
 		if (!rc.second->b_Enable)
 			continue;
 		auto PlayerPos = rc.second->m_pPlayer->GetPosition();
@@ -40,7 +40,7 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 	TargetPlayer = cand_player.get();
 
 	if (Distance >= ChangeStateDistance ||
-		RemoteClient::remoteClients.empty() ||
+		Room::roomlist.at(gameObject->m_roomNum)->Clients.empty() ||
 		cand_player->remoteClient->m_id == 0 ||
 		!cand_player)
 		return false;
@@ -88,17 +88,17 @@ bool CloseTypeFSMComponent::Idle()
 
 void CloseTypeFSMComponent::Stop()
 {
-	((Character*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_IDLE;
+	((Monster*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_IDLE;
 }
 
 void CloseTypeFSMComponent::Move_Walk(float dist)
 {
-	((Character*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_WALK;
+	((Monster*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_WALK;
 	gameObject->MoveForward(dist);
 }
 void CloseTypeFSMComponent::Move_Run(float dist)
 {
-	((Character*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_RUN;
+	((Monster*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_RUN;
 	gameObject->MoveForward(dist);
 }
 void CloseTypeFSMComponent::Attack()
@@ -141,7 +141,7 @@ bool CloseTypeFSMComponent::Wander()
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(WanderPosition, CurrentPos));
 	
-	for (auto& rc_to : RemoteClient::remoteClients) {
+	for (auto& rc_to : Room::roomlist.at(gameObject->m_roomNum)->Clients) {
 		if (!rc_to.second->b_Enable)
 			continue;
 		SC_TEMP_WANDER_MONSTER_PACKET send_packet;

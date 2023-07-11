@@ -17,7 +17,8 @@ extern enum SCENE_TYPE
 {
 	LOGIN_SCENE = 0,
 	LOBBY_SCENE = 1,
-	GAME_SCENE = 2,
+	ROOM_SCENE = 2,
+	GAME_SCENE = 3,
 };
 
 class GameFramework
@@ -71,6 +72,8 @@ public:
 	std::vector<Player*> m_OtherPlayers;
 	int m_clearStage = 0;
 	int ScriptNum = 0;
+	float LastClick = 0;
+	float MouseSen = 3;
 public:
 	HWND m_hWnd;
 	Camera* m_pCamera = NULL;

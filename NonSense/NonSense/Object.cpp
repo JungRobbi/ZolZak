@@ -2194,7 +2194,17 @@ void FireBall::OnPrepareRender()
 		{
 			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
-				o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
+				if (NetworkMGR::b_isNet) {
+					CS_TEMP_HIT_MONSTER_PACKET send_packet;
+					send_packet.size = sizeof(CS_TEMP_HIT_MONSTER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_MONSTER_PACKET;
+					send_packet.monster_id = o->GetNum();
+					send_packet.hit_damage = GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100));
+					PacketQueue::AddSendPacket(&send_packet);
+				}
+				else {
+					o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
+				}
 				explode->Active = true;
 				explode->SetPosition(GetPosition());
 				Active = false;
@@ -2263,12 +2273,12 @@ Explosion::Explosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 
 void Explosion::OnPrepareRender()
 {
-	GetComponent<SphereCollideComponent>()->Radius += 0.035;
+	GetComponent<SphereCollideComponent>()->Radius += 0.05;
 	for (auto& o : GameScene::MainScene->MonsterObjects)
 	{
-		if (o->GetComponent<BoxCollideComponent>())
+		if (o->GetComponent<SphereCollideComponent>())
 		{
-			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
+			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
 				if (!o->MageDamage)
 				{
@@ -2278,7 +2288,7 @@ void Explosion::OnPrepareRender()
 			}
 		}
 	}
-	if (GetComponent<SphereCollideComponent>()->Radius >= 1.5)
+	if (GetComponent<SphereCollideComponent>()->Radius >= 2.5)
 	{
 		GetComponent<SphereCollideComponent>()->Radius = 0;
 		Active = false;

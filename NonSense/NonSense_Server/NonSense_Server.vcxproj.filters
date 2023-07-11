@@ -37,6 +37,9 @@
     <Filter Include="소스 파일\DBMGR">
       <UniqueIdentifier>{549f69ad-5417-4b28-9e1b-f0f01d4572ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Components\FSMComponent">
+      <UniqueIdentifier>{e97aa8fb-0065-4147-bec4-45af947be949}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -75,9 +78,6 @@
     <ClCompile Include="Components\SphereCollideComponent.cpp">
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Components\CloseTypeFSMComponent.cpp">
-      <Filter>소스 파일\Components</Filter>
-    </ClCompile>
     <ClCompile Include="CloseTypeState.cpp">
       <Filter>소스 파일\FSM</Filter>
     </ClCompile>
@@ -95,6 +95,30 @@
     </ClCompile>
     <ClCompile Include="Room.cpp">
       <Filter>소스 파일\GameFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CloseTypeFSMComponent.cpp">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="FarTypeState.cpp">
+      <Filter>소스 파일\FSM</Filter>
+    </ClCompile>
+    <ClCompile Include="RushTypeState.cpp">
+      <Filter>소스 파일\FSM</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\FarTypeFSMComponent.cpp">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\RushTypeFSMComponent.cpp">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\MonsterAttackComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\MoveForwardComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\RotateComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -137,9 +161,6 @@
     <ClInclude Include="Components\SphereCollideComponent.h">
       <Filter>소스 파일\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Components\CloseTypeFSMComponent.h">
-      <Filter>소스 파일\Components</Filter>
-    </ClInclude>
     <ClInclude Include="CloseTypeState.h">
       <Filter>소스 파일\FSM</Filter>
     </ClInclude>
@@ -166,6 +187,30 @@
     </ClInclude>
     <ClInclude Include="Room.h">
       <Filter>소스 파일\GameFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CloseTypeFSMComponent.h">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="FarTypeState.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="RushTypeState.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\FarTypeFSMComponent.h">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\RushTypeFSMComponent.h">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\MonsterAttackComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\MoveForwardComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\RotateComponent.h">
+      <Filter>소스 파일\Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

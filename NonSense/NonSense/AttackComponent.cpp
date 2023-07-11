@@ -20,7 +20,7 @@ void AttackComponent::Attack()
 		if (AttackRange) {
 			for (auto& monster : GameScene::MainScene->MonsterObjects)
 			{
-				if (AttackRange->Intersects(*monster->GetComponent<BoxCollideComponent>()->GetBoundingObject())) {
+				if (AttackRange->Intersects(*monster->GetComponent<SphereCollideComponent>()->GetBoundingObject())) {
 					if (!NetworkMGR::b_isNet) {
 						monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100)));
 						continue;
@@ -128,13 +128,13 @@ void AttackComponent::update()
 		{
 			if ((Input::InputKeyBuffer[VK_LBUTTON] & 0xF0) && !NetworkMGR::b_isNet)
 			{
-				if (!During_Attack)
+				if (!During_Attack && !ScriptMode && !OptionMode)
 				{
 					Attack();
 				}
 			}
 			else {
-				if (!During_Attack && b_Attack)
+				if (!During_Attack && b_Attack && !ScriptMode && !OptionMode)
 				{
 					Attack();
 					b_Attack = false;

@@ -10,6 +10,7 @@
 
 #include "Login_GameScene.h"
 #include "Lobby_GameScene.h"
+#include "Room_GameScene.h"
 #include "Stage_GameScene.h"
 
 #include "resource.h"
@@ -315,9 +316,10 @@ void GameFramework::BuildObjects()
 
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
+	m_GameScenes.emplace_back(new Room_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(LOBBY_SCENE);
+	ChangeScene(GAME_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -343,6 +345,7 @@ void GameFramework::BuildObjects()
 		m_pPlayer->ReleaseUploadBuffers();
 	for(auto& p : m_OtherPlayersPool)
 		p->ReleaseUploadBuffers();
+	m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
 	Timer::Reset();
 }
 
@@ -469,6 +472,8 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 					}
 					else {
 						//로그인 실패
+						cout << "로그인 시도 실패!" << endl;
+						cout << "Login Try Fail!" << endl;
 					}
 
 				}
@@ -593,6 +598,13 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 					}
 				}
 				break;
+			case 'G':
+			case 'g':
+				delete m_pPlayer;
+				m_pPlayer = new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+				m_pCamera = m_pPlayer->GetCamera();
+				GameScene::MainScene->m_pPlayer = m_pPlayer;
+				break;
 			case '7':
 				ChangeScene(0);
 				break;
@@ -652,6 +664,8 @@ void GameFramework::ChangeScene(unsigned char num)
 	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
+	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+
 	//switch (GameSceneState)
 	//{
 	//case LOGIN_SCENE:
@@ -667,24 +681,34 @@ void GameFramework::ChangeScene(unsigned char num)
 	//	break;
 	//}
 	//
-	//switch (num)
-	//{
-	//case LOGIN_SCENE:
-	//	m_pVivoxSystem->JoinChannel("Login");
-	//	break;
-	//case LOBBY_SCENE:
-	//	m_pVivoxSystem->JoinChannel("Lobby");
-	//	break;
-	//case GAME_SCENE:
-	//	m_pVivoxSystem->JoinChannel("Stage");
-	//	break;
-	//default:
-	//	break;
-	//}
+	switch (num)
+	{
+	case LOGIN_SCENE:
+		//m_pVivoxSystem->JoinChannel("Login");
+		if (m_pPlayer)
+		m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
+		break;
+	case LOBBY_SCENE:
+		//m_pVivoxSystem->JoinChannel("Lobby");
+		if(m_pPlayer)
+		m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
+		break;
+	case ROOM_SCENE:
+		//m_pVivoxSystem->JoinChannel("Stage");
+		if (m_pPlayer)
+			m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
+		break;
+	case GAME_SCENE:
+		//m_pVivoxSystem->JoinChannel("Stage");
+		if (m_pPlayer)
+		m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = false;
+		break;
+	default:
+		break;
+	}
 
 	GameSceneState = num;
 
-	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 
 	if (num != LOGIN_SCENE) {
 		m_OtherPlayers.clear();
@@ -762,8 +786,8 @@ void GameFramework::ProcessInput()
 			SetWindowCentser(rect);
 			::SetCursor(NULL);
 			::GetCursorPos(&ptCursorPos);
-			cxDelta = (float)(ptCursorPos.x - CenterOfWindow.x) / 3.0f;
-			cyDelta = (float)(ptCursorPos.y - CenterOfWindow.y) / 3.0f;
+			cxDelta = (float)(ptCursorPos.x - CenterOfWindow.x) / MouseSen;
+			cyDelta = (float)(ptCursorPos.y - CenterOfWindow.y) / MouseSen;
 
 			::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 		}
@@ -775,7 +799,7 @@ void GameFramework::ProcessInput()
 				RECT rect;
 				::GetCursorPos(&ptCursorPos);
 				::GetWindowRect(m_hWnd, &rect);
-				if (scene_type != GAME_SCENE) {
+				if (((scene_type != GAME_SCENE) || (scene_type == GAME_SCENE && OptionMode)) && (Timer::GetTotalTime() - LastClick > 0.2)) {
 					float px = (ptCursorPos.x - rect.left) / (float)FRAME_BUFFER_WIDTH;
 					float py = (ptCursorPos.y - rect.top - 10) / (float)FRAME_BUFFER_HEIGHT;
 
@@ -787,6 +811,18 @@ void GameFramework::ProcessInput()
 							dynamic_cast<UI*>(ui)->OnClick();
 						}
 					}
+					if (scene_type == LOBBY_SCENE)
+					{
+						for (auto& room : dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Rooms)
+						{
+							if (px >= room->XYWH._41 && px <= room->XYWH._41 + room->XYWH._11 &&
+								py <= 1 - room->XYWH._42 && py >= 1 - (room->XYWH._42 + room->XYWH._22))
+							{
+								room->OnClick();
+							}
+						}
+					}
+					LastClick = Timer::GetTotalTime();
 				}
 			}
 			else {
@@ -801,7 +837,26 @@ void GameFramework::ProcessInput()
 					if (px >= dynamic_cast<UI*>(ui)->XYWH._41 && px <= dynamic_cast<UI*>(ui)->XYWH._41 + dynamic_cast<UI*>(ui)->XYWH._11 &&
 						py <= 1 - dynamic_cast<UI*>(ui)->XYWH._42 && py >= 1 - (dynamic_cast<UI*>(ui)->XYWH._42 + dynamic_cast<UI*>(ui)->XYWH._22))
 					{
-						if (dynamic_cast<UI*>(ui)->CanClick) {}
+						if (dynamic_cast<UI*>(ui)->CanClick) {
+							dynamic_cast<UI*>(ui)->MouseOn = true;
+						}
+					}
+					else {
+						dynamic_cast<UI*>(ui)->MouseOn = false;
+					}
+				}
+				if (scene_type == LOBBY_SCENE)
+				{
+					for (auto& room : dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Rooms)
+					{
+						if (px >= room->XYWH._41 && px <= room->XYWH._41 + room->XYWH._11 &&
+							py <= 1 - room->XYWH._42 && py >= 1 - (room->XYWH._42 + room->XYWH._22))
+						{
+							room->MouseOn = true;
+						}
+						else {
+							room->MouseOn = false;
+						}
 					}
 				}
 			}
@@ -863,7 +918,6 @@ void GameFramework::MoveToNextFrame()
 
 void GameFramework::FrameAdvance()
 {
-
 	Timer::Tick(0.0f);
 
 	m_pVivoxSystem->Listen();
@@ -930,7 +984,7 @@ void GameFramework::FrameAdvance()
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
-	if(!ScriptMode)RenderHP();
+	if(!ScriptMode && !OptionMode)RenderHP();
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

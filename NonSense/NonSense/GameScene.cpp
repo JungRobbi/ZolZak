@@ -206,14 +206,10 @@ void GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
 
 	Aim* aim = new Aim(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	Game_Option_UI* m_Game_Option_Dec_UI = new Game_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	Graphic_Option_UI* m_Graphic_Option_Dec_UI = new Graphic_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	Sound_Option_UI* m_Sound_Option_Dec_UI = new Sound_Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+
 	Option_UI* m_Option_Dec_UI = new Option_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
-	m_Game_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
-	m_Graphic_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
-	m_Sound_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
+
 	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/goblin_Far.bin", NULL);
 
 	m_pBoundingShader = new BoundingShader();
@@ -684,7 +680,7 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 			break;
 		case 'z':
 		case 'Z':
-			m_pPlayer->Sight_DeBuff(2);
+			change = true;
 			break;
 		default:
 			break;
@@ -811,9 +807,9 @@ void GameScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dGpuVirtualAddress);
 
-	m_pMappedScreenOptions->LineColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-	m_pMappedScreenOptions->LineSize = 3;
-	m_pMappedScreenOptions->ToonShading = 10;
+	m_pMappedScreenOptions->LineColor = LineColor;
+	m_pMappedScreenOptions->LineSize = LineSize;
+	m_pMappedScreenOptions->ToonShading = ToonShading;
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress2 = m_pScreenOptions->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(7, d3dGpuVirtualAddress2);
