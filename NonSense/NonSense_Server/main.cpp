@@ -621,7 +621,9 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		CS_ROOM_CREATE_PACKET* recv_packet = reinterpret_cast<CS_ROOM_CREATE_PACKET*>(p_Packet);
 		// 烙矫 规 积己
 		int rN = Room::g_roomNum++;
-		Room::roomlist.insert({ rN, make_shared<Room>() });
+		auto p_room = make_shared<Room>();
+		Room::roomlist.insert({ rN, p_room });
+		p_room->start();
 		Room::roomlist[rN]->m_roomNum = rN;
 		for (auto& rc : RemoteClient::remoteClients) {
 			if (!rc.second->b_Enable.load())
@@ -656,7 +658,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		p_Client->m_pPlayer->SetRemainHP((int)p_DBMGR->player_hp);
 		p_Client->m_clear_stage = (int)p_DBMGR->player_clear_stage;
 
-		// 立加 矫档
+
 		Room::roomlist[recv_packet->roomNum]->Clients.insert({ p_Client->m_id, p_Client });
 		p_Client->m_pPlayer->m_roomNum = recv_packet->roomNum;
 

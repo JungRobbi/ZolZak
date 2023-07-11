@@ -15,6 +15,7 @@
 #include "AttackComponent.h"
 #include "UILayer.h"
 #include "Lobby_GameScene.h"
+#include "UI.h"
 #pragma comment(lib, "WS2_32.LIB")
 
 char* NetworkMGR::SERVERIP = "127.0.0.1";
