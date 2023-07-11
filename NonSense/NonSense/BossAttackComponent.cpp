@@ -4,6 +4,14 @@
 #include "BoxCollideComponent.h"
 #include "SphereCollideComponent.h"
 #include "NetworkMGR.h"
+#include <random>
+
+
+std::uniform_int_distribution<int> RandomSense(0, 2);
+std::uniform_int_distribution<int> RandomSummon(0, 2);
+std::random_device rdd;
+std::default_random_engine dree(rdd());
+
 void BossAttackComponent::start()
 {
 }
@@ -66,6 +74,20 @@ void BossAttackComponent::StealSenseAnimation()
 
 void BossAttackComponent::StealSense()
 {
+	int Sense = RandomSense(dree);
+	switch (Sense)
+	{
+	case 0:			//Sight
+		
+		break;
+	case 1:			//Hearing
+		break;
+	case 2:			//Touch
+		break;
+	default:
+		break;
+	}
+
 }
 
 void BossAttackComponent::SummonAnimation()
@@ -75,8 +97,49 @@ void BossAttackComponent::SummonAnimation()
 	During_Skill = true;
 }
 
-void BossAttackComponent::Summon()
+void BossAttackComponent::Summon(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, XMFLOAT3 Pos)
 {
+	static int num = 10001;
+	int Type = RandomSense(dree);
+	Object* temp;
+	switch (Type)
+	{
+	case 0:			//Goblin
+		temp = new Goblin(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Goblin_Close"], NULL,NULL, MONSTER_TYPE_CLOSE);
+		temp->SetPosition(Pos.x + 2.0, GameScene::MainScene->m_pTerrain->GetHeight(Pos.x + 2.0, Pos.z), Pos.z);
+		temp->SetNum(num++);
+		temp = new Goblin(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Goblin_Far"], NULL, NULL, MONSTER_TYPE_FAR);
+		temp->SetPosition(Pos.x + 2.0, GameScene::MainScene->m_pTerrain->GetHeight(Pos.x + 2.0, Pos.z + 2.0), Pos.z + 2.0);
+		temp->SetNum(num++);
+		temp = new Goblin(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Goblin_Close"], NULL, NULL, MONSTER_TYPE_RUSH);
+		temp->SetPosition(Pos.x + 2.0, GameScene::MainScene->m_pTerrain->GetHeight(Pos.x + 2.0, Pos.z + 2.0), Pos.z - 2.0);
+		temp->SetNum(num++);
+		break;
+	case 1:			//Orc
+		temp = new Orc(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Orc_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
+		temp->SetPosition(Pos.x + 2.0, GameScene::MainScene->m_pTerrain->GetHeight(Pos.x + 2.0, Pos.z), Pos.z);
+		temp->SetNum(num++);
+		temp = new Orc(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Orc_Far"], NULL, NULL, MONSTER_TYPE_FAR);
+		temp->SetPosition(Pos.x + 2.0, GameScene::MainScene->m_pTerrain->GetHeight(Pos.x + 2.0, Pos.z + 2.0), Pos.z + 2.0);
+		temp->SetNum(num++);
+		temp = new Orc(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Orc_Rush"], NULL, NULL, MONSTER_TYPE_RUSH);
+		temp->SetPosition(Pos.x + 2.0, GameScene::MainScene->m_pTerrain->GetHeight(Pos.x + 2.0, Pos.z + 2.0), Pos.z - 2.0);
+		temp->SetNum(num++);
+		break;
+	case 2:			//Skull
+		temp = new Skull(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Skull_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
+		temp->SetPosition(Pos.x + 2.0, GameScene::MainScene->m_pTerrain->GetHeight(Pos.x + 2.0, Pos.z), Pos.z);
+		temp->SetNum(num++);
+		temp = new Skull(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Skull_Far"], NULL, NULL, MONSTER_TYPE_FAR);
+		temp->SetPosition(Pos.x + 2.0, GameScene::MainScene->m_pTerrain->GetHeight(Pos.x + 2.0, Pos.z + 2.0), Pos.z + 2.0);
+		temp->SetNum(num++);
+		temp = new Skull(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Skull_Rush"], NULL, NULL, MONSTER_TYPE_RUSH);
+		temp->SetPosition(Pos.x + 2.0, GameScene::MainScene->m_pTerrain->GetHeight(Pos.x + 2.0, Pos.z + 2.0), Pos.z - 2.0);
+		temp->SetNum(num++);
+		break;
+	default:
+		break;
+	}
 }
 
 void BossAttackComponent::DefenceAnimation()

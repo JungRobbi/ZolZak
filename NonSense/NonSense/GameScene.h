@@ -50,6 +50,8 @@ struct MATERIALS
 class GameScene
 {
 public:
+	std::map<std::string, LoadedModelInfo*> ModelMap;
+
 	std::queue<Object*> creationQueue;
 	std::deque<Object*> deletionQueue;
 	std::list<Object*> gameObjects;
@@ -70,13 +72,14 @@ public:
 	std::deque<Object*> deletionBoundingQueue;
 	std::list<Object*> BoundingGameObjects;
 
+
 public:
 	static GameScene* MainScene;
 	Player* m_pPlayer = NULL;
 	NPC* StartNPC = NULL;
 	NPC* EndNPC = NULL;
 	NPCScript* ScriptUI = NULL;
-
+	HeightMapTerrain* m_pTerrain = NULL;
 protected:
 	Object* CreateEmpty();
 	float elapseTime;
@@ -155,7 +158,7 @@ protected:
 	CubeMesh* m_pBoundMesh = NULL;
 
 	Object* TempObject = NULL;
-	HeightMapTerrain* m_pTerrain = NULL;
+	
 
 	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorStartHandle;
 	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorStartHandle;

@@ -77,6 +77,24 @@ public:
 	void CloseAttackEvent();
 };
 
+class Orc : public Monster
+{
+public:
+	Orc(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type);
+	virtual ~Orc();
+
+	void CloseAttackEvent();
+};
+
+class Skull : public Monster
+{
+public:
+	Skull(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type);
+	virtual ~Skull();
+
+	void CloseAttackEvent();
+};
+
 class Shield : public Monster
 {
 public:
@@ -85,7 +103,7 @@ public:
 
 	void BossAttackEvent();
 	void BossStealSenseEvent();
-	void BossSummonEvent();
+	void BossSummonEvent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	void BossDefenceEvent();
 	void BossJumpAttackEvent();
 	void BossTorandoEvent();

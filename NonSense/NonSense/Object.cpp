@@ -959,6 +959,15 @@ void Object::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 void Object::ReleaseShaderVariables()
 {
+	if (m_pMaterial)
+		m_pMaterial->m_pShader->ReleaseShaderVariables();
+	if (m_ppMaterials)
+	{
+		for (int i = 0; i < m_nMaterials; ++i)
+		{
+			m_ppMaterials[i]->m_pShader->ReleaseShaderVariables();
+		}
+	}
 }
 
 void Object::FindAndSetSkinnedMesh(SkinnedMesh** ppSkinnedMeshes, int* pnSkinnedMesh)

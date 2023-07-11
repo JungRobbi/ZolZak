@@ -6,8 +6,8 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 170);
-
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 250);
+	LoadAllModels(pd3dDevice, pd3dCommandList);
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();
 	XMFLOAT3 xmf3Scale(1.0f, 0.38f, 1.0f);
@@ -22,18 +22,12 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_Game_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Graphic_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	m_Sound_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
-
-	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far.bin", NULL);
-	LoadedModelInfo* EntModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Ent.bin", NULL);
-	LoadedModelInfo* pRW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_R.bin", NULL);
-	LoadedModelInfo* pLW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_L.bin", NULL);
-
 	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800,37,37, xmf3Scale, xmf4Color);
 	terrain->SetPosition(-400, 0, -400);
 	m_pTerrain = terrain;
 
 
-	StartNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature,EntModel);
+	StartNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature,ModelMap["Ent"]);
 	StartNPC->SetPosition(-16.7, m_pTerrain->GetHeight(-16.7, 96.5), 96.5);
 	StartNPC->SetNum(102);
 	StartNPC->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
@@ -44,7 +38,7 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 		StartNPC->script.emplace_back("¹ÙÀÌ·ç");
 	}
 
-	EndNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, EntModel);
+	EndNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Ent"]);
 	EndNPC->SetPosition(-5.7, m_pTerrain->GetHeight(-16.7, 96.5), 96.5);
 	EndNPC->SetNum(102);
 	EndNPC->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
@@ -55,29 +49,34 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	}
 
 	Object* TempObject = NULL;
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pLW, pRW, MONSTER_TYPE_CLOSE);
+	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Close"], ModelMap["Goblin_Close_Weapon_L"], ModelMap["Goblin_Close_Weapon_R"], MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(-9.0f, m_pTerrain->GetHeight(-9.0f, 9.0f), 87);
 	TempObject->SetNum(101);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close.bin", NULL);
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pLW, pRW, MONSTER_TYPE_FAR);
+
+	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Far"], ModelMap["Goblin_Far_Weapon_L"], ModelMap["Goblin_Far_Weapon_R"], MONSTER_TYPE_FAR);
 	TempObject->SetPosition(-1.0f, m_pTerrain->GetHeight(-1.0f, 42.0f), 42.0f);
 	TempObject->SetNum(102);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_CLOSE);
+	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(16.0f, m_pTerrain->GetHeight(16.0f, 34.0f), 34.0f);
 	TempObject->SetNum(103);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_CLOSE);
+	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(53.0f, m_pTerrain->GetHeight(53.0f, 43.0f), 43.0f);
 	TempObject->SetNum(104);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_CLOSE);
+	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(89.0f, m_pTerrain->GetHeight(89.0f, 33.0f), 33.0f);
 	TempObject->SetNum(105);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, NULL, NULL, MONSTER_TYPE_CLOSE);
+	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(113.0f, m_pTerrain->GetHeight(113.0f, 20.0f), 20.0f);
+	TempObject->SetNum(106);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+
+	TempObject = new Shield(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Boss_Shield"], NULL, NULL, MONSTER_TYPE_BOSS);
+	TempObject->SetPosition(-16.7, m_pTerrain->GetHeight(-16.7, 96.5), 96.5);
 	TempObject->SetNum(106);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 
@@ -99,6 +98,7 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 void Stage_GameScene::ReleaseObjects()
 {
 	GameScene::ReleaseObjects();
+	ModelMap.clear();
 	delete bgm;
 }
 
@@ -132,4 +132,94 @@ bool Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WP
 		break;
 	}
 	return(false);
+}
+
+void Stage_GameScene::LoadAllModels(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	LoadedModelInfo* Model = NULL;
+	
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Boss_Shield.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Boss_Shield", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Ent.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Ent", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/F05.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("F05", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Close", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_L.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Close_Weapon_L", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_R.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Close_Weapon_R", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Far", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far_Weapon_L.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Far_Weapon_L", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far_Weapon_R.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Far_Weapon_R", Model));
+
+	//Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Rush.bin", NULL);
+	//ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Rush", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Rush_Weapon_L.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Rush_Weapon_L", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Rush_Weapon_R.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Rush_Weapon_R", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/M05.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("M05", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Orc_Close.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Orc_Close", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Orc_Close_Weapon.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Orc_Close_Weapon", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Orc_Far.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Orc_Far", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Orc_Far_Weapon.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Orc_Far_Weapon", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Orc_Rush.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Orc_Rush", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Orc_Rush_Weapon.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Orc_Rush_Weapon", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Skull_Close.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Skull_Close", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Skull_Close_Weapon.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Skull_Close_Weapon", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Skull_Far.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Skull_Far", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Skull_Far_Weapon.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Skull_Far_Weapon", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Skull_Rush.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Skull_Rush", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Skull_Rush_Weapon.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Skull_Rush_Weapon", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Sword_M05.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Sword_M05", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Wand", Model));
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand_F05.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Wand_F05", Model));
+
 }
