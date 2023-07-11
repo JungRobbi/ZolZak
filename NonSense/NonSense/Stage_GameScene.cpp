@@ -62,7 +62,7 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	TempObject->SetPosition(-9.0f, m_pTerrain->GetHeight(-9.0f, 9.0f), 87);
 	TempObject->SetNum(10001);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close.bin", NULL);
+
 	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pLW, pRW, MONSTER_TYPE_FAR);
 	TempObject->SetPosition(-1.0f, m_pTerrain->GetHeight(-1.0f, 42.0f), 42.0f);
 	TempObject->SetNum(10002);
