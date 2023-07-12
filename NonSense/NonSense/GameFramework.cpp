@@ -312,14 +312,14 @@ void GameFramework::BuildObjects()
 
 	ChatMGR::m_pUILayer = new UILayer(m_nSwapChainBuffers, 1, m_pDevice, m_pCommandQueue, m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
 	ChatMGR::SetTextinfos(m_nWndClientWidth, m_nWndClientHeight);
-	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Stage
+	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Room | m_GameScenes[3] : Stage
 
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new Room_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(GAME_SCENE);
+	ChangeScene(ROOM_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -612,7 +612,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				ChangeScene(1);
 				break;
 			case '9':
-				ChangeScene(2);
+				ChangeScene(GAME_SCENE);
 				break;
 			case 't':
 			case 'T':
@@ -800,8 +800,8 @@ void GameFramework::ProcessInput()
 				::GetCursorPos(&ptCursorPos);
 				::GetWindowRect(m_hWnd, &rect);
 				if (((scene_type != GAME_SCENE) || (scene_type == GAME_SCENE && OptionMode)) && (Timer::GetTotalTime() - LastClick > 0.2)) {
-					float px = (ptCursorPos.x - rect.left) / (float)FRAME_BUFFER_WIDTH;
-					float py = (ptCursorPos.y - rect.top - 10) / (float)FRAME_BUFFER_HEIGHT;
+					float px = (ptCursorPos.x - rect.left - 10) / (float)FRAME_BUFFER_WIDTH;
+					float py = (ptCursorPos.y - rect.top - 30) / (float)FRAME_BUFFER_HEIGHT;
 
 					for (auto& ui : GameScene::MainScene->UIGameObjects)
 					{
@@ -829,8 +829,8 @@ void GameFramework::ProcessInput()
 				RECT rect;
 				::GetCursorPos(&ptCursorPos);
 				::GetWindowRect(m_hWnd, &rect);
-				float px = (ptCursorPos.x - rect.left) / (float)FRAME_BUFFER_WIDTH;
-				float py = (ptCursorPos.y - rect.top - 10) / (float)FRAME_BUFFER_HEIGHT;
+				float px = (ptCursorPos.x - rect.left - 10) / (float)FRAME_BUFFER_WIDTH;
+				float py = (ptCursorPos.y - rect.top - 30) / (float)FRAME_BUFFER_HEIGHT;
 
 				for (auto& ui : GameScene::MainScene->UIGameObjects)
 				{
@@ -996,11 +996,11 @@ void GameFramework::FrameAdvance()
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	if (scene_type == LOGIN_SCENE) {
+	//if (scene_type == LOGIN_SCENE) {
 		//ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
-	}
-//	else if (scene_type == GAME_SCENE)
-//		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+	//}
+	//else if (scene_type == GAME_SCENE)
+		//ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 
 	m_pSwapChain->Present(0, 0);
 

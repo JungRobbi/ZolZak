@@ -35,6 +35,11 @@ void Room_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	bgm->Play();
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dCommandList = pd3dCommandList;
+
+	Mage_UI* m_Mage_UI = new Mage_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Warrior_UI* m_Warrior_UI = new Warrior_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Ready_UI* m_Ready_UI = new Ready_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Leave_Room_UI* m_Leave_Room_UI = new Leave_Room_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 }
 void Room_GameScene::ReleaseObjects()
 {
