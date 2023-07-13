@@ -18,7 +18,7 @@ extern enum SCENE_TYPE
 	LOGIN_SCENE = 0,
 	LOBBY_SCENE = 1,
 	ROOM_SCENE = 2,
-	GAME_SCENE = 3,
+	GAME_SCENE = 3
 };
 
 class GameFramework
@@ -74,6 +74,8 @@ public:
 	int ScriptNum = 0;
 	float LastClick = 0;
 	float MouseSen = 3;
+	bool IsTouchDebuff = false;
+	float TouchDebuffLeftTime = -1.0;
 public:
 	HWND m_hWnd;
 	Camera* m_pCamera = NULL;
@@ -108,6 +110,7 @@ public:
 	void RenderHP();
 	void WaitForGpuComplete();
 
+	void Touch_Debuff(float time);
 
 	void ProcessSelectedObject(DWORD dwDirection, float cxDelta, float cyDelta);
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);

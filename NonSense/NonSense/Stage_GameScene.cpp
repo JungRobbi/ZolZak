@@ -6,8 +6,6 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 200);
-
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 250);
 	LoadAllModels(pd3dDevice, pd3dCommandList);
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
@@ -28,19 +26,9 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	ScriptUI = new NPCScript(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
-	LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far.bin", NULL);
-	LoadedModelInfo* EntModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Ent.bin", NULL);
-	LoadedModelInfo* pRW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_R.bin", NULL);
-	LoadedModelInfo* pLW = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_L.bin", NULL);
-
-	m_Game_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
-	m_Graphic_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
-	m_Sound_Option_Dec_UI->SetParentUI(m_Option_Dec_UI);
 	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800,37,37, xmf3Scale, xmf4Color);
 	terrain->SetPosition(-400, 0, -400);
 	m_pTerrain = terrain;
-
-
 	StartNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature,ModelMap["Ent"]);
 	StartNPC->SetPosition(-16.7, m_pTerrain->GetHeight(-16.7, 96.5), 96.5);
 	StartNPC->SetNum(102);
@@ -68,7 +56,6 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	TempObject->SetNum(10001);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, pModel, pLW, pRW, MONSTER_TYPE_FAR);
 	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Far"], ModelMap["Goblin_Far_Weapon_L"], ModelMap["Goblin_Far_Weapon_R"], MONSTER_TYPE_FAR);
 	TempObject->SetPosition(-1.0f, m_pTerrain->GetHeight(-1.0f, 42.0f), 42.0f);
 	TempObject->SetNum(10002);
@@ -107,16 +94,16 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	bgm = new Sound("Sound/TestMusic.mp3", true);
-	bgm->Play();
+	Sound* s;
+	s = new Sound("Sound/TestMusic.mp3", true);
+	Sounds.insert(Sounds.begin(), s);
+	
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dCommandList = pd3dCommandList;
 }
 void Stage_GameScene::ReleaseObjects()
 {
 	GameScene::ReleaseObjects();
-	ModelMap.clear();
-	delete bgm;
 }
 
 void Stage_GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)

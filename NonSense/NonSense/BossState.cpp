@@ -152,9 +152,14 @@ void SkillState_Boss::Enter(BossFSMComponent* pOwner)
 
 void SkillState_Boss::Execute(BossFSMComponent* pOwner)
 {
+	if (pOwner->IsTornado)
+	{
+		pOwner->TornadoTrack();
+	}
 	if (pOwner->gameObject->GetComponent<BossAttackComponent>()->End_Skill)
 	{
 		pOwner->GetFSM()->ChangeState(TrackEnemyState_Boss::GetInstance());
+		pOwner->IsTornado = false;
 		return;
 	}
 	if (!pOwner->gameObject->GetComponent<BossAttackComponent>()->During_Skill)
@@ -164,7 +169,6 @@ void SkillState_Boss::Execute(BossFSMComponent* pOwner)
 		switch (Skill)
 		{
 		case 0:
-			
 			pOwner->StealSense();
 			break;
 
@@ -181,7 +185,8 @@ void SkillState_Boss::Execute(BossFSMComponent* pOwner)
 			break;
 
 		case 4:
-			pOwner->Torando();
+			pOwner->Tornado();
+			pOwner->IsTornado = true;
 			break;
 		default:
 			break;

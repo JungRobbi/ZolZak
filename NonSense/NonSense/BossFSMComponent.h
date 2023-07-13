@@ -17,9 +17,10 @@ private:
     float IdleLeftTime = 0.0f;
     float DeathCount = 3.0f;
     float SkillCoolTime = 10.0f;
+
 public:
     XMFLOAT3 WanderPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
-   
+    bool IsTornado = false;
 
 public:
 	~BossFSMComponent() {}
@@ -45,11 +46,12 @@ public:
     bool Wander();
     void Death();
 
+    void TornadoTrack();
     void StealSense();
     void Summon();
     void Defence();
     void JumpAttack();
-    void Torando();
+    void Tornado();
 
     void SetTargetPlayer(Object* target) { TargetPlayer = target; };
 

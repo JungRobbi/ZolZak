@@ -161,6 +161,27 @@ void BossFSMComponent::Death()
 	}
 }
 
+void BossFSMComponent::TornadoTrack()
+{
+	XMFLOAT3 TargetPos = TargetPlayer->GetPosition();
+	XMFLOAT3 CurrentPos = gameObject->GetPosition();
+	XMFLOAT3 Direction = Vector3::Normalize(Vector3::Subtract(TargetPos, CurrentPos));
+	XMFLOAT3 Look = gameObject->GetLook();
+	XMFLOAT3 CrossProduct = Vector3::CrossProduct(Look, Direction);
+	float Dot = Vector3::DotProduct(Look, Direction);
+	float ToTargetAngle = XMConvertToDegrees(acos(Dot));
+	float Angle = (CrossProduct.y > 0.0f) ? 180.0f : -180.0f;
+	if (ToTargetAngle > 7.0f)
+		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
+	float Distance = Vector3::Length(Vector3::Subtract(TargetPos, CurrentPos));
+	if (Distance > 1.5f)
+		gameObject->MoveForward(2.5f * Timer::GetTimeElapsed());
+	else
+	{
+		Stop();
+	}
+}
+
 void BossFSMComponent::StealSense()
 {
 	gameObject->GetComponent<BossAttackComponent>()->StealSenseAnimation();
@@ -181,7 +202,7 @@ void BossFSMComponent::JumpAttack()
 	gameObject->GetComponent<BossAttackComponent>()->JumpAttackAnimation();
 }
 
-void BossFSMComponent::Torando()
+void BossFSMComponent::Tornado()
 {
 	gameObject->GetComponent<BossAttackComponent>()->TornadoAnimation();
 }

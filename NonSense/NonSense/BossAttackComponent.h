@@ -13,6 +13,7 @@ public:
 private:
 	float AttackDuration = 2.0;
 	float AttackTimeLeft = 0.0;
+	float DefenceTimeLeft = 0;
 public:
 	~BossAttackComponent() {}
 	void start();

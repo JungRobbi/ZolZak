@@ -72,6 +72,8 @@ public:
 	std::deque<Object*> deletionBoundingQueue;
 	std::list<Object*> BoundingGameObjects;
 
+	std::list<Sound*> Sounds;
+
 	XMFLOAT4 LineColor = XMFLOAT4(0, 0, 0, 1);
 	UINT LineSize = 3;
 	UINT ToonShading = 10;
@@ -83,10 +85,12 @@ public:
 	NPC* EndNPC = NULL;
 	NPCScript* ScriptUI = NULL;
 	HeightMapTerrain* m_pTerrain = NULL;
+	bool IsSoundDebuff = false;
+	float SoundDebuffLeftTime = -1.0f;
+
 protected:
 	Object* CreateEmpty();
 	float elapseTime;
-	Sound* bgm;
 public:
 	virtual void update();
 	virtual void render();
@@ -134,6 +138,7 @@ public:
 	CB_SCREEN_INFO* m_pMappedScreenOptions = NULL;
 	ID3D12Resource* m_pScreenOptions = NULL;
 
+	void Sound_Debuff(float time);
 protected:
 
 	int m_nShaders = 0;

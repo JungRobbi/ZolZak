@@ -612,7 +612,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				ChangeScene(1);
 				break;
 			case '9':
-				ChangeScene(2);
+				ChangeScene(3);
 				break;
 			case 't':
 			case 'T':
@@ -904,6 +904,12 @@ void GameFramework::WaitForGpuComplete()
 	}
 }
 
+void GameFramework::Touch_Debuff(float time)
+{
+	IsTouchDebuff = true;
+	TouchDebuffLeftTime = time;
+}
+
 void GameFramework::MoveToNextFrame()
 {
 	m_nSwapChainBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
@@ -984,7 +990,18 @@ void GameFramework::FrameAdvance()
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
-	if(!ScriptMode && !OptionMode)RenderHP();
+	if (!IsTouchDebuff)
+	{
+		if (!ScriptMode && !OptionMode)RenderHP();
+	}
+	else
+	{
+		TouchDebuffLeftTime -= Timer::GetTimeElapsed();
+		if (TouchDebuffLeftTime < 0)
+		{
+			IsTouchDebuff = false;
+		}
+	}
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

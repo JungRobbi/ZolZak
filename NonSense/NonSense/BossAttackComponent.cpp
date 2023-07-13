@@ -27,6 +27,15 @@ void BossAttackComponent::update()
 	{
 		AttackTimeLeft -= Timer::GetTimeElapsed();
 	}
+
+	if (DefenceTimeLeft <= 0.0f)
+	{
+		dynamic_cast<Character*>(gameObject)->SetDefense(90);
+	}
+	else
+	{
+		DefenceTimeLeft -= Timer::GetTimeElapsed();
+	}
 }
 
 void BossAttackComponent::SetAttackSpeed(float speed)
@@ -48,17 +57,17 @@ void BossAttackComponent::Attack()
 		if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 		{
 			if (!NetworkMGR::b_isNet) {
-				GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+				GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Character*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
 			}
 			else {
 				CS_TEMP_HIT_PLAYER_PACKET send_packet;
 				send_packet.size = sizeof(CS_TEMP_HIT_PLAYER_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_PLAYER_PACKET;
 				send_packet.player_id = NetworkMGR::id;
-				send_packet.hit_damage = dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100));
+				send_packet.hit_damage = dynamic_cast<Character*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100));
 				PacketQueue::AddSendPacket(&send_packet);
 			}
-			printf("%f -> %f = %f", dynamic_cast<Goblin*>(gameObject)->GetAttack(), GameFramework::MainGameFramework->m_pPlayer->GetDefense(), GameFramework::MainGameFramework->m_pPlayer->GetRemainHP());
+			printf("%f -> %f = %f", dynamic_cast<Character*>(gameObject)->GetAttack(), GameFramework::MainGameFramework->m_pPlayer->GetDefense(), GameFramework::MainGameFramework->m_pPlayer->GetRemainHP());
 			//	GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
 			GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
 		}
@@ -78,11 +87,13 @@ void BossAttackComponent::StealSense()
 	switch (Sense)
 	{
 	case 0:			//Sight
-		
+		GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
 		break;
 	case 1:			//Hearing
+		GameScene::MainScene->Sound_Debuff(5);
 		break;
 	case 2:			//Touch
+		GameFramework::MainGameFramework->Touch_Debuff(5);
 		break;
 	default:
 		break;
@@ -151,6 +162,8 @@ void BossAttackComponent::DefenceAnimation()
 
 void BossAttackComponent::Defence()
 {
+	dynamic_cast<Character*>(gameObject)->SetDefense(120);
+	DefenceTimeLeft = 10;
 }
 
 void BossAttackComponent::JumpAttackAnimation()
@@ -162,6 +175,25 @@ void BossAttackComponent::JumpAttackAnimation()
 
 void BossAttackComponent::JumpAttack()
 {
+	XMFLOAT3 PlayerPos = GameFramework::MainGameFramework->m_pPlayer->GetPosition();
+	XMFLOAT3 BossPos = gameObject->GetPosition();
+
+	if (Vector3::Length(Vector3::Subtract(PlayerPos, BossPos)) < 5.0f)
+	{
+		if (!NetworkMGR::b_isNet) {
+			GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Character*>(gameObject)->GetAttack() * 1.5f * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+		}
+		else {
+			CS_TEMP_HIT_PLAYER_PACKET send_packet;
+			send_packet.size = sizeof(CS_TEMP_HIT_PLAYER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_PLAYER_PACKET;
+			send_packet.player_id = NetworkMGR::id;
+			send_packet.hit_damage = dynamic_cast<Character*>(gameObject)->GetAttack() * 1.5f * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100));
+			PacketQueue::AddSendPacket(&send_packet);
+		}
+	}
+
+
 }
 
 void BossAttackComponent::TornadoAnimation()
@@ -173,6 +205,23 @@ void BossAttackComponent::TornadoAnimation()
 
 void BossAttackComponent::Tornado()
 {
+	XMFLOAT3 PlayerPos = GameFramework::MainGameFramework->m_pPlayer->GetPosition();
+	XMFLOAT3 BossPos = gameObject->GetPosition();
+
+	if (Vector3::Length(Vector3::Subtract(PlayerPos, BossPos)) < 1.5f)
+	{
+		if (!NetworkMGR::b_isNet) {
+			GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Character*>(gameObject)->GetAttack() * 0.7f * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+		}
+		else {
+			CS_TEMP_HIT_PLAYER_PACKET send_packet;
+			send_packet.size = sizeof(CS_TEMP_HIT_PLAYER_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_PLAYER_PACKET;
+			send_packet.player_id = NetworkMGR::id;
+			send_packet.hit_damage = dynamic_cast<Character*>(gameObject)->GetAttack() * 0.7f * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100));
+			PacketQueue::AddSendPacket(&send_packet);
+		}
+	}
 }
 
 

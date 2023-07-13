@@ -222,8 +222,6 @@
     <ClInclude Include="Vivox.h">
       <Filter>소스 파일\Vivox</Filter>
     </ClInclude>
-    <ClInclude Include="Room_GameScene.h">
-      <Filter>소스 파일\GameScenes</Filter>
     <ClInclude Include="BossState.h">
       <Filter>소스 파일\FSM</Filter>
     </ClInclude>
@@ -349,8 +347,6 @@
     <ClCompile Include="Vivox.cpp">
       <Filter>소스 파일\Vivox</Filter>
     </ClCompile>
-    <ClCompile Include="Room_GameScene.cpp">
-      <Filter>소스 파일\GameScenes</Filter>
     <ClCompile Include="BossState.cpp">
       <Filter>소스 파일\FSM</Filter>
     </ClCompile>

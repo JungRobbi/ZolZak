@@ -273,23 +273,23 @@ Orc::Orc(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, I
 		}
 		break;
 	case MONSTER_TYPE_FAR:
-
+	{
+		WeaponFrame = new WeaponObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Orc_Far_Weapon"]);
+		WeaponFrame->SetScale(0.1f, 0.1f, 0.1f);
+		WeaponFrame->SetScale(0.1f, 0.1f, 0.1f);
+		BoundingShader* m_pBoundingShader = new BoundingShader();
+		m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+		SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+		BoundSphere* bs2 = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
+		bs2->SetNum(5);
+		WeaponFrame->AddComponent<SphereCollideComponent>();
+		WeaponFrame->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs2);
+		WeaponFrame->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, -0.05), 7);
+	}
 		if (pWeaponR) {
 			Hand = FindFrame("Weapon_Orc_3_Dummy");
 			if (Hand) {
 				Hand->SetChild(pWeaponR->m_pRoot, true);
-				HandFrame = Hand;
-				LoadedModelInfo* WeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Orc_Far_Weapon.bin", NULL);
-				WeaponFrame = new WeaponObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, WeaponModel);
-				WeaponFrame->SetScale(0.1f, 0.1f, 0.1f);
-				BoundingShader* m_pBoundingShader = new BoundingShader();
-				m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-				SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
-				BoundSphere* bs2 = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
-				bs2->SetNum(5);
-				WeaponFrame->AddComponent<SphereCollideComponent>();
-				WeaponFrame->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs2);
-				WeaponFrame->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, -0.05), 7);
 			}
 		}
 		AddComponent<MonsterAttackComponent>();
@@ -395,23 +395,23 @@ Skull::Skull(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 		}
 		break;
 	case MONSTER_TYPE_FAR:
-
+	{
+		WeaponFrame = new WeaponObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Skull_Far_Weapon"]);
+		WeaponFrame->SetScale(0.1f, 0.1f, 0.1f);
+		WeaponFrame->SetScale(0.1f, 0.1f, 0.1f);
+		BoundingShader* m_pBoundingShader = new BoundingShader();
+		m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+		SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+		BoundSphere* bs2 = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
+		bs2->SetNum(5);
+		WeaponFrame->AddComponent<SphereCollideComponent>();
+		WeaponFrame->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs2);
+		WeaponFrame->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, -0.05), 7);
+	}
 		if (pWeaponR) {
 			Hand = FindFrame("Weapon_Skull_2_Dummy");
 			if (Hand) {
 				Hand->SetChild(pWeaponR->m_pRoot, true);
-				HandFrame = Hand;
-				LoadedModelInfo* WeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Skull_Far_Weapon.bin", NULL);
-				WeaponFrame = new WeaponObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, WeaponModel);
-				WeaponFrame->SetScale(0.1f, 0.1f, 0.1f);
-				BoundingShader* m_pBoundingShader = new BoundingShader();
-				m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-				SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
-				BoundSphere* bs2 = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
-				bs2->SetNum(5);
-				WeaponFrame->AddComponent<SphereCollideComponent>();
-				WeaponFrame->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs2);
-				WeaponFrame->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, -0.05), 7);
 			}
 		}
 		AddComponent<MonsterAttackComponent>();
@@ -616,6 +616,15 @@ Shield::Shield(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 					this->BossTorandoEvent();
 				};
 				m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 0.6, ToranodoEvent);
+				m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 1.2, ToranodoEvent);
+				m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 1.8, ToranodoEvent);
+				m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 2.4, ToranodoEvent);
+				m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 3.0, ToranodoEvent);
+				m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 3.6, ToranodoEvent);
+				m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 4.2, ToranodoEvent);
+				m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 4.8, ToranodoEvent);
+				m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 5.4, ToranodoEvent);
+				m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 6.0, ToranodoEvent);
 				float len = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_TORNADO]->m_Length - 0.1;
 				m_pSkinnedAnimationController->AddAnimationEvent("EndEvent", E_B_TORNADO, len, EndEvent);
 			}
