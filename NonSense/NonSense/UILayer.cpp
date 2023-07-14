@@ -18,7 +18,6 @@ UILayer::UILayer(UINT nFrames, UINT nTextBlocks, ID3D12Device* pd3dDevice, ID3D1
     m_ppd2dRenderTargets = new ID2D1Bitmap1*[nFrames];
 
     m_nTextBlocks = nTextBlocks;
-    m_pTextBlocks.reserve(nTextBlocks);
     for (int i{}; i < m_nTextBlocks; ++i)
         m_pTextBlocks.emplace_back();
 
@@ -110,6 +109,7 @@ IDWriteTextFormat* UILayer::CreateTextFormat(WCHAR* pszFontName, float fFontSize
 
 void UILayer::UpdateTextOutputs(UINT nIndex, WCHAR* pstrUIText, D2D1_RECT_F pd2dLayoutRect, IDWriteTextFormat* pdwFormat, ID2D1SolidColorBrush* pd2dTextBrush)
 {
+    ZeroMemory(m_pTextBlocks[nIndex].m_pstrText, sizeof(m_pTextBlocks[nIndex].m_pstrText));
     if (pstrUIText) wcscpy_s(m_pTextBlocks[nIndex].m_pstrText, 256, pstrUIText);
     memcpy(&(m_pTextBlocks[nIndex].m_d2dLayoutRect), &pd2dLayoutRect, sizeof(pd2dLayoutRect));
     if (pdwFormat) m_pTextBlocks[nIndex].m_pdwFormat = pdwFormat;
@@ -126,6 +126,8 @@ void UILayer::Render(UINT nFrame)
     m_pd2dDeviceContext->BeginDraw();
     for (auto& textblock : m_pTextBlocks)
     {
+        if (!textblock.m_pstrText[0])
+            continue;
         m_pd2dDeviceContext->DrawText(textblock.m_pstrText, (UINT)wcslen(textblock.m_pstrText), textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
     }
 
@@ -157,7 +159,7 @@ void UILayer::ReleaseResources()
     for (UINT i = 0; i < m_nTextBlocks; i++)
     {
         m_pTextBlocks[i].m_pdwFormat->Release();
-        m_pTextBlocks[i].m_pd2dTextBrush->Release();
+    //  m_pTextBlocks[i].m_pd2dTextBrush->Release();
     }
 
     for (UINT i = 0; i < m_nRenderTargets; i++)
@@ -206,6 +208,8 @@ void ChatMGR::UpdateText()
     m_pUILayer->UpdateTextOutputs(0, m_textbuf, d2dRect, pdwTextFormat, pd2dBrush);
     int i{1};
     for (auto p{ m_pPrevTexts.begin() }; p != m_pPrevTexts.end(); ++p) {
+        if (i > ChatMGR::m_pUILayer->m_nTextBlocks - 1)
+            break;
         auto rect = d2dRect;
         rect.top -= i * fontsize + 2;
         rect.bottom -= i * fontsize + 2;
@@ -244,22 +248,24 @@ void ChatMGR::StoreTextSelf()
     auto p = ConverCtoWC(cname);
 
     WCHAR* temp = new WCHAR[CHAT_SIZE];
-
     wcscpy(temp, p);
     wcscpy(temp + NetworkMGR::name.size() + 3, m_textbuf);
     m_pPrevTexts.push_front(temp);
 
     auto ctemp = ConvertWCtoC(temp);
 
-    CS_CHAT_PACKET send_Packet;
-    send_Packet.size = sizeof(CS_CHAT_PACKET);
-    send_Packet.type = E_PACKET_CS_CHAT_PACKET;
-    strcpy(send_Packet.chat, ctemp);
-    PacketQueue::AddSendPacket(&send_Packet);
-
+    if (NetworkMGR::b_isNet) {
+        CS_CHAT_PACKET send_Packet;
+        send_Packet.size = sizeof(CS_CHAT_PACKET);
+        send_Packet.type = E_PACKET_CS_CHAT_PACKET;
+        strcpy(send_Packet.chat, ctemp);
+        PacketQueue::AddSendPacket(&send_Packet);
+    }
     delete p;
     delete ctemp;
-    if (m_pPrevTexts.size() >= 10) {
+
+ 
+    if (m_pPrevTexts.size() > ChatMGR::m_pUILayer->m_nTextBlocks) {
         delete m_pPrevTexts.back();
         m_pPrevTexts.pop_back();
     }
@@ -270,7 +276,7 @@ void ChatMGR::StoreText(WCHAR* buf)
     WCHAR* temp = new WCHAR[CHAT_SIZE];
     wcscpy(temp, buf);
     m_pPrevTexts.push_front(temp);
-    if (m_pPrevTexts.size() >= 10) {
+    if (m_pPrevTexts.size() > ChatMGR::m_pUILayer->m_nTextBlocks) {
         delete m_pPrevTexts.back();
         m_pPrevTexts.pop_back();
     }
@@ -305,7 +311,7 @@ void ChatMGR::SetInGame(int WndClientWidth, int WndClientHeight)
 
     fontsize = WndClientHeight / 50.0f;
 
-    for (int i{}; i < 9; ++i)
+    for (int i{}; i < m_pUILayer->m_nTextBlocks - 1; ++i)
         m_pPrevTexts.emplace_back();
 
     m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
