@@ -156,12 +156,6 @@ void UILayer::RenderSingle(UINT nFrame)
 
 void UILayer::ReleaseResources()
 {
-    for (UINT i = 0; i < m_nTextBlocks; i++)
-    {
-        m_pTextBlocks[i].m_pdwFormat->Release();
-    //  m_pTextBlocks[i].m_pd2dTextBrush->Release();
-    }
-
     for (UINT i = 0; i < m_nRenderTargets; i++)
     {
         ID3D11Resource* ppResources[] = { m_ppd3d11WrappedRenderTargets[i] };
@@ -223,6 +217,8 @@ void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
     m_combtext = NULL;
  
     pd2dBrush = m_pUILayer->CreateBrush(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
+    if (pdwTextFormat)
+        pdwTextFormat->Release();
     pdwTextFormat = m_pUILayer->CreateTextFormat(L"Arial", WndClientHeight / 25.0f);
   //d2dRect = D2D1::RectF((float)WndClientWidth / 3.2f, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
     d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
