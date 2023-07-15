@@ -145,7 +145,8 @@ void UILayer::RenderSingle(UINT nFrame)
     m_pd3d11On12Device->AcquireWrappedResources(ppResources, _countof(ppResources));
 
     m_pd2dDeviceContext->BeginDraw();
-    m_pd2dDeviceContext->DrawText(m_pTextBlocks[0].m_pstrText, (UINT)wcslen(m_pTextBlocks[0].m_pstrText), m_pTextBlocks[0].m_pdwFormat, m_pTextBlocks[0].m_d2dLayoutRect, m_pTextBlocks[0].m_pd2dTextBrush);
+    if (m_pTextBlocks[0].m_pstrText[0])
+        m_pd2dDeviceContext->DrawText(m_pTextBlocks[0].m_pstrText, (UINT)wcslen(m_pTextBlocks[0].m_pstrText), m_pTextBlocks[0].m_pdwFormat, m_pTextBlocks[0].m_d2dLayoutRect, m_pTextBlocks[0].m_pd2dTextBrush);
 
     m_pd2dDeviceContext->EndDraw();
 
@@ -216,6 +217,8 @@ void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
     memset(m_textbuf, NULL, sizeof(m_textbuf));
     m_combtext = NULL;
  
+    if (pd2dBrush)
+        pd2dBrush->Release();
     pd2dBrush = m_pUILayer->CreateBrush(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
     if (pdwTextFormat)
         pdwTextFormat->Release();
