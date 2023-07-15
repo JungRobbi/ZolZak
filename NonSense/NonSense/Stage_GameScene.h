@@ -11,4 +11,7 @@ public:
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	ID3D12Device* m_pd3dDevice = NULL;
 	ID3D12GraphicsCommandList* m_pd3dCommandList = NULL;
+	//DepthRenderShader* m_pDepthRenderShader = NULL;
+	//ShadowMapShader* m_pShadowShader = NULL;
+	//TextureToViewportShader* m_pShadowMapToViewport = NULL;
 };

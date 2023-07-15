@@ -68,7 +68,7 @@ cbuffer cbFrameworkInfo : register(b9)
 };
 
 Texture2DArray gtxtTextureArray : register(t0);
-Texture2D RenderInfor[4] : register(t1); //Position, Normal+ObjectID, Texture, Depth
+Texture2D RenderInfor[5] : register(t1); //Position, Normal+ObjectID, Texture, Depth, Shadow Map
 SamplerState gssDefaultSamplerState : register(s0);
 
 Texture2D gtxtUITexture : register(t24);
@@ -76,8 +76,70 @@ Texture2D gtxtParticleTexture : register(t25);
 SamplerState gssWrap : register(s0);
 SamplerState gssBorder : register(s1); // SkyBox
 TextureCube gtxtSkyCubeTexture : register(t13);
+Texture2D gtxtAlbedoTexture : register(t6);
+Texture2D gtxtSpecularTexture : register(t7);
+Texture2D gtxtNormalTexture : register(t8);
+Texture2D gtxtMetallicTexture : register(t9);
+Texture2D gtxtEmissionTexture : register(t10);
+Texture2D gtxtDetailAlbedoTexture : register(t11);
+Texture2D gtxtDetailNormalTexture : register(t12);
 
 #include "Light1.hlsl"
+
+////////////////////////////////////////////////
+
+
+struct VS_ShadowMap_In
+{
+	float3 PosL    : POSITION;
+	//float2 TexC    : TEXCOORD;
+};
+
+struct VS_ShadowMap_Out
+{
+	float4 PosH    : SV_POSITION;
+	float2 TexC    : TEXCOORD;
+};
+
+VS_ShadowMap_Out VSShadowMap(VS_ShadowMap_In vin)
+{
+	VS_ShadowMap_Out vout = (VS_ShadowMap_Out)0.0f;
+
+	//MaterialData matData = gMaterialData[gMaterialIndex];
+
+	// Transform to world space.
+	float4 posW = mul(float4(vin.PosL, 1.0f), gmtxWorld);
+
+	// Transform to homogeneous clip space.
+	vout.PosH = mul(mul(posW, gmtxView), gmtxProjection);
+
+	// Output vertex attributes for interpolation across triangle.
+	/*float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform);
+	vout.TexC = mul(texC, matData.MatTransform).xy;*/
+	return vout;
+}
+
+// This is only used for alpha cut out geometry, so that shadows 
+// show up correctly.  Geometry that does not need to sample a
+// texture can use a NULL pixel shader for depth pass.
+void PSShadowMap(VS_ShadowMap_Out pin)
+{
+//	// Fetch the material data.
+//	MaterialData matData = gMaterialData[gMaterialIndex];
+//	float4 diffuseAlbedo = matData.DiffuseAlbedo;
+//	uint diffuseMapIndex = matData.DiffuseMapIndex;
+//
+//	// Dynamically look up the texture in the array.
+//	diffuseAlbedo *= gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
+//
+//#ifdef ALPHA_TEST
+//	// Discard pixel if texture alpha < 0.1.  We do this test as soon 
+//	// as possible in the shader so that we can potentially exit the
+//	// shader early, thereby skipping the rest of the shader code.
+//	clip(diffuseAlbedo.a - 0.1f);
+//#endif
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct VS_PARTICLE_INPUT
@@ -305,24 +367,34 @@ VS_DEBUG_OUTPUT VSDebug(uint nVertexID : SV_VertexID)
 	VS_DEBUG_OUTPUT output = (VS_DEBUG_OUTPUT)0;
 	int s = nVertexID / 6;
 
-	if (nVertexID % 6 == 0)		 { output.position = float4((0.5 * s) - 1.0f, 1.0f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
+	if (nVertexID % 6 == 0)		 { output.position = float4((0.5 * s) - 1.0f,		1.0f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
 	else if (nVertexID % 6 == 1) { output.position = float4((0.5 * (s + 1)) - 1.0f, 1.0f, 0.0f, 1.0f);	output.uv = float2(1.0f, 0.0f); output.num = s; }
 	else if (nVertexID % 6 == 2) { output.position = float4((0.5 * (s + 1)) - 1.0f, 0.5f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
-	else if (nVertexID % 6 == 3) { output.position = float4((0.5 * s) - 1.0f, 1.0f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
+	else if (nVertexID % 6 == 3) { output.position = float4((0.5 * s) - 1.0f,		1.0f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
 	else if (nVertexID % 6 == 4) { output.position = float4((0.5 * (s + 1)) - 1.0f, 0.5f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
-	else if (nVertexID % 6 == 5) { output.position = float4((0.5 * s) - 1.0f, 0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 1.0f); output.num = s; }
+	else if (nVertexID % 6 == 5) { output.position = float4((0.5 * s) - 1.0f,		0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 1.0f); output.num = s; }
+
+	if (s == 4)
+	{
+		
+		if (nVertexID % 6 == 0)		 { output.position = float4((0.5 * 3) - 1.0f,		-0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
+		else if (nVertexID % 6 == 1) { output.position = float4((0.5 * (3 + 1)) - 1.0f, -0.5f, 0.0f, 1.0f);	output.uv = float2(1.0f, 0.0f); output.num = s; }
+		else if (nVertexID % 6 == 2) { output.position = float4((0.5 * (3 + 1)) - 1.0f, -1.0f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
+		else if (nVertexID % 6 == 3) { output.position = float4((0.5 * 3) - 1.0f,		-0.5f, 0.0f, 1.0f);		output.uv = float2(0.0f, 0.0f); output.num = s; }
+		else if (nVertexID % 6 == 4) { output.position = float4((0.5 * (3 + 1)) - 1.0f, -1.0f, 0.0f, 1.0f);	output.uv = float2(1.0f, 1.0f); output.num = s; }
+		else if (nVertexID % 6 == 5) { output.position = float4((0.5 * 3) - 1.0f,		-1.0f, 0.0f, 1.0f);		output.uv = float2(0.0f, 1.0f); output.num = s; }
+	}
 
 	return(output);
 }
 
 float4 PSDebug(VS_DEBUG_OUTPUT input) : SV_Target
 {
-
 	float4 cColor;
 	if (input.num != 3) cColor = RenderInfor[input.num].Sample(gssDefaultSamplerState, input.uv);
 	else cColor = RenderInfor[3].Sample(gssDefaultSamplerState, input.uv).r;
+	if(input.num == 4 ) cColor = gtxtAlbedoTexture.Sample(gssDefaultSamplerState, input.uv);
 	return(cColor);
-
 }
 
 
@@ -333,17 +405,6 @@ float4 PSDebug(VS_DEBUG_OUTPUT input) : SV_Target
 #define MATERIAL_EMISSION_MAP		0x10
 #define MATERIAL_DETAIL_ALBEDO_MAP	0x20
 #define MATERIAL_DETAIL_NORMAL_MAP	0x40
-
-Texture2D gtxtAlbedoTexture : register(t6);
-Texture2D gtxtSpecularTexture : register(t7);
-Texture2D gtxtNormalTexture : register(t8);
-Texture2D gtxtMetallicTexture : register(t9);
-Texture2D gtxtEmissionTexture : register(t10);
-Texture2D gtxtDetailAlbedoTexture : register(t11);
-Texture2D gtxtDetailNormalTexture : register(t12);
-
-
-
 
 struct VS_STANDARD_INPUT
 {
@@ -380,7 +441,7 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
 	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
-	output.Scene = float4(0, 1, 0, 1);
+	output.Scene = float4(0, 1, 1, 1);
 	output.Position = float4(input.positionW, 1.0f);
 
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);

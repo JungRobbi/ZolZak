@@ -40,10 +40,7 @@ protected:
 	XMFLOAT3 m_xmf3Offset;
 	//플레이어가 회전할 때 얼마만큼의 시간을 지연시킨 후 카메라를 회전시킬 것인가를 나타낸다.
 	float m_fTimeLag;
-	XMFLOAT4X4 m_xmf4x4View;
-	XMFLOAT4X4 m_xmf4x4Projection;
-	D3D12_VIEWPORT m_d3dViewport;
-	D3D12_RECT m_d3dScissorRect;
+
 	//카메라를 가지고 있는 플레이어에 대한 포인터이다.
 	Player *m_pPlayer = NULL;
 
@@ -55,6 +52,10 @@ public:
 	Camera();
 	Camera(Camera* pCamera);
 	virtual ~Camera() {};
+	XMFLOAT4X4 m_xmf4x4View;
+	XMFLOAT4X4 m_xmf4x4Projection;
+	D3D12_VIEWPORT m_d3dViewport;
+	D3D12_RECT m_d3dScissorRect;
 	//카메라의 정보를 셰이더 프로그램에게 전달하기 위한 상수 버퍼를 생성하고 갱신한다.
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();

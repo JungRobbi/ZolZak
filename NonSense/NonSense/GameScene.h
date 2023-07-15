@@ -131,14 +131,14 @@ public:
 	static ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap;
 	CB_SCREEN_INFO* m_pMappedScreenOptions = NULL;
 	ID3D12Resource* m_pScreenOptions = NULL;
+	LIGHTS* m_pLights = NULL;
+	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
 
 protected:
 
 	int m_nShaders = 0;
-	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
 
 	//씬의 조명
-	LIGHTS* m_pLights = NULL;
 	//조명을 나타내는 리소스와 리소스에 대한 포인터이다.
 	ID3D12Resource* m_pd3dcbLights = NULL;
 	LIGHTS* m_pcbMappedLights = NULL;

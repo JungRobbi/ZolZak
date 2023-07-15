@@ -225,6 +225,9 @@
     <ClInclude Include="Room_GameScene.h">
       <Filter>소스 파일\GameScenes</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowMap.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -343,6 +346,9 @@
     </ClCompile>
     <ClCompile Include="Room_GameScene.cpp">
       <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMap.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
