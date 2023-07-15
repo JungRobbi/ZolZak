@@ -1,5 +1,16 @@
 #include "Lobby_GameScene.h"
 
+void Lobby_GameScene::update()
+{
+	while (!roomCreateList.empty()) {
+		auto p = roomCreateList.front();
+		Rooms.emplace_back(new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, p.num, p.name, p.owner));
+		roomCreateList.pop();
+	}
+
+	GameScene::update();
+}
+
 void Lobby_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
@@ -51,6 +62,16 @@ void Lobby_GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camer
 
 void Lobby_GameScene::MakeRoom(std::string name)
 {
-	Room_UI* room = new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, 0, name, m_pPlayer->m_name);
-	Rooms.emplace_back(room);
+	//Room_UI* room = new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, 0, name, m_pPlayer->m_name);
+	//Rooms.emplace_back(room);
+
+	roomCreateList.push({ 0, name, m_pPlayer->m_name });
+}
+
+void Lobby_GameScene::MakeRoom(int roomNum, std::string name, std::string owner)
+{
+	//Room_UI* room = new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, roomNum, name, owner);
+	//Rooms.emplace_back(room);
+
+	roomCreateList.push({ roomNum, name, owner });
 }
