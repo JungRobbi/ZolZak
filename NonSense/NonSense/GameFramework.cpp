@@ -310,16 +310,16 @@ void GameFramework::BuildObjects()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
-	ChatMGR::m_pUILayer = new UILayer(m_nSwapChainBuffers, 10, m_pDevice, m_pCommandQueue, m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
+	ChatMGR::m_pUILayer = new UILayer(m_nSwapChainBuffers, 1, m_pDevice, m_pCommandQueue, m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
 	ChatMGR::SetTextinfos(m_nWndClientWidth, m_nWndClientHeight);
-	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Stage
+	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Room | m_GameScenes[3] : Stage
 
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new Room_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(LOGIN_SCENE);
+	ChangeScene(ROOM_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -353,8 +353,8 @@ void GameFramework::ReleaseObjects()
 {
 	GameScene::MainScene->ReleaseObjects();
 
-	if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
-	if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
+	//if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
+	//if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
 }
 
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -461,7 +461,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 					NetworkMGR::name = string{ p };
 					delete[] p;
 					if(!NetworkMGR::b_isNet) // 클라 모드일 때 
-						ChangeScene(LOBBY_SCENE);
+						ChangeScene(GAME_SCENE);
 					else if (!NetworkMGR::b_isLogin && !NetworkMGR::b_isLoginProg) { // 로그인 하지 않은 상태
 						NetworkMGR::b_isLoginProg = true; // 로그인 진행
 						CS_LOGIN_PACKET send_packet;
@@ -475,9 +475,6 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 						cout << "로그인 시도 실패!" << endl;
 						cout << "Login Try Fail!" << endl;
 					}
-
-				}
-				else if (NetworkMGR::b_isNet && scene_type == GAME_SCENE) {
 
 				}
 				ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
@@ -615,7 +612,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				ChangeScene(1);
 				break;
 			case '9':
-				ChangeScene(3);
+				ChangeScene(GAME_SCENE);
 				break;
 			case 't':
 			case 'T':
@@ -803,8 +800,8 @@ void GameFramework::ProcessInput()
 				::GetCursorPos(&ptCursorPos);
 				::GetWindowRect(m_hWnd, &rect);
 				if (((scene_type != GAME_SCENE) || (scene_type == GAME_SCENE && OptionMode)) && (Timer::GetTotalTime() - LastClick > 0.2)) {
-					float px = (ptCursorPos.x - rect.left) / (float)FRAME_BUFFER_WIDTH;
-					float py = (ptCursorPos.y - rect.top - 10) / (float)FRAME_BUFFER_HEIGHT;
+					float px = (ptCursorPos.x - rect.left - 10) / (float)FRAME_BUFFER_WIDTH;
+					float py = (ptCursorPos.y - rect.top - 30) / (float)FRAME_BUFFER_HEIGHT;
 
 					for (auto& ui : GameScene::MainScene->UIGameObjects)
 					{
@@ -832,8 +829,8 @@ void GameFramework::ProcessInput()
 				RECT rect;
 				::GetCursorPos(&ptCursorPos);
 				::GetWindowRect(m_hWnd, &rect);
-				float px = (ptCursorPos.x - rect.left) / (float)FRAME_BUFFER_WIDTH;
-				float py = (ptCursorPos.y - rect.top - 10) / (float)FRAME_BUFFER_HEIGHT;
+				float px = (ptCursorPos.x - rect.left - 10) / (float)FRAME_BUFFER_WIDTH;
+				float py = (ptCursorPos.y - rect.top - 30) / (float)FRAME_BUFFER_HEIGHT;
 
 				for (auto& ui : GameScene::MainScene->UIGameObjects)
 				{
@@ -907,12 +904,6 @@ void GameFramework::WaitForGpuComplete()
 	}
 }
 
-void GameFramework::Touch_Debuff(float time)
-{
-	IsTouchDebuff = true;
-	TouchDebuffLeftTime = time;
-}
-
 void GameFramework::MoveToNextFrame()
 {
 	m_nSwapChainBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
@@ -939,7 +930,7 @@ void GameFramework::FrameAdvance()
 
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
-	ChatMGR::UpdateText();
+	//ChatMGR::UpdateText();
 	ProcessInput();
 
 	AnimateObjects();
@@ -993,18 +984,7 @@ void GameFramework::FrameAdvance()
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
-	if (!IsTouchDebuff)
-	{
-		if (!ScriptMode && !OptionMode)RenderHP();
-	}
-	else
-	{
-		TouchDebuffLeftTime -= Timer::GetTimeElapsed();
-		if (TouchDebuffLeftTime < 0)
-		{
-			IsTouchDebuff = false;
-		}
-	}
+	if(!ScriptMode && !OptionMode)RenderHP();
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
@@ -1016,11 +996,11 @@ void GameFramework::FrameAdvance()
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	if (scene_type == LOGIN_SCENE) {
-		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
-	}
-	else if (scene_type == GAME_SCENE)
-		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+	//if (scene_type == LOGIN_SCENE) {
+		//ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
+	//}
+	//else if (scene_type == GAME_SCENE)
+		//ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 
 	m_pSwapChain->Present(0, 0);
 
