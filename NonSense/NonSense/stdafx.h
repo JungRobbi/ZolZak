@@ -28,6 +28,7 @@
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 #include <DXGIDebug.h>
+#include <stdlib.h>
 
 #include <vector>
 #include <algorithm>

@@ -16,7 +16,7 @@ private:
 	VX_HANDLE m_AccountHandle = NULL;
 	VX_HANDLE m_SessionHandle = NULL;
 
-	char* UserName = "Korus";
+	char UserName[15] = "Default";
 	char* AcctName = NULL;
 	char* UserURI = NULL;
 public:
@@ -24,7 +24,16 @@ public:
 
 public:
 	VivoxSystem() {
-		
+		std::string str;
+		str.append(".");
+		str.append(UserName);
+		str.append(".");
+		AcctName = new char[str.length() + 1];
+		strcpy(AcctName, str.c_str());
+		MakeUserURI(UserName);
+	}
+	VivoxSystem(const char* Name) {
+		strcpy(UserName, Name);
 		std::string str;
 		str.append("."); 
 		str.append(UserName);
@@ -32,10 +41,6 @@ public:
 		AcctName = new char[str.length()+1];
 		strcpy(AcctName ,str.c_str());
 		MakeUserURI(UserName);
-
-		std::cout << UserName << std::endl;
-		std::cout << AcctName << std::endl;
-		std::cout << UserURI << std::endl;
 	}
 	~VivoxSystem() {}
 
@@ -49,7 +54,7 @@ public:
 	void Connect();
 	void Disconnect();
 	void JoinChannel(const char* Channel);
-	void LeaveChannel(const char* Channel);
+	void LeaveChannel();
 
 
 	int RequestIssue(vx_req_base_t* request);

@@ -97,6 +97,7 @@ public:
 	void CreateDirect3DDevice();
 	void CreateCommandQueueAndList();
 	void MoveToNextFrame();
+	void InitializeVivoxSystem(std::string UserName);
 
 	void CreateRenderTargetViews();
 	void CreateDepthStencilView();

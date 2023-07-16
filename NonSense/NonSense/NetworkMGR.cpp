@@ -495,6 +495,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		std::cout << "로그인 성공!" << std::endl;
 		if (b_isLoginProg) { // 로그인 진행 하는 동안
 			b_isLogin = true;
+			GameFramework::MainGameFramework->InitializeVivoxSystem(name);
 			GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
 			b_isLoginProg = false;
 		}

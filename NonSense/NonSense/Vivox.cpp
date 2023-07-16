@@ -96,8 +96,6 @@ void VivoxSystem::ResponseHandle(vx_resp_base_t* resp)
 			std::cout << "URI - " << typed_resp->uri << std::endl;
 			
 			m_AccountHandle = typed_resp->account_handle;
-			JoinChannel("Test");
-
 		}
 		break;
 	case resp_sessiongroup_remove_session:
@@ -178,7 +176,7 @@ void VivoxSystem::JoinChannel(const char* Channel)
 {
 	char* uri = vx_get_general_channel_uri(Channel, "mt1s.vivox.com", "jeawoo0732-no23-dev");
 	std::cout << uri << std::endl;
-	//uri = vx_get_random_channel_uri_ex("confctl-e-", "mt1s.vivox.com", "jeawoo0732-no23-dev");
+	uri = vx_get_random_channel_uri_ex("confctl-e-", "mt1s.vivox.com", "jeawoo0732-no23-dev");
 	vx_req_sessiongroup_add_session* req;
 	vx_req_sessiongroup_add_session_create(&req);
 	req->sessiongroup_handle = vx_strdup("sg1");
@@ -195,12 +193,12 @@ void VivoxSystem::JoinChannel(const char* Channel)
 	vx_free(uri);
 }
 
-void VivoxSystem::LeaveChannel(const char* Channel)
+void VivoxSystem::LeaveChannel()
 {
 	vx_req_sessiongroup_remove_session* req;
 	vx_req_sessiongroup_remove_session_create(&req);
 	req->sessiongroup_handle = vx_strdup("sg1");
-	req->session_handle = vx_strdup(Channel);
+	req->session_handle = m_SessionHandle;
 	int vx_issue_request3_response = RequestIssue(&req->base);
 }
 

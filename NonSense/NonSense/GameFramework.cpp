@@ -39,8 +39,6 @@ GameFramework::GameFramework()
 	_tcscpy_s(m_FrameRate, _T("NonSense("));
 	
 	MainGameFramework = this;
-	m_pVivoxSystem = new VivoxSystem();
-	m_pVivoxSystem->Initialize();
 	Timer::Initialize();
 }
 
@@ -319,7 +317,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Room_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(ROOM_SCENE);
+	ChangeScene(LOBBY_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -914,6 +912,12 @@ void GameFramework::MoveToNextFrame()
 		hResult = m_pFence->SetEventOnCompletion(nFenceValue, m_FenceEventHandle);
 		::WaitForSingleObject(m_FenceEventHandle, INFINITE);
 	}
+}
+
+void GameFramework::InitializeVivoxSystem(std::string UserName)
+{
+	m_pVivoxSystem = new VivoxSystem(UserName.c_str());
+	m_pVivoxSystem->Initialize();
 }
 
 void GameFramework::Touch_Debuff(float time)

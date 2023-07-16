@@ -433,8 +433,13 @@ Join_Room_UI::Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 void Join_Room_UI::OnClick()
 {
+	int RoomNum = dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum;
+	std::string ChannelName = "Channel_";
+	char buf[3];
+	::itoa(RoomNum, buf, 10);
+	ChannelName.append(buf);
+	GameFramework::MainGameFramework->GetVivoxSystem()->JoinChannel(ChannelName.c_str());
 	GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
-
 }
 
 Back_UI::Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -1065,7 +1070,7 @@ Leave_Room_UI::Leave_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 void Leave_Room_UI::OnClick()
 {
-
+	GameFramework::MainGameFramework->GetVivoxSystem()->LeaveChannel();
 }
 
 Ready_UI::Ready_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
