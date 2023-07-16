@@ -916,6 +916,12 @@ void GameFramework::MoveToNextFrame()
 	}
 }
 
+void GameFramework::Touch_Debuff(float time)
+{
+	IsTouchDebuff = true;
+	TouchDebuffLeftTime = time;
+}
+
 void GameFramework::FrameAdvance()
 {
 	Timer::Tick(0.0f);
@@ -984,7 +990,18 @@ void GameFramework::FrameAdvance()
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
-	if(!ScriptMode && !OptionMode)RenderHP();
+	if (!IsTouchDebuff)
+	{
+		if (!ScriptMode && !OptionMode)RenderHP();
+	}
+	else
+	{
+		TouchDebuffLeftTime -= Timer::GetTimeElapsed();
+		if (TouchDebuffLeftTime < 0)
+		{
+			IsTouchDebuff = false;
+		}
+	}
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
