@@ -14,6 +14,8 @@
 #include "RushTypeState.h"
 #include "AttackComponent.h"
 #include "UILayer.h"
+#include "Lobby_GameScene.h"
+#include "UI.h"
 #pragma comment(lib, "WS2_32.LIB")
 
 char* NetworkMGR::SERVERIP = "127.0.0.1";
@@ -169,11 +171,8 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			GameFramework::MainGameFramework->m_clearStage = recv_packet->clearStage;
 		}
 		cout << "로그인 정보 수신!" << endl;
-		if (b_isLoginProg) { // 로그인 진행 하는 동안
-			b_isLogin = true;
-			GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
-			b_isLoginProg = false;
-		}
+
+		GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
 
 		break;
 	}
@@ -494,8 +493,25 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET_SC_LOGIN_OK_PACKET: {
 		std::cout << "로그인 성공!" << std::endl;
+		if (b_isLoginProg) { // 로그인 진행 하는 동안
+			b_isLogin = true;
+			GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
+			b_isLoginProg = false;
+		}
 		break;
 	}
+	case E_PACKET_SC_ROOM_CREATE_PACKET: {
+		SC_ROOM_CREATE_PACKET* recv_packet = reinterpret_cast<SC_ROOM_CREATE_PACKET*>(p_Packet);
+		
+		if (GameFramework::MainGameFramework->scene_type == LOBBY_SCENE) {
+			cout << "Make Room!" << endl;
+			dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(recv_packet->roomNum, std::string{ recv_packet->roomName }, std::string{ recv_packet->hostName });
+		}
+		
+		break;
+	}
+
+									
 	default:
 		break;
 	}
