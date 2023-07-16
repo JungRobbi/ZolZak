@@ -1044,27 +1044,27 @@ void GameFramework::FrameAdvance()
 	}
 
 	/////////////// Shadow Map Render ////////////////////////
-	//m_pCommandList->RSSetViewports(1, &m_ShadowMap->Viewport());
-	//m_pCommandList->RSSetScissorRects(1, &m_ShadowMap->ScissorRect());
+	m_pCommandList->RSSetViewports(1, &m_ShadowMap->Viewport());
+	m_pCommandList->RSSetScissorRects(1, &m_ShadowMap->ScissorRect());
 
-	//ResourceTransition(m_pCommandList, m_ShadowMap->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	ResourceTransition(m_pCommandList, m_ShadowMap->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
-	//m_pCommandList->ClearDepthStencilView(m_ShadowMap->Dsv(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-	//m_pCommandList->OMSetRenderTargets(0, nullptr, false, &m_ShadowMap->Dsv());
+	m_pCommandList->ClearDepthStencilView(m_ShadowMap->Dsv(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	m_pCommandList->OMSetRenderTargets(0, nullptr, false, &m_ShadowMap->Dsv());
 
-	//UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
-	//auto passCB = mCurrFrameResource->PassCB->Resource();
-	//D3D12_GPU_VIRTUAL_ADDRESS passCBAddress = passCB->GetGPUVirtualAddress() + 1 * passCBByteSize;
-	//m_pCommandList->SetGraphicsRootConstantBufferView(1, passCBAddress);
+	UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
+	auto passCB = mCurrFrameResource->PassCB->Resource();
+	D3D12_GPU_VIRTUAL_ADDRESS passCBAddress = passCB->GetGPUVirtualAddress() + 1 * passCBByteSize;
+	m_pCommandList->SetGraphicsRootConstantBufferView(1, passCBAddress);
 
 
-	//m_pCommandList->SetPipelineState(m_pPipelineState);
+	m_pCommandList->SetPipelineState(m_pPipelineState);
 
-	//DrawRenderItems(m_pCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
+	DrawRenderItems(m_pCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
 
-	//ResourceTransition(m_pCommandList, m_ShadowMap->Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ);
+	ResourceTransition(m_pCommandList, m_ShadowMap->Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ);
 
-	//GameScene::MainScene->m_pLights->m_pLights[0]
+	GameScene::MainScene->m_pLights->m_pLights[0]
 	//////////////////////////////////////////////////////////
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
