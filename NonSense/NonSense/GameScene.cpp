@@ -139,6 +139,26 @@ void GameScene::update()
 
 		delete gameObject;
 	}
+
+	if (IsSoundDebuff)
+	{
+		if (SoundDebuffLeftTime < -10)
+		{
+
+		}
+		else if (SoundDebuffLeftTime < 0)
+		{
+			for (auto& s : Sounds)
+			{
+				s->RemoveDsp();
+			}
+			IsSoundDebuff = false;
+		}
+		else
+		{
+			SoundDebuffLeftTime -= elapseTime;
+		}
+	}
 }
 
 void GameScene::PushDelete(Object* gameObject)
@@ -267,12 +287,12 @@ void GameScene::ReleaseObjects()
 	if (m_pSkyBox) delete m_pSkyBox;
 
 	if (&gameObjects) {
-		for (auto object : gameObjects)
+		for (auto& object : gameObjects)
 			delete object;
 		gameObjects.clear();
 	}
 	if (&blendGameObjects) {
-		for (auto object : blendGameObjects)
+		for (auto& object : blendGameObjects)
 			delete object;
 		blendGameObjects.clear();
 	}
@@ -282,15 +302,32 @@ void GameScene::ReleaseObjects()
 	//	UIGameObjects.clear();
 	//}
 	if (&BoundingGameObjects) {
-		for (auto object : BoundingGameObjects)
+		for (auto& object : BoundingGameObjects)
 			delete object;
 		BoundingGameObjects.clear();
 	}
 	if (&MonsterObjects) {
-		for (auto object : MonsterObjects)
+		for (auto& object : MonsterObjects)
 			delete object;
 		MonsterObjects.clear();
 	}
+	if (&ModelMap)
+	{
+		for (auto& model : ModelMap)
+		{
+			delete model.second;
+		}
+		ModelMap.clear();
+	}
+	if (&Sounds)
+	{
+		for (auto& s : Sounds)
+		{
+			delete s;
+		}
+		Sounds.clear();
+	}
+	
 }
 
 void GameScene::ReleaseUploadBuffers()
@@ -642,6 +679,16 @@ D3D12_GPU_DESCRIPTOR_HANDLE GameScene::CreateConstantBufferViews(ID3D12Device* p
 	return(d3dCbvGPUDescriptorHandle);
 }
 
+void GameScene::Sound_Debuff(float time)
+{
+	for (auto& a : Sounds)
+	{
+		a->AddDsp();
+	}
+	SoundDebuffLeftTime = time;
+	IsSoundDebuff = true;
+}
+
 D3D12_GPU_DESCRIPTOR_HANDLE GameScene::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nRootParameter, bool bAutoIncrement)
 {
 	D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGPUDescriptorHandle = m_d3dSrvGPUDescriptorNextHandle;
@@ -682,10 +729,8 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 		switch (wParam)
 		{
 		case VK_INSERT:
-			bgm->AddDsp();
 			break;
 		case VK_DELETE:
-			bgm->RemoveDsp();
 			break;
 		case VK_SPACE:
 

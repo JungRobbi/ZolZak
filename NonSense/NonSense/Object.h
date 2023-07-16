@@ -3,6 +3,8 @@
 #include "stdafx.h"
 #include <list>
 #include <array>
+#include <vector>
+#include <functional>
 #include "Mesh.h"
 #include "../AnimationType.h"
 #include "Camera.h"
@@ -221,6 +223,14 @@ public:
 };
 
 
+struct AnimationEvent
+{
+	std::string EventName;	// 무슨 이벤트인지 눈으로 확인하기 위한 문자열 게임 로직에 사용되는 일 없음
+	int AnimationSet;		// 이벤트 만들 애니메이션 번호
+	float Position;			// 이벤트가 발생할 위치
+	std::function<void()> Callback;		// 해당 이벤트가 발생하면 사용할 함수
+};
+
 class AnimationTrack
 {
 public:
@@ -236,6 +246,8 @@ public:
 	int 							m_nAnimationSet = 0;
 	int 							m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
 	bool							AnimationEnd = false;
+
+	std::vector<AnimationEvent>		m_AnimationEvents;
 public:
 	void SetAnimationSet(int nAnimationSet) { m_nAnimationSet = nAnimationSet; }
 	void SetEnable(bool bEnable) { m_bEnable = bEnable; }
@@ -243,7 +255,8 @@ public:
 	void SetWeight(float fWeight) { m_fWeight = fWeight; }
 	void SetPosition(float fPosition) { m_fPosition = fPosition; }
 	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength);
-
+	void AddAnimationEvent(std::string EventName, int nAnimationSet, float Position, std::function<void()>Callback);
+	void TriggerEvent(float fTrackPosition);
 };
 class LoadedModelInfo
 {
@@ -260,6 +273,9 @@ public:
 public:
 	void PrepareSkinning();
 };
+
+
+
 class AnimationController
 {
 public:
@@ -287,6 +303,8 @@ public:
 	XMFLOAT3						m_xmf3FirstRootMotionPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	bool							NoMoreAnimation = false;
 
+	
+
 public:
 	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 
@@ -299,6 +317,7 @@ public:
 	void SetTrackWeight(int nAnimationTrack, float fWeight);
 	void EndAnimation();
 	void AdvanceTime(float fElapsedTime, Object* pRootGameObject);
+	void AddAnimationEvent(std::string EventName, int nAnimationSet, float Position, std::function<void()>Callback);
 };
 
 

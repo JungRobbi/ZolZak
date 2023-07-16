@@ -410,7 +410,7 @@ void GameFramework::BuildObjects()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
-	ChatMGR::m_pUILayer = new UILayer(m_nSwapChainBuffers, 10, m_pDevice, m_pCommandQueue, m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
+	ChatMGR::m_pUILayer = new UILayer(m_nSwapChainBuffers, 1, m_pDevice, m_pCommandQueue, m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
 	ChatMGR::SetTextinfos(m_nWndClientWidth, m_nWndClientHeight);
 	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Room | m_GameScenes[3] : Stage
 
@@ -419,7 +419,11 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Room_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
+	ChangeScene(ROOM_SCENE);
+	ChangeScene(ROOM_SCENE);
+=========
 	ChangeScene(LOGIN_SCENE);
+>>>>>>>>> Temporary merge branch 2
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -453,8 +457,8 @@ void GameFramework::ReleaseObjects()
 {
 	GameScene::MainScene->ReleaseObjects();
 
-	if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
-	if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
+	//if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
+	//if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
 }
 
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -561,7 +565,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 					NetworkMGR::name = string{ p };
 					delete[] p;
 					if(!NetworkMGR::b_isNet) // 클라 모드일 때 
-						ChangeScene(LOBBY_SCENE);
+						ChangeScene(GAME_SCENE);
 					else if (!NetworkMGR::b_isLogin && !NetworkMGR::b_isLoginProg) { // 로그인 하지 않은 상태
 						NetworkMGR::b_isLoginProg = true; // 로그인 진행
 						CS_LOGIN_PACKET send_packet;
@@ -575,9 +579,6 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 						cout << "로그인 시도 실패!" << endl;
 						cout << "Login Try Fail!" << endl;
 					}
-
-				}
-				else if (NetworkMGR::b_isNet && scene_type == GAME_SCENE) {
 
 				}
 				ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
@@ -1033,7 +1034,7 @@ void GameFramework::FrameAdvance()
 
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
-	ChatMGR::UpdateText();
+	//ChatMGR::UpdateText();
 	ProcessInput();
 
 	ProcessInput();
@@ -1125,15 +1126,15 @@ void GameFramework::FrameAdvance()
 
 	hResult = m_pCommandList->Close();
 
-	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
-	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-	WaitForGpuComplete();
-
-	if (scene_type == LOGIN_SCENE) {
-		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
+	//if (scene_type == LOGIN_SCENE) {
+		//ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
+	//}
+	//else if (scene_type == GAME_SCENE)
+		//ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 	}
 	else if (scene_type == GAME_SCENE)
 		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+>>>>>>>>> Temporary merge branch 2
 
 	m_pSwapChain->Present(0, 0);
 

@@ -31,8 +31,7 @@ void Room_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	bgm = new Sound("Sound/TestMusic.mp3", true);
-	bgm->Play();
+
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dCommandList = pd3dCommandList;
 
@@ -44,7 +43,6 @@ void Room_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 void Room_GameScene::ReleaseObjects()
 {
 	GameScene::ReleaseObjects();
-	delete bgm;
 }
 
 void Room_GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)

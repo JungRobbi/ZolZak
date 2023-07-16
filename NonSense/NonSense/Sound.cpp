@@ -18,9 +18,12 @@ Sound::Sound(char* SoundFilePath, bool IsLoop)
 	FMOD_DSP_SetParameterFloat(Highpass, FMOD_DSP_HIGHPASS_CUTOFF, 20.0f);
 	FMOD_System_CreateDSPByType(FMODSystem, FMOD_DSP_TYPE_TREMOLO, &Tremolo);
 	FMOD_DSP_SetParameterFloat(Tremolo, 0, 1.0f);
+
+	Play();
 }
 Sound::~Sound()
 {
+	Stop();
 	FMOD_Sound_Release(m_Sound);
 }
 
