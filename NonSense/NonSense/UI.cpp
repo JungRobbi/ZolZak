@@ -434,6 +434,7 @@ Join_Room_UI::Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 void Join_Room_UI::OnClick()
 {
 	GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
+
 }
 
 Back_UI::Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
