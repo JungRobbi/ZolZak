@@ -3,7 +3,6 @@
 #include "GameScene.h"
 #include "GameFramework.h"
 #include "Lobby_GameScene.h"
-#include "NetworkMGR.h"
 
 UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(false)
 {
@@ -104,8 +103,27 @@ Player_HP_UI::Player_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	SetMaterial(pUIMaterial);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.2, 0.04, 0.8, 0.32);
+	SetMyPos(0.17, 0.04, 0.82, 0.32);
 }
+
+Warrior_Player_State_UI::Warrior_Player_State_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Warrior_Player_State.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+	CanClick = false;
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.02, 0.02, 0.5, 0.2);
+}
+
 
 Player_HP_DEC_UI::Player_HP_DEC_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
 {
@@ -129,7 +147,7 @@ void Player_HP_DEC_UI::update() {
 		HP -= (HP - Dec_HP) / 65;
 		if (HP < Dec_HP) HP = Dec_HP;
 	}
-	SetMyPos(0.2, 0.04, 0.8 * HP, 0.32);
+	SetMyPos(0.17, 0.04, 0.82 * HP, 0.32);
 }
 
 Monster_HP_UI::Monster_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -388,19 +406,10 @@ void Make_Room_UI::OnClick()
 	//{
 	//	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom = true;
 	//}
-	std::string name = "Test Room";
-//	std::cout << "방 제목을 입력하세요 : " << std::endl;
-//	std::cin >> name;
-	if (NetworkMGR::b_isNet) {
-		CS_ROOM_CREATE_PACKET send_packet;
-		send_packet.size = sizeof(CS_ROOM_CREATE_PACKET);
-		send_packet.type = E_PACKET::E_PACKET_CS_ROOM_CREATE_PACKET;
-		memcpy(send_packet.roomName, name.c_str(), name.size());
-		PacketQueue::AddSendPacket(&send_packet);
-	}
-	else {
-		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(name);
-	}
+	std::string name;
+	std::cout << "방 제목을 입력하세요 : " << std::endl;
+	std::cin >> name;
+	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(name);
 }
 
 Join_Room_UI::Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -424,16 +433,7 @@ Join_Room_UI::Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 void Join_Room_UI::OnClick()
 {
-	if (NetworkMGR::b_isNet) {
-		CS_ROOM_JOIN_PACKET send_packet;
-		send_packet.size = sizeof(CS_ROOM_JOIN_PACKET);
-		send_packet.type = E_PACKET::E_PACKET_CS_ROOM_JOIN_PACKET;
-		send_packet.roomNum = dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum;
-		PacketQueue::AddSendPacket(&send_packet);
-	}
-	else {
-		GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
-	}
+	GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
 }
 
 Back_UI::Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -987,5 +987,107 @@ void Mouse_Left_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* p
 		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 	}
+
+}
+
+///////////////////////////////////////////////////////
+
+Mage_UI::Mage_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Mage_Propile.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.2, 0.6, 0.2, 0.4);
+}
+
+void Mage_UI::OnClick()
+{
+
+}
+
+Warrior_UI::Warrior_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Warrior_Propile.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.0, 0.6, 0.2, 0.4);
+}
+
+void Warrior_UI::OnClick()
+{
+
+}
+
+Leave_Room_UI::Leave_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Leave_Room.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.73, 0.78, 0.27, 0.22);
+}
+
+void Leave_Room_UI::OnClick()
+{
+
+}
+
+Ready_UI::Ready_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Ready.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.0, 0.0, 0.27, 0.22);
+}
+
+void Ready_UI::OnClick()
+{
 
 }

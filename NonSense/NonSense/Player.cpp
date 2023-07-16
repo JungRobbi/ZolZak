@@ -403,7 +403,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	//GetComponent<AttackComponent>()->SetBoundingObject(bb);
 	AddComponent<PlayerMovementComponent>();
 	AddComponent<AttackComponent>();
-	GetComponent<AttackComponent>()->SetAttackDuration(2.2);
+	GetComponent<AttackComponent>()->SetAttackDuration(1.5);
 
 	{
 		XMFLOAT3 pos;
@@ -554,16 +554,17 @@ void MagePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCam
 	}
 }
 
+
 WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
-	Magical = true;
+	Magical = false;
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)pContext;
 	SetPlayerUpdatedContext(pTerrain);
 	SetCameraUpdatedContext(pTerrain);
 
 	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pUI = new Warrior_Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	fireball = new FireBall(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	if (NetworkMGR::id != id) {
@@ -588,13 +589,13 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
 	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
 
-	//CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
-	//BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
-	//bb->SetNum(3);
-	//GetComponent<AttackComponent>()->SetBoundingObject(bb);
+	CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
+	bb->SetNum(3);
 	AddComponent<PlayerMovementComponent>();
 	AddComponent<AttackComponent>();
-	GetComponent<AttackComponent>()->SetAttackDuration(2.2);
+	GetComponent<AttackComponent>()->SetBoundingObject(bb);
+	GetComponent<AttackComponent>()->SetAttackDuration(1);
 
 	{
 		XMFLOAT3 pos;
@@ -610,8 +611,8 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			pos = XMFLOAT3(0, 0, 0);
 		}
 		SetPosition(pos);
-		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
-		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);
+		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/M05.bin", NULL);
+		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Sword_M05.bin", NULL);
 
 		if (pModel)
 			SetChild(pModel->m_pRoot, true);
@@ -667,7 +668,7 @@ Camera* WarriorPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0, 0.7f, 0.25));
-		m_pCamera->GenerateProjectionMatrix(0.1f, 1000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->GenerateProjectionMatrix(0.01f, 1000.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
@@ -729,10 +730,10 @@ void WarriorPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* p
 		{
 			m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
-			FindFrame("Wand")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-			FindFrame("Body_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-			FindFrame("Arm_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-			FindFrame("Leg_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Sword_M05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Body_m05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Arm_m05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			FindFrame("Leg_M05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
 		}
 		else
 		{

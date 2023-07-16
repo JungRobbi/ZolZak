@@ -50,6 +50,8 @@ struct MATERIALS
 class GameScene
 {
 public:
+	std::map<std::string, LoadedModelInfo*> ModelMap;
+
 	std::queue<Object*> creationQueue;
 	std::deque<Object*> deletionQueue;
 	std::list<Object*> gameObjects;
@@ -70,6 +72,8 @@ public:
 	std::deque<Object*> deletionBoundingQueue;
 	std::list<Object*> BoundingGameObjects;
 
+	std::list<Sound*> Sounds;
+
 	XMFLOAT4 LineColor = XMFLOAT4(0, 0, 0, 1);
 	UINT LineSize = 3;
 	UINT ToonShading = 10;
@@ -80,15 +84,17 @@ public:
 	NPC* StartNPC = NULL;
 	NPC* EndNPC = NULL;
 	NPCScript* ScriptUI = NULL;
+	HeightMapTerrain* m_pTerrain = NULL;
+	bool IsSoundDebuff = false;
+	float SoundDebuffLeftTime = -1.0f;
 
 protected:
 	Object* CreateEmpty();
 	float elapseTime;
-	Sound* bgm;
 public:
 	virtual void update();
 	virtual void render();
-
+	bool change = false;
 	void PushDelete(Object* gameObject);
 
 	friend Object;
@@ -97,15 +103,15 @@ public:
 	GameScene();
 	virtual ~GameScene();
 	std::list<Object*> GetObjects() { return gameObjects; }
-	//¾ÀÀÇ ¸ðµç Á¶¸í°ú ÀçÁúÀ» »ý¼º
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	void BuildLightsAndMaterials();
-	//¾ÀÀÇ ¸ðµç Á¶¸í°ú ÀçÁúÀ» À§ÇÑ ¸®¼Ò½º¸¦ »ý¼ºÇÏ°í °»½Å
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
-	//¾À¿¡¼­ ¸¶¿ì½º¿Í Å°º¸µå ¸Þ½ÃÁö¸¦ Ã³¸®ÇÑ´Ù.
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½ºï¿½ï¿½ Å°ï¿½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½Ñ´ï¿½.
 	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	virtual bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseObjects();
 	bool ProcessInput(UCHAR* pKeysBuffer);
@@ -117,10 +123,10 @@ public:
 	void RenderBoundingBox(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void ReleaseUploadBuffers();
 	HeightMapTerrain* GetTerrain() { return(m_pTerrain); }
-	//±×·¡ÇÈ ·çÆ® ½Ã±×³ÊÃÄ¸¦ »ý¼ºÇÑ´Ù.
+	//ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½Æ® ï¿½Ã±×³ï¿½ï¿½Ä¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
 	ID3D12RootSignature* GetGraphicsRootSignature();
-	//¾ÀÀÇ ¸ðµç °ÔÀÓ °´Ã¼µé¿¡ ´ëÇÑ ¸¶¿ì½º ÇÈÅ·À» ¼öÇàÇÑ´Ù.
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½é¿¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½º ï¿½ï¿½Å·ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	Object* PickObjectPointedByCursor(int xClient, int yClient, Camera* pCamera);
 	SkyBox* m_pSkyBox = NULL;
 
@@ -132,19 +138,20 @@ public:
 	CB_SCREEN_INFO* m_pMappedScreenOptions = NULL;
 	ID3D12Resource* m_pScreenOptions = NULL;
 
+	void Sound_Debuff(float time);
 protected:
 
 	int m_nShaders = 0;
 	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
 
-	//¾ÀÀÇ Á¶¸í
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	LIGHTS* m_pLights = NULL;
-	//Á¶¸íÀ» ³ªÅ¸³»´Â ¸®¼Ò½º¿Í ¸®¼Ò½º¿¡ ´ëÇÑ Æ÷ÀÎÅÍÀÌ´Ù.
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì´ï¿½.
 	ID3D12Resource* m_pd3dcbLights = NULL;
 	LIGHTS* m_pcbMappedLights = NULL;
-	//¾ÀÀÇ °´Ã¼µé¿¡ Àû¿ëµÇ´Â ÀçÁú
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½é¿¡ ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½
 	MATERIALS* m_pMaterials = NULL;
-	//ÀçÁúÀ» ³ªÅ¸³»´Â ¸®¼Ò½º¿Í ¸®¼Ò½º¿¡ ´ëÇÑ Æ÷ÀÎÅÍÀÌ´Ù.
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì´ï¿½.
 	ID3D12Resource* m_pd3dcbMaterials = NULL;
 	MATERIAL* m_pcbMappedMaterials = NULL;
 	// Screen option
@@ -159,7 +166,7 @@ protected:
 	CubeMesh* m_pBoundMesh = NULL;
 
 	Object* TempObject = NULL;
-	HeightMapTerrain* m_pTerrain = NULL;
+	
 
 	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorStartHandle;
 	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorStartHandle;

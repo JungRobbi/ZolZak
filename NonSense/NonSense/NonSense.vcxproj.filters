@@ -222,6 +222,15 @@
     <ClInclude Include="Vivox.h">
       <Filter>소스 파일\Vivox</Filter>
     </ClInclude>
+    <ClInclude Include="BossState.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="BossFSMComponent.h">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="BossAttackComponent.h">
+      <Filter>소스 파일\Components\AttackComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -337,6 +346,15 @@
     </ClCompile>
     <ClCompile Include="Vivox.cpp">
       <Filter>소스 파일\Vivox</Filter>
+    </ClCompile>
+    <ClCompile Include="BossState.cpp">
+      <Filter>소스 파일\FSM</Filter>
+    </ClCompile>
+    <ClCompile Include="BossFSMComponent.cpp">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="BossAttackComponent.cpp">
+      <Filter>소스 파일\Components\AttackComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

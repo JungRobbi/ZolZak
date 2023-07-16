@@ -62,6 +62,13 @@ public:
 	virtual ~Player_State_UI() {};
 };
 
+class Warrior_Player_State_UI : public Player_State_UI
+{
+public:
+	Warrior_Player_State_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Warrior_Player_State_UI() {};
+};
+
 class Player_HP_UI : public UI
 {
 public:
@@ -260,4 +267,36 @@ public:
 	virtual void OnClick();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	virtual ~Mouse_Left_UI() {};
+};
+
+class Mage_UI : public UI
+{
+public:
+	Mage_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
+	virtual ~Mage_UI() {};
+};
+
+class Warrior_UI : public UI
+{
+public:
+	Warrior_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
+	virtual ~Warrior_UI() {};
+};
+
+class Leave_Room_UI : public UI
+{
+public:
+	Leave_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
+	virtual ~Leave_Room_UI() {};
+};
+
+class Ready_UI : public UI
+{
+public:
+	Ready_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void OnClick();
+	virtual ~Ready_UI() {};
 };

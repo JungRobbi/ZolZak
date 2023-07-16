@@ -116,6 +116,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions);FMOD_STATIC=1</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -133,6 +134,7 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions);FMOD_STATIC=1</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader />
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -147,6 +149,9 @@
     <ClInclude Include="..\AnimationType.h" />
     <ClInclude Include="..\Globals.h" />
     <ClInclude Include="AttackComponent.h" />
+    <ClInclude Include="BossAttackComponent.h" />
+    <ClInclude Include="BossFSMComponent.h" />
+    <ClInclude Include="BossState.h" />
     <ClInclude Include="BoxCollideComponent.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Characters.h" />
@@ -170,6 +175,7 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerMovementComponent.h" />
+    <ClInclude Include="Room_GameScene.h" />
     <ClInclude Include="RotateComponent.h" />
     <ClInclude Include="RushTypeFSMComponent.h" />
     <ClInclude Include="RushTypeState.h" />
@@ -203,6 +209,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AttackComponent.cpp" />
+    <ClCompile Include="BossAttackComponent.cpp" />
+    <ClCompile Include="BossFSMComponent.cpp" />
+    <ClCompile Include="BossState.cpp" />
     <ClCompile Include="BoxCollideComponent.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Characters.cpp" />
@@ -226,6 +235,7 @@
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerMovementComponent.cpp" />
+    <ClCompile Include="Room_GameScene.cpp" />
     <ClCompile Include="RotateComponent.cpp" />
     <ClCompile Include="RushTypeFSMComponent.cpp" />
     <ClCompile Include="RushTypeState.cpp" />

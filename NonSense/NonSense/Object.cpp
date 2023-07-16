@@ -409,7 +409,7 @@ AnimationController::AnimationController(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_ppd3dcbSkinningBoneTransforms = new ID3D12Resource * [m_nSkinnedMeshes];
 	m_ppcbxmf4x4MappedSkinningBoneTransforms = new XMFLOAT4X4 * [m_nSkinnedMeshes];
 
-	UINT ncbElementBytes = (((sizeof(XMFLOAT4X4) * SKINNED_ANIMATION_BONES) + 255) & ~255); //256ÀÇ ¹è¼ö
+	UINT ncbElementBytes = (((sizeof(XMFLOAT4X4) * SKINNED_ANIMATION_BONES) + 255) & ~255); //256ï¿½ï¿½ ï¿½ï¿½ï¿½
 	for (int i = 0; i < m_nSkinnedMeshes; i++)
 	{
 		m_ppd3dcbSkinningBoneTransforms[i] = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
@@ -496,9 +496,27 @@ float AnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, f
 		break;
 	}
 
+	TriggerEvent(fTrackPosition);
+
 	return(m_fPosition);
 }
 
+void AnimationTrack::AddAnimationEvent(std::string EventName, int nAnimationSet, float Position, std::function<void()>Callback)
+{
+	m_AnimationEvents.emplace_back(AnimationEvent{ EventName, nAnimationSet, Position, Callback });
+}
+void AnimationTrack::TriggerEvent(float fTrackPosition)
+{
+	for (auto ev : m_AnimationEvents)
+	{
+		if (ev.AnimationSet == m_nAnimationSet) {							// ï¿½Ìºï¿½Æ®ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼Ç°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
+			if (ev.Position <= m_fPosition && ev.Position > fTrackPosition)	// ï¿½Ìºï¿½Æ® ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ ï¿½Û°Å³ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ Å¬ ï¿½ï¿½
+			{
+				ev.Callback();
+			}
+		}
+	}
+}
 void AnimationController::SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet)
 {
 	if (m_pAnimationTracks)
@@ -557,6 +575,7 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++) m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = Matrix4x4::Zero();
 
 		for (int k = 0; k < m_nAnimationTracks; k++) {
+			
 			if (m_pAnimationTracks[k].m_bEnable)
 			{
 				bool IsAnimationEnd = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet]->SetPosition(fTimeElapsed * m_pAnimationTracks[k].m_fSpeed);
@@ -585,7 +604,7 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 
 		}
 
-		if (!m_pAnimationTracks[1].m_bEnable) {										//ÀÏ¹Ý Àç»ý
+		if(!m_pAnimationTracks[1].m_bEnable) {										//ï¿½Ï¹ï¿½ ï¿½ï¿½ï¿½
 			for (int k = 0; k < m_nAnimationTracks; k++)
 			{
 				if (m_pAnimationTracks[k].m_bEnable)
@@ -602,7 +621,7 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 				}
 			}
 		}
-		else if(m_pAnimationTracks[0].m_bEnable)															//ºí·»µù
+		else if(m_pAnimationTracks[0].m_bEnable)															//ï¿½ï¿½ï¿½ï¿½ï¿½
 		{
 			m_BlendingWeight += fTimeElapsed*3.5f;
 			m_BlendingWeight = max(0.0f, min(1.0f, m_BlendingWeight));
@@ -642,6 +661,22 @@ void AnimationController::AdvanceTime(float fTimeElapsed, Object* pRootGameObjec
 		}
 		pRootGameObject->UpdateTransform(NULL);
 	}
+}
+
+void AnimationController::AddAnimationEvent(std::string EventName, int nAnimationSet, float Position, std::function<void()>Callback)
+{
+	if (m_pAnimationSets->m_pAnimationSets[nAnimationSet]->m_Length < Position || Position < 0)
+	{
+		std::cerr << "AddAnimationEventError - " << EventName << "Animation Length Over. " << std::endl;
+		return;
+	}
+	else if (m_pAnimationSets->m_nAnimationSets <= nAnimationSet || nAnimationSet < 0)
+	{
+		std::cerr << "AddAnimationEventError - " << EventName << "No Animation Exist. " << std::endl;
+		return;
+	}
+	m_pAnimationTracks[0].AddAnimationEvent(EventName, nAnimationSet, Position, Callback);
+	m_pAnimationTracks[1].AddAnimationEvent(EventName, nAnimationSet, Position, Callback);
 }
 
 
@@ -917,13 +952,22 @@ void Object::UpdateTransform(XMFLOAT4X4* pxmf4x4Parent)
 
 void Object::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	//UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
+	//UINT ncbGameObjectBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256ï¿½ï¿½ ï¿½ï¿½ï¿½
 	//m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbGameObjectBytes * m_nObjects, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	//m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
 }
 
 void Object::ReleaseShaderVariables()
 {
+	if (m_pMaterial)
+		m_pMaterial->m_pShader->ReleaseShaderVariables();
+	if (m_ppMaterials)
+	{
+		for (int i = 0; i < m_nMaterials; ++i)
+		{
+			m_ppMaterials[i]->m_pShader->ReleaseShaderVariables();
+		}
+	}
 }
 
 void Object::FindAndSetSkinnedMesh(SkinnedMesh** ppSkinnedMeshes, int* pnSkinnedMesh)
@@ -999,7 +1043,7 @@ void Object::SetDo_Render(bool b)
 
 }
 
-// -------------- ¸ðµ¨ & ¾Ö´Ï¸ÞÀÌ¼Ç ·Îµå --------------
+// -------------- ï¿½ï¿½ & ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½Îµï¿½ --------------
 
 int ReadIntegerFromFile(FILE* OpenedFile)
 {
@@ -1049,7 +1093,7 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 			{
 				BYTE Length = ::ReadStringFromFile(OpenedFile, pstrToken);
 			
-				if (pstrToken[0] == '@') // MeshÀÌ¸§°ú ¸Â´Â Mesh°¡ ÀÌ¹Ì ·Îµå°¡ µÇ¾ú´Ù¸é true -> ÀÖ´Â ¸ðµ¨ ¾²¸é µÊ
+				if (pstrToken[0] == '@') // Meshï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½Â´ï¿½ Meshï¿½ï¿½ ï¿½Ì¹ï¿½ ï¿½Îµå°¡ ï¿½Ç¾ï¿½ï¿½Ù¸ï¿½ true -> ï¿½Ö´ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 				{
 					std::string str(pstrToken + 1);
 					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMap[str]);
@@ -1065,7 +1109,7 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 
 					LoadedModelInfo* pLoadedModel = LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pstrFilePath, NULL);
 
-					ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ÀÐÀº ¸ðµ¨Àº map¿¡ ÀúÀå
+					ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ mapï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel);
 				}
 			}
@@ -1116,7 +1160,7 @@ void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 			{
 				BYTE Length = ::ReadStringFromFile(OpenedFile, pstrToken);
 
-				if (pstrToken[0] == '@') // MeshÀÌ¸§°ú ¸Â´Â Mesh°¡ ÀÌ¹Ì ·Îµå°¡ µÇ¾ú´Ù¸é true -> ÀÖ´Â ¸ðµ¨ ¾²¸é µÊ
+				if (pstrToken[0] == '@') // Meshï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½Â´ï¿½ Meshï¿½ï¿½ ï¿½Ì¹ï¿½ ï¿½Îµå°¡ ï¿½Ç¾ï¿½ï¿½Ù¸ï¿½ true -> ï¿½Ö´ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 				{
 					std::string str(pstrToken + 1);
 					pObject = new TestModelBlendObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMap[str], pBlendShader);
@@ -1133,7 +1177,7 @@ void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 					LoadedModelInfo* pLoadedModel = LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pstrFilePath, NULL);
 
-					ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ÀÐÀº ¸ðµ¨Àº map¿¡ ÀúÀå
+					ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ mapï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 
 					pObject = new TestModelBlendObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel, pBlendShader);
@@ -1447,7 +1491,7 @@ UINT Object::GetMeshType()
 
 void Object::ReleaseUploadBuffers()
 {
-	//Á¤Á¡ ¹öÆÛ¸¦ À§ÇÑ ¾÷·Îµå ¹öÆÛ¸¦ ¼Ò¸ê½ÃÅ²´Ù.
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Îµï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½Ò¸ï¿½ï¿½Å²ï¿½ï¿½.
 	if (m_pMesh) m_pMesh->ReleaseUploadBuffers();
 }
 void Object::Rotate(XMFLOAT3* pxmf3Axis, float fAngle)
@@ -1539,11 +1583,11 @@ void Object::GenerateRayForPicking(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& xmf4x
 	XMFLOAT4X4 xmf4x4WorldView = Matrix4x4::Multiply(m_xmf4x4World, xmf4x4View);
 	XMFLOAT4X4 xmf4x4Inverse = Matrix4x4::Inverse(xmf4x4WorldView);
 	XMFLOAT3 xmf3CameraOrigin(0.0f, 0.0f, 0.0f);
-	//Ä«¸Þ¶ó ÁÂÇ¥°èÀÇ ¿øÁ¡À» ¸ðµ¨ ÁÂÇ¥°è·Î º¯È¯ÇÑ´Ù.
+	//Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½Ñ´ï¿½.
 	*pxmf3PickRayOrigin = Vector3::TransformCoord(xmf3CameraOrigin, xmf4x4Inverse);
-	//Ä«¸Þ¶ó ÁÂÇ¥°èÀÇ Á¡(¸¶¿ì½º ÁÂÇ¥¸¦ ¿ªº¯È¯ÇÏ¿© ±¸ÇÑ Á¡)À» ¸ðµ¨ ÁÂÇ¥°è·Î º¯È¯ÇÑ´Ù.
+	//Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½(ï¿½ï¿½ï¿½ì½º ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È¯ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½)ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½Ñ´ï¿½.
 	*pxmf3PickRayDirection = Vector3::TransformCoord(xmf3PickPosition, xmf4x4Inverse);
-	//±¤¼±ÀÇ ¹æÇâ º¤ÅÍ¸¦ ±¸ÇÑ´Ù.
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½Ñ´ï¿½.
 	*pxmf3PickRayDirection = Vector3::Normalize(Vector3::Subtract(*pxmf3PickRayDirection, *pxmf3PickRayOrigin));
 }
 
@@ -1553,9 +1597,9 @@ int Object::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPosition, XMFLOAT4X4& 
 	if (m_pMesh)
 	{
 		XMFLOAT3 xmf3PickRayOrigin, xmf3PickRayDirection;
-		//¸ðµ¨ ÁÂÇ¥°èÀÇ ±¤¼±À» »ý¼ºÇÑ´Ù.
+		//ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 		GenerateRayForPicking(xmf3PickPosition, xmf4x4View, &xmf3PickRayOrigin, &xmf3PickRayDirection);
-		//¸ðµ¨ ÁÂÇ¥°èÀÇ ±¤¼±°ú ¸Þ½¬ÀÇ ±³Â÷¸¦ °Ë»çÇÑ´Ù.
+		//ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½ï¿½Ñ´ï¿½.
 		nIntersected = m_pMesh->CheckRayIntersection(xmf3PickRayOrigin, xmf3PickRayDirection, pfHitDistance);
 	}
 	return(nIntersected);
@@ -2229,12 +2273,12 @@ Explosion::Explosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 
 void Explosion::OnPrepareRender()
 {
-	GetComponent<SphereCollideComponent>()->Radius += 0.035;
+	GetComponent<SphereCollideComponent>()->Radius += 0.05;
 	for (auto& o : GameScene::MainScene->MonsterObjects)
 	{
-		if (o->GetComponent<BoxCollideComponent>())
+		if (o->GetComponent<SphereCollideComponent>())
 		{
-			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
+			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
 				if (!o->MageDamage)
 				{
@@ -2244,7 +2288,7 @@ void Explosion::OnPrepareRender()
 			}
 		}
 	}
-	if (GetComponent<SphereCollideComponent>()->Radius >= 1.5)
+	if (GetComponent<SphereCollideComponent>()->Radius >= 2.5)
 	{
 		GetComponent<SphereCollideComponent>()->Radius = 0;
 		Active = false;
