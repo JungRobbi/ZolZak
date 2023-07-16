@@ -103,9 +103,9 @@ public:
 	GameScene();
 	virtual ~GameScene();
 	std::list<Object*> GetObjects() { return gameObjects; }
-	//���� ��� ����� ������ ����
+	//���� ���?�����?������ ����
 	void BuildLightsAndMaterials();
-	//���� ��� ����� ������ ���� ���ҽ��� �����ϰ� ����
+	//���� ���?�����?������ ���� ���ҽ��� �����ϰ� ����
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
@@ -126,7 +126,7 @@ public:
 	//�׷��� ��Ʈ �ñ׳��ĸ� �����Ѵ�.
 	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
 	ID3D12RootSignature* GetGraphicsRootSignature();
-	//���� ��� ���� ��ü�鿡 ���� ���콺 ��ŷ�� �����Ѵ�.
+	//���� ���?���� ��ü�鿡 ���� ���콺 ��ŷ�� �����Ѵ�.
 	Object* PickObjectPointedByCursor(int xClient, int yClient, Camera* pCamera);
 	SkyBox* m_pSkyBox = NULL;
 
@@ -145,13 +145,9 @@ protected:
 
 	int m_nShaders = 0;
 
-	//씬의 조명
-	//조명을 나타내는 리소스와 리소스에 대한 포인터이다.
 	ID3D12Resource* m_pd3dcbLights = NULL;
 	LIGHTS* m_pcbMappedLights = NULL;
-	//���� ��ü�鿡 ����Ǵ� ����
 	MATERIALS* m_pMaterials = NULL;
-	//������ ��Ÿ���� ���ҽ��� ���ҽ��� ���� �������̴�.
 	ID3D12Resource* m_pd3dcbMaterials = NULL;
 	MATERIAL* m_pcbMappedMaterials = NULL;
 	// Screen option
