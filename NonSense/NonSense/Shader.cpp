@@ -552,7 +552,7 @@ void DebugShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCa
 {
 	Shader::Render(pd3dCommandList, pCamera);
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	pd3dCommandList->DrawInstanced(24, 1, 0, 0);
+	pd3dCommandList->DrawInstanced(30, 1, 0, 0);
 }
 
 StandardShader::StandardShader()

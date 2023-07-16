@@ -139,10 +139,10 @@ public:
 	ID3D12Resource* m_pScreenOptions = NULL;
 
 	void Sound_Debuff(float time);
+	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
 protected:
 
 	int m_nShaders = 0;
-	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
 
 	//���� ����
 	LIGHTS* m_pLights = NULL;

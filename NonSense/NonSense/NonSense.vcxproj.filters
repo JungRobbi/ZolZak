@@ -231,6 +231,12 @@
     <ClInclude Include="BossAttackComponent.h">
       <Filter>소스 파일\Components\AttackComponent</Filter>
     </ClInclude>
+    <ClInclude Include="Room_GameScene.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowMap.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -355,6 +361,12 @@
     </ClCompile>
     <ClCompile Include="BossAttackComponent.cpp">
       <Filter>소스 파일\Components\AttackComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Room_GameScene.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMap.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

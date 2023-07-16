@@ -182,6 +182,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="NonSense.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="Stage_GameScene.h" />
     <ClInclude Include="SphereCollideComponent.h" />
@@ -240,6 +241,7 @@
     <ClCompile Include="RushTypeFSMComponent.cpp" />
     <ClCompile Include="RushTypeState.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Stage_GameScene.cpp" />
     <ClCompile Include="SphereCollideComponent.cpp" />

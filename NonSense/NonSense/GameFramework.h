@@ -10,6 +10,7 @@
 #include "NetworkMGR.h"
 #include "UILayer.h"
 #include "Vivox.h"
+#include "ShadowMap.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
@@ -96,6 +97,7 @@ public:
 	void CreateRtvAndDsvDescriptorHeaps();
 	void CreateDirect3DDevice();
 	void CreateCommandQueueAndList();
+	void CreateShadowMap();
 	void MoveToNextFrame();
 
 	void CreateRenderTargetViews();
@@ -124,7 +126,9 @@ public:
 
 	friend NetworkMGR;
 
+	ShadowMap* m_ShadowMap = NULL;
 	RECT WindowPos;
 	POINT CenterOfWindow;
+	ID3D12DescriptorHeap* m_ShaodwSRVDescriptorHeap = NULL;
 };
 
