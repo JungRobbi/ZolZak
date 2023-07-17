@@ -375,15 +375,6 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	fireball = new FireBall(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	if (NetworkMGR::id != id) {
-		printf("다른 ID");
-		//m_pUI->SetMyPos(0, 0, 1, 1);
-	}
-	else
-	{
-		printf("내 ID");
-	}
-
 	m_pHP_UI->SetParentUI(m_pUI);
 	m_pHP_Dec_UI->SetParentUI(m_pUI);
 
@@ -566,15 +557,6 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pUI = new Warrior_Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	fireball = new FireBall(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
-	if (NetworkMGR::id != id) {
-		printf("다른 ID");
-		//m_pUI->SetMyPos(0, 0, 1, 1);
-	}
-	else
-	{
-		printf("내 ID");
-	}
 
 	m_pHP_UI->SetParentUI(m_pUI);
 	m_pHP_Dec_UI->SetParentUI(m_pUI);
