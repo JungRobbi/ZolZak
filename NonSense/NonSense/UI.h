@@ -300,3 +300,10 @@ public:
 	virtual void OnClick();
 	virtual ~Ready_UI() {};
 };
+
+class Room_Back_UI : public UI
+{
+public:
+	Room_Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Room_Back_UI() {};
+};

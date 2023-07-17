@@ -25,6 +25,7 @@ public:
 
 	static unsigned int id;
 	static string name;
+	static bool is_mage;
 
 	static bool b_isNet; // 서버 연결 여부
 	static bool b_isLogin; // 로그인 완료 여부

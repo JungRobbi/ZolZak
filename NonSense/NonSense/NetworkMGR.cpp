@@ -26,6 +26,7 @@ shared_ptr<Socket> NetworkMGR::tcpSocket;
 
 unsigned int	NetworkMGR::id{};
 string			NetworkMGR::name{};
+bool			NetworkMGR::is_mage = true;
 bool			NetworkMGR::b_isNet{true};
 bool			NetworkMGR::b_isLogin{ false };
 bool			NetworkMGR::b_isLoginProg{ false };

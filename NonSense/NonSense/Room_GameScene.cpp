@@ -35,6 +35,7 @@ void Room_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dCommandList = pd3dCommandList;
 
+	Room_Back_UI* Rm_oom_Back_UI = new Room_Back_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Mage_UI* m_Mage_UI = new Mage_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Warrior_UI* m_Warrior_UI = new Warrior_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Ready_UI* m_Ready_UI = new Ready_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
