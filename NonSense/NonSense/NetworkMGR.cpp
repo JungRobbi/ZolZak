@@ -172,7 +172,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		cout << "로그인 정보 수신!" << endl;
 
-		GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
+		GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
 
 		break;
 	}
