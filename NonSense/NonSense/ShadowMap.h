@@ -27,6 +27,7 @@ public:
 
 	void OnResize(UINT newWidth, UINT newHeight);
 
+
 private:
 	void BuildDescriptors();
 	void BuildResource();

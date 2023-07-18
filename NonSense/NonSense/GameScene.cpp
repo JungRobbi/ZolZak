@@ -341,7 +341,7 @@ ID3D12RootSignature* GameScene::GetGraphicsRootSignature()
 
 ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[13];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[14];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -421,9 +421,15 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dDescriptorRanges[12].RegisterSpace = 0;
 	pd3dDescriptorRanges[12].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	pd3dDescriptorRanges[13].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[13].NumDescriptors = 1;
+	pd3dDescriptorRanges[13].BaseShaderRegister = 26; //t26 Shadow Map
+	pd3dDescriptorRanges[13].RegisterSpace = 0;
+	pd3dDescriptorRanges[13].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
-	D3D12_ROOT_PARAMETER pd3dRootParameters[23];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[24];
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 0; //Player
 	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
@@ -542,6 +548,11 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[22].Descriptor.ShaderRegister = 9; //Framework Infor
 	pd3dRootParameters[22].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[22].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[23].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[23].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[23].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[13]; //Shadow Map
+	pd3dRootParameters[23].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -754,6 +765,7 @@ void GameScene::AnimateObjects(float fTimeElapsed)
 	}
 	for (auto& object : MonsterObjects)
 	{
+
 	}
 }
 void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)

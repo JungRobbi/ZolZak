@@ -1,4 +1,5 @@
 #include "ShadowMap.h"
+#include "Camera.h"
 
 ShadowMap::ShadowMap(ID3D12Device* device, UINT width, UINT height)
 {
@@ -9,8 +10,8 @@ ShadowMap::ShadowMap(ID3D12Device* device, UINT width, UINT height)
 
 	mViewport = { 0.0f, 0.0f, (float)width, (float)height, 0.0f, 1.0f };
 	mScissorRect = { 0, 0, (int)width, (int)height };
-
 	BuildResource();
+
 }
 
 UINT ShadowMap::Width()const

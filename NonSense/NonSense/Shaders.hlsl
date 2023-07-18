@@ -69,6 +69,7 @@ cbuffer cbFrameworkInfo : register(b9)
 
 Texture2DArray gtxtTextureArray : register(t0);
 Texture2D RenderInfor[4] : register(t1); //Position, Normal+ObjectID, Texture, Depth
+Texture2D gtxShadowMap : register(t26); // Shadnow Map
 SamplerState gssDefaultSamplerState : register(s0);
 
 Texture2D gtxtUITexture : register(t24);
@@ -386,7 +387,7 @@ float4 PSDebug(VS_DEBUG_OUTPUT input) : SV_Target
 	float4 cColor;
 	if (input.num != 3) cColor = RenderInfor[input.num].Sample(gssDefaultSamplerState, input.uv);
 	else cColor = RenderInfor[3].Sample(gssDefaultSamplerState, input.uv).r;
-	if (input.num == 4) cColor = RenderInfor[2].Sample(gssDefaultSamplerState, input.uv);
+	if (input.num == 4) cColor = gtxShadowMap.Sample(gssDefaultSamplerState, input.uv).r;
 	return(cColor);
 }
 

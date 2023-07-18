@@ -179,6 +179,7 @@ void Shader::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstant
 
 	m_CBVCPUDescriptorStartHandle = m_CBVSRVDescriptorHeap->GetCPUDescriptorHandleForHeapStart(); // Constant Buffer View 와 Shader Resource View 서술자 힙의 CPU 시작주소
 	m_CBVGPUDescriptorStartHandle = m_CBVSRVDescriptorHeap->GetGPUDescriptorHandleForHeapStart(); // Constant Buffer View 와 Shader Resource View 서술자 힙의 GPU 시작주소
+
 	m_SRVCPUDescriptorStartHandle.ptr = m_CBVCPUDescriptorStartHandle.ptr + (::CBVSRVDescriptorSize * nConstantBufferViews);
 	m_SRVGPUDescriptorStartHandle.ptr = m_CBVGPUDescriptorStartHandle.ptr + (::CBVSRVDescriptorSize * nConstantBufferViews); // Shader Resource View 는 Constant Buffer View 의 뒤에있다.
 
@@ -451,7 +452,7 @@ void ScreenShader::CreateResourcesAndViews(ID3D12Device* pd3dDevice, UINT nResou
 		m_pTexture->CreateTexture(pd3dDevice, nWidth, nHeight, pdxgiFormats[i], D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, &d3dClearValue, RESOURCE_TEXTURE2D, i);
 	}
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, nShaderResources);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, nShaderResources + 1);
 	CreateShaderVariables(pd3dDevice, NULL);
 	CreateShaderResourceViews(pd3dDevice, m_pTexture, 0, 6);
 

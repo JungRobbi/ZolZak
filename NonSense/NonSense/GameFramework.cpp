@@ -64,9 +64,63 @@ bool GameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	
 	NetworkMGR::start();
 	Sound::InitFmodSystem();			// FMOD System �ʱ�ȭ
+	CreateLight();
 	BuildObjects();						// Object ����
 	CreateShadowMap();
 	return(true);
+}
+
+void GameFramework::CreateLight()
+{
+	UINT ncbElementBytes = ((sizeof(VS_CB_CAMERA_INFO) + 255) & ~255); //256의 배수
+	m_pShadowCamera = ::CreateBufferResource(m_pDevice, m_pCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pShadowCamera->Map(0, NULL, (void**)&m_pShadowMappedCamera);
+
+	XMFLOAT3 pos = XMFLOAT3(0.0f, 400.0f, -300.0f);
+	XMFLOAT3 dir = XMFLOAT3(0.0f, -1.0f, 1.0f);
+	float radius = 1000;
+	XMFLOAT3 targetpos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	//XMFLOAT4X4 proj = Matrix4x4::PerspectiveFovLH(XMConvertToRadians(60.0f), 1, 0.1f, 1000.0f);
+	
+	// Only the first "main" light casts a shadow.
+	XMVECTOR lightDir = XMLoadFloat3(&dir);
+	XMVECTOR lightPos = -2.0f * radius * lightDir;
+	XMVECTOR targetPos = XMLoadFloat3(&targetpos);
+	XMVECTOR lightUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, targetPos, lightUp);
+
+	XMStoreFloat3(&pos, lightPos);
+
+	// Transform bounding sphere to light space.
+	XMFLOAT3 sphereCenterLS;
+	XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPos, lightView));
+
+	// Ortho frustum in light space encloses scene.
+	float l = sphereCenterLS.x - radius;
+	float b = sphereCenterLS.y - radius;
+	float n = sphereCenterLS.z - radius;
+	float r = sphereCenterLS.x + radius;
+	float t = sphereCenterLS.y + radius;
+	float f = sphereCenterLS.z + radius;
+
+	float mLightNearZ = n;
+	float mLightFarZ = f;
+
+	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
+
+	XMFLOAT4X4 proj;
+	XMStoreFloat4x4(&proj, lightProj);
+	XMFLOAT4X4 view = Matrix4x4::LookAtLH(XMFLOAT3(0.0f, 400.0f, -300.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f));
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&view)));
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4InverseView, XMMatrixTranspose(XMMatrixInverse(NULL, XMLoadFloat4x4(&view))));
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4Projection, XMMatrixTranspose(XMLoadFloat4x4(&proj)));
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4InverseProjection, XMMatrixTranspose(XMMatrixInverse(NULL, XMLoadFloat4x4(&proj))));
+
+	::memcpy(&m_pShadowMappedCamera->m_xmf3Position, &pos, sizeof(XMFLOAT3));
+	::memcpy(&m_pShadowMappedCamera->m_xmf3Direction, &dir, sizeof(XMFLOAT3));
+
+	//D3D12_GPU_VIRTUAL_ADDRESS d3dGPUVirtualAddress = m_pShadowCamera->GetGPUVirtualAddress();
+	//m_pCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_CAMERA, d3dGPUVirtualAddress);
 }
 
 void GameFramework::OnDestroy()
@@ -245,18 +299,9 @@ void GameFramework::CreateShadowMap()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_DSVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dDsvCPUDescriptorHandle.ptr += (::DSVDescriptorSize);
 
+	/// 
 
-	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
-	d3dDescriptorHeapDesc.NumDescriptors = 1; //CBVs + SRVs 
-	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	d3dDescriptorHeapDesc.NodeMask = 0;
-	HRESULT hResult = m_pDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_ShaodwSRVDescriptorHeap);
-
-	auto m_SRVCPUHandle = m_ShaodwSRVDescriptorHeap->GetCPUDescriptorHandleForHeapStart(); // Constant Buffer View 와 Shader Resource View 서술자 힙의 CPU 시작주소
-	auto m_SRVGPUHandle = m_ShaodwSRVDescriptorHeap->GetGPUDescriptorHandleForHeapStart(); // Constant Buffer View 와 Shader Resource View 서술자 힙의 GPU 시작주소
-
-	m_ShadowMap->BuildDescriptors(m_SRVCPUHandle, m_SRVGPUHandle, d3dDsvCPUDescriptorHandle);
+	m_ShadowMap->BuildDescriptors(m_pScreen->m_SRVCPUDescriptorNextHandle, m_pScreen->m_SRVGPUDescriptorNextHandle, d3dDsvCPUDescriptorHandle);
 
 	{
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc{};
@@ -334,6 +379,9 @@ void GameFramework::CreateShadowMap()
 
 		if (PsoDesc.InputLayout.pInputElementDescs) delete[] PsoDesc.InputLayout.pInputElementDescs;
 	}
+
+	/// 
+
 }
 
 void GameFramework::CreateRtvAndDsvDescriptorHeaps()
@@ -419,7 +467,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Room_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(LOGIN_SCENE);
+	ChangeScene(GAME_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -1044,6 +1092,51 @@ void GameFramework::FrameAdvance()
 	AnimateObjects();
 	GameScene::MainScene->update();
 
+	m_pPlayer->Update(Timer::GetTimeElapsed());
+	for (auto& p : m_OtherPlayers) {
+		if (p->GetUsed()) {
+			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());
+		}
+	}
+
+	/////////////// Shadow Map Render ////////////////////////
+	GameScene::MainScene->OnPrepareRender(m_pCommandList, m_pCamera);
+	m_pCommandList->RSSetViewports(1, &m_ShadowMap->Viewport());
+	m_pCommandList->RSSetScissorRects(1, &m_ShadowMap->ScissorRect());
+
+	ResourceTransition(m_pCommandList, m_ShadowMap->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+	m_pCommandList->ClearDepthStencilView(m_ShadowMap->Dsv(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	m_pCommandList->OMSetRenderTargets(0, nullptr, false, &m_ShadowMap->Dsv());
+
+	//UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
+	//auto passCB = mCurrFrameResource->PassCB->Resource();
+	//D3D12_GPU_VIRTUAL_ADDRESS passCBAddress = passCB->GetGPUVirtualAddress() + 1 * passCBByteSize;
+	//m_pCommandList->SetGraphicsRootConstantBufferView(1, passCBAddress);
+
+	m_pCommandList->SetPipelineState(m_pPipelineState);
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGPUVirtualAddress = m_pShadowCamera->GetGPUVirtualAddress();
+	m_pCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_CAMERA, d3dGPUVirtualAddress);
+
+	//GameScene::MainScene->Render(m_pCommandList, m_pCamera);
+	m_pCommandList->SetDescriptorHeaps(1, &GameScene::MainScene->m_pd3dCbvSrvDescriptorHeap);
+	for (auto& object : GameScene::MainScene->MonsterObjects)
+	{
+		//object->Animate(elapseTime);
+		object->UpdateTransform(NULL);
+		object->Render(m_pCommandList, m_pCamera);
+	}
+	for (auto& object : GameScene::MainScene->gameObjects)
+	{
+		//object->Animate(elapseTime);
+		object->UpdateTransform(NULL);
+		object->Render(m_pCommandList, m_pCamera);
+	}
+
+	ResourceTransition(m_pCommandList, m_ShadowMap->Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+	//GameScene::MainScene->m_pLights->m_pLights[0]
+	//////////////////////////////////////////////////////////
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
@@ -1057,11 +1150,9 @@ void GameFramework::FrameAdvance()
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 
 	// �÷��̾�
-	m_pPlayer->Update(Timer::GetTimeElapsed());
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	for (auto& p : m_OtherPlayers) {
 		if (p->GetUsed()) {
-			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());
 			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
 		}
 	}
@@ -1087,8 +1178,11 @@ void GameFramework::FrameAdvance()
 	if (DebugMode)
 	{
 		m_pScreen->SetDescriptorHeap(m_pCommandList);
+		m_pCommandList->SetGraphicsRootDescriptorTable(23, m_ShadowMap->Srv());
+
 		m_pDebug->Render(m_pCommandList, m_pCamera);
 	}
+
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);

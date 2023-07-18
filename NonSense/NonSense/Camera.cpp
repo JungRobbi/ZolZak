@@ -136,6 +136,7 @@ void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGPUVirtualAddress = m_pd3dcbCamera->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_CAMERA, d3dGPUVirtualAddress);
 }
+
 void Camera::ReleaseShaderVariables()
 {
 }
