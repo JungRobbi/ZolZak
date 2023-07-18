@@ -142,7 +142,7 @@ void GameScene::update()
 
 	if (IsSoundDebuff)
 	{
-		if (SoundDebuffLeftTime < -10)
+		if (SoundDebuffLeftTime <= -10)
 		{
 
 		}
@@ -675,6 +675,15 @@ void GameScene::Sound_Debuff(float time)
 	}
 	SoundDebuffLeftTime = time;
 	IsSoundDebuff = true;
+}
+
+void GameScene::AddSound(Sound* s)
+{
+	if (IsSoundDebuff)
+	{
+		s->AddDsp();
+	}
+	Sounds.insert(Sounds.begin(), s);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE GameScene::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nRootParameter, bool bAutoIncrement)

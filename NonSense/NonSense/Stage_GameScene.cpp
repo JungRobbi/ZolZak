@@ -100,7 +100,7 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	Sound* s;
 	s = new Sound("Sound/TestMusic.mp3", true);
-	Sounds.insert(Sounds.begin(), s);
+	AddSound(s);
 	
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dCommandList = pd3dCommandList;

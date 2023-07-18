@@ -139,6 +139,7 @@ public:
 	ID3D12Resource* m_pScreenOptions = NULL;
 
 	void Sound_Debuff(float time);
+	void AddSound(Sound* s);
 protected:
 
 	int m_nShaders = 0;
