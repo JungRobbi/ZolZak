@@ -12,6 +12,10 @@
 #include "Lobby_GameScene.h"
 #include "Room_GameScene.h"
 #include "Stage_GameScene.h"
+#include "Boss_Stage_GameScene.h"
+#include "Hearing_Stage_GameScene.h"
+#include "Sight_Stage_GameScene.h"
+#include "Touch_Stage_GameScene.h"
 
 #include "resource.h"
 #include "Sound.h"
@@ -315,8 +319,10 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new Room_GameScene());
-	m_GameScenes.emplace_back(new Stage_GameScene());
-	
+	m_GameScenes.emplace_back(new Sight_Stage_GameScene());
+	m_GameScenes.emplace_back(new Hearing_Stage_GameScene());
+	m_GameScenes.emplace_back(new Touch_Stage_GameScene());
+	m_GameScenes.emplace_back(new Boss_Stage_GameScene());
 	ChangeScene(LOBBY_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
@@ -459,7 +465,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 					NetworkMGR::name = string{ p };
 					delete[] p;
 					if(!NetworkMGR::b_isNet) // 클라 모드일 때 
-						ChangeScene(GAME_SCENE);
+						ChangeScene(SIGHT_SCENE);
 					else if (!NetworkMGR::b_isLogin && !NetworkMGR::b_isLoginProg) { // 로그인 하지 않은 상태
 						NetworkMGR::b_isLoginProg = true; // 로그인 진행
 						CS_LOGIN_PACKET send_packet;
@@ -547,7 +553,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				break;
 			case 'f':	// 상호작용
 			case 'F':
-				if (scene_type == GAME_SCENE)
+				if (scene_type >= SIGHT_SCENE)
 				{
 					if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameScene::MainScene->StartNPC->GetComponent<SphereCollideComponent>()->GetBoundingObject()))	// Start NPC
 					{
@@ -610,7 +616,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				ChangeScene(1);
 				break;
 			case '9':
-				ChangeScene(GAME_SCENE);
+				ChangeScene(SIGHT_SCENE);
 				break;
 			case 't':
 			case 'T':
@@ -664,40 +670,24 @@ void GameFramework::ChangeScene(unsigned char num)
 
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 
-	//switch (GameSceneState)
-	//{
-	//case LOGIN_SCENE:
-	//	m_pVivoxSystem->LeaveChannel("Login");
-	//	break;
-	//case LOBBY_SCENE:
-	//	m_pVivoxSystem->LeaveChannel("Lobby");
-	//	break;
-	//case GAME_SCENE:
-	//	m_pVivoxSystem->LeaveChannel("Stage");
-	//	break;
-	//default:
-	//	break;
-	//}
-	//
 	switch (num)
 	{
 	case LOGIN_SCENE:
-		//m_pVivoxSystem->JoinChannel("Login");
 		if (m_pPlayer)
 		m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
 		break;
 	case LOBBY_SCENE:
-		//m_pVivoxSystem->JoinChannel("Lobby");
 		if(m_pPlayer)
 		m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
 		break;
 	case ROOM_SCENE:
-		//m_pVivoxSystem->JoinChannel("Stage");
 		if (m_pPlayer)
 			m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
 		break;
-	case GAME_SCENE:
-		//m_pVivoxSystem->JoinChannel("Stage");
+	case SIGHT_SCENE:
+	case HEARING_SCENE:
+	case TOUCH_SCENE:
+	case BOSS_SCENE:
 		if (m_pPlayer)
 		m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = false;
 		break;
@@ -719,7 +709,7 @@ void GameFramework::ChangeScene(unsigned char num)
 	}
 
 	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
-	if (num == GAME_SCENE) {
+	if (num >= SIGHT_SCENE) {
 		ChatMGR::SetInGame(m_nWndClientWidth, m_nWndClientHeight);
 	}
 	else if (num == LOGIN_SCENE) {
@@ -797,7 +787,7 @@ void GameFramework::ProcessInput()
 				RECT rect;
 				::GetCursorPos(&ptCursorPos);
 				::GetWindowRect(m_hWnd, &rect);
-				if (((scene_type != GAME_SCENE) || (scene_type == GAME_SCENE && OptionMode)) && (Timer::GetTotalTime() - LastClick > 0.2)) {
+				if (((scene_type < SIGHT_SCENE) || (scene_type >= SIGHT_SCENE && OptionMode)) && (Timer::GetTotalTime() - LastClick > 0.2)) {
 					float px = (ptCursorPos.x - rect.left - 10) / (float)FRAME_BUFFER_WIDTH;
 					float py = (ptCursorPos.y - rect.top - 30) / (float)FRAME_BUFFER_HEIGHT;
 
@@ -1033,7 +1023,7 @@ void GameFramework::FrameAdvance()
 
 void GameFramework::RenderHP()
 {
-	if (scene_type == GAME_SCENE) {
+	if (scene_type >= SIGHT_SCENE) {
 		//for (auto& p : m_OtherPlayers)
 		//{
 		//	p->m_pHP_Dec_UI->UpdateTransform(NULL);
