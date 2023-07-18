@@ -122,6 +122,14 @@ public:
 	void SaveSceneOBB();
 	VivoxSystem* GetVivoxSystem();
 
+	UINT GetSwapChainBufferIndex() { return m_nSwapChainBufferIndex; }
+	const UINT GetSwapChainBuffers() { return m_nSwapChainBuffers; }
+	ID3D12Device* GetDevice() { return m_pDevice; }
+	ID3D12CommandQueue* GetCommandQueue() { return m_pCommandQueue; }
+	ID3D12Resource** GetRenderTargetBuffers() { return m_ppRenderTargetBuffers; }
+	int GetWndClientWidth() { return m_nWndClientWidth; }
+	int GetWndClientHeight() { return m_nWndClientHeight; }
+
 	friend NetworkMGR;
 
 	RECT WindowPos;

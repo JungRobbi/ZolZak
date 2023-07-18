@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 
+#include "UI.h"
 #include "NetworkMGR.h"
 #include "../ImaysNet/PacketQueue.h"
 using namespace std;
@@ -84,6 +85,16 @@ void UILayer::InitializeDevice(ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3
     }
 }
 
+void UILayer::UIUpdateTextOutputs(UINT nIndex, WCHAR* pstrUIText, D2D1_RECT_F pd2dLayoutRect, IDWriteTextFormat* pdwFormat, ID2D1SolidColorBrush* pd2dTextBrush)
+{
+    ZeroMemory(m_pUITextBlocks[nIndex].m_pstrText, sizeof(m_pUITextBlocks[nIndex].m_pstrText));
+    if (pstrUIText) wcscpy_s(m_pUITextBlocks[nIndex].m_pstrText, 256, pstrUIText);
+    memcpy(&(m_pUITextBlocks[nIndex].m_d2dLayoutRect), &pd2dLayoutRect, sizeof(pd2dLayoutRect));
+    if (pdwFormat) m_pUITextBlocks[nIndex].m_pdwFormat = pdwFormat;
+    if (pd2dTextBrush) m_pUITextBlocks[nIndex].m_pd2dTextBrush = pd2dTextBrush;
+}
+
+
 ID2D1SolidColorBrush* UILayer::CreateBrush(D2D1::ColorF d2dColor)
 {
     ID2D1SolidColorBrush* pd2dDefaultTextBrush = NULL;
@@ -131,6 +142,13 @@ void UILayer::Render(UINT nFrame)
         m_pd2dDeviceContext->DrawText(textblock.m_pstrText, (UINT)wcslen(textblock.m_pstrText), textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
     }
 
+    for (auto& textblock : m_pUITextBlocks)
+    {
+        if (!textblock.second.m_pstrText[0])
+            continue;
+        m_pd2dDeviceContext->DrawText(textblock.second.m_pstrText, (UINT)wcslen(textblock.second.m_pstrText), textblock.second.m_pdwFormat, textblock.second.m_d2dLayoutRect, textblock.second.m_pd2dTextBrush);
+    }
+
     m_pd2dDeviceContext->EndDraw();
 
     m_pd3d11On12Device->ReleaseWrappedResources(ppResources, _countof(ppResources));
@@ -147,13 +165,19 @@ void UILayer::RenderSingle(UINT nFrame)
     m_pd2dDeviceContext->BeginDraw();
     if (m_pTextBlocks[0].m_pstrText[0])
         m_pd2dDeviceContext->DrawText(m_pTextBlocks[0].m_pstrText, (UINT)wcslen(m_pTextBlocks[0].m_pstrText), m_pTextBlocks[0].m_pdwFormat, m_pTextBlocks[0].m_d2dLayoutRect, m_pTextBlocks[0].m_pd2dTextBrush);
+    
+    for (auto& textblock : m_pUITextBlocks)
+    {
+        if (!textblock.second.m_pstrText[0])
+            continue;
+        m_pd2dDeviceContext->DrawText(textblock.second.m_pstrText, (UINT)wcslen(textblock.second.m_pstrText), textblock.second.m_pdwFormat, textblock.second.m_d2dLayoutRect, textblock.second.m_pd2dTextBrush);
+    }
 
     m_pd2dDeviceContext->EndDraw();
 
     m_pd3d11On12Device->ReleaseWrappedResources(ppResources, _countof(ppResources));
     m_pd3d11DeviceContext->Flush();
 }
-
 
 void UILayer::ReleaseResources()
 {
@@ -283,6 +307,16 @@ void ChatMGR::StoreText(WCHAR* buf)
 
 void ChatMGR::SetLoginScene(int WndClientWidth, int WndClientHeight)
 {
+    { // TEXT 추가 부분
+        m_pUILayer->m_pUITextBlocks.clear();
+        m_pUILayer->m_pUITextBlocks.emplace(0, TextBlock{});
+        m_pUILayer->m_pUITextBlocks[0].m_pdwFormat = pdwTextFormat;
+        m_pUILayer->m_pUITextBlocks[0].m_pd2dTextBrush = pd2dBrush;
+        m_pUILayer->m_pUITextBlocks[0].m_d2dLayoutRect =
+            D2D1::RectF(0, 0, 1000, 1000);
+        ZeroMemory(m_pUILayer->m_pUITextBlocks[0].m_pstrText, sizeof(m_pUILayer->m_pUITextBlocks[0].m_pstrText));
+        wcscpy(m_pUILayer->m_pUITextBlocks[0].m_pstrText, L"안녕");
+    }
     memset(m_textbuf, NULL, sizeof(m_textbuf));
     m_combtext = NULL;
 

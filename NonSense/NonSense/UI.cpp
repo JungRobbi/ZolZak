@@ -3,6 +3,7 @@
 #include "GameScene.h"
 #include "GameFramework.h"
 #include "Lobby_GameScene.h"
+#include "UILayer.h"
 
 UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(false)
 {
@@ -54,7 +55,7 @@ void UI::OnPreRender()
 	m_xmf4x4World._22 = m_xmf4x4World._22 * 2;
 	m_xmf4x4World._41 = m_xmf4x4World._41 * 2 - 1; // 0 ~ 1 -> -1 ~ 1
 	m_xmf4x4World._42 = m_xmf4x4World._42 * 2 - 1;
-};
+}
 
 void UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
@@ -68,6 +69,11 @@ void UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 
+	//// UILayer가 있을 때 (When UI need Text)
+	//if (m_pUILayer) {
+	//	UpdateText();
+	//	ChatMGR::m_pUILayer->UIRender(GameFramework::MainGameFramework->GetSwapChainBufferIndex(), this);
+	//}
 }
 
 Player_State_UI::Player_State_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)

@@ -3,6 +3,7 @@
 #include <list>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 #include <d2d1.h>
 #include <d3d12.h>
@@ -30,12 +31,14 @@ struct TextBlock
     IDWriteTextFormat*              m_pdwFormat;
     ID2D1SolidColorBrush*           m_pd2dTextBrush;
 };
+class UI;
 
 class UILayer
 {
 public:
+    UILayer() {};
     UILayer(UINT nFrames, UINT nTextBlocks, ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dCommandQueue, ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHeight);
-
+  
     void UpdateTextOutputs(UINT nIndex, WCHAR* pstrUIText, D2D1_RECT_F pd2dLayoutRect, IDWriteTextFormat* pdwFormat, ID2D1SolidColorBrush* pd2dTextBrush);
     void Render(UINT nFrame);
     void RenderSingle(UINT nFrame);
@@ -63,6 +66,9 @@ public:
 
     UINT                            m_nTextBlocks = 0;
     std::vector<TextBlock>          m_pTextBlocks;
+public:
+    std::unordered_map<int, TextBlock>          m_pUITextBlocks;
+    void UIUpdateTextOutputs(UINT nIndex, WCHAR* pstrUIText, D2D1_RECT_F pd2dLayoutRect, IDWriteTextFormat* pdwFormat, ID2D1SolidColorBrush* pd2dTextBrush);
 };
 
 ///////////////////
