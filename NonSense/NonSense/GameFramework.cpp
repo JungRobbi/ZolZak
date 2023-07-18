@@ -353,8 +353,8 @@ void GameFramework::ReleaseObjects()
 {
 	GameScene::MainScene->ReleaseObjects();
 
-	//if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
-	//if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
+	if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
+	if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
 }
 
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -936,7 +936,7 @@ void GameFramework::FrameAdvance()
 
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
-	//ChatMGR::UpdateText();
+	ChatMGR::UpdateText();
 	ProcessInput();
 
 	AnimateObjects();
@@ -1013,11 +1013,11 @@ void GameFramework::FrameAdvance()
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	//if (scene_type == LOGIN_SCENE) {
-		//ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
-	//}
-	//else if (scene_type == GAME_SCENE)
-		//ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+	if (scene_type == LOGIN_SCENE) {
+		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
+	}
+	else if (scene_type == GAME_SCENE)
+		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 
 	m_pSwapChain->Present(0, 0);
 
