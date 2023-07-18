@@ -70,3 +70,37 @@ public:
 	Goblin(MonsterType type, int roomNum);
 	virtual ~Goblin();
 };
+
+class Orc : public Monster
+{
+public:
+	Orc(MonsterType type, int roomNum);
+	virtual ~Orc();
+
+	void CloseAttackEvent();
+};
+
+class Skull : public Monster
+{
+public:
+	Skull(MonsterType type, int roomNum);
+	virtual ~Skull();
+
+	void CloseAttackEvent();
+};
+
+class Shield : public Monster
+{
+public:
+	Shield(MonsterType type, int roomNum);
+	virtual ~Shield();
+
+	void BossAttackEvent();
+	void BossStealSenseEvent();
+	void BossSummonEvent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	void BossDefenceEvent();
+	void BossJumpAttackEvent();
+	void BossTorandoEvent();
+
+	void EndSkillEvent();
+};

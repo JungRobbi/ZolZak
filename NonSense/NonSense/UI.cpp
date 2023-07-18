@@ -1095,5 +1095,5 @@ Ready_UI::Ready_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 void Ready_UI::OnClick()
 {
-
+	GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
 }
