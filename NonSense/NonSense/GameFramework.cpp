@@ -319,7 +319,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Room_GameScene());
 	m_GameScenes.emplace_back(new Stage_GameScene());
 	
-	ChangeScene(ROOM_SCENE);
+	ChangeScene(LOGIN_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
