@@ -1159,7 +1159,7 @@ RectMesh::RectMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 	m_d3dPositionBufferView.StrideInBytes = sizeof(XMFLOAT3);
 	m_d3dPositionBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
 
-	m_pd3dTextureCoordBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Positions, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoordUploadBuffer);
+	m_pd3dTextureCoordBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_xmf2TexCoord, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoordUploadBuffer);
 
 	m_d3dTextureCoordBufferView.BufferLocation = m_pd3dTextureCoordBuffer->GetGPUVirtualAddress();
 	m_d3dTextureCoordBufferView.StrideInBytes = sizeof(XMFLOAT2);
