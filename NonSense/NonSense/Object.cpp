@@ -1143,6 +1143,8 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, Shader* pBlendShader)
 {
 	char pstrToken[64] = { '\0' };
+	CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
 	int nMesh = 0;
 	UINT nReads = 0;
 	Object* pObject = NULL;
@@ -1187,7 +1189,6 @@ void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 			if (!strcmp(pstrToken, "<Position>:"))
 			{
 				nReads = (UINT)::fread(&pObject->m_xmf4x4ToParent, sizeof(float), 16, OpenedFile);
-
 			}
 			if (!strcmp(pstrToken, "</Objects>"))
 			{
@@ -2325,4 +2326,47 @@ void Explosion::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	Object::UpdateShaderVariables(pd3dCommandList);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 3, &dir, 0);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 1, &time, 3);
+}
+
+Water::Water(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BLEND_OBJECT)
+{
+	RectMesh* pWaterMesh = new RectMesh(pd3dDevice, pd3dCommandList, 5, 5);
+	SetMesh(pWaterMesh);
+
+	CTexture* pWaterTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pWaterTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Water.dds", RESOURCE_TEXTURE2D, 0);
+
+	WaterShader* pWaterShader = new WaterShader();
+	pWaterShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	pWaterShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pWaterTexture, 19, false);
+
+	//m_nMaterials = 1;
+	//m_ppMaterials = new Material * [1];
+	//m_ppMaterials[0] = NULL;
+	Material* pWaterMaterial = new Material(1);
+	pWaterMaterial->SetTexture(pWaterTexture);
+	pWaterMaterial->SetShader(pWaterShader);
+
+	SetMaterial(pWaterMaterial);
+}
+Water::~Water()
+{
+
+}
+
+void Water::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	//Object::Render(pd3dCommandList, pCamera);
+	OnPrepareRender();
+
+	UpdateShaderVariables(pd3dCommandList);
+
+	if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+	if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+	if (m_pMesh)
+	{
+		m_pMesh->Render(pd3dCommandList, 0);
+	}
 }

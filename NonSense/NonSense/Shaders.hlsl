@@ -70,10 +70,10 @@ cbuffer cbFrameworkInfo : register(b9)
 Texture2DArray gtxtTextureArray : register(t0);
 Texture2D RenderInfor[4] : register(t1); //Position, Normal+ObjectID, Texture, Depth
 SamplerState gssDefaultSamplerState : register(s0);
-
+SamplerState gssWrap : register(s0);
+SamplerState gssMirrorSamplerState : register(s2);
 Texture2D gtxtUITexture : register(t24);
 Texture2D gtxtParticleTexture : register(t25);
-SamplerState gssWrap : register(s0);
 SamplerState gssBorder : register(s1); // SkyBox
 TextureCube gtxtSkyCubeTexture : register(t13);
 
@@ -595,4 +595,38 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 
 	output.Texture = cColor;
 	return output;
+}
+
+/////////////////////
+
+struct VS_WATER_INPUT
+{
+	float3 position : POSITION;
+	float2 uv : TEXCOORD;
+};
+
+struct VS_WATER_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD;
+};
+
+VS_WATER_OUTPUT VSWater(VS_WATER_INPUT input)
+{
+	VS_WATER_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxObjectWorld), gmtxView), gmtxProjection);
+
+	output.uv = input.uv + gfCurrentTime * 0.1;
+
+	return(output);
+}
+
+
+float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtUITexture.Sample(gssMirrorSamplerState, input.uv);
+
+	return(cColor);
+
 }

@@ -421,7 +421,6 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dDescriptorRanges[12].RegisterSpace = 0;
 	pd3dDescriptorRanges[12].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 	D3D12_ROOT_PARAMETER pd3dRootParameters[23];
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -543,7 +542,8 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[22].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[22].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
+
+	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[3];
 	::ZeroMemory(d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
 	d3dSamplerDesc[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	d3dSamplerDesc[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -572,6 +572,18 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	d3dSamplerDesc[1].RegisterSpace = 0;
 	d3dSamplerDesc[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+	d3dSamplerDesc[2].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	d3dSamplerDesc[2].AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+	d3dSamplerDesc[2].AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+	d3dSamplerDesc[2].AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+	d3dSamplerDesc[2].MipLODBias = 0;
+	d3dSamplerDesc[2].MaxAnisotropy = 1;
+	d3dSamplerDesc[2].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	d3dSamplerDesc[2].MinLOD = 0;
+	d3dSamplerDesc[2].MaxLOD = D3D12_FLOAT32_MAX;
+	d3dSamplerDesc[2].ShaderRegister = 2;
+	d3dSamplerDesc[2].RegisterSpace = 0;
+	d3dSamplerDesc[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
