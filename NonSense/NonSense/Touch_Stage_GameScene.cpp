@@ -51,35 +51,53 @@ void Touch_Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graphic
 	}
 
 	Object* TempObject = NULL;
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Close"], ModelMap["Goblin_Close_Weapon_L"], ModelMap["Goblin_Close_Weapon_R"], MONSTER_TYPE_CLOSE);
-	TempObject->SetPosition(-9.0f, m_pTerrain->GetHeight(-9.0f, 9.0f), 87);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Close"], ModelMap["Skull_Close_Weapon_L"], ModelMap["Skull_Close_Weapon_R"], MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(206.1f, m_pTerrain->GetHeight(206.1f, 82.9f), 82.9f);
 	TempObject->SetNum(10001);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Far"], ModelMap["Goblin_Far_Weapon_L"], ModelMap["Goblin_Far_Weapon_R"], MONSTER_TYPE_FAR);
-	TempObject->SetPosition(-1.0f, m_pTerrain->GetHeight(-1.0f, 42.0f), 42.0f);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Far"], ModelMap["Skull_Far_Weapon_L"], ModelMap["Skull_Far_Weapon_R"], MONSTER_TYPE_FAR);
+	TempObject->SetPosition(172.9f, m_pTerrain->GetHeight(172.9f, 71.6f), 71.6f);
 	TempObject->SetNum(10002);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
-	TempObject->SetPosition(16.0f, m_pTerrain->GetHeight(16.0f, 34.0f), 34.0f);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Rush"], NULL, NULL, MONSTER_TYPE_RUSH);
+	TempObject->SetPosition(190.1f, m_pTerrain->GetHeight(190.1f, 128.8f), 128.8f);
 	TempObject->SetNum(10003);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
-	TempObject->SetPosition(53.0f, m_pTerrain->GetHeight(53.0f, 43.0f), 43.0f);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Rush"], NULL, NULL, MONSTER_TYPE_RUSH);
+	TempObject->SetPosition(166.62f, m_pTerrain->GetHeight(166.62f, 142.3f), 142.3f);
 	TempObject->SetNum(10004);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
-	TempObject->SetPosition(89.0f, m_pTerrain->GetHeight(89.0f, 33.0f), 33.0f);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(141.4f, m_pTerrain->GetHeight(141.4f, 156.7f), 156.7f);
 	TempObject->SetNum(10005);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
-	TempObject->SetPosition(113.0f, m_pTerrain->GetHeight(113.0f, 20.0f), 20.0f);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(126.5f, m_pTerrain->GetHeight(126.5f, 184.9f), 184.9f);
 	TempObject->SetNum(10006);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-
-	TempObject = new Shield(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Boss_Shield"], NULL, NULL, MONSTER_TYPE_BOSS);
-	TempObject->SetPosition(-16.7, m_pTerrain->GetHeight(-16.7, 96.5), 96.5);
-	TempObject->SetNum(106);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Far"], NULL, NULL, MONSTER_TYPE_FAR);
+	TempObject->SetPosition(99.f, m_pTerrain->GetHeight(99.f, 171.5f), 171.5f);
+	TempObject->SetNum(10006);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Far"], NULL, NULL, MONSTER_TYPE_FAR);
+	TempObject->SetPosition(74.1f, m_pTerrain->GetHeight(74.1f, 162.1f), 162.1f);
+	TempObject->SetNum(10006);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(45.9f, m_pTerrain->GetHeight(45.9f, 153.3f), 153.3f);
+	TempObject->SetNum(10006);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Far"], NULL, NULL, MONSTER_TYPE_FAR);
+	TempObject->SetPosition(153.3f, m_pTerrain->GetHeight(153.3f, 146.6f), 146.6f);
+	TempObject->SetNum(10006);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Rush"], NULL, NULL, MONSTER_TYPE_RUSH);
+	TempObject->SetPosition(154.9f, m_pTerrain->GetHeight(154.9f, 151.8f), 151.8f);
+	TempObject->SetNum(10006);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Rush"], NULL, NULL, MONSTER_TYPE_RUSH);
+	TempObject->SetPosition(161.9f, m_pTerrain->GetHeight(161.9f, 128.8f), 128.8f);
+	TempObject->SetNum(10006);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 
 	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
@@ -87,12 +105,8 @@ void Touch_Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pBlendShader = new BlendShader();
 	m_pBlendShader->CreateShader(pd3dDevice, m_pGraphicsRootSignature, MRT, pdxgiRtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-	//Object::LoadMapData(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/NonBlend_Props_Map.bin", m_pBoundingShader);
-	//Object::LoadMapData_Blend(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Blend_Objects_Map.bin", m_pBlendShader);
-	Object::LoadMapData(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Non_Blend_Object_2_Map.bin", m_pBoundingShader);
-	Object::LoadMapData_Blend(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Blend_Object_2_Map.bin", m_pBlendShader);
-	//Object::LoadMapData(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Non_Blend_Object_3_Map.bin", m_pBoundingShader);
-	//Object::LoadMapData_Blend(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Blend_Object_3_Map.bin", m_pBlendShader);
+	Object::LoadMapData(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Non_Blend_Object_3_Map.bin", m_pBoundingShader);
+	Object::LoadMapData_Blend(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Blend_Object_3_Map.bin", m_pBlendShader);
 
 	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
