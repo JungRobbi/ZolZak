@@ -281,6 +281,9 @@ void Room::update()
 					send_packet.z = monster->GetComponent<RushTypeFSMComponent>()->WanderPosition.z;
 					break;
 				case MONSTER_TYPE_BOSS:
+					send_packet.x = monster->GetComponent<BossFSMComponent>()->WanderPosition.x;
+					send_packet.y = monster->GetComponent<BossFSMComponent>()->WanderPosition.y;
+					send_packet.z = monster->GetComponent<BossFSMComponent>()->WanderPosition.z;
 					break;
 				default:
 					break;

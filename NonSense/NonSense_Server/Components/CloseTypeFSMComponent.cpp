@@ -13,7 +13,8 @@ void CloseTypeFSMComponent::start()
 
 void CloseTypeFSMComponent::update()
 {
-	m_pFSM->Update();
+	if (m_pFSM)
+		m_pFSM->Update();
 }
 
 FSM<CloseTypeFSMComponent>* CloseTypeFSMComponent::GetFSM()

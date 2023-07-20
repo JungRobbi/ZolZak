@@ -26,7 +26,7 @@ protected:
 public:
 	std::atomic<int> OldAniType{ E_MONSTER_ANIMATION_TYPE::E_M_IDLE };
 	std::atomic<int> PresentAniType{ E_MONSTER_ANIMATION_TYPE::E_M_IDLE };
-
+	
 public:
 	int num;
 	Character();

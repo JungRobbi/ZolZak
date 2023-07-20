@@ -15,7 +15,7 @@
 #include "Components/SphereCollideComponent.h"
 #include "Components/BossAttackComponent.h"
 #include "Components/BossFSMComponent.h"
-
+#include "Timer.h"
 Character::Character() :
 	Object(false)
 {
@@ -525,4 +525,3 @@ void Shield::EndSkillEvent()
 	std::cout << "end" << std::endl;
 	GetComponent<BossAttackComponent>()->End_Skill = true;
 }
-

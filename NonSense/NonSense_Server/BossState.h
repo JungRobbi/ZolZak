@@ -44,10 +44,12 @@ public:
 
 class SkillState_Boss : public State<BossFSMComponent>
 {
+	float m_Timer = 0.0f;
 public:
 	~SkillState_Boss() {}
 	static SkillState_Boss* GetInstance();
 	virtual void Enter(BossFSMComponent* pOwner);
 	virtual void Execute(BossFSMComponent* pOwner);
 	virtual void Exit(BossFSMComponent* pOwner);
+	void SetTimer(float f) { m_Timer = f; }
 };
