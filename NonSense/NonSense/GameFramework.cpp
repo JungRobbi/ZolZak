@@ -76,51 +76,6 @@ void GameFramework::CreateLight()
 	m_pShadowCamera = ::CreateBufferResource(m_pDevice, m_pCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pShadowCamera->Map(0, NULL, (void**)&m_pShadowMappedCamera);
 
-	XMFLOAT3 pos = XMFLOAT3(0.0f, 400.0f, -300.0f);
-	XMFLOAT3 dir = XMFLOAT3(0.0f, -1.0f, 1.0f);
-	float radius = 1000;
-	XMFLOAT3 targetpos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	//XMFLOAT4X4 proj = Matrix4x4::PerspectiveFovLH(XMConvertToRadians(60.0f), 1, 0.1f, 1000.0f);
-	
-	// Only the first "main" light casts a shadow.
-	XMVECTOR lightDir = XMLoadFloat3(&dir);
-	XMVECTOR lightPos = -2.0f * radius * lightDir;
-	XMVECTOR targetPos = XMLoadFloat3(&targetpos);
-	XMVECTOR lightUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, targetPos, lightUp);
-
-	XMStoreFloat3(&pos, lightPos);
-
-	// Transform bounding sphere to light space.
-	XMFLOAT3 sphereCenterLS;
-	XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPos, lightView));
-
-	// Ortho frustum in light space encloses scene.
-	float l = sphereCenterLS.x - radius;
-	float b = sphereCenterLS.y - radius;
-	float n = sphereCenterLS.z - radius;
-	float r = sphereCenterLS.x + radius;
-	float t = sphereCenterLS.y + radius;
-	float f = sphereCenterLS.z + radius;
-
-	float mLightNearZ = n;
-	float mLightFarZ = f;
-
-	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
-
-	XMFLOAT4X4 proj;
-	XMStoreFloat4x4(&proj, lightProj);
-	XMFLOAT4X4 view = Matrix4x4::LookAtLH(XMFLOAT3(0.0f, 400.0f, -300.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f));
-	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&view)));
-	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4InverseView, XMMatrixTranspose(XMMatrixInverse(NULL, XMLoadFloat4x4(&view))));
-	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4Projection, XMMatrixTranspose(XMLoadFloat4x4(&proj)));
-	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4InverseProjection, XMMatrixTranspose(XMMatrixInverse(NULL, XMLoadFloat4x4(&proj))));
-
-	::memcpy(&m_pShadowMappedCamera->m_xmf3Position, &pos, sizeof(XMFLOAT3));
-	::memcpy(&m_pShadowMappedCamera->m_xmf3Direction, &dir, sizeof(XMFLOAT3));
-
-	//D3D12_GPU_VIRTUAL_ADDRESS d3dGPUVirtualAddress = m_pShadowCamera->GetGPUVirtualAddress();
-	//m_pCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_CAMERA, d3dGPUVirtualAddress);
 }
 
 void GameFramework::OnDestroy()
@@ -476,7 +431,7 @@ void GameFramework::BuildObjects()
 	m_pScreen->CreateShader(m_pDevice, GameScene::MainScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 	m_pDebug->CreateShader(m_pDevice, GameScene::MainScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-	DXGI_FORMAT pdxgiResourceFormats[MRT - 1] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
+	DXGI_FORMAT pdxgiResourceFormats[MRT - 1] = { DXGI_FORMAT_R32G32B32A32_FLOAT,  DXGI_FORMAT_R32G32B32A32_FLOAT,  DXGI_FORMAT_R8G8B8A8_UNORM };
 	m_pScreen->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT); //SRV to (Render Targets) + (Depth Buffer)
 	DXGI_FORMAT pdxgiDepthSrvFormats[1] = { DXGI_FORMAT_R24_UNORM_X8_TYPELESS };
 	m_pScreen->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
@@ -1115,11 +1070,62 @@ void GameFramework::FrameAdvance()
 	//m_pCommandList->SetGraphicsRootConstantBufferView(1, passCBAddress);
 
 	m_pCommandList->SetPipelineState(m_pPipelineState);
+
+	XMFLOAT3 pos;
+	XMFLOAT3 dir = XMFLOAT3(0.0f, -0.707f, -0.707f);
+	float radius = 20;
+
+	XMFLOAT3 targetpos = m_pPlayer->GetPosition();
+	//XMFLOAT3 targetpos = XMFLOAT3(-16,0,103);
+	
+	// Only the first "main" light casts a shadow.
+	XMVECTOR lightDir = XMLoadFloat3(&dir);
+	XMVECTOR targetPos = XMLoadFloat3(&targetpos);
+	XMVECTOR lightPos = targetPos - 2.0f * radius * lightDir;
+	XMVECTOR lightUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, targetPos, lightUp);
+
+	XMStoreFloat3(&pos, lightPos);
+
+	// Transform bounding sphere to light space.
+	XMFLOAT3 sphereCenterLS;
+	XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPos, lightView));
+
+	// Ortho frustum in light space encloses scene.
+	float l = sphereCenterLS.x - radius;
+	float b = sphereCenterLS.y - radius;
+	float n = sphereCenterLS.z - radius;
+	float r = sphereCenterLS.x + radius;
+	float t = sphereCenterLS.y + radius;
+	float f = sphereCenterLS.z + radius;
+
+	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
+	XMMATRIX T(	0.5f, 0.0f,	 0.0f, 0.0f,
+				0.0f, -0.5f, 0.0f, 0.0f,
+				0.0f, 0.0f,  1.0f, 0.0f,
+				0.5f, 0.5f,  0.0f, 1.0f);
+	XMMATRIX S = lightView * lightProj * T;
+
+	XMFLOAT4X4 proj;
+	XMStoreFloat4x4(&proj, lightProj);
+
+	XMFLOAT4X4 view;
+	XMStoreFloat4x4(&view, lightView);
+
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&view)));
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4InverseView, XMMatrixTranspose(XMMatrixInverse(NULL, XMLoadFloat4x4(&view))));
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4Projection, XMMatrixTranspose(XMLoadFloat4x4(&proj)));
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4InverseProjection, XMMatrixTranspose(XMMatrixInverse(NULL, XMLoadFloat4x4(&proj))));
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xm4x4ShadowTransform, XMMatrixTranspose(S));
+	XMStoreFloat4x4(&m_pCamera->m_pcbMappedCamera->m_xm4x4ShadowTransform, XMMatrixTranspose(S));
+
+	::memcpy(&m_pShadowMappedCamera->m_xmf3Position, &pos, sizeof(XMFLOAT3));
+	::memcpy(&m_pShadowMappedCamera->m_xmf3Direction, &dir, sizeof(XMFLOAT3));
+
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGPUVirtualAddress = m_pShadowCamera->GetGPUVirtualAddress();
 	m_pCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_CAMERA, d3dGPUVirtualAddress);
-
-	//GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::MainScene->m_pd3dCbvSrvDescriptorHeap);
+
 	for (auto& object : GameScene::MainScene->MonsterObjects)
 	{
 		//object->Animate(elapseTime);
@@ -1131,6 +1137,17 @@ void GameFramework::FrameAdvance()
 		//object->Animate(elapseTime);
 		object->UpdateTransform(NULL);
 		object->Render(m_pCommandList, m_pCamera);
+	}
+	for (auto& blendObject : GameScene::MainScene->blendGameObjects)
+	{
+		blendObject->UpdateTransform(NULL);
+		blendObject->Render(m_pCommandList, m_pCamera);
+	}
+	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
+	for (auto& p : m_OtherPlayers) {
+		if (p->GetUsed()) {
+			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
+		}
 	}
 
 	ResourceTransition(m_pCommandList, m_ShadowMap->Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ);
@@ -1163,6 +1180,9 @@ void GameFramework::FrameAdvance()
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
 
 	// MRT ���
+	d3dGPUVirtualAddress = m_pShadowCamera->GetGPUVirtualAddress();
+	m_pCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_CAMERA, d3dGPUVirtualAddress);
+	m_pCommandList->SetGraphicsRootDescriptorTable(23, m_ShadowMap->Srv());
 	m_pScreen->Render(m_pCommandList, m_pCamera);
 
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
@@ -1172,7 +1192,7 @@ void GameFramework::FrameAdvance()
 	// Sky Box
 	if(GameScene::MainScene->m_pSkyBox)GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
 	// Bounding Box
-	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
+	//if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
 	// Debug ȭ��
 	
 	if (DebugMode)
@@ -1188,7 +1208,7 @@ void GameFramework::FrameAdvance()
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
 	if (!IsTouchDebuff)
 	{
-		if (!ScriptMode && !OptionMode)RenderHP();
+		//if (!ScriptMode && !OptionMode)RenderHP();
 	}
 	else
 	{

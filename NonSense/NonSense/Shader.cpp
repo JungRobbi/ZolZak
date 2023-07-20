@@ -2,6 +2,7 @@
 #include "Shader.h"
 #include "GameScene.h"
 #include "RotateComponent.h"
+#include "GameFramework.h"
 
 Shader::Shader()
 {
@@ -512,6 +513,8 @@ void ScreenShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pC
 	Shader::Render(pd3dCommandList, pCamera);
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 
+	pd3dCommandList->SetGraphicsRootDescriptorTable(23, GameFramework::MainGameFramework->m_ShadowMap->Srv());
+
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(3, 1, 0, 0);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
@@ -618,6 +621,24 @@ D3D12_BLEND_DESC BlendShader::CreateBlendState()
 	return(d3dBlendDesc);
 }
 
+D3D12_RASTERIZER_DESC BlendShader::CreateRasterizerState()
+{
+	D3D12_RASTERIZER_DESC d3dRasterizerDesc;
+	::ZeroMemory(&d3dRasterizerDesc, sizeof(D3D12_RASTERIZER_DESC));
+	d3dRasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+	d3dRasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	d3dRasterizerDesc.FrontCounterClockwise = FALSE;
+	d3dRasterizerDesc.DepthBias = 0;
+	d3dRasterizerDesc.DepthBiasClamp = 0.0f;
+	d3dRasterizerDesc.SlopeScaledDepthBias = 0.0f;
+	d3dRasterizerDesc.DepthClipEnable = TRUE;
+	d3dRasterizerDesc.MultisampleEnable = FALSE;
+	d3dRasterizerDesc.AntialiasedLineEnable = FALSE;
+	d3dRasterizerDesc.ForcedSampleCount = 0;
+	d3dRasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+	return(d3dRasterizerDesc);
+}
+
 
 D3D12_SHADER_BYTECODE StandardShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
@@ -627,6 +648,24 @@ D3D12_SHADER_BYTECODE StandardShader::CreateVertexShader(ID3DBlob** ppd3dShaderB
 D3D12_SHADER_BYTECODE StandardShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 {
 	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSStandard", "ps_5_1", ppd3dShaderBlob));
+}
+
+D3D12_RASTERIZER_DESC StandardShader::CreateRasterizerState()
+{
+	D3D12_RASTERIZER_DESC d3dRasterizerDesc;
+	::ZeroMemory(&d3dRasterizerDesc, sizeof(D3D12_RASTERIZER_DESC));
+	d3dRasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+	d3dRasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	d3dRasterizerDesc.FrontCounterClockwise = FALSE;
+	d3dRasterizerDesc.DepthBias = 0;
+	d3dRasterizerDesc.DepthBiasClamp = 0.0f;
+	d3dRasterizerDesc.SlopeScaledDepthBias = 0.0f;
+	d3dRasterizerDesc.DepthClipEnable = TRUE;
+	d3dRasterizerDesc.MultisampleEnable = FALSE;
+	d3dRasterizerDesc.AntialiasedLineEnable = FALSE;
+	d3dRasterizerDesc.ForcedSampleCount = 0;
+	d3dRasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+	return(d3dRasterizerDesc);
 }
 
 D3D12_INPUT_LAYOUT_DESC SkinnedModelShader::CreateInputLayout()
@@ -657,6 +696,24 @@ D3D12_SHADER_BYTECODE SkinnedModelShader::CreateVertexShader(ID3DBlob** ppd3dSha
 void SkinnedModelShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
 {
 	Shader::CreateShader(pd3dDevice, pd3dGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
+}
+
+D3D12_RASTERIZER_DESC SkinnedModelShader::CreateRasterizerState()
+{
+	D3D12_RASTERIZER_DESC d3dRasterizerDesc;
+	::ZeroMemory(&d3dRasterizerDesc, sizeof(D3D12_RASTERIZER_DESC));
+	d3dRasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+	d3dRasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	d3dRasterizerDesc.FrontCounterClockwise = FALSE;
+	d3dRasterizerDesc.DepthBias = 0;
+	d3dRasterizerDesc.DepthBiasClamp = 0.0f;
+	d3dRasterizerDesc.SlopeScaledDepthBias = 0.0f;
+	d3dRasterizerDesc.DepthClipEnable = TRUE;
+	d3dRasterizerDesc.MultisampleEnable = FALSE;
+	d3dRasterizerDesc.AntialiasedLineEnable = FALSE;
+	d3dRasterizerDesc.ForcedSampleCount = 0;
+	d3dRasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+	return(d3dRasterizerDesc);
 }
 
 

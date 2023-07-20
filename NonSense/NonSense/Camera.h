@@ -14,6 +14,7 @@ struct VS_CB_CAMERA_INFO
 	XMFLOAT4X4						m_xmf4x4InverseView;
 	XMFLOAT4X4						m_xmf4x4Projection;
 	XMFLOAT4X4						m_xmf4x4InverseProjection;
+	XMFLOAT4X4						m_xm4x4ShadowTransform;
 	XMFLOAT3						m_xmf3Position;
 	XMFLOAT3						m_xmf3Direction;
 };
@@ -49,9 +50,9 @@ protected:
 
 	//카메라의 정보를 루트파라미터로 넘겨주기 위한 리소스
 	ID3D12Resource* m_pd3dcbCamera = NULL;
-	VS_CB_CAMERA_INFO* m_pcbMappedCamera = NULL;
 
 public:
+	VS_CB_CAMERA_INFO* m_pcbMappedCamera = NULL;
 	Camera();
 	Camera(Camera* pCamera);
 	virtual ~Camera() {};

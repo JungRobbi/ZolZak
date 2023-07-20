@@ -184,7 +184,7 @@ void GameScene::BuildLightsAndMaterials()
 {
 	m_pLights = new LIGHTS;
 	::ZeroMemory(m_pLights, sizeof(LIGHTS));
-	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
+	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 
 	m_pLights->m_pLights[0].m_bEnable = true;
 	m_pLights->m_pLights[0].m_nType = DIRECTIONAL_LIGHT;
@@ -193,7 +193,7 @@ void GameScene::BuildLightsAndMaterials()
 	m_pLights->m_pLights[0].m_xmf4Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	m_pLights->m_pLights[0].m_xmf4Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f);
 	m_pLights->m_pLights[0].m_xmf3Position = XMFLOAT3(0.0f, 1000.0f, 0.0f);
-	m_pLights->m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	m_pLights->m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -0.707f, -0.707f);
 	m_pLights->m_pLights[0].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
 	m_pLights->m_pLights[0].m_fFalloff = 8.0f;
 	m_pLights->m_pLights[0].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
@@ -554,7 +554,7 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	pd3dRootParameters[23].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[13]; //Shadow Map
 	pd3dRootParameters[23].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
+	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[3];
 	::ZeroMemory(d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
 	d3dSamplerDesc[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	d3dSamplerDesc[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -582,6 +582,20 @@ ID3D12RootSignature* GameScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDe
 	d3dSamplerDesc[1].ShaderRegister = 1;
 	d3dSamplerDesc[1].RegisterSpace = 0;
 	d3dSamplerDesc[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	d3dSamplerDesc[2].Filter = D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	d3dSamplerDesc[2].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	d3dSamplerDesc[2].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	d3dSamplerDesc[2].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	d3dSamplerDesc[2].MipLODBias = 0;
+	d3dSamplerDesc[2].MaxAnisotropy = 16;
+	d3dSamplerDesc[2].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
+	d3dSamplerDesc[2].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	d3dSamplerDesc[2].MinLOD = 0;
+	d3dSamplerDesc[2].MaxLOD = 0;
+	d3dSamplerDesc[2].ShaderRegister = 2;
+	d3dSamplerDesc[2].RegisterSpace = 0;
+	d3dSamplerDesc[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |

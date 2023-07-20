@@ -392,10 +392,10 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	//BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
 	//bb->SetNum(3);
 	//GetComponent<AttackComponent>()->SetBoundingObject(bb);
+
 	AddComponent<PlayerMovementComponent>();
 	AddComponent<AttackComponent>();
 	GetComponent<AttackComponent>()->SetAttackDuration(1.5);
-
 	{
 		XMFLOAT3 pos;
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
@@ -403,6 +403,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		if (GameScene::MainScene->GetTerrain())
 		{
 			float h = GameScene::MainScene->GetTerrain()->GetHeight(-16.0f, 103.0f);
+			cout << h << endl;
 			pos = XMFLOAT3(-16.0f, h, 103.0f);
 		}
 		else

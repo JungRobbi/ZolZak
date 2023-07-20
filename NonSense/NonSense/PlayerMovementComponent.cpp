@@ -23,7 +23,7 @@ void PlayerMovementComponent::Jump()
 		if (pos.y <= fHeight) {
 			XMFLOAT3 vel = ((Player*)gameObject)->GetVelocity();
 			if (!NetworkMGR::b_isNet)
-				((Player*)gameObject)->SetVelocity(XMFLOAT3(vel.x, 25.0f, vel.z));
+				((Player*)gameObject)->SetVelocity(XMFLOAT3(vel.x, 205.0f, vel.z));
 			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, (int)E_PLAYER_ANIMATION_TYPE::E_JUMP);
 			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, (int)E_PLAYER_ANIMATION_TYPE::E_JUMP);
 			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, (int)E_PLAYER_ANIMATION_TYPE::E_JUMP);

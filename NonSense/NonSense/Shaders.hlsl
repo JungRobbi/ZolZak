@@ -22,8 +22,9 @@ cbuffer cbCameraInfo : register(b1)
 	matrix gmtxInverseView : packoffset(c4);
 	matrix gmtxProjection : packoffset(c8);
 	matrix gmtxInverseProjection : packoffset(c12);
-	float3 gf3CameraPosition : packoffset(c16);
-	float3 gf3CameraDirection : packoffset(c17);
+	matrix gmtxShadowTransform : packoffset (c16);
+	float3 gf3CameraPosition : packoffset(c20);
+	float3 gf3CameraDirection : packoffset(c21);
 };
 
 cbuffer cbGameObjectInfo : register(b2)
@@ -76,6 +77,7 @@ Texture2D gtxtUITexture : register(t24);
 Texture2D gtxtParticleTexture : register(t25);
 SamplerState gssWrap : register(s0);
 SamplerState gssBorder : register(s1); // SkyBox
+SamplerComparisonState gsamShadow : register(s2);
 TextureCube gtxtSkyCubeTexture : register(t13);
 
 #include "Light1.hlsl"
@@ -106,10 +108,10 @@ VS_ShadowMap_Out VSShadowMap(VS_ShadowMap_In vin)
 
 	// Transform to homogeneous clip space.
 	vout.PosH = mul(mul(posW, gmtxView), gmtxProjection);
-
 	// Output vertex attributes for interpolation across triangle.
 	/*float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform);
 	vout.TexC = mul(texC, matData.MatTransform).xy;*/
+	
 	return vout;
 }
 
@@ -328,6 +330,39 @@ VS_SCREEN_OUTPUT VSScreen(uint nVertexID : SV_VertexID)
 static float gfLaplacians[9] = { -1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f };
 static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, { 1,0 }, { -1,1 }, { 0,1 }, { 1,1 } };
 
+float CalcShadowFactor(float4 shadowPosH)
+{
+	// Complete projection by doing division by w.
+	shadowPosH.xyz /= shadowPosH.w;
+
+	// Depth in NDC space.
+	float depth = shadowPosH.z-0.001;
+	//return depth*0.5;
+	//return gtxShadowMap.SampleCmpLevelZero(gsamShadow, shadowPosH.xy, depth).r;
+
+	uint width, height, numMips;
+	gtxShadowMap.GetDimensions(0, width, height, numMips);
+
+	// Texel size.
+	float dx = 1.0f / (float)width;
+
+	float percentLit = 0.0f;
+	const float2 offsets[9] =
+	{
+		float2(-dx,  -dx), float2(0.0f,  -dx), float2(dx,  -dx),
+		float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+		float2(-dx,  +dx), float2(0.0f,  +dx), float2(dx,  +dx)
+	};
+
+	[unroll]
+	for (int i = 0; i < 9; ++i)
+	{
+		percentLit += gtxShadowMap.SampleCmpLevelZero(gsamShadow, shadowPosH.xy + offsets[i], depth).r;
+	}
+
+	return percentLit / 9.0f;
+}
+
 float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 {
 	int Edge = false;
@@ -337,7 +372,15 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 		if (fObjectID != RenderInfor[1][int2(input.position.xy) + gnOffsets[i]].a) Edge = true; // 오브젝트 별 테두리
 	}
 
-	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection, ToonShading);
+	float4 ShadowPosH = mul(float4(RenderInfor[0][int2(input.position.xy)].xyz, 1.0f), gmtxShadowTransform);
+	float ShadowFactor = CalcShadowFactor(ShadowPosH);
+	if (ShadowPosH.x > 1 || ShadowPosH.y > 1 || ShadowPosH.z > 1 || ShadowPosH.x < 0 || ShadowPosH.y < 0 || ShadowPosH.z < 0)
+	{
+		ShadowFactor = 1.0f;
+	}
+	ShadowFactor += 0.5f;
+	ShadowFactor = saturate(ShadowFactor);
+	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection, ToonShading) * ShadowFactor;
 	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),10) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),10) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),10) * darkness), cColor.a);
 	if (Edge)
 		return (LineColor);
@@ -386,7 +429,9 @@ float4 PSDebug(VS_DEBUG_OUTPUT input) : SV_Target
 {
 	float4 cColor;
 	if (input.num != 3) cColor = RenderInfor[input.num].Sample(gssDefaultSamplerState, input.uv);
-	else cColor = RenderInfor[3].Sample(gssDefaultSamplerState, input.uv).r;
+	else {
+		cColor = RenderInfor[3].Sample(gssDefaultSamplerState, input.uv).r;
+	}
 	if (input.num == 4) cColor = gtxShadowMap.Sample(gssDefaultSamplerState, input.uv).r;
 	return(cColor);
 }
@@ -480,6 +525,17 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtAlbedoTexture.Sample(gssDefaultSamplerState, input.uv);
+
+	float4 ShadowPosH = mul(float4(input.positionW, 1.0f), gmtxShadowTransform);
+	float ShadowFactor = CalcShadowFactor(ShadowPosH);
+	if (ShadowPosH.x > 1 || ShadowPosH.y > 1 || ShadowPosH.z > 1 || ShadowPosH.x < 0 || ShadowPosH.y < 0 || ShadowPosH.z < 0)
+	{
+		ShadowFactor = 1.0f;
+	}
+	ShadowFactor += 0.5f;
+	ShadowFactor = saturate(ShadowFactor);
+
+	cColor.rgb *= Lighting(input.positionW, normalize(input.normalW), gf3CameraDirection, ToonShading) * ShadowFactor;
 	cColor = float4(cColor.r*(1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),10) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),10) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),10) * darkness),cColor.a);
 	return(cColor);
 }
