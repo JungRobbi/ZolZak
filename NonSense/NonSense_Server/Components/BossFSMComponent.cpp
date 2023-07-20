@@ -14,7 +14,8 @@ void BossFSMComponent::start()
 
 void BossFSMComponent::update()
 {
-	m_pFSM->Update();
+	if(m_pFSM)
+		m_pFSM->Update();
 }
 
 FSM<BossFSMComponent>* BossFSMComponent::GetFSM()
@@ -196,24 +197,29 @@ void BossFSMComponent::TornadoTrack()
 void BossFSMComponent::StealSense()
 {
 	gameObject->GetComponent<BossAttackComponent>()->StealSenseAnimation();
+	dynamic_cast<Shield*>(gameObject)->BossStealSenseEvent();
 }
 
 void BossFSMComponent::Summon()
 {
 	gameObject->GetComponent<BossAttackComponent>()->SummonAnimation();
+	dynamic_cast<Shield*>(gameObject)->BossSummonEvent();
 }
 
 void BossFSMComponent::Defence()
 {
 	gameObject->GetComponent<BossAttackComponent>()->DefenceAnimation();
+	dynamic_cast<Shield*>(gameObject)->BossDefenceEvent();
 }
 
 void BossFSMComponent::JumpAttack()
 {
 	gameObject->GetComponent<BossAttackComponent>()->JumpAttackAnimation();
+	dynamic_cast<Shield*>(gameObject)->BossJumpAttackEvent();
 }
 
 void BossFSMComponent::Tornado()
 {
 	gameObject->GetComponent<BossAttackComponent>()->TornadoAnimation();
+	dynamic_cast<Shield*>(gameObject)->BossTorandoEvent();
 }

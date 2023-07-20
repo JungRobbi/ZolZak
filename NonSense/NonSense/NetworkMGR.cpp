@@ -333,6 +333,14 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			Monster->GetComponent<BossFSMComponent>()->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
 			if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_ATTACK)
 				Monster->GetComponent<BossFSMComponent>()->Attack();
+			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_ROAR)
+				Monster->GetComponent<BossFSMComponent>()->StealSense();
+			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_DEFENCE)
+				Monster->GetComponent<BossFSMComponent>()->Defence();
+			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_JUMPATTACK)
+				Monster->GetComponent<BossFSMComponent>()->JumpAttack();
+			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_TORNADO)
+				Monster->GetComponent<BossFSMComponent>()->Tornado();
 		}
 		break;
 	}

@@ -76,6 +76,7 @@ void BossAttackComponent::Attack()
 
 void BossAttackComponent::StealSenseAnimation()
 {
+	
 	During_Skill = true;
 }
 
@@ -104,7 +105,7 @@ void BossAttackComponent::SummonAnimation()
 	During_Skill = true;
 }
 
-void BossAttackComponent::Summon(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, XMFLOAT3 Pos)
+void BossAttackComponent::Summon(XMFLOAT3 Pos)
 {
 	static int num = 11001;
 	int Type = RandomSense(dree);

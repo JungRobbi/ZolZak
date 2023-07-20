@@ -97,7 +97,7 @@ public:
 
 	void BossAttackEvent();
 	void BossStealSenseEvent();
-	void BossSummonEvent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	void BossSummonEvent();
 	void BossDefenceEvent();
 	void BossJumpAttackEvent();
 	void BossTorandoEvent();

@@ -12,6 +12,7 @@
 #include "RotateComponent.h"
 #include "PlayerMovementComponent.h"
 #include "SphereCollideComponent.h"
+#include "NetworkMGR.h"
 
 WeaponObject::WeaponObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Object(DEFAULT_OBJECT)
 {
@@ -650,33 +651,39 @@ Shield::~Shield()
 
 void Shield::BossAttackEvent()
 {
-	GetComponent<BossAttackComponent>()->Attack();
+	if (!NetworkMGR::b_isNet)
+		GetComponent<BossAttackComponent>()->Attack();
 }
 
 void Shield::BossStealSenseEvent()
 {
-	GetComponent<BossAttackComponent>()->StealSense();
+	if (!NetworkMGR::b_isNet)
+		GetComponent<BossAttackComponent>()->StealSense();
 }
 
 void Shield::BossSummonEvent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	GetComponent<BossAttackComponent>()->Summon(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,GetPosition());
+	if (!NetworkMGR::b_isNet)
+		GetComponent<BossAttackComponent>()->Summon(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,GetPosition());
 }
 
 void Shield::BossDefenceEvent()
 {
-	GetComponent<BossAttackComponent>()->Defence();
+	if (!NetworkMGR::b_isNet)
+		GetComponent<BossAttackComponent>()->Defence();
 }
 
 void Shield::BossJumpAttackEvent()
 {
-	GetComponent<BossAttackComponent>()->JumpAttack();
+	if (!NetworkMGR::b_isNet)
+		GetComponent<BossAttackComponent>()->JumpAttack();
 }
 
 void Shield::BossTorandoEvent()
 {
-	GetComponent<BossAttackComponent>()->Tornado();
-}
+	if (!NetworkMGR::b_isNet)
+		GetComponent<BossAttackComponent>()->Tornado();
+}	
 
 void Shield::EndSkillEvent()
 {

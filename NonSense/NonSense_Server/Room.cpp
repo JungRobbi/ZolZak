@@ -8,6 +8,7 @@
 #include "Components/RushTypeFSMComponent.h"
 #include "Components/SphereCollideComponent.h"
 #include "Components/BoxCollideComponent.h"
+#include "Components/BossFSMComponent.h"
 
 std::unordered_map<int, shared_ptr<Room>> Room::roomlist{};
 int Room::g_roomNum = 0;
@@ -247,7 +248,7 @@ void Room::update()
 				SC_MOVE_MONSTER_PACKET send_packet;
 				send_packet.size = sizeof(SC_MOVE_MONSTER_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_SC_MOVE_MONSTER_PACKET;
-				send_packet.id = ((Goblin*)monster)->num;
+				send_packet.id = ((Monster*)monster)->num;
 				send_packet.x = monster->GetPosition().x;
 				send_packet.y = monster->GetPosition().y;
 				send_packet.z = monster->GetPosition().z;
@@ -261,7 +262,7 @@ void Room::update()
 				SC_LOOK_MONSTER_PACKET send_packet;
 				send_packet.size = sizeof(SC_LOOK_MONSTER_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_SC_LOOK_MONSTER_PACKET;
-				send_packet.id = ((Goblin*)monster)->num;
+				send_packet.id = ((Monster*)monster)->num;
 				switch (monster->GetMonsterType())
 				{
 				case MONSTER_TYPE_CLOSE:
@@ -295,7 +296,7 @@ void Room::update()
 					SC_MONSTER_ANIMATION_TYPE_PACKET send_packet;
 					send_packet.size = sizeof(SC_MONSTER_ANIMATION_TYPE_PACKET);
 					send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_MONSTER;
-					send_packet.id = ((Goblin*)monster)->num;
+					send_packet.id = ((Monster*)monster)->num;
 					send_packet.Anitype = ((Character*)monster)->PresentAniType;
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
@@ -318,9 +319,9 @@ void Room::update()
 					SC_AGGRO_PLAYER_PACKET send_packet;
 					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
 					send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
-					send_packet.player_id = ((Player*)((Goblin*)(monster)
+					send_packet.player_id = ((Player*)((Monster*)(monster)
 						->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
-					send_packet.monster_id = ((Goblin*)monster)->num;
+					send_packet.monster_id = ((Monster*)monster)->num;
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
 				break;
@@ -333,9 +334,9 @@ void Room::update()
 					SC_AGGRO_PLAYER_PACKET send_packet;
 					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
 					send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
-					send_packet.player_id = ((Player*)((Goblin*)(monster)
+					send_packet.player_id = ((Player*)((Monster*)(monster)
 						->GetComponent<FarTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
-					send_packet.monster_id = ((Goblin*)monster)->num;
+					send_packet.monster_id = ((Monster*)monster)->num;
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
 				break;
@@ -348,16 +349,25 @@ void Room::update()
 					SC_AGGRO_PLAYER_PACKET send_packet;
 					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
 					send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
-					send_packet.player_id = ((Player*)((Goblin*)(monster)
+					send_packet.player_id = ((Player*)((Monster*)(monster)
 						->GetComponent<RushTypeFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
-					send_packet.monster_id = ((Goblin*)monster)->num;
+					send_packet.monster_id = ((Monster*)monster)->num;
 					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
 				break;
 			case MONSTER_TYPE_BOSS:
-
+				if (!monster->GetComponent<BossFSMComponent>()->GetTargetPlayer())
+					break;
 				for (auto& rc_to : Clients) {
-
+					if (!rc_to.second->b_Enable)
+						continue;
+					SC_AGGRO_PLAYER_PACKET send_packet;
+					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_SC_AGGRO_PLAYER_PACKET;
+					send_packet.player_id = ((Player*)((Monster*)(monster)
+						->GetComponent<BossFSMComponent>()->GetTargetPlayer()))->remoteClient->m_id;
+					send_packet.monster_id = ((Monster*)monster)->num;
+					rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 				}
 				break;
 			default:

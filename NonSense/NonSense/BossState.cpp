@@ -1,5 +1,6 @@
 #include "BossState.h"
 #include "Characters.h"
+#include "NetworkMGR.h"
 #include <random>
 
 static std::uniform_real_distribution<float> RandomSkillCoolTime(10.0f, 15.0f);
@@ -71,11 +72,12 @@ void TrackEnemyState_Boss::Execute(BossFSMComponent* pOwner)
 	{
 		pOwner->GetFSM()->ChangeState(IdleState_Boss::GetInstance());
 	}
-	if (pOwner->GetSkillCoolTime() <= 0.0)
-	{
-		pOwner->GetFSM()->ChangeState(SkillState_Boss::GetInstance());
+	if (!NetworkMGR::b_isNet) {
+		if (pOwner->GetSkillCoolTime() <= 0.0)
+		{
+			pOwner->GetFSM()->ChangeState(SkillState_Boss::GetInstance());
+		}
 	}
-
 }
 
 void TrackEnemyState_Boss::Exit(BossFSMComponent* pOwner)
@@ -192,8 +194,6 @@ void SkillState_Boss::Execute(BossFSMComponent* pOwner)
 			break;
 		}
 	}
-
-
 }
 
 void SkillState_Boss::Exit(BossFSMComponent* pOwner)

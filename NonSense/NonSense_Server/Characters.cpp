@@ -1,4 +1,5 @@
-﻿#include "Characters.h"
+﻿#include <functional>
+#include "Characters.h"
 #include "Scene.h"
 #include "Room.h"
 #include "Components/BoxCollideComponent.h"
@@ -333,7 +334,6 @@ void Skull::CloseAttackEvent()
 
 Shield::Shield(MonsterType type, int roomNum) : Monster(roomNum)
 {
-	m_type = type;
 	BoundSphere* bs = new BoundSphere();
 	BoundBox* bb = new BoundBox();
 
@@ -453,8 +453,21 @@ Shield::Shield(MonsterType type, int roomNum) : Monster(roomNum)
 		//		std::function<void()> ToranodoEvent = [this]() {
 		//			this->BossTorandoEvent();
 		//		};
+		//		m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 0.6, ToranodoEvent);
+		//		m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 1.2, ToranodoEvent);
+		//		m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 1.8, ToranodoEvent);
+		//		m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 2.4, ToranodoEvent);
+		//		m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 3.0, ToranodoEvent);
+		//		m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 3.6, ToranodoEvent);
+		//		m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 4.2, ToranodoEvent);
+		//		m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 4.8, ToranodoEvent);
+		//		m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 5.4, ToranodoEvent);
+		//		m_pSkinnedAnimationController->AddAnimationEvent("ToranodoEvent", E_B_TORNADO, 6.0, ToranodoEvent);
+		//		float len = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_TORNADO]->m_Length - 0.1;
+		//		m_pSkinnedAnimationController->AddAnimationEvent("EndEvent", E_B_TORNADO, len, EndEvent);
 		//	}
 		//} // 스킬 이벤트 // Boss Skill Event
+
 		break;
 	default:
 		break;
@@ -467,32 +480,44 @@ Shield::~Shield()
 
 void Shield::BossAttackEvent()
 {
+	PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_ATTACK;
 	GetComponent<BossAttackComponent>()->Attack();
+	EndSkillEvent();
 }
 
 void Shield::BossStealSenseEvent()
 {
+	PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_ROAR;
 	GetComponent<BossAttackComponent>()->StealSense();
+	EndSkillEvent();
 }
 
-void Shield::BossSummonEvent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+void Shield::BossSummonEvent()
 {
-	GetComponent<BossAttackComponent>()->Summon(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GetPosition());
+	PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_SUMMON;
+	GetComponent<BossAttackComponent>()->Summon(GetPosition());
+	EndSkillEvent();
 }
 
 void Shield::BossDefenceEvent()
 {
+	PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_DEFENCE;
 	GetComponent<BossAttackComponent>()->Defence();
+	EndSkillEvent();
 }
 
 void Shield::BossJumpAttackEvent()
 {
+	PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_JUMPATTACK;
 	GetComponent<BossAttackComponent>()->JumpAttack();
+	EndSkillEvent();
 }
 
 void Shield::BossTorandoEvent()
 {
+	PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_TORNADO;
 	GetComponent<BossAttackComponent>()->Tornado();
+	EndSkillEvent();
 }
 
 void Shield::EndSkillEvent()
