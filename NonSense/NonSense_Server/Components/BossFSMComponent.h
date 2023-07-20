@@ -11,7 +11,7 @@ class BoundBox;
 class BossFSMComponent : public Component
 {
 private:
-	FSM<BossFSMComponent>* m_pFSM;
+	FSM<BossFSMComponent>* m_pFSM = NULL;
     float ChangeStateDistance = 20.0f;
     Object* TargetPlayer = NULL;
     float IdleLeftTime = 0.0f;

@@ -334,9 +334,9 @@ void Skull::CloseAttackEvent()
 
 Shield::Shield(MonsterType type, int roomNum) : Monster(roomNum)
 {
+	m_type = type;
 	BoundSphere* bs = new BoundSphere();
 	BoundBox* bb = new BoundBox();
-
 	switch (type)
 	{
 	case MONSTER_TYPE_CLOSE:

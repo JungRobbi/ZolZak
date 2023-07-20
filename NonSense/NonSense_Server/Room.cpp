@@ -55,7 +55,7 @@ void Room::start()
 	TempObject->SetPosition(-16.7, Scene::terrain->GetHeight(-16.7, 96.5), 96.5);
 	((Shield*)TempObject)->num = 206;
 	TempObject->m_roomNum = m_roomNum;
-
+	
 }
 
 void Room::update()
