@@ -1,4 +1,5 @@
 #include "UI.h"
+#include <string>
 #include "Shader.h"
 #include "GameScene.h"
 #include "GameFramework.h"
@@ -593,6 +594,20 @@ Room_UI::Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	SetMyPos(0.25, 0.25, 0.54, 0.44);
+
+	if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page * 6 <= RoomNum &&
+		(dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page + 1) * 6 > RoomNum) { // In Page
+		auto& tb = ChatMGR::m_pUILayer->m_pUITextBlocks[RoomNum % 6];
+		ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+		std::wstring wstr;
+		wstr = std::to_wstring(RoomNum)
+			+ L"               "
+			+ std::wstring().assign(RoomName.begin(), RoomName.end())
+			+ L"     "
+			+ std::wstring().assign(RoomOwner.begin(), RoomOwner.end());
+		wcscpy(tb.m_pstrText, wstr.c_str());
+		std::wcout << tb.m_pstrText << std::endl;
+	}
 }
 
 void Room_UI::OnClick()

@@ -519,7 +519,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_d2dLayoutRect =
             D2D1::RectF(-800, 227 + 75.5f * i, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
-        wcscpy(tb.m_pstrText, L"ROOOOOOOOOOOOOOOOM");
+    //  wcscpy(tb.m_pstrText, L"ROOOOOOOOOOOOOOOOM");
     }
     {
         m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_1] = TextBlock{};
