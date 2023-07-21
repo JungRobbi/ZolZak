@@ -186,7 +186,7 @@ void UILayer::LineDraw()
         
         break;
     }
-    case GAME_SCENE: {
+    case SIGHT_SCENE: {
         if (ScriptMode) { // ScriptMode
             switch (GameFramework::MainGameFramework->TalkingNPC) // NPC type
             {

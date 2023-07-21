@@ -456,7 +456,7 @@ void Join_Room_UI::OnClick()
 		PacketQueue::AddSendPacket(&send_packet);
 	}
 	else {
-		GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
+		GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
 	}
 }
 
@@ -1113,7 +1113,7 @@ Ready_UI::Ready_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 void Ready_UI::OnClick()
 {
-	GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
+	GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
 }
 
 Room_Back_UI::Room_Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
