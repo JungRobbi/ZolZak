@@ -86,3 +86,10 @@ void Sound::VolumeDown()
 	}
 	FMOD_Channel_SetVolume(m_Channel, Volume);
 }
+
+FMOD_BOOL Sound::CheckEndSound()
+{
+	FMOD_BOOL IsPlaying;
+	FMOD_Channel_IsPlaying(m_Channel, &IsPlaying);
+	return IsPlaying;
+}

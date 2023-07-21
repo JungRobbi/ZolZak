@@ -159,6 +159,20 @@ void GameScene::update()
 			SoundDebuffLeftTime -= elapseTime;
 		}
 	}
+
+	for (auto iter = Sounds.begin();iter!= Sounds.end();)
+	{
+		if (!(*iter)->CheckEndSound())
+		{
+			Sounds.erase(iter);
+		}
+		else
+		{
+			++iter;
+		}
+	}
+
+
 }
 
 void GameScene::PushDelete(Object* gameObject)
