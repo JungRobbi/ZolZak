@@ -557,6 +557,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 						{
 							m_pCamera = m_pPlayer->ChangeCamera(THIRD_PERSON_CAMERA, Timer::GetTimeElapsed());
 							ScriptMode = true;
+							TalkingNPC = 1;
 							cout << GameScene::MainScene->StartNPC->script[0] << endl;
 						}
 						else
@@ -568,6 +569,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
 								ScriptMode = false;
 								ScriptNum = 0;
+								TalkingNPC = 0;
 								break;
 							}
 							cout << GameScene::MainScene->StartNPC->script[ScriptNum] << endl;
@@ -580,6 +582,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 						{
 							m_pCamera = m_pPlayer->ChangeCamera(THIRD_PERSON_CAMERA, Timer::GetTimeElapsed());
 							ScriptMode = true;
+							TalkingNPC = 2;
 							cout << GameScene::MainScene->EndNPC->script[0] << endl;
 						}
 						else
@@ -591,6 +594,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
 								ScriptMode = false;
 								ScriptNum = 0;
+								TalkingNPC = 0;
 								break;
 							}
 							cout << GameScene::MainScene->EndNPC->script[ScriptNum] << endl;
@@ -1016,7 +1020,7 @@ void GameFramework::FrameAdvance()
 	if (scene_type == LOGIN_SCENE) {
 		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
 	}
-	else if (scene_type == GAME_SCENE)
+	else if (scene_type >= ROOM_SCENE)
 		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 
 	m_pSwapChain->Present(0, 0);

@@ -24,6 +24,13 @@
 #pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "dxguid.lib")
 
+enum E_UI_ID {
+    START_NPC_LINE1_1 = 10000, START_NPC_LINE1_2, START_NPC_LINE1_3,
+    START_NPC_LINE2_1, START_NPC_LINE2_2, START_NPC_LINE2_3,
+    START_NPC_LINE3_1, START_NPC_LINE3_2, START_NPC_LINE3_3,
+    START_NPC_LINE4_1, START_NPC_LINE4_2, START_NPC_LINE4_3,
+};
+
 struct TextBlock
 {
     WCHAR                           m_pstrText[256];
@@ -42,6 +49,7 @@ public:
     void UpdateTextOutputs(UINT nIndex, WCHAR* pstrUIText, D2D1_RECT_F pd2dLayoutRect, IDWriteTextFormat* pdwFormat, ID2D1SolidColorBrush* pd2dTextBrush);
     void Render(UINT nFrame);
     void RenderSingle(UINT nFrame);
+    void LineDraw();
     void ReleaseResources();
 
     ID2D1SolidColorBrush* CreateBrush(D2D1::ColorF d2dColor);
@@ -128,6 +136,10 @@ public:
 
     static ID2D1SolidColorBrush* pd2dBrush;
     static IDWriteTextFormat* pdwTextFormat;
+
+    static ID2D1SolidColorBrush* pd2dUIBrush;
+    static IDWriteTextFormat* pdwUITextFormat;
+
     static D2D1_RECT_F d2dRect;
 
     static int fontsize;
@@ -140,4 +152,6 @@ public:
 
     static void SetLoginScene(int WndClientWidth, int WndClientHeight);
     static void SetInGame(int WndClientWidth, int WndClientHeight);
+
+    static void CreateTextUI(int WndClientWidth, int WndClientHeight);
 };

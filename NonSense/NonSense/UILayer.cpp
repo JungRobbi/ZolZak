@@ -8,6 +8,7 @@
 #include "UI.h"
 #include "NetworkMGR.h"
 #include "../ImaysNet/PacketQueue.h"
+#include "GameFramework.h"
 using namespace std;
 
 UILayer::UILayer(UINT nFrames, UINT nTextBlocks, ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dCommandQueue, ID3D12Resource** ppd3dRenderTargets, UINT nWidth, UINT nHeight)
@@ -142,12 +143,7 @@ void UILayer::Render(UINT nFrame)
         m_pd2dDeviceContext->DrawText(textblock.m_pstrText, (UINT)wcslen(textblock.m_pstrText), textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
     }
 
-    for (auto& textblock : m_pUITextBlocks)
-    {
-        if (!textblock.second.m_pstrText[0])
-            continue;
-        m_pd2dDeviceContext->DrawText(textblock.second.m_pstrText, (UINT)wcslen(textblock.second.m_pstrText), textblock.second.m_pdwFormat, textblock.second.m_d2dLayoutRect, textblock.second.m_pd2dTextBrush);
-    }
+    LineDraw();
 
     m_pd2dDeviceContext->EndDraw();
 
@@ -166,17 +162,163 @@ void UILayer::RenderSingle(UINT nFrame)
     if (m_pTextBlocks[0].m_pstrText[0])
         m_pd2dDeviceContext->DrawText(m_pTextBlocks[0].m_pstrText, (UINT)wcslen(m_pTextBlocks[0].m_pstrText), m_pTextBlocks[0].m_pdwFormat, m_pTextBlocks[0].m_d2dLayoutRect, m_pTextBlocks[0].m_pd2dTextBrush);
     
-    for (auto& textblock : m_pUITextBlocks)
-    {
-        if (!textblock.second.m_pstrText[0])
-            continue;
-        m_pd2dDeviceContext->DrawText(textblock.second.m_pstrText, (UINT)wcslen(textblock.second.m_pstrText), textblock.second.m_pdwFormat, textblock.second.m_d2dLayoutRect, textblock.second.m_pd2dTextBrush);
-    }
+    LineDraw();
 
     m_pd2dDeviceContext->EndDraw();
 
     m_pd3d11On12Device->ReleaseWrappedResources(ppResources, _countof(ppResources));
     m_pd3d11DeviceContext->Flush();
+}
+
+void UILayer::LineDraw()
+{
+    switch (GameFramework::MainGameFramework->scene_type)
+    {
+    case LOGIN_SCENE: {
+
+        break;
+    }
+    case LOBBY_SCENE: {
+
+        break;
+    }
+    case ROOM_SCENE: {
+        
+        break;
+    }
+    case GAME_SCENE: {
+        if (ScriptMode) { // ScriptMode
+            switch (GameFramework::MainGameFramework->TalkingNPC) // NPC type
+            {
+            case 1: { // Start NPC
+                switch (GameFramework::MainGameFramework->ScriptNum) // ScriptNum
+                {
+                case 0: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_2];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_3];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                case 1: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_2];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_3];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                case 2: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_2];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_3];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                case 3: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE4_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE4_2];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE4_3];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
+                }
+                break;
+            }
+            case 2: { // End NPC
+
+                break;
+            }
+            default:
+                break;
+            }
+        }
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 void UILayer::ReleaseResources()
@@ -219,6 +361,8 @@ std::list<WCHAR*> ChatMGR::m_pPrevTexts;
 
 ID2D1SolidColorBrush* ChatMGR::pd2dBrush;
 IDWriteTextFormat* ChatMGR::pdwTextFormat;
+ID2D1SolidColorBrush* ChatMGR::pd2dUIBrush;
+IDWriteTextFormat* ChatMGR::pdwUITextFormat;
 D2D1_RECT_F ChatMGR::d2dRect;
 int ChatMGR::fontsize = 0;
 
@@ -244,9 +388,15 @@ void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
     if (pd2dBrush)
         pd2dBrush->Release();
     pd2dBrush = m_pUILayer->CreateBrush(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
+    if (pd2dUIBrush)
+        pd2dUIBrush->Release();
+    pd2dUIBrush = m_pUILayer->CreateBrush(D2D1::ColorF(D2D1::ColorF::Brown, 1.0f));
     if (pdwTextFormat)
         pdwTextFormat->Release();
     pdwTextFormat = m_pUILayer->CreateTextFormat(L"Arial", WndClientHeight / 25.0f);
+    if (pdwUITextFormat)
+        pdwUITextFormat->Release();
+    pdwUITextFormat = m_pUILayer->CreateTextFormat(L"Arial", WndClientHeight / 40.0f);
   //d2dRect = D2D1::RectF((float)WndClientWidth / 3.2f, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
     d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
 }
@@ -307,22 +457,16 @@ void ChatMGR::StoreText(WCHAR* buf)
 
 void ChatMGR::SetLoginScene(int WndClientWidth, int WndClientHeight)
 {
-    { // TEXT 추가 부분
-        m_pUILayer->m_pUITextBlocks.clear();
-        m_pUILayer->m_pUITextBlocks.emplace(0, TextBlock{});
-        m_pUILayer->m_pUITextBlocks[0].m_pdwFormat = pdwTextFormat;
-        m_pUILayer->m_pUITextBlocks[0].m_pd2dTextBrush = pd2dBrush;
-        m_pUILayer->m_pUITextBlocks[0].m_d2dLayoutRect =
-            D2D1::RectF(0, 0, 1000, 1000);
-        ZeroMemory(m_pUILayer->m_pUITextBlocks[0].m_pstrText, sizeof(m_pUILayer->m_pUITextBlocks[0].m_pstrText));
-        wcscpy(m_pUILayer->m_pUITextBlocks[0].m_pstrText, L"안녕");
-    }
+    CreateTextUI(WndClientWidth, WndClientHeight);
+
     memset(m_textbuf, NULL, sizeof(m_textbuf));
     m_combtext = NULL;
 
     SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_MID);
     d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, 
         (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
+
+    pdwUITextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
 
     fontsize = WndClientHeight / 25.0f;
 
@@ -351,4 +495,64 @@ void ChatMGR::SetInGame(int WndClientWidth, int WndClientHeight)
         DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
         fontsize, L"en-us", &pdwTextFormat);
 
+    //m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
+    //    DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+    //    WndClientHeight / 40.0f, L"en-us", &pdwUITextFormat);
+}
+
+void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
+{
+    // TEXT 추가 부분
+    m_pUILayer->m_pUITextBlocks.clear();
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_1] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_1];
+        tb.m_pdwFormat = pdwUITextFormat;
+        tb.m_pd2dTextBrush = pd2dUIBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"NPC START_NPC_LINE1_1");
+    }
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_2] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_2];
+        tb.m_pdwFormat = pdwUITextFormat;
+        tb.m_pd2dTextBrush = pd2dUIBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(200, 570, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"NPC START_NPC_LINE1_2");
+    }
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_1] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_1];
+        tb.m_pdwFormat = pdwUITextFormat;
+        tb.m_pd2dTextBrush = pd2dUIBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"NPC START_NPC_LINE2_1");
+    }
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_1] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_1];
+        tb.m_pdwFormat = pdwUITextFormat;
+        tb.m_pd2dTextBrush = pd2dUIBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"NPC START_NPC_LINE3_1");
+    }
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE4_1] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE4_1];
+        tb.m_pdwFormat = pdwUITextFormat;
+        tb.m_pd2dTextBrush = pd2dUIBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"NPC START_NPC_LINE4_1");
+    }
+    
 }

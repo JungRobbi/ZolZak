@@ -173,23 +173,23 @@ void SkillState_Boss::Execute(BossFSMComponent* pOwner)
 		{
 		case 0:
 			pOwner->StealSense();
-			m_Timer = 1.5f;
+			m_Timer = 2.5f;
 			break;
 
 		case 1:
 		//	pOwner->Summon();
 			pOwner->StealSense();
-			m_Timer = 1.5f;
+			m_Timer = 2.5f;
 			break;
 
 		case 2:
 			pOwner->Defence();
-			m_Timer = 0.6f;
+			m_Timer = 1.6f;
 			break;
 
 		case 3:
 			pOwner->JumpAttack();
-			m_Timer = 2.3f;
+			m_Timer = 3.3f;
 			break;
 
 		case 4:

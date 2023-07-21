@@ -651,38 +651,32 @@ Shield::~Shield()
 
 void Shield::BossAttackEvent()
 {
-	if (!NetworkMGR::b_isNet)
-		GetComponent<BossAttackComponent>()->Attack();
+	GetComponent<BossAttackComponent>()->Attack();
 }
 
 void Shield::BossStealSenseEvent()
 {
-	if (!NetworkMGR::b_isNet)
-		GetComponent<BossAttackComponent>()->StealSense();
+	GetComponent<BossAttackComponent>()->StealSense();
 }
 
 void Shield::BossSummonEvent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	if (!NetworkMGR::b_isNet)
-		GetComponent<BossAttackComponent>()->Summon(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,GetPosition());
+	GetComponent<BossAttackComponent>()->Summon(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,GetPosition());
 }
 
 void Shield::BossDefenceEvent()
 {
-	if (!NetworkMGR::b_isNet)
-		GetComponent<BossAttackComponent>()->Defence();
+	GetComponent<BossAttackComponent>()->Defence();
 }
 
 void Shield::BossJumpAttackEvent()
 {
-	if (!NetworkMGR::b_isNet)
-		GetComponent<BossAttackComponent>()->JumpAttack();
+	GetComponent<BossAttackComponent>()->JumpAttack();
 }
 
 void Shield::BossTorandoEvent()
 {
-	if (!NetworkMGR::b_isNet)
-		GetComponent<BossAttackComponent>()->Tornado();
+	GetComponent<BossAttackComponent>()->Tornado();
 }	
 
 void Shield::EndSkillEvent()

@@ -72,6 +72,7 @@ public:
 	std::vector<Player*> m_OtherPlayers;
 	int m_clearStage = 0;
 	int ScriptNum = 0;
+	int TalkingNPC = 0;
 	float LastClick = 0;
 	float MouseSen = 3;
 	bool IsTouchDebuff = false;

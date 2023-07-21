@@ -110,7 +110,7 @@ void BossAttackComponent::SummonAnimation()
 
 void BossAttackComponent::Summon(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, XMFLOAT3 Pos)
 {
-	static int num = 10001;
+	static int num = 50001;
 	int Type = RandomSense(dree);
 	Object* temp;
 	switch (Type)
