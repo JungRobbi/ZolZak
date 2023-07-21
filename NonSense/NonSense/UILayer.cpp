@@ -179,7 +179,14 @@ void UILayer::LineDraw()
         break;
     }
     case LOBBY_SCENE: {
-
+        for (int i{}; i < 20; ++i) {
+            if (m_pUITextBlocks[i].m_pstrText[0]) {
+                auto& textblock = m_pUITextBlocks[i];
+                m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                    (UINT)wcslen(textblock.m_pstrText),
+                    textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+            }
+        }
         break;
     }
     case ROOM_SCENE: {
@@ -504,6 +511,16 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
 {
     // TEXT 추가 부분
     m_pUILayer->m_pUITextBlocks.clear();
+    for (int i{}; i < 6; ++i) { // Room Text UI
+        m_pUILayer->m_pUITextBlocks[i] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[i];
+        tb.m_pdwFormat = pdwTextFormat;
+        tb.m_pd2dTextBrush = pd2dBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(-800, 227 + 75.5f * i, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"ROOOOOOOOOOOOOOOOM");
+    }
     {
         m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_1] = TextBlock{};
         auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_1];

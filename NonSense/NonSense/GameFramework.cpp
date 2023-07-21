@@ -824,6 +824,7 @@ void GameFramework::ChangeScene(unsigned char num)
 	else if (num == LOGIN_SCENE) {
 		ChatMGR::SetLoginScene(m_nWndClientWidth, m_nWndClientHeight);
 	}
+	ChatMGR::m_pUILayer->m_pTextBlocks.clear();
 	scene_type = (SCENE_TYPE)num;
 	m_pCamera = m_pPlayer->GetCamera();
 	GameScene::MainScene->m_pPlayer = m_pPlayer;
@@ -1223,8 +1224,9 @@ void GameFramework::FrameAdvance()
 	if (scene_type == LOGIN_SCENE) {
 		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
 	}
-	else if (scene_type >= ROOM_SCENE)
+	else if (scene_type >= LOBBY_SCENE)
 		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+
 
 	m_pSwapChain->Present(0, 0);
 
