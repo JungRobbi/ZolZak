@@ -375,15 +375,6 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	fireball = new FireBall(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
-	if (NetworkMGR::id != id) {
-		printf("다른 ID");
-		//m_pUI->SetMyPos(0, 0, 1, 1);
-	}
-	else
-	{
-		printf("내 ID");
-	}
-
 	m_pHP_UI->SetParentUI(m_pUI);
 	m_pHP_Dec_UI->SetParentUI(m_pUI);
 
@@ -401,10 +392,10 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	//BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
 	//bb->SetNum(3);
 	//GetComponent<AttackComponent>()->SetBoundingObject(bb);
+
 	AddComponent<PlayerMovementComponent>();
 	AddComponent<AttackComponent>();
 	GetComponent<AttackComponent>()->SetAttackDuration(1.5);
-
 	{
 		XMFLOAT3 pos;
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
@@ -412,6 +403,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		if (GameScene::MainScene->GetTerrain())
 		{
 			float h = GameScene::MainScene->GetTerrain()->GetHeight(-16.0f, 103.0f);
+			cout << h << endl;
 			pos = XMFLOAT3(-16.0f, h, 103.0f);
 		}
 		else
@@ -591,15 +583,6 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pUI = new Warrior_Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	fireball = new FireBall(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
-	if (NetworkMGR::id != id) {
-		printf("다른 ID");
-		//m_pUI->SetMyPos(0, 0, 1, 1);
-	}
-	else
-	{
-		printf("내 ID");
-	}
 
 	m_pHP_UI->SetParentUI(m_pUI);
 	m_pHP_Dec_UI->SetParentUI(m_pUI);

@@ -140,10 +140,10 @@ public:
 
 	void Sound_Debuff(float time);
 	void AddSound(Sound* s);
+	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
 protected:
 
 	int m_nShaders = 0;
-	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
 
 	//���� ����
 	LIGHTS* m_pLights = NULL;

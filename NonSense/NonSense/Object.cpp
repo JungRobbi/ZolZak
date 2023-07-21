@@ -1516,7 +1516,7 @@ void Object::OnPrepareRender()
 }
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	if (IsVisible(pCamera) && Do_Render)
+	if (Do_Render)
 	{
 		OnPrepareRender();
 		if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);

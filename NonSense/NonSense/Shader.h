@@ -61,19 +61,20 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorStartHandle() { return(m_SRVCPUDescriptorStartHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorStartHandle() { return(m_SRVGPUDescriptorStartHandle); }
 
+
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_SRVCPUDescriptorNextHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE		m_SRVGPUDescriptorNextHandle;
+	ID3D12DescriptorHeap* m_CBVSRVDescriptorHeap = NULL;
+
 protected:
 	ID3D12PipelineState* m_pPipelineState = NULL;
 
-	ID3D12DescriptorHeap* m_CBVSRVDescriptorHeap = NULL;
 	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
-
 	D3D12_CPU_DESCRIPTOR_HANDLE		m_CBVCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_CBVGPUDescriptorStartHandle;
 	D3D12_CPU_DESCRIPTOR_HANDLE		m_SRVCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_SRVGPUDescriptorStartHandle;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE		m_SRVCPUDescriptorNextHandle;
-	D3D12_GPU_DESCRIPTOR_HANDLE		m_SRVGPUDescriptorNextHandle;
 
 	int m_nPipelineStates = 0;
 };
@@ -181,6 +182,8 @@ public:
 
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
+
 	virtual void ReleaseShaderVariables();
 protected:
 	Object** m_ppObjects = NULL;
@@ -198,7 +201,7 @@ public:
 	virtual ~BlendShader() {}
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
 	virtual D3D12_BLEND_DESC CreateBlendState();
-
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
 };
 
 class SkinnedModelShader : public StandardShader
@@ -212,6 +215,7 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
 
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat);
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

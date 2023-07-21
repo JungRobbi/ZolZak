@@ -10,6 +10,7 @@
 #include "NetworkMGR.h"
 #include "UILayer.h"
 #include "Vivox.h"
+#include "ShadowMap.h"
 
 #define MS_PER_UPDATE (1'000'000 / 60) // microsec
 
@@ -79,6 +80,7 @@ public:
 	float MouseSen = 3;
 	bool IsTouchDebuff = false;
 	float TouchDebuffLeftTime = -1.0;
+
 public:
 	HWND m_hWnd;
 	Camera* m_pCamera = NULL;
@@ -89,16 +91,21 @@ public:
 	POINT m_ptOldCursorPos;
 	SCENE_TYPE scene_type;
 
+	ID3D12Resource* m_pShadowCamera = NULL;
+	VS_CB_CAMERA_INFO* m_pShadowMappedCamera = NULL;
+
 	GameFramework();
 	~GameFramework();
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
 
 	void OnDestroy();
+	void CreateLight();
 	void CreateSwapChain();
 	void ChangeSwapChainState();
 	void CreateRtvAndDsvDescriptorHeaps();
 	void CreateDirect3DDevice();
 	void CreateCommandQueueAndList();
+	void CreateShadowMap();
 	void MoveToNextFrame();
 	void InitializeVivoxSystem(std::string UserName);
 
@@ -128,6 +135,7 @@ public:
 
 	friend NetworkMGR;
 
+	ShadowMap* m_ShadowMap = NULL;
 	RECT WindowPos;
 	POINT CenterOfWindow;
 };

@@ -66,8 +66,18 @@ bool GameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	
 	NetworkMGR::start();
 	Sound::InitFmodSystem();			// FMOD System �ʱ�ȭ
+	CreateLight();
 	BuildObjects();						// Object ����
+	CreateShadowMap();
 	return(true);
+}
+
+void GameFramework::CreateLight()
+{
+	UINT ncbElementBytes = ((sizeof(VS_CB_CAMERA_INFO) + 255) & ~255); //256의 배수
+	m_pShadowCamera = ::CreateBufferResource(m_pDevice, m_pCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pShadowCamera->Map(0, NULL, (void**)&m_pShadowMappedCamera);
+
 }
 
 void GameFramework::OnDestroy()
@@ -221,6 +231,7 @@ void GameFramework::CreateDirect3DDevice()
 
 	::RTVDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	::CBVSRVDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	::DSVDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
 	if (pd3dAdapter) pd3dAdapter->Release();
 }
@@ -238,6 +249,98 @@ void GameFramework::CreateCommandQueueAndList()
 	hResult = m_pCommandList->Close();
 }
 
+void GameFramework::CreateShadowMap()
+{
+	m_ShadowMap = new ShadowMap(m_pDevice, 2048, 2048);
+
+	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_DSVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	d3dDsvCPUDescriptorHandle.ptr += (::DSVDescriptorSize);
+
+	/// 
+
+	m_ShadowMap->BuildDescriptors(m_pScreen->m_SRVCPUDescriptorNextHandle, m_pScreen->m_SRVGPUDescriptorNextHandle, d3dDsvCPUDescriptorHandle);
+
+	{
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc{};
+
+		UINT nInputElementDescs = 1;
+		D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+		pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+		D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+		d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+		d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+		PsoDesc.InputLayout = d3dInputLayoutDesc;
+
+		PsoDesc.pRootSignature = GameScene::MainScene->m_pGraphicsRootSignature;
+		ID3DBlob* ppd3dShaderBlob = NULL;
+		ID3DBlob* pd3dPixelShaderBlob = NULL;
+		PsoDesc.VS = CompileShaderFromFile(L"Shaders.hlsl", "VSShadowMap", "vs_5_1", &ppd3dShaderBlob);
+		PsoDesc.PS = CompileShaderFromFile(L"Shaders.hlsl", "PSShadowMap", "ps_5_1", &pd3dPixelShaderBlob);
+		{
+			PsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+			PsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+			PsoDesc.RasterizerState.FrontCounterClockwise = FALSE;
+			PsoDesc.RasterizerState.DepthBias = 100000;
+			PsoDesc.RasterizerState.DepthBiasClamp = 0.0f;
+			PsoDesc.RasterizerState.SlopeScaledDepthBias = 1.0f;
+			PsoDesc.RasterizerState.DepthClipEnable = TRUE;
+			PsoDesc.RasterizerState.MultisampleEnable = FALSE;
+			PsoDesc.RasterizerState.AntialiasedLineEnable = FALSE;
+			PsoDesc.RasterizerState.ForcedSampleCount = 0;
+			PsoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+
+			PsoDesc.BlendState.AlphaToCoverageEnable = FALSE;
+			PsoDesc.BlendState.IndependentBlendEnable = FALSE;
+			PsoDesc.BlendState.RenderTarget[0].BlendEnable = FALSE;
+			PsoDesc.BlendState.RenderTarget[0].LogicOpEnable = FALSE;
+			PsoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
+			PsoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_ZERO;
+			PsoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+			PsoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+			PsoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+			PsoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+			PsoDesc.BlendState.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+			PsoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+			PsoDesc.DepthStencilState.DepthEnable = TRUE;
+			PsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+			PsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+			PsoDesc.DepthStencilState.StencilEnable = FALSE;
+			PsoDesc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
+			PsoDesc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
+			PsoDesc.DepthStencilState.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+			PsoDesc.DepthStencilState.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+			PsoDesc.DepthStencilState.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+			PsoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+			PsoDesc.DepthStencilState.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+			PsoDesc.DepthStencilState.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+			PsoDesc.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+			PsoDesc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+		}
+
+		PsoDesc.SampleMask = UINT_MAX;
+		PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		PsoDesc.NumRenderTargets = 0;
+		PsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+		PsoDesc.SampleDesc.Count = 1;
+		PsoDesc.SampleDesc.Quality = 0;
+		PsoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+
+		HRESULT hResult = m_pDevice->CreateGraphicsPipelineState(&PsoDesc, __uuidof(ID3D12PipelineState), (void**)&m_pPipelineState);
+
+		if (ppd3dShaderBlob) ppd3dShaderBlob->Release();
+		if (pd3dPixelShaderBlob) pd3dPixelShaderBlob->Release();
+
+		if (PsoDesc.InputLayout.pInputElementDescs) delete[] PsoDesc.InputLayout.pInputElementDescs;
+	}
+
+	/// 
+
+}
+
 void GameFramework::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;	// Descriptor Heap�� ����� �ش�.
@@ -250,7 +353,7 @@ void GameFramework::CreateRtvAndDsvDescriptorHeaps()
 	HRESULT hResult = m_pDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_RTVDescriptorHeap); // Render Target Descriptor Heap ����
 
 	// Depth/Stencil Descriptor Heap ����
-	d3dDescriptorHeapDesc.NumDescriptors = 1; // Descriptor�� ������ 1��
+	d3dDescriptorHeapDesc.NumDescriptors = 2; // Descriptor�� ������ 1��
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV; // Depth/Stencil View�� Descriptor ����
 	hResult = m_pDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_DSVDescriptorHeap); // Depth/Stencil Descriptor Heap ����
 }
@@ -332,7 +435,7 @@ void GameFramework::BuildObjects()
 	m_pScreen->CreateShader(m_pDevice, GameScene::MainScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 	m_pDebug->CreateShader(m_pDevice, GameScene::MainScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-	DXGI_FORMAT pdxgiResourceFormats[MRT - 1] = { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
+	DXGI_FORMAT pdxgiResourceFormats[MRT - 1] = { DXGI_FORMAT_R32G32B32A32_FLOAT,  DXGI_FORMAT_R32G32B32A32_FLOAT,  DXGI_FORMAT_R8G8B8A8_UNORM };
 	m_pScreen->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT); //SRV to (Render Targets) + (Depth Buffer)
 	DXGI_FORMAT pdxgiDepthSrvFormats[1] = { DXGI_FORMAT_R24_UNORM_X8_TYPELESS };
 	m_pScreen->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
@@ -668,7 +771,9 @@ void GameFramework::ChangeScene(unsigned char num)
 	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
+	if (NetworkMGR::is_mage)
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+	else m_pPlayer = new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 
 	switch (num)
 	{
@@ -936,6 +1041,108 @@ void GameFramework::FrameAdvance()
 	AnimateObjects();
 	GameScene::MainScene->update();
 
+	m_pPlayer->Update(Timer::GetTimeElapsed());
+	for (auto& p : m_OtherPlayers) {
+		if (p->GetUsed()) {
+			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());
+		}
+	}
+
+	/////////////// Shadow Map Render ////////////////////////
+	GameScene::MainScene->OnPrepareRender(m_pCommandList, m_pCamera);
+	m_pCommandList->RSSetViewports(1, &m_ShadowMap->Viewport());
+	m_pCommandList->RSSetScissorRects(1, &m_ShadowMap->ScissorRect());
+
+	ResourceTransition(m_pCommandList, m_ShadowMap->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+	m_pCommandList->ClearDepthStencilView(m_ShadowMap->Dsv(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	m_pCommandList->OMSetRenderTargets(0, nullptr, false, &m_ShadowMap->Dsv());
+
+	m_pCommandList->SetPipelineState(m_pPipelineState);
+
+	XMFLOAT3 pos;
+	XMFLOAT3 dir = XMFLOAT3(-0.707f, -0.707f, 0.0f);
+	float radius = 20;
+
+	XMFLOAT3 targetpos = m_pPlayer->GetPosition();
+	//XMFLOAT3 targetpos = XMFLOAT3(-16,0,103);
+	
+	// Only the first "main" light casts a shadow.
+	XMVECTOR lightDir = XMLoadFloat3(&dir);
+	XMVECTOR targetPos = XMLoadFloat3(&targetpos);
+	XMVECTOR lightPos = targetPos - 2.0f * radius * lightDir;
+	XMVECTOR lightUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, targetPos, lightUp);
+
+	XMStoreFloat3(&pos, lightPos);
+
+	// Transform bounding sphere to light space.
+	XMFLOAT3 sphereCenterLS;
+	XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPos, lightView));
+
+	// Ortho frustum in light space encloses scene.
+	float l = sphereCenterLS.x - radius;
+	float b = sphereCenterLS.y - radius;
+	float n = sphereCenterLS.z - radius;
+	float r = sphereCenterLS.x + radius;
+	float t = sphereCenterLS.y + radius;
+	float f = sphereCenterLS.z + radius;
+
+	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
+	XMMATRIX T(	0.5f, 0.0f,	 0.0f, 0.0f,
+				0.0f, -0.5f, 0.0f, 0.0f,
+				0.0f, 0.0f,  1.0f, 0.0f,
+				0.5f, 0.5f,  0.0f, 1.0f);
+	XMMATRIX S = lightView * lightProj * T;
+
+	XMFLOAT4X4 proj;
+	XMStoreFloat4x4(&proj, lightProj);
+
+	XMFLOAT4X4 view;
+	XMStoreFloat4x4(&view, lightView);
+
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&view)));
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4InverseView, XMMatrixTranspose(XMMatrixInverse(NULL, XMLoadFloat4x4(&view))));
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4Projection, XMMatrixTranspose(XMLoadFloat4x4(&proj)));
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xmf4x4InverseProjection, XMMatrixTranspose(XMMatrixInverse(NULL, XMLoadFloat4x4(&proj))));
+	XMStoreFloat4x4(&m_pShadowMappedCamera->m_xm4x4ShadowTransform, XMMatrixTranspose(S));
+	XMStoreFloat4x4(&m_pCamera->m_pcbMappedCamera->m_xm4x4ShadowTransform, XMMatrixTranspose(S));
+
+	::memcpy(&m_pShadowMappedCamera->m_xmf3Position, &pos, sizeof(XMFLOAT3));
+	::memcpy(&m_pShadowMappedCamera->m_xmf3Direction, &dir, sizeof(XMFLOAT3));
+
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGPUVirtualAddress = m_pShadowCamera->GetGPUVirtualAddress();
+	m_pCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_CAMERA, d3dGPUVirtualAddress);
+	m_pCommandList->SetDescriptorHeaps(1, &GameScene::MainScene->m_pd3dCbvSrvDescriptorHeap);
+
+	for (auto& object : GameScene::MainScene->MonsterObjects)
+	{
+		//object->Animate(elapseTime);
+		object->UpdateTransform(NULL);
+		object->Render(m_pCommandList, m_pCamera);
+	}
+	for (auto& object : GameScene::MainScene->gameObjects)
+	{
+		//object->Animate(elapseTime);
+		object->UpdateTransform(NULL);
+		object->Render(m_pCommandList, m_pCamera);
+	}
+	for (auto& blendObject : GameScene::MainScene->blendGameObjects)
+	{
+		blendObject->UpdateTransform(NULL);
+		blendObject->Render(m_pCommandList, m_pCamera);
+	}
+	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
+	for (auto& p : m_OtherPlayers) {
+		if (p->GetUsed()) {
+			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
+		}
+	}
+
+	ResourceTransition(m_pCommandList, m_ShadowMap->Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+	//GameScene::MainScene->m_pLights->m_pLights[0]
+	//////////////////////////////////////////////////////////
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
@@ -949,11 +1156,9 @@ void GameFramework::FrameAdvance()
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 
 	// �÷��̾�
-	m_pPlayer->Update(Timer::GetTimeElapsed());
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	for (auto& p : m_OtherPlayers) {
 		if (p->GetUsed()) {
-			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());
 			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
 		}
 	}
@@ -964,6 +1169,7 @@ void GameFramework::FrameAdvance()
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
 
 	// MRT ���
+	m_pCommandList->SetGraphicsRootDescriptorTable(23, m_ShadowMap->Srv());
 	m_pScreen->Render(m_pCommandList, m_pCamera);
 
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
@@ -979,8 +1185,11 @@ void GameFramework::FrameAdvance()
 	if (DebugMode)
 	{
 		m_pScreen->SetDescriptorHeap(m_pCommandList);
+		m_pCommandList->SetGraphicsRootDescriptorTable(23, m_ShadowMap->Srv());
+
 		m_pDebug->Render(m_pCommandList, m_pCamera);
 	}
+
 
 	// UI
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);

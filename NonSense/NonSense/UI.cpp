@@ -1020,7 +1020,7 @@ Mage_UI::Mage_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 
 void Mage_UI::OnClick()
 {
-
+	NetworkMGR::is_mage = true;
 }
 
 Warrior_UI::Warrior_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -1045,7 +1045,7 @@ Warrior_UI::Warrior_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 
 void Warrior_UI::OnClick()
 {
-
+	NetworkMGR::is_mage = false;
 }
 
 Leave_Room_UI::Leave_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -1095,5 +1095,24 @@ Ready_UI::Ready_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 void Ready_UI::OnClick()
 {
+	GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
+}
 
+Room_Back_UI::Room_Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Lobby_Back.dds", RESOURCE_TEXTURE2D, 0);
+	CanClick = false;
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.0, 0.0, 1, 1);
 }

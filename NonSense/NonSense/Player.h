@@ -29,7 +29,6 @@ protected:
 	float m_fMaxVelocityY;
 	float m_fFriction;
 
-	Camera* m_pCamera = NULL;
 
 	XMFLOAT3 m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
@@ -54,6 +53,7 @@ public:
 
 	Player();
 	virtual ~Player();
+	Camera* m_pCamera = NULL;
 
 	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
