@@ -129,6 +129,8 @@ public:
 
 	virtual void Update(float fTimeElapsed);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+	void FootStepR();
+	void FootStepL();
 };
 
 class WarriorPlayer : public Player
@@ -147,4 +149,6 @@ public:
 
 	virtual void Update(float fTimeElapsed);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+	void FootStepR();
+	void FootStepL();
 };

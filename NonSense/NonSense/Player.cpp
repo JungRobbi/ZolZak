@@ -458,7 +458,31 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[13]->m_nType = ANIMATION_TYPE_ONCE;
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[14]->m_nType = ANIMATION_TYPE_ONCE; 
 
+
+		std::function<void()> FootStepREvent = [this]() {
+			this->FootStepR();
+		};
+		std::function<void()> FootStepLEvent = [this]() {
+			this->FootStepL();
+		};
+		m_pSkinnedAnimationController->AddAnimationEvent("FootStepREvent", E_WALK, 0.2, FootStepREvent);
+		m_pSkinnedAnimationController->AddAnimationEvent("FootStepLEvent", E_WALK, 0.65, FootStepLEvent);
+
+		m_pSkinnedAnimationController->AddAnimationEvent("FootStepREvent", E_RUN, 0.13, FootStepREvent);
+		m_pSkinnedAnimationController->AddAnimationEvent("FootStepLEvent", E_RUN, 0.33, FootStepLEvent);
 	}
+}
+
+void MagePlayer::FootStepR()
+{
+	Sound* s = new Sound("Sound/GrassFootstep_R.mp3", false);
+	GameScene::MainScene->AddSound(s);
+}
+
+void MagePlayer::FootStepL()
+{
+	Sound* s = new Sound("Sound/GrassFootstep_L.mp3", false);
+	GameScene::MainScene->AddSound(s);
 }
 
 Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
@@ -553,6 +577,7 @@ void MagePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCam
 		Player::Render(pd3dCommandList, pCamera);
 	}
 }
+
 
 
 WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
@@ -650,9 +675,31 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[13]->m_nType = ANIMATION_TYPE_ONCE;
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[14]->m_nType = ANIMATION_TYPE_ONCE;
 
+		std::function<void()> FootStepREvent = [this]() {
+			this->FootStepR();
+		};
+		std::function<void()> FootStepLEvent = [this]() {
+			this->FootStepL();
+		};
+		m_pSkinnedAnimationController->AddAnimationEvent("FootStepREvent", E_WALK, 0.2, FootStepREvent);
+		m_pSkinnedAnimationController->AddAnimationEvent("FootStepLEvent", E_WALK, 0.65, FootStepLEvent);
+
+		m_pSkinnedAnimationController->AddAnimationEvent("FootStepREvent", E_RUN, 0.13, FootStepREvent);
+		m_pSkinnedAnimationController->AddAnimationEvent("FootStepLEvent", E_RUN, 0.33, FootStepLEvent);
 	}
 }
 
+void WarriorPlayer::FootStepR()
+{
+	Sound* s = new Sound("Sound/GrassFootstep_R.mp3", false);
+	GameScene::MainScene->AddSound(s);
+}
+
+void WarriorPlayer::FootStepL()
+{
+	Sound* s = new Sound("Sound/GrassFootstep_L.mp3", false);
+	GameScene::MainScene->AddSound(s);
+}
 Camera* WarriorPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 {
 	DWORD nCurrentCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
