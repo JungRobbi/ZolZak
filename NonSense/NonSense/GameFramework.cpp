@@ -558,7 +558,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 							m_pCamera = m_pPlayer->ChangeCamera(THIRD_PERSON_CAMERA, Timer::GetTimeElapsed());
 							ScriptMode = true;
 							TalkingNPC = 1;
-							cout << GameScene::MainScene->StartNPC->script[0] << endl;
+						//	cout << GameScene::MainScene->StartNPC->script[0] << endl;
 						}
 						else
 						{
@@ -572,7 +572,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 								TalkingNPC = 0;
 								break;
 							}
-							cout << GameScene::MainScene->StartNPC->script[ScriptNum] << endl;
+						//	cout << GameScene::MainScene->StartNPC->script[ScriptNum] << endl;
 						}
 					}
 
@@ -583,7 +583,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 							m_pCamera = m_pPlayer->ChangeCamera(THIRD_PERSON_CAMERA, Timer::GetTimeElapsed());
 							ScriptMode = true;
 							TalkingNPC = 2;
-							cout << GameScene::MainScene->EndNPC->script[0] << endl;
+						//	cout << GameScene::MainScene->EndNPC->script[0] << endl;
 						}
 						else
 						{
@@ -597,7 +597,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 								TalkingNPC = 0;
 								break;
 							}
-							cout << GameScene::MainScene->EndNPC->script[ScriptNum] << endl;
+						//	cout << GameScene::MainScene->EndNPC->script[ScriptNum] << endl;
 						}
 					}
 				}
