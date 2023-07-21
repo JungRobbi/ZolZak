@@ -73,7 +73,6 @@ Texture2D RenderInfor[4] : register(t1); //Position, Normal+ObjectID, Texture, D
 Texture2D gtxShadowMap : register(t26); // Shadnow Map
 SamplerState gssDefaultSamplerState : register(s0);
 SamplerState gssWrap : register(s0);
-SamplerState gssMirrorSamplerState : register(s2);
 Texture2D gtxtUITexture : register(t24);
 Texture2D gtxtParticleTexture : register(t25);
 SamplerState gssBorder : register(s1); // SkyBox
@@ -747,7 +746,7 @@ VS_WATER_OUTPUT VSWater(VS_WATER_INPUT input)
 
 float4 PSWater(VS_WATER_OUTPUT input) : SV_TARGET
 {
-	float4 cColor = gtxtUITexture.Sample(gssMirrorSamplerState, input.uv);
+	float4 cColor = gtxtUITexture.Sample(gssDefaultSamplerState, input.uv);
 
 	return(cColor);
 
