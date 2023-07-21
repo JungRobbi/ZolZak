@@ -594,11 +594,19 @@ Room_UI::Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	SetMyPos(0.25, 0.25, 0.54, 0.44);
+}
 
+void Room_UI::OnClick()
+{
+	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum = RoomNum;
+	std::cout << RoomNum << "�� �� - " << RoomName << " - ���� - " << RoomOwner << std::endl;
+}
+
+void Room_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	auto& tb = ChatMGR::m_pUILayer->m_pUITextBlocks[RoomNum % 6];
 	if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page * 6 <= RoomNum &&
 		(dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page + 1) * 6 > RoomNum) { // In Page
-		auto& tb = ChatMGR::m_pUILayer->m_pUITextBlocks[RoomNum % 6];
-		ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
 		std::wstring wstr;
 		wstr = std::to_wstring(RoomNum)
 			+ L"               "
@@ -606,14 +614,8 @@ Room_UI::Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 			+ L"     "
 			+ std::wstring().assign(RoomOwner.begin(), RoomOwner.end());
 		wcscpy(tb.m_pstrText, wstr.c_str());
-		std::wcout << tb.m_pstrText << std::endl;
 	}
-}
-
-void Room_UI::OnClick()
-{
-	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum = RoomNum;
-	std::cout << RoomNum << "�� �� - " << RoomName << " - ���� - " << RoomOwner << std::endl;
+	UI::Render(pd3dCommandList, pCamera);
 }
 
 //////////////////////////////////////////////

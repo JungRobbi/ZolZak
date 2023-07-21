@@ -385,6 +385,10 @@ void ChatMGR::UpdateText()
         rect.bottom -= i * fontsize + 2;
         m_pUILayer->UpdateTextOutputs(i++, *p, rect, pdwTextFormat, pd2dBrush);
     }
+    for (int i{}; i < 6; ++i) {
+        ZeroMemory(ChatMGR::m_pUILayer->m_pUITextBlocks[i].m_pstrText,
+            sizeof(ChatMGR::m_pUILayer->m_pUITextBlocks[i].m_pstrText));
+    }
 }
 
 void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
