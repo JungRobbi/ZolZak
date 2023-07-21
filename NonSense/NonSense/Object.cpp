@@ -1120,7 +1120,7 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 				bb->SetNum(0);
 				bs->SetNum(4);
 				nReads = (UINT)::fread(&pObject->m_xmf4x4ToParent, sizeof(float), 16, OpenedFile);
-				pObject->UpdateTransform(NULL);
+
 				pObject->AddComponent<BoxCollideComponent>();
 				pObject->GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
 
@@ -2328,9 +2328,9 @@ void Explosion::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 1, &time, 3);
 }
 
-Water::Water(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BLEND_OBJECT)
+Water::Water(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float h, float w) : Object(BLEND_OBJECT)
 {
-	RectMesh* pWaterMesh = new RectMesh(pd3dDevice, pd3dCommandList, 5, 5);
+	RectMesh* pWaterMesh = new RectMesh(pd3dDevice, pd3dCommandList, h, w);
 	SetMesh(pWaterMesh);
 
 	CTexture* pWaterTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);

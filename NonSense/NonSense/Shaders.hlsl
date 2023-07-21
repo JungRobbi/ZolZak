@@ -617,7 +617,7 @@ VS_WATER_OUTPUT VSWater(VS_WATER_INPUT input)
 
 	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxObjectWorld), gmtxView), gmtxProjection);
 
-	output.uv = input.uv + gfCurrentTime * 0.1;
+	output.uv = input.uv + gfCurrentTime * 0.01;
 
 	return(output);
 }

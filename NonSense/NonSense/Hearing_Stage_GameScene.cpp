@@ -108,6 +108,27 @@ void Hearing_Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	TempObject->SetNum(10006);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 
+
+	TempObject = new Water(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 20, 20);
+	TempObject->SetPosition(239.f, 2.0f, -67.f);
+	TempObject->SetNum(10000);
+	TempObject = new Water(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 20, 20);
+	TempObject->SetPosition(239.f, 2.0f, -107);
+	TempObject->SetNum(10000);
+	TempObject = new Water(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 20, 20);
+	TempObject->SetPosition(239.f, 2.0f, -147.f);
+	TempObject->SetNum(10000);
+	TempObject = new Water(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 20, 20);
+	TempObject->SetPosition(239.f, 2.0f, -27.f);
+	TempObject->SetNum(10000);
+	TempObject = new Water(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 20, 20);
+	TempObject->SetPosition(199.f, 2.0f, -27.f);
+	TempObject->SetNum(10000);
+	TempObject = new Water(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 20, 20);
+	TempObject->SetPosition(199.f, 2.0f, 13.f);
+	TempObject->SetNum(10000);
+
+
 	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
 
 	m_pBlendShader = new BlendShader();
