@@ -332,7 +332,7 @@ static int2 gnOffsets[9] = { { -1,-1 }, { 0,-1 }, { 1,-1 }, { -1,0 }, { 0,0 }, {
 
 float CalcShadowFactor(float4 shadowPosH)
 {
-	// Complete projection by doing division by w.
+
 	shadowPosH.xyz /= shadowPosH.w;
 
 	// Depth in NDC space.

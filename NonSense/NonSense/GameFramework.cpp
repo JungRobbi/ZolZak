@@ -1064,15 +1064,10 @@ void GameFramework::FrameAdvance()
 	m_pCommandList->ClearDepthStencilView(m_ShadowMap->Dsv(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	m_pCommandList->OMSetRenderTargets(0, nullptr, false, &m_ShadowMap->Dsv());
 
-	//UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
-	//auto passCB = mCurrFrameResource->PassCB->Resource();
-	//D3D12_GPU_VIRTUAL_ADDRESS passCBAddress = passCB->GetGPUVirtualAddress() + 1 * passCBByteSize;
-	//m_pCommandList->SetGraphicsRootConstantBufferView(1, passCBAddress);
-
 	m_pCommandList->SetPipelineState(m_pPipelineState);
 
 	XMFLOAT3 pos;
-	XMFLOAT3 dir = XMFLOAT3(0.0f, -0.707f, -0.707f);
+	XMFLOAT3 dir = XMFLOAT3(-0.707f, -0.707f, 0.0f);
 	float radius = 20;
 
 	XMFLOAT3 targetpos = m_pPlayer->GetPosition();
@@ -1180,8 +1175,6 @@ void GameFramework::FrameAdvance()
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
 
 	// MRT ���
-	d3dGPUVirtualAddress = m_pShadowCamera->GetGPUVirtualAddress();
-	m_pCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_CAMERA, d3dGPUVirtualAddress);
 	m_pCommandList->SetGraphicsRootDescriptorTable(23, m_ShadowMap->Srv());
 	m_pScreen->Render(m_pCommandList, m_pCamera);
 
@@ -1192,7 +1185,7 @@ void GameFramework::FrameAdvance()
 	// Sky Box
 	if(GameScene::MainScene->m_pSkyBox)GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
 	// Bounding Box
-	//if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
+	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
 	// Debug ȭ��
 	
 	if (DebugMode)
@@ -1208,7 +1201,7 @@ void GameFramework::FrameAdvance()
 	GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
 	if (!IsTouchDebuff)
 	{
-		//if (!ScriptMode && !OptionMode)RenderHP();
+		if (!ScriptMode && !OptionMode)RenderHP();
 	}
 	else
 	{
