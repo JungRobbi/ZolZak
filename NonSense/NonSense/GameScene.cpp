@@ -142,7 +142,7 @@ void GameScene::update()
 
 	if (IsSoundDebuff)
 	{
-		if (SoundDebuffLeftTime < -10)
+		if (SoundDebuffLeftTime <= -10)
 		{
 
 		}
@@ -159,6 +159,20 @@ void GameScene::update()
 			SoundDebuffLeftTime -= elapseTime;
 		}
 	}
+
+	for (auto iter = Sounds.begin();iter!= Sounds.end();)
+	{
+		if (!(*iter)->CheckEndSound())
+		{
+			iter = Sounds.erase(iter);
+		}
+		else
+		{
+			++iter;
+		}
+	}
+
+
 }
 
 void GameScene::PushDelete(Object* gameObject)
@@ -700,6 +714,15 @@ void GameScene::Sound_Debuff(float time)
 	}
 	SoundDebuffLeftTime = time;
 	IsSoundDebuff = true;
+}
+
+void GameScene::AddSound(Sound* s)
+{
+	if (IsSoundDebuff)
+	{
+		s->AddDsp();
+	}
+	Sounds.insert(Sounds.begin(), s);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE GameScene::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nRootParameter, bool bAutoIncrement)

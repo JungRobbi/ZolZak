@@ -140,6 +140,7 @@ public:
 
 	void Sound_Debuff(float time);
 	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
+	void AddSound(Sound* s);
 protected:
 
 	int m_nShaders = 0;

@@ -152,6 +152,7 @@
     <ClInclude Include="BossAttackComponent.h" />
     <ClInclude Include="BossFSMComponent.h" />
     <ClInclude Include="BossState.h" />
+    <ClInclude Include="Boss_Stage_GameScene.h" />
     <ClInclude Include="BoxCollideComponent.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Characters.h" />
@@ -165,6 +166,7 @@
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="CloseTypeFSMComponent.h" />
+    <ClInclude Include="Hearing_Stage_GameScene.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Lobby_GameScene.h" />
     <ClInclude Include="Login_GameScene.h" />
@@ -183,6 +185,7 @@
     <ClInclude Include="NonSense.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ShadowMap.h" />
+    <ClInclude Include="Sight_Stage_GameScene.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="Stage_GameScene.h" />
     <ClInclude Include="SphereCollideComponent.h" />
@@ -190,6 +193,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Touch_Stage_GameScene.h" />
     <ClInclude Include="Transform3DComponent.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="UILayer.h">
@@ -213,6 +217,7 @@
     <ClCompile Include="BossAttackComponent.cpp" />
     <ClCompile Include="BossFSMComponent.cpp" />
     <ClCompile Include="BossState.cpp" />
+    <ClCompile Include="Boss_Stage_GameScene.cpp" />
     <ClCompile Include="BoxCollideComponent.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Characters.cpp" />
@@ -225,6 +230,7 @@
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="CloseTypeFSMComponent.cpp" />
+    <ClCompile Include="Hearing_Stage_GameScene.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Lobby_GameScene.cpp" />
     <ClCompile Include="Login_GameScene.cpp" />
@@ -242,11 +248,13 @@
     <ClCompile Include="RushTypeState.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
+    <ClCompile Include="Sight_Stage_GameScene.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Stage_GameScene.cpp" />
     <ClCompile Include="SphereCollideComponent.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Touch_Stage_GameScene.cpp" />
     <ClCompile Include="Transform3DComponent.cpp" />
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="UILayer.cpp">

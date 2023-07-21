@@ -19,7 +19,10 @@ extern enum SCENE_TYPE
 	LOGIN_SCENE = 0,
 	LOBBY_SCENE = 1,
 	ROOM_SCENE = 2,
-	GAME_SCENE = 3
+	SIGHT_SCENE = 3,
+	HEARING_SCENE = 4,
+	TOUCH_SCENE = 5,
+	BOSS_SCENE = 6
 };
 
 class GameFramework
@@ -104,6 +107,7 @@ public:
 	void CreateCommandQueueAndList();
 	void CreateShadowMap();
 	void MoveToNextFrame();
+	void InitializeVivoxSystem(std::string UserName);
 
 	void CreateRenderTargetViews();
 	void CreateDepthStencilView();

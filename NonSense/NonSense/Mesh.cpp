@@ -1130,3 +1130,44 @@ void ParticleMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void*
 ParticleMesh::~ParticleMesh()
 {
 }
+
+RectMesh::RectMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight) : Mesh(pd3dDevice, pd3dCommandList)
+{
+	m_nVertices = 6;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	m_pxmf3Positions = new XMFLOAT3[m_nVertices];
+	m_xmf2TexCoord = new XMFLOAT2[m_nVertices];
+	float fx = fWidth, fz = fHeight;
+	// Front Quad (quads point inward)
+	m_pxmf3Positions[0] = XMFLOAT3(-fx, 0, +fz);
+	m_xmf2TexCoord[0] = XMFLOAT2(0.0f, 0.0f);
+	m_pxmf3Positions[1] = XMFLOAT3(+fx, 0, +fz);
+	m_xmf2TexCoord[1] = XMFLOAT2(1.0f, 0.0f);
+	m_pxmf3Positions[2] = XMFLOAT3(-fx, 0, -fz);
+	m_xmf2TexCoord[2] = XMFLOAT2(0.0f, 1.0f);
+	m_pxmf3Positions[3] = XMFLOAT3(-fx, 0, -fz);
+	m_xmf2TexCoord[3] = XMFLOAT2(0.0f, 1.0f);
+	m_pxmf3Positions[4] = XMFLOAT3(+fx, 0, +fz);
+	m_xmf2TexCoord[4] = XMFLOAT2(1.0f, 0.0f);
+	m_pxmf3Positions[5] = XMFLOAT3(+fx, 0, -fz);
+	m_xmf2TexCoord[5] = XMFLOAT2(1.0f, 1.0f);
+
+	m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Positions, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dPositionUploadBuffer);
+
+	m_d3dPositionBufferView.BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
+	m_d3dPositionBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dPositionBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+
+	m_pd3dTextureCoordBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_xmf2TexCoord, sizeof(XMFLOAT2) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dTextureCoordUploadBuffer);
+
+	m_d3dTextureCoordBufferView.BufferLocation = m_pd3dTextureCoordBuffer->GetGPUVirtualAddress();
+	m_d3dTextureCoordBufferView.StrideInBytes = sizeof(XMFLOAT2);
+	m_d3dTextureCoordBufferView.SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
+}
+
+void RectMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
+{
+	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[2] = { m_d3dPositionBufferView, m_d3dTextureCoordBufferView};
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, 2, pVertexBufferViews);
+}

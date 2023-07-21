@@ -588,7 +588,11 @@ Shield::Shield(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 				std::function<void()> SummonEvent = [this,pd3dDevice,pd3dCommandList,pd3dGraphicsRootSignature]() {
 					this->BossSummonEvent(pd3dDevice,pd3dCommandList,pd3dGraphicsRootSignature);
 				};
+				std::function<void()> SummonSoundEvent = [this, pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature]() {
+					this->BossSummonSoundEvent();
+				};		
 				m_pSkinnedAnimationController->AddAnimationEvent("SummonEvent", E_B_SUMMON, 1.5, SummonEvent);
+				m_pSkinnedAnimationController->AddAnimationEvent("SummonEvent", E_B_SUMMON, 1.16, SummonSoundEvent);
 
 				float len = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_SUMMON]->m_Length - 0.1;
 				m_pSkinnedAnimationController->AddAnimationEvent("EndEvent", E_B_SUMMON, len, EndEvent);
@@ -606,8 +610,11 @@ Shield::Shield(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 				std::function<void()> JumpAttackEvent = [this]() {
 					this->BossJumpAttackEvent();
 				};
+				std::function<void()> JumpAttackSoundEvent = [this]() {
+					this->BossJumpAttackSoundEvent();
+				};
 				m_pSkinnedAnimationController->AddAnimationEvent("JumpAttackEvent", E_B_JUMPATTACK, 2.3, JumpAttackEvent);
-
+				m_pSkinnedAnimationController->AddAnimationEvent("JumpAttackEvent", E_B_JUMPATTACK, 2.3, JumpAttackSoundEvent);
 				float len = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_JUMPATTACK]->m_Length - 0.1;
 				m_pSkinnedAnimationController->AddAnimationEvent("EndEvent", E_B_JUMPATTACK, len, EndEvent);
 			}
@@ -661,6 +668,8 @@ void Shield::BossStealSenseEvent()
 void Shield::BossSummonEvent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	GetComponent<BossAttackComponent>()->Summon(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,GetPosition());
+	Sound* s = new Sound("Sound/MobSpawn.mp3", false);
+	GameScene::MainScene->AddSound(s);
 }
 
 void Shield::BossDefenceEvent()
@@ -676,6 +685,24 @@ void Shield::BossJumpAttackEvent()
 void Shield::BossTorandoEvent()
 {
 	GetComponent<BossAttackComponent>()->Tornado();
+}
+
+void Shield::BossRoarSoundEvent()
+{
+	Sound* s = new Sound("Sound/BossRoar.mp3", false);
+	GameScene::MainScene->AddSound(s);
+}
+
+void Shield::BossSummonSoundEvent()
+{
+	Sound* s = new Sound("Sound/BossSpawn.mp3", false);
+	GameScene::MainScene->AddSound(s);
+}
+
+void Shield::BossJumpAttackSoundEvent()
+{
+	Sound* s = new Sound("Sound/JumpAttack.mp3", false);
+	GameScene::MainScene->AddSound(s);
 }
 
 void Shield::EndSkillEvent()

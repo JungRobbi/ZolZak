@@ -33,4 +33,6 @@ public:
 
 	void VolumeUp();
 	void VolumeDown();
+
+	FMOD_BOOL CheckEndSound();
 };

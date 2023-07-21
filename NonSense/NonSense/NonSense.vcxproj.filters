@@ -237,6 +237,21 @@
     <ClInclude Include="Room_GameScene.h">
       <Filter>소스 파일\GameScenes</Filter>
     </ClInclude>
+    <ClInclude Include="Room_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Touch_Stage_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Sight_Stage_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Hearing_Stage_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Boss_Stage_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -366,6 +381,21 @@
       <Filter>소스 파일\DirectX 12</Filter>
     </ClCompile>
     <ClCompile Include="Room_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Room_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Touch_Stage_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Sight_Stage_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Hearing_Stage_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Boss_Stage_GameScene.cpp">
       <Filter>소스 파일\GameScenes</Filter>
     </ClCompile>
   </ItemGroup>
