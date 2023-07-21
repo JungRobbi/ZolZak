@@ -495,9 +495,9 @@ void ChatMGR::SetInGame(int WndClientWidth, int WndClientHeight)
         DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
         fontsize, L"en-us", &pdwTextFormat);
 
-    //m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
-    //    DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-    //    WndClientHeight / 40.0f, L"en-us", &pdwUITextFormat);
+    m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
+        DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+        WndClientHeight / 40.0f, L"en-us", &pdwUITextFormat);
 }
 
 void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
