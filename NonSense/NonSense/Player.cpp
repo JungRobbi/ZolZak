@@ -8,6 +8,7 @@
 #include "SphereCollideComponent.h"
 #include "../ImaysNet/PacketQueue.h"
 #include "NetworkMGR.h"
+#include "GameFramework.h"
 
 Player::Player() : Object(false)
 {

@@ -10,7 +10,6 @@
 #include "Object.h"
 #include "Shader.h"
 #include "UI.h"
-#include "GameFramework.h"
 
 class Camera;
 
