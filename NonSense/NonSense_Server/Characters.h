@@ -26,7 +26,7 @@ protected:
 public:
 	std::atomic<int> OldAniType{ E_MONSTER_ANIMATION_TYPE::E_M_IDLE };
 	std::atomic<int> PresentAniType{ E_MONSTER_ANIMATION_TYPE::E_M_IDLE };
-
+	
 public:
 	int num;
 	Character();
@@ -69,4 +69,38 @@ public:
 
 	Goblin(MonsterType type, int roomNum);
 	virtual ~Goblin();
+};
+
+class Orc : public Monster
+{
+public:
+	Orc(MonsterType type, int roomNum);
+	virtual ~Orc();
+
+	void CloseAttackEvent();
+};
+
+class Skull : public Monster
+{
+public:
+	Skull(MonsterType type, int roomNum);
+	virtual ~Skull();
+
+	void CloseAttackEvent();
+};
+
+class Shield : public Monster
+{
+public:
+	Shield(MonsterType type, int roomNum);
+	virtual ~Shield();
+
+	void BossAttackEvent();
+	void BossStealSenseEvent();
+	void BossSummonEvent();
+	void BossDefenceEvent();
+	void BossJumpAttackEvent();
+	void BossTorandoEvent();
+
+	void EndSkillEvent();
 };

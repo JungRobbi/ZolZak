@@ -12,6 +12,7 @@
 #include "RotateComponent.h"
 #include "PlayerMovementComponent.h"
 #include "SphereCollideComponent.h"
+#include "NetworkMGR.h"
 
 WeaponObject::WeaponObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Object(DEFAULT_OBJECT)
 {
@@ -685,7 +686,7 @@ void Shield::BossJumpAttackEvent()
 void Shield::BossTorandoEvent()
 {
 	GetComponent<BossAttackComponent>()->Tornado();
-}
+}	
 
 void Shield::BossRoarSoundEvent()
 {

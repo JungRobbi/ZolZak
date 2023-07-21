@@ -133,9 +133,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BossState.cpp" />
     <ClCompile Include="Characters.cpp" />
     <ClCompile Include="CloseTypeState.cpp" />
     <ClCompile Include="Components\AttackComponent.cpp" />
+    <ClCompile Include="Components\BossAttackComponent.cpp" />
+    <ClCompile Include="Components\BossFSMComponent.cpp" />
     <ClCompile Include="Components\BoxCollideComponent.cpp" />
     <ClCompile Include="Components\CloseTypeFSMComponent.cpp" />
     <ClCompile Include="Components\Component.cpp" />
@@ -162,9 +165,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AnimationType.h" />
+    <ClInclude Include="BossState.h" />
     <ClInclude Include="Characters.h" />
     <ClInclude Include="CloseTypeState.h" />
     <ClInclude Include="Components\AttackComponent.h" />
+    <ClInclude Include="Components\BossAttackComponent.h" />
+    <ClInclude Include="Components\BossFSMComponent.h" />
     <ClInclude Include="Components\BoxCollideComponent.h" />
     <ClInclude Include="Components\CloseTypeFSMComponent.h" />
     <ClInclude Include="Components\Component.h" />

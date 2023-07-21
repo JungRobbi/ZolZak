@@ -1,6 +1,6 @@
 #include "BossState.h"
 #include "Characters.h"
-#include "NetworkMGR.h"
+#include "Components/BossAttackComponent.h"
 #include <random>
 
 static std::uniform_real_distribution<float> RandomSkillCoolTime(10.0f, 15.0f);
@@ -72,12 +72,11 @@ void TrackEnemyState_Boss::Execute(BossFSMComponent* pOwner)
 	{
 		pOwner->GetFSM()->ChangeState(IdleState_Boss::GetInstance());
 	}
-	if (!NetworkMGR::b_isNet) {
-		if (pOwner->GetSkillCoolTime() <= 0.0)
-		{
-			pOwner->GetFSM()->ChangeState(SkillState_Boss::GetInstance());
-		}
+	if (pOwner->GetSkillCoolTime() <= 0.0)
+	{
+		pOwner->GetFSM()->ChangeState(SkillState_Boss::GetInstance());
 	}
+
 }
 
 void TrackEnemyState_Boss::Exit(BossFSMComponent* pOwner)
@@ -128,12 +127,11 @@ DeathState_Boss* DeathState_Boss::GetInstance()
 void DeathState_Boss::Enter(BossFSMComponent* pOwner)
 {
 	//std::cout << "Unit Die" << std::endl;
-	pOwner->gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_DEATH);
 }
 
 void DeathState_Boss::Execute(BossFSMComponent* pOwner)
 {
-	pOwner->Death();
+	
 }
 
 void DeathState_Boss::Exit(BossFSMComponent* pOwner)
@@ -158,42 +156,53 @@ void SkillState_Boss::Execute(BossFSMComponent* pOwner)
 	{
 		pOwner->TornadoTrack();
 	}
-	if (pOwner->gameObject->GetComponent<BossAttackComponent>()->End_Skill)
-	{
-		pOwner->GetFSM()->ChangeState(TrackEnemyState_Boss::GetInstance());
-		pOwner->IsTornado = false;
-		return;
+	if (pOwner->gameObject->GetComponent<BossAttackComponent>()->During_Skill) {
+		m_Timer -= Timer::GetTimeElapsed();
+		if (m_Timer <= 0.0f)
+		{
+			pOwner->GetFSM()->ChangeState(TrackEnemyState_Boss::GetInstance());
+			pOwner->IsTornado = false;
+			m_Timer = 0.0f;
+			return;
+		}
 	}
-	if (!pOwner->gameObject->GetComponent<BossAttackComponent>()->During_Skill)
-	{
+	else {
 		int Skill = RandomSkill(rd);
 		std::cout << "SKill : " << Skill << std::endl;
 		switch (Skill)
 		{
 		case 0:
 			pOwner->StealSense();
+			m_Timer = 2.5f;
 			break;
 
 		case 1:
-			pOwner->Summon();
+		//	pOwner->Summon();
+			pOwner->StealSense();
+			m_Timer = 2.5f;
 			break;
 
 		case 2:
 			pOwner->Defence();
+			m_Timer = 1.6f;
 			break;
 
 		case 3:
 			pOwner->JumpAttack();
+			m_Timer = 3.3f;
 			break;
 
 		case 4:
 			pOwner->Tornado();
+			m_Timer = 6.0f;
 			pOwner->IsTornado = true;
 			break;
 		default:
 			break;
 		}
 	}
+
+
 }
 
 void SkillState_Boss::Exit(BossFSMComponent* pOwner)

@@ -120,6 +120,15 @@
     <ClCompile Include="Components\RotateComponent.cpp">
       <Filter>소스 파일\Components</Filter>
     </ClCompile>
+    <ClCompile Include="Components\BossFSMComponent.cpp">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="BossState.cpp">
+      <Filter>소스 파일\FSM</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\BossAttackComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -210,6 +219,15 @@
       <Filter>소스 파일\Components</Filter>
     </ClInclude>
     <ClInclude Include="Components\RotateComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\BossFSMComponent.h">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="BossState.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\BossAttackComponent.h">
       <Filter>소스 파일\Components</Filter>
     </ClInclude>
   </ItemGroup>

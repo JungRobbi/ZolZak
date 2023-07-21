@@ -12,6 +12,8 @@
 #include "FarTypeState.h"
 #include "RushTypeFSMComponent.h"
 #include "RushTypeState.h"
+#include "BossFSMComponent.h"
+#include "BossState.h"
 #include "AttackComponent.h"
 #include "UILayer.h"
 #include "Lobby_GameScene.h"
@@ -328,6 +330,19 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			if ((E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype == E_MONSTER_ANIMATION_TYPE::E_M_ATTACK)
 				Monster->GetComponent<RushTypeFSMComponent>()->Attack();
 		}
+		else if (Monster->GetComponent<BossFSMComponent>()) {
+			Monster->GetComponent<BossFSMComponent>()->Animation_type = (E_MONSTER_ANIMATION_TYPE)recv_packet->Anitype;
+			if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_ATTACK)
+				Monster->GetComponent<BossFSMComponent>()->Attack();
+			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_ROAR)
+				Monster->GetComponent<BossFSMComponent>()->StealSense();
+			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_DEFENCE)
+				Monster->GetComponent<BossFSMComponent>()->Defence();
+			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_JUMPATTACK)
+				Monster->GetComponent<BossFSMComponent>()->JumpAttack();
+			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_TORNADO)
+				Monster->GetComponent<BossFSMComponent>()->Tornado();
+		}
 		break;
 	}
 	case E_PACKET_SC_MOVE_MONSTER_PACKET: {
@@ -388,7 +403,8 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			Monster->GetComponent<FarTypeFSMComponent>()->SetTargetPlayer(player);
 		else if (Monster->GetComponent<RushTypeFSMComponent>())
 			Monster->GetComponent<RushTypeFSMComponent>()->SetTargetPlayer(player);
-
+		else if (Monster->GetComponent<BossFSMComponent>())
+			Monster->GetComponent<BossFSMComponent>()->SetTargetPlayer(player);
 		break;
 	}
 	case E_PACKET_SC_TEMP_HIT_MONSTER_PACKET: {
@@ -453,6 +469,8 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			Monster->GetComponent<FarTypeFSMComponent>()->WanderPosition = XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z);
 		else if (Monster->GetComponent<RushTypeFSMComponent>())
 			Monster->GetComponent<RushTypeFSMComponent>()->WanderPosition = XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z);
+		else if (Monster->GetComponent<BossFSMComponent>())
+			Monster->GetComponent<BossFSMComponent>()->WanderPosition = XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z);
 		break;
 	}
 	case E_PACKET_SC_TEMP_WANDER_MONSTER_PACKET: {
@@ -476,6 +494,8 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			Monster->GetComponent<FarTypeFSMComponent>()->GetFSM()->ChangeState(WanderState_Far::GetInstance());
 		else if (Monster->GetComponent<RushTypeFSMComponent>() && Monster->GetComponent<RushTypeFSMComponent>()->GetFSM()->GetCurrentState() != WanderState_Rush::GetInstance())
 			Monster->GetComponent<RushTypeFSMComponent>()->GetFSM()->ChangeState(WanderState_Rush::GetInstance());
+		else if (Monster->GetComponent<BossFSMComponent>() && Monster->GetComponent<BossFSMComponent>()->GetFSM()->GetCurrentState() != WanderState_Boss::GetInstance())
+			Monster->GetComponent<BossFSMComponent>()->GetFSM()->ChangeState(WanderState_Boss::GetInstance());
 		break;
 	}
 	case E_PACKET_SC_CHAT_PACKET: {

@@ -3,6 +3,7 @@
 #include "GameScene.h"
 #include "GameFramework.h"
 #include "Lobby_GameScene.h"
+#include "UILayer.h"
 
 UI::UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(false)
 {
@@ -14,7 +15,7 @@ UI::~UI()
 
 void UI::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	UINT ncbElementBytes = ((sizeof(CB_PLAYER_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
+	UINT ncbElementBytes = ((sizeof(CB_PLAYER_INFO) + 255) & ~255); //256ï¿½ï¿½ ï¿½ï¿½ï¿½
 
 	m_pd3dcbUI = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dcbUI->Map(0, NULL, (void**)&m_pcbMappedUI);
@@ -54,7 +55,7 @@ void UI::OnPreRender()
 	m_xmf4x4World._22 = m_xmf4x4World._22 * 2;
 	m_xmf4x4World._41 = m_xmf4x4World._41 * 2 - 1; // 0 ~ 1 -> -1 ~ 1
 	m_xmf4x4World._42 = m_xmf4x4World._42 * 2 - 1;
-};
+}
 
 void UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
@@ -68,6 +69,11 @@ void UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 
+	//// UILayerï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ (When UI need Text)
+	//if (m_pUILayer) {
+	//	UpdateText();
+	//	ChatMGR::m_pUILayer->UIRender(GameFramework::MainGameFramework->GetSwapChainBufferIndex(), this);
+	//}
 }
 
 Player_State_UI::Player_State_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -103,7 +109,7 @@ Player_HP_UI::Player_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	SetMaterial(pUIMaterial);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.17, 0.04, 0.82, 0.32);
+	SetMyPos(0.2, 0.04, 0.8, 0.32);
 }
 
 Warrior_Player_State_UI::Warrior_Player_State_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -171,7 +177,7 @@ Monster_HP_UI::Monster_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 void Monster_HP_UI::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	UINT ncbElementBytes = ((sizeof(CB_PLAYER_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
+	UINT ncbElementBytes = ((sizeof(CB_PLAYER_INFO) + 255) & ~255); //256ï¿½ï¿½ ï¿½ï¿½ï¿½
 
 	m_pd3dcbUI = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 	m_pd3dcbUI->Map(0, NULL, (void**)&m_pcbMappedUI);
@@ -406,10 +412,19 @@ void Make_Room_UI::OnClick()
 	//{
 	//	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom = true;
 	//}
-	std::string name;
-	std::cout << "¹æ Á¦¸ñÀ» ÀÔ·ÂÇÏ¼¼¿ä : " << std::endl;
-	std::cin >> name;
-	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(name);
+	std::string name = "Test Room";
+	//	std::cout << "ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ï¿½Ï¼ï¿½ï¿½ï¿½ : " << std::endl;
+	//	std::cin >> name;
+	if (NetworkMGR::b_isNet) {
+		CS_ROOM_CREATE_PACKET send_packet;
+		send_packet.size = sizeof(CS_ROOM_CREATE_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_CS_ROOM_CREATE_PACKET;
+		memcpy(send_packet.roomName, name.c_str(), name.size());
+		PacketQueue::AddSendPacket(&send_packet);
+	}
+	else {
+		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(name);
+	}
 }
 
 Join_Room_UI::Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -433,13 +448,16 @@ Join_Room_UI::Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 void Join_Room_UI::OnClick()
 {
-	int RoomNum = dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum;
-	std::string ChannelName = "Channel_";
-	char buf[3];
-	::itoa(RoomNum, buf, 10);
-	ChannelName.append(buf);
-	GameFramework::MainGameFramework->GetVivoxSystem()->JoinChannel(ChannelName.c_str());
-	GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
+	if (NetworkMGR::b_isNet) {
+		CS_ROOM_JOIN_PACKET send_packet;
+		send_packet.size = sizeof(CS_ROOM_JOIN_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_CS_ROOM_JOIN_PACKET;
+		send_packet.roomNum = dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum;
+		PacketQueue::AddSendPacket(&send_packet);
+	}
+	else {
+		GameFramework::MainGameFramework->ChangeScene(GAME_SCENE);
+	}
 }
 
 Back_UI::Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -580,7 +598,7 @@ Room_UI::Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 void Room_UI::OnClick()
 {
 	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum = RoomNum;
-	std::cout << RoomNum << "¹ø ¹æ - " << RoomName << " - ¹æÀå - " << RoomOwner << std::endl;
+	std::cout << RoomNum << "ï¿½ï¿½ ï¿½ï¿½ - " << RoomName << " - ï¿½ï¿½ï¿½ï¿½ - " << RoomOwner << std::endl;
 }
 
 //////////////////////////////////////////////

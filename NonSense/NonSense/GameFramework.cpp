@@ -460,8 +460,8 @@ void GameFramework::ReleaseObjects()
 {
 	GameScene::MainScene->ReleaseObjects();
 
-	//if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
-	//if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
+	if (ChatMGR::m_pUILayer) ChatMGR::m_pUILayer->ReleaseResources();
+	if (ChatMGR::m_pUILayer) delete ChatMGR::m_pUILayer;
 }
 
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -664,7 +664,8 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 						{
 							m_pCamera = m_pPlayer->ChangeCamera(THIRD_PERSON_CAMERA, Timer::GetTimeElapsed());
 							ScriptMode = true;
-							cout << GameScene::MainScene->StartNPC->script[0] << endl;
+							TalkingNPC = 1;
+						//	cout << GameScene::MainScene->StartNPC->script[0] << endl;
 						}
 						else
 						{
@@ -675,9 +676,10 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
 								ScriptMode = false;
 								ScriptNum = 0;
+								TalkingNPC = 0;
 								break;
 							}
-							cout << GameScene::MainScene->StartNPC->script[ScriptNum] << endl;
+						//	cout << GameScene::MainScene->StartNPC->script[ScriptNum] << endl;
 						}
 					}
 
@@ -687,7 +689,8 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 						{
 							m_pCamera = m_pPlayer->ChangeCamera(THIRD_PERSON_CAMERA, Timer::GetTimeElapsed());
 							ScriptMode = true;
-							cout << GameScene::MainScene->EndNPC->script[0] << endl;
+							TalkingNPC = 2;
+						//	cout << GameScene::MainScene->EndNPC->script[0] << endl;
 						}
 						else
 						{
@@ -698,9 +701,10 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
 								ScriptMode = false;
 								ScriptNum = 0;
+								TalkingNPC = 0;
 								break;
 							}
-							cout << GameScene::MainScene->EndNPC->script[ScriptNum] << endl;
+						//	cout << GameScene::MainScene->EndNPC->script[ScriptNum] << endl;
 						}
 					}
 				}
@@ -1035,7 +1039,7 @@ void GameFramework::FrameAdvance()
 
 	HRESULT hResult = m_pCommandAllocator->Reset();
 	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
-	//ChatMGR::UpdateText();
+	ChatMGR::UpdateText();
 	ProcessInput();
 
 	AnimateObjects();
@@ -1216,11 +1220,11 @@ void GameFramework::FrameAdvance()
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	//if (scene_type == LOGIN_SCENE) {
-		//ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
-	//}
-	//else if (scene_type == GAME_SCENE)
-		//ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+	if (scene_type == LOGIN_SCENE) {
+		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
+	}
+	else if (scene_type >= ROOM_SCENE)
+		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 
 	m_pSwapChain->Present(0, 0);
 

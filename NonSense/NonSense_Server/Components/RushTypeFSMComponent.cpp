@@ -20,7 +20,8 @@ void RushTypeFSMComponent::start()
 
 void RushTypeFSMComponent::update()
 {
-	m_pFSM->Update();
+	if (m_pFSM)
+		m_pFSM->Update();
 }
 
 FSM<RushTypeFSMComponent>* RushTypeFSMComponent::GetFSM()

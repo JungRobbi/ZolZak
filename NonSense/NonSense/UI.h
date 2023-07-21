@@ -1,5 +1,7 @@
 #pragma once
+#include <list>
 #include "Object.h"
+#include "UILayer.h"
 
 struct CB_PLAYER_INFO;
 

@@ -1,28 +1,29 @@
-#include <algorithm>
-#include "CloseTypeFSMComponent.h"
+#include "BossFSMComponent.h"
 #include "../Characters.h"
 #include "../RemoteClients/RemoteClient.h"
+#include "../BossState.h"
+#include "BossAttackComponent.h"
 #include "../Scene.h"
-#include "../CloseTypeState.h"
-#include "AttackComponent.h"
-void CloseTypeFSMComponent::start()
+#include "../Room.h"
+void BossFSMComponent::start()
 {
-	m_pFSM = new FSM<CloseTypeFSMComponent>(this);
-	m_pFSM->SetCurrentState(IdleState::GetInstance());
+	m_pFSM = new FSM<BossFSMComponent>(this);
+	m_pFSM->SetCurrentState(IdleState_Boss::GetInstance());
+
 }
 
-void CloseTypeFSMComponent::update()
+void BossFSMComponent::update()
 {
-	if (m_pFSM)
+	if(m_pFSM)
 		m_pFSM->Update();
 }
 
-FSM<CloseTypeFSMComponent>* CloseTypeFSMComponent::GetFSM()
+FSM<BossFSMComponent>* BossFSMComponent::GetFSM()
 {
 	return m_pFSM;
 }
 
-bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
+bool BossFSMComponent::CheckDistanceFromPlayer()
 {
 	XMFLOAT3 OwnerPos = gameObject->GetPosition();
 
@@ -49,7 +50,7 @@ bool CloseTypeFSMComponent::CheckDistanceFromPlayer()
 	return true;
 }
 
-void CloseTypeFSMComponent::ResetWanderPosition(float posx, float posz)
+void BossFSMComponent::ResetWanderPosition(float posx, float posz)
 {
 	XMFLOAT3 pos;
 	if (Scene::terrain)
@@ -67,17 +68,27 @@ void CloseTypeFSMComponent::ResetWanderPosition(float posx, float posz)
 	WanderPosition = pos;
 }
 
-void CloseTypeFSMComponent::ResetIdleTime(float time)
+void BossFSMComponent::ResetIdleTime(float time)
 {
 	IdleLeftTime = time;
 }
 
-XMFLOAT3 CloseTypeFSMComponent::GetOwnerPosition()
+float BossFSMComponent::GetSkillCoolTime()
+{
+	return SkillCoolTime;
+}
+
+void BossFSMComponent::SetSkillCoolTime(float time)
+{
+	SkillCoolTime = time;
+}
+
+XMFLOAT3 BossFSMComponent::GetOwnerPosition()
 {
 	return gameObject->GetPosition();
 }
 
-bool CloseTypeFSMComponent::Idle()
+bool BossFSMComponent::Idle()
 {
 	if (IdleLeftTime > 0.0f)
 	{
@@ -87,29 +98,31 @@ bool CloseTypeFSMComponent::Idle()
 	return true;
 }
 
-void CloseTypeFSMComponent::Stop()
+void BossFSMComponent::Stop()
 {
-	((Monster*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_IDLE;
+	((Monster*)gameObject)->PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_IDLE;
 }
 
-void CloseTypeFSMComponent::Move_Walk(float dist)
+void BossFSMComponent::Move_Walk(float dist)
 {
-	((Monster*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_WALK;
+	((Monster*)gameObject)->PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_WALK;
 	gameObject->MoveForward(dist);
 }
-void CloseTypeFSMComponent::Move_Run(float dist)
+void BossFSMComponent::Move_Run(float dist)
 {
-	((Monster*)gameObject)->PresentAniType = E_MONSTER_ANIMATION_TYPE::E_M_RUN;
+	((Monster*)gameObject)->PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_RUN;
 	gameObject->MoveForward(dist);
 }
-void CloseTypeFSMComponent::Attack()
+void BossFSMComponent::Attack()
 {
-	if (!gameObject->GetComponent<AttackComponent>()->During_Attack)
-		gameObject->GetComponent<AttackComponent>()->Attack();
+	if (!gameObject->GetComponent<BossAttackComponent>()->During_Attack)
+		gameObject->GetComponent<BossAttackComponent>()->AttackAnimation();
 }
 
-void CloseTypeFSMComponent::Track()
+void BossFSMComponent::Track()
 {
+	SkillCoolTime -= Timer::GetTimeElapsed();
+
 	XMFLOAT3 TargetPos = TargetPlayer->GetPosition();
 	XMFLOAT3 CurrentPos = gameObject->GetPosition();
 	XMFLOAT3 Direction = Vector3::Normalize(Vector3::Subtract(TargetPos, CurrentPos));
@@ -121,15 +134,15 @@ void CloseTypeFSMComponent::Track()
 	if (ToTargetAngle > 7.0f)
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(TargetPos, CurrentPos));
-	if (Distance > 1.5f)
-		Move_Run(2.0f * Timer::GetTimeElapsed());
+	if (Distance > 4.5f)
+		Move_Run(2.5f * Timer::GetTimeElapsed());
 	else
 	{
 		Stop();
 		Attack();
 	}
 }
-bool CloseTypeFSMComponent::Wander()
+bool BossFSMComponent::Wander()
 {
 	XMFLOAT3 CurrentPos = gameObject->GetPosition();
 	XMFLOAT3 Direction = Vector3::Normalize(Vector3::Subtract(WanderPosition, CurrentPos));
@@ -158,5 +171,55 @@ bool CloseTypeFSMComponent::Wander()
 		return false;
 	}
 	return true;
+}
 
+void BossFSMComponent::TornadoTrack()
+{
+	XMFLOAT3 TargetPos = TargetPlayer->GetPosition();
+	XMFLOAT3 CurrentPos = gameObject->GetPosition();
+	XMFLOAT3 Direction = Vector3::Normalize(Vector3::Subtract(TargetPos, CurrentPos));
+	XMFLOAT3 Look = gameObject->GetLook();
+	XMFLOAT3 CrossProduct = Vector3::CrossProduct(Look, Direction);
+	float Dot = Vector3::DotProduct(Look, Direction);
+	float ToTargetAngle = XMConvertToDegrees(acos(Dot));
+	float Angle = (CrossProduct.y > 0.0f) ? 180.0f : -180.0f;
+	if (ToTargetAngle > 7.0f)
+		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
+	float Distance = Vector3::Length(Vector3::Subtract(TargetPos, CurrentPos));
+	if (Distance > 4.5f)
+		gameObject->MoveForward(2.5f * Timer::GetTimeElapsed());
+	else
+	{
+		Stop();
+	}
+}
+
+void BossFSMComponent::StealSense()
+{
+	gameObject->GetComponent<BossAttackComponent>()->StealSenseAnimation();
+	dynamic_cast<Shield*>(gameObject)->BossStealSenseEvent();
+}
+
+void BossFSMComponent::Summon()
+{
+	gameObject->GetComponent<BossAttackComponent>()->SummonAnimation();
+	dynamic_cast<Shield*>(gameObject)->BossSummonEvent();
+}
+
+void BossFSMComponent::Defence()
+{
+	gameObject->GetComponent<BossAttackComponent>()->DefenceAnimation();
+	dynamic_cast<Shield*>(gameObject)->BossDefenceEvent();
+}
+
+void BossFSMComponent::JumpAttack()
+{
+	gameObject->GetComponent<BossAttackComponent>()->JumpAttackAnimation();
+	dynamic_cast<Shield*>(gameObject)->BossJumpAttackEvent();
+}
+
+void BossFSMComponent::Tornado()
+{
+	gameObject->GetComponent<BossAttackComponent>()->TornadoAnimation();
+	dynamic_cast<Shield*>(gameObject)->BossTorandoEvent();
 }

@@ -36,5 +36,6 @@ public:
 
 	void Attack();
 	void SetBoundingObject(BoundBox* bd) { AttackRange = bd; }
+	void CheckMonsterAttackRange();
 };
 

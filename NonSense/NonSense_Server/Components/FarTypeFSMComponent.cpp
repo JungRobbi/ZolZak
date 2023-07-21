@@ -20,7 +20,8 @@ void FarTypeFSMComponent::start()
 
 void FarTypeFSMComponent::update()
 {
-	m_pFSM->Update();
+	if (m_pFSM)
+		m_pFSM->Update();
 	/*if (((Monster*)gameObject)->WeaponFrame) {
 		if (((Monster*)gameObject)->WeaponFrame->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()) && ((Monster*)gameObject)->WeaponFrame->GetComponent<MoveForwardComponent>()->MoveTimeLeft > 0)
 		{

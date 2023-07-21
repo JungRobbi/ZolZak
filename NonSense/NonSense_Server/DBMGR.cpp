@@ -48,7 +48,7 @@ wchar_t* ChartoWChar(char* chr)
 wchar_t* DBMGR::DSN_NAME = L"nonsense";
 wchar_t* DBMGR::DSN_USER_ID = L"robbi";
 wchar_t* DBMGR::DSN_USER_PASSWORD = L"fhqql9423";
-volatile bool DBMGR::db_connection = false;
+volatile bool DBMGR::db_connection = true;
 
 DBMGR::DBMGR()
 {
