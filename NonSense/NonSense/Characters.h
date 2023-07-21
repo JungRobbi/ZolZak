@@ -108,5 +108,9 @@ public:
 	void BossJumpAttackEvent();
 	void BossTorandoEvent();
 
+	void BossRoarSoundEvent();
+	void BossSummonSoundEvent();
+	void BossJumpAttackSoundEvent();
+
 	void EndSkillEvent();
 };
