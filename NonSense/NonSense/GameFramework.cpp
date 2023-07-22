@@ -426,7 +426,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Hearing_Stage_GameScene());
 	m_GameScenes.emplace_back(new Touch_Stage_GameScene());
 	m_GameScenes.emplace_back(new Boss_Stage_GameScene());
-	ChangeScene(SIGHT_SCENE);
+	ChangeScene(LOGIN_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -825,7 +825,7 @@ void GameFramework::ChangeScene(unsigned char num)
 		ChatMGR::SetLoginScene(m_nWndClientWidth, m_nWndClientHeight);
 	}
 	for (auto& Chat_tb : ChatMGR::m_pUILayer->m_pTextBlocks) {
-		ZeroMemory(Chat_tb.m_pstrText, sizeof(Chat_tb.m_pstrText));
+		ZeroMemory(Chat_tb.m_pstrText, 256);
 	}
 	scene_type = (SCENE_TYPE)num;
 	m_pCamera = m_pPlayer->GetCamera();
@@ -1226,8 +1226,9 @@ void GameFramework::FrameAdvance()
 	if (scene_type == LOGIN_SCENE) {
 		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
 	}
-	else if (scene_type >= LOBBY_SCENE)
+	else if (scene_type >= LOBBY_SCENE) {
 		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
+	}
 
 
 	m_pSwapChain->Present(0, 0);

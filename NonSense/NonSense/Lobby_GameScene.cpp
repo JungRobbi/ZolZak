@@ -1,22 +1,11 @@
 #include "Lobby_GameScene.h"
-
+#include <iostream>
 void Lobby_GameScene::update()
 {
 	while (!roomCreateList.empty()) {
 		auto p = roomCreateList.front();
+		std::cout << p.num << " " << p.name << " " << p.owner << std::endl;
 		Rooms.emplace_back(new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, p.num, p.name, p.owner));
-		//if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page * 6 <= p.num &&
-		//	(dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page + 1) * 6 > p.num) { // In Page
-		//	auto& tb = ChatMGR::m_pUILayer->m_pUITextBlocks[p.num % 6];
-		//	ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
-		//	std::wstring wstr;
-		//	wstr = std::to_wstring(p.num)
-		//		+ L"               "
-		//		+ std::wstring().assign(p.name.begin(), p.name.end())
-		//		+ L"     "
-		//		+ std::wstring().assign(p.name.begin(), p.name.end());
-		//	wcscpy(tb.m_pstrText, wstr.c_str());
-		//}
 		roomCreateList.pop();
 	}
 
@@ -69,6 +58,9 @@ void Lobby_GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camer
 			Rooms[i]->UpdateTransform(NULL);
 			Rooms[i]->Render(pd3dCommandList, pCamera);
 		}
+	}
+	for (auto& Chat_tb : ChatMGR::m_pUILayer->m_pTextBlocks) {
+		ZeroMemory(Chat_tb.m_pstrText, 256);
 	}
 }
 

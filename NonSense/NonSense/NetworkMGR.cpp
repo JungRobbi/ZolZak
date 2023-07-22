@@ -537,7 +537,6 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		if (GameFramework::MainGameFramework->scene_type == LOBBY_SCENE) {
 			cout << "Make Room!" << endl;
 			dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(recv_packet->roomNum, std::string{ recv_packet->roomName }, std::string{ recv_packet->hostName });
-
 		}
 		
 		break;
