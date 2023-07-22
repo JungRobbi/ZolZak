@@ -20,7 +20,7 @@ UILayer::UILayer(UINT nFrames, UINT nTextBlocks, ID3D12Device* pd3dDevice, ID3D1
     m_ppd2dRenderTargets = new ID2D1Bitmap1*[nFrames];
 
     m_nTextBlocks = nTextBlocks;
-    for (int i{}; i < m_nTextBlocks; ++i)
+    for (int i{}; i < nTextBlocks; ++i)
         m_pTextBlocks.emplace_back();
 
     InitializeDevice(pd3dDevice, pd3dCommandQueue, ppd3dRenderTargets);
@@ -142,7 +142,6 @@ void UILayer::Render(UINT nFrame)
             continue;
         m_pd2dDeviceContext->DrawText(textblock.m_pstrText, (UINT)wcslen(textblock.m_pstrText), textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
     }
-
     LineDraw();
 
     m_pd2dDeviceContext->EndDraw();
@@ -179,7 +178,7 @@ void UILayer::LineDraw()
         break;
     }
     case LOBBY_SCENE: {
-        for (int i{}; i < 20; ++i) {
+        for (int i{}; i < 10; ++i) {
             if (m_pUITextBlocks[i].m_pstrText[0]) {
                 auto& textblock = m_pUITextBlocks[i];
                 m_pd2dDeviceContext->DrawText(textblock.m_pstrText,

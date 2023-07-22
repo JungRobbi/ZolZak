@@ -415,7 +415,7 @@ void GameFramework::BuildObjects()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
-	ChatMGR::m_pUILayer = new UILayer(m_nSwapChainBuffers, 1, m_pDevice, m_pCommandQueue, m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
+	ChatMGR::m_pUILayer = new UILayer(m_nSwapChainBuffers, 10, m_pDevice, m_pCommandQueue, m_ppRenderTargetBuffers, m_nWndClientWidth, m_nWndClientHeight);
 	ChatMGR::SetTextinfos(m_nWndClientWidth, m_nWndClientHeight);
 	// m_GameScenes[0] : Login | m_GameScenes[1] : Lobby | m_GameScenes[2] : Room | m_GameScenes[3] : Stage
 
@@ -426,7 +426,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Hearing_Stage_GameScene());
 	m_GameScenes.emplace_back(new Touch_Stage_GameScene());
 	m_GameScenes.emplace_back(new Boss_Stage_GameScene());
-	ChangeScene(LOGIN_SCENE);
+	ChangeScene(SIGHT_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -824,7 +824,9 @@ void GameFramework::ChangeScene(unsigned char num)
 	else if (num == LOGIN_SCENE) {
 		ChatMGR::SetLoginScene(m_nWndClientWidth, m_nWndClientHeight);
 	}
-	ChatMGR::m_pUILayer->m_pTextBlocks.clear();
+	for (auto& Chat_tb : ChatMGR::m_pUILayer->m_pTextBlocks) {
+		ZeroMemory(Chat_tb.m_pstrText, sizeof(Chat_tb.m_pstrText));
+	}
 	scene_type = (SCENE_TYPE)num;
 	m_pCamera = m_pPlayer->GetCamera();
 	GameScene::MainScene->m_pPlayer = m_pPlayer;
