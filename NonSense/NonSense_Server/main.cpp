@@ -636,11 +636,11 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		// 임시 방 생성
 		int rN = Room::g_roomNum++;
 		auto p_room = make_shared<Room>();
-		Room::roomlist.insert({ rN, p_room });
+		p_room->roomName = std::string{ recv_packet->roomName };
+		p_room->hostName = std::string{ p_Client->name };
+		p_room->m_roomNum = rN;
 		p_room->start();
-		Room::roomlist[rN]->m_roomNum = rN;
-		Room::roomlist[rN]->roomName = std::string{ recv_packet->roomName };
-		Room::roomlist[rN]->hostName = std::string{ p_Client->name };
+		Room::roomlist.insert({ rN, p_room });
 		for (auto& rc : RemoteClient::remoteClients) {
 			if (!rc.second->b_Enable.load())
 				continue;

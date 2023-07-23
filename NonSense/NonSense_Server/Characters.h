@@ -12,7 +12,7 @@ enum MonsterType
 	MONSTER_TYPE_BOSS
 };
 
-
+class Scene;
 class Character : public Object
 {
 protected:
@@ -31,6 +31,7 @@ public:
 	int num;
 	Character();
 	Character(int roomNum);
+	Character(std::shared_ptr<Scene> pScene);
 	virtual ~Character();
 	virtual void GetHit(float damage) { m_RemainHP -= damage; }
 
@@ -53,6 +54,7 @@ class Monster : public Character
 public:
 	Monster();
 	Monster(int roomNum);
+	Monster(std::shared_ptr<Scene> pScene);
 	Monster_HP_UI* m_pHP = NULL;
 
 	bool MageDamage = false;
@@ -68,6 +70,7 @@ class Goblin : public Monster
 public:
 
 	Goblin(MonsterType type, int roomNum);
+	Goblin(MonsterType type, std::shared_ptr<Scene> pScene);
 	virtual ~Goblin();
 };
 
@@ -75,6 +78,7 @@ class Orc : public Monster
 {
 public:
 	Orc(MonsterType type, int roomNum);
+	Orc(MonsterType type, std::shared_ptr<Scene> pScene);
 	virtual ~Orc();
 
 	void CloseAttackEvent();
@@ -84,6 +88,7 @@ class Skull : public Monster
 {
 public:
 	Skull(MonsterType type, int roomNum);
+	Skull(MonsterType type, std::shared_ptr<Scene> pScene);
 	virtual ~Skull();
 
 	void CloseAttackEvent();
@@ -93,6 +98,7 @@ class Shield : public Monster
 {
 public:
 	Shield(MonsterType type, int roomNum);
+	Shield(MonsterType type, std::shared_ptr<Scene> pScene);
 	virtual ~Shield();
 
 	void BossAttackEvent();
