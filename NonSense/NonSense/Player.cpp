@@ -8,6 +8,7 @@
 #include "SphereCollideComponent.h"
 #include "../ImaysNet/PacketQueue.h"
 #include "NetworkMGR.h"
+#include "GameFramework.h"
 
 Player::Player() : Object(false)
 {
@@ -467,14 +468,20 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 
 void MagePlayer::FootStepR()
 {
-	Sound* s = new Sound("Sound/GrassFootstep_R.mp3", false);
-	GameScene::MainScene->AddSound(s);
+	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
+	{
+		Sound* s = new Sound("Sound/GrassFootstep_R.mp3", false);
+		GameScene::MainScene->AddSound(s);
+	}
 }
 
 void MagePlayer::FootStepL()
 {
-	Sound* s = new Sound("Sound/GrassFootstep_L.mp3", false);
-	GameScene::MainScene->AddSound(s);
+	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
+	{
+		Sound* s = new Sound("Sound/GrassFootstep_L.mp3", false);
+		GameScene::MainScene->AddSound(s);
+	}
 }
 
 Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
@@ -674,14 +681,20 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 void WarriorPlayer::FootStepR()
 {
-	Sound* s = new Sound("Sound/GrassFootstep_R.mp3", false);
-	GameScene::MainScene->AddSound(s);
+	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
+	{
+		Sound* s = new Sound("Sound/GrassFootstep_R.mp3", false);
+		GameScene::MainScene->AddSound(s);
+	}
 }
 
 void WarriorPlayer::FootStepL()
 {
-	Sound* s = new Sound("Sound/GrassFootstep_L.mp3", false);
-	GameScene::MainScene->AddSound(s);
+	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
+	{
+		Sound* s = new Sound("Sound/GrassFootstep_L.mp3", false);
+		GameScene::MainScene->AddSound(s);
+	}
 }
 Camera* WarriorPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 {

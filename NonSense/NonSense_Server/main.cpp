@@ -456,6 +456,20 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		//id 부여
 		p_Client->m_id = N_CLIENT_ID++;
 
+		for (auto& room : Room::roomlist) { // roomList 갱신
+			SC_ROOM_CREATE_PACKET send_packet;
+			send_packet.size = sizeof(SC_ROOM_CREATE_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_ROOM_CREATE_PACKET;
+			send_packet.roomNum = room.second->m_roomNum;
+			memcpy(send_packet.hostName, room.second->hostName.c_str(), sizeof(room.second->hostName.c_str()));
+			memcpy(send_packet.roomName, room.second->roomName.c_str(), sizeof(room.second->roomName.c_str()));
+			send_packet.connection_playerNum = room.second->joinPlayerNum;
+			cout << "Room::roomlist - " << send_packet.roomNum << endl;
+			cout << "send_packet.hostName - " << send_packet.hostName << endl;
+			cout << "send_packet.roomName - " << send_packet.roomName << endl;
+			p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+
 		break;
 	}
 	case E_PACKET::E_PACKET_CS_KEYDOWN: {
@@ -625,6 +639,8 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		Room::roomlist.insert({ rN, p_room });
 		p_room->start();
 		Room::roomlist[rN]->m_roomNum = rN;
+		Room::roomlist[rN]->roomName = std::string{ recv_packet->roomName };
+		Room::roomlist[rN]->hostName = std::string{ p_Client->name };
 		for (auto& rc : RemoteClient::remoteClients) {
 			if (!rc.second->b_Enable.load())
 				continue;

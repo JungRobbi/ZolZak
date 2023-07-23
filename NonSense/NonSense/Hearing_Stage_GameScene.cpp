@@ -30,7 +30,7 @@ void Hearing_Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	terrain->SetPosition(-400, 0, -400);
 	m_pTerrain = terrain;
 	StartNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Ent"]);
-	StartNPC->SetPosition(-16.7, m_pTerrain->GetHeight(-16.7, 96.5), 96.5);
+	StartNPC->SetPosition(139.85f, m_pTerrain->GetHeight(139.85f, 13.24f), 13.24f);
 	StartNPC->SetNum(102);
 	StartNPC->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	{
@@ -41,7 +41,7 @@ void Hearing_Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	}
 
 	EndNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Ent"]);
-	EndNPC->SetPosition(-5.7, m_pTerrain->GetHeight(-16.7, 96.5), 96.5);
+	EndNPC->SetPosition(285.f, m_pTerrain->GetHeight(285.f, 43.f), 43.f);
 	EndNPC->SetNum(102);
 	EndNPC->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	{

@@ -1,9 +1,10 @@
 #include "Lobby_GameScene.h"
-
+#include <iostream>
 void Lobby_GameScene::update()
 {
 	while (!roomCreateList.empty()) {
 		auto p = roomCreateList.front();
+		std::cout << p.num << " " << p.name << " " << p.owner << std::endl;
 		Rooms.emplace_back(new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, p.num, p.name, p.owner));
 		roomCreateList.pop();
 	}
@@ -58,14 +59,17 @@ void Lobby_GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camer
 			Rooms[i]->Render(pd3dCommandList, pCamera);
 		}
 	}
+	for (auto& Chat_tb : ChatMGR::m_pUILayer->m_pTextBlocks) {
+		ZeroMemory(Chat_tb.m_pstrText, 256);
+	}
 }
 
 void Lobby_GameScene::MakeRoom(std::string name)
 {
 	//Room_UI* room = new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, 0, name, m_pPlayer->m_name);
 	//Rooms.emplace_back(room);
-
-	roomCreateList.push({ 0, name, m_pPlayer->m_name });
+	static int s_roomNum{};
+	roomCreateList.push({ s_roomNum++, name, m_pPlayer->m_name });
 }
 
 void Lobby_GameScene::MakeRoom(int roomNum, std::string name, std::string owner)
