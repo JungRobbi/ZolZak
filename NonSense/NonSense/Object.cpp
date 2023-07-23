@@ -1629,6 +1629,33 @@ TestModelBlendObject::TestModelBlendObject(ID3D12Device* pd3dDevice, ID3D12Graph
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SkyBox::SkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(false)
 {
+}
+
+SkyBox::~SkyBox()
+{
+}
+
+void SkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	XMFLOAT3 xmf3CameraPos = pCamera->GetPosition();
+	SetPosition(xmf3CameraPos.x, xmf3CameraPos.y, xmf3CameraPos.z);
+
+	OnPrepareRender();
+
+	UpdateShaderVariables(pd3dCommandList);
+
+	if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+	if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+	if (m_pMesh)
+	{
+		m_pMesh->Render(pd3dCommandList, 0);
+	}
+
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+DaySkyBox::DaySkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : SkyBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
 	SkyBoxMesh* pSkyBoxMesh = new SkyBoxMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
 	SetMesh(pSkyBoxMesh);
 
@@ -1646,28 +1673,59 @@ SkyBox::SkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	SetMaterial(pSkyBoxMaterial);
 }
 
-SkyBox::~SkyBox()
+DaySkyBox::~DaySkyBox()
 {
 }
 
-void SkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+NightSkyBox::NightSkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : SkyBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
 {
-	XMFLOAT3 xmf3CameraPos = pCamera->GetPosition();
-	SetPosition(xmf3CameraPos.x, xmf3CameraPos.y, xmf3CameraPos.z);
-	
-	OnPrepareRender();
+	SkyBoxMesh* pSkyBoxMesh = new SkyBoxMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+	SetMesh(pSkyBoxMesh);
 
-	UpdateShaderVariables(pd3dCommandList);
+	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0, 1);
+	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"SkyBox/Night_Sky.dds", RESOURCE_TEXTURE_CUBE, 0);
 
-	if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
-	if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList,0);
+	SkyBoxShader* pSkyBoxShader = new SkyBoxShader();
+	pSkyBoxShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 17, false);
 
-	if (m_pMesh)
-	{
-		m_pMesh->Render(pd3dCommandList, 0);
-	}
+	Material* pSkyBoxMaterial = new Material();
+	pSkyBoxMaterial->SetTexture(pSkyBoxTexture);
+	pSkyBoxMaterial->SetShader(pSkyBoxShader);
 
+	SetMaterial(pSkyBoxMaterial);
 }
+
+NightSkyBox::~NightSkyBox()
+{
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SunsetSkyBox::SunsetSkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : SkyBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	SkyBoxMesh* pSkyBoxMesh = new SkyBoxMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+	SetMesh(pSkyBoxMesh);
+
+	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0, 1);
+	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"SkyBox/Sunset_Sky.dds", RESOURCE_TEXTURE_CUBE, 0);
+
+	SkyBoxShader* pSkyBoxShader = new SkyBoxShader();
+	pSkyBoxShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pSkyBoxTexture, 17, false);
+
+	Material* pSkyBoxMaterial = new Material();
+	pSkyBoxMaterial->SetTexture(pSkyBoxTexture);
+	pSkyBoxMaterial->SetShader(pSkyBoxShader);
+
+	SetMaterial(pSkyBoxMaterial);
+}
+
+SunsetSkyBox::~SunsetSkyBox()
+{
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
