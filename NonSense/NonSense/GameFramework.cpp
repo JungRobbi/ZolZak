@@ -811,7 +811,8 @@ void GameFramework::ChangeScene(unsigned char num)
 		m_OtherPlayers.clear();
 		m_OtherPlayersPool.clear();
 		for (int i{}; i < 3; ++i) {
-			m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
+			if (i == 1) m_OtherPlayersPool.emplace_back(new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
+			else m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
 			dynamic_cast<Player*>(m_OtherPlayersPool.back())->SetCamera(dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f));
 			m_OtherPlayersPool.back()->SetUsed(true);
 		}
