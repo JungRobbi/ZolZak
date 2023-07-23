@@ -17,6 +17,11 @@ public:
 	static std::unordered_map<int, shared_ptr<Room>> roomlist;
 	static int g_roomNum;
 	std::atomic<int> m_roomNum = 0;
+
+	std::string roomName{""};
+	std::string hostName{""};
+	int joinPlayerNum{};
+
 public:
 	Room();
 	~Room();

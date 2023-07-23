@@ -519,8 +519,14 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         auto& tb = m_pUILayer->m_pUITextBlocks[i];
         tb.m_pdwFormat = pdwTextFormat;
         tb.m_pd2dTextBrush = pd2dBrush;
-        tb.m_d2dLayoutRect =
-            D2D1::RectF(-800, 227 + 75.5f * i, WndClientWidth, WndClientHeight);
+        if (NetworkMGR::b_isNet) {
+            tb.m_d2dLayoutRect =
+                D2D1::RectF(-700, 227 + 75.5f * i, WndClientWidth, WndClientHeight);
+        }
+        else {
+            tb.m_d2dLayoutRect =
+                D2D1::RectF(-800, 227 + 75.5f * i, WndClientWidth, WndClientHeight);
+        }
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
     //  wcscpy(tb.m_pstrText, L"ROOOOOOOOOOOOOOOOM");
     }
