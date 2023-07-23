@@ -391,7 +391,7 @@ Make_Room_UI::Make_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 {
 	GameScene::MainScene->creationUIQueue.push(this);
 	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Make_Room_UI.dds", RESOURCE_TEXTURE2D, 0);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Make_Room.dds", RESOURCE_TEXTURE2D, 0);
 
 	UIShader* pUIShader = new UIShader();
 	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
