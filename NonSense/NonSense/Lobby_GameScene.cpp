@@ -5,6 +5,18 @@ void Lobby_GameScene::update()
 	while (!roomCreateList.empty()) {
 		auto p = roomCreateList.front();
 		Rooms.emplace_back(new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, p.num, p.name, p.owner));
+		//if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page * 6 <= p.num &&
+		//	(dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page + 1) * 6 > p.num) { // In Page
+		//	auto& tb = ChatMGR::m_pUILayer->m_pUITextBlocks[p.num % 6];
+		//	ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+		//	std::wstring wstr;
+		//	wstr = std::to_wstring(p.num)
+		//		+ L"               "
+		//		+ std::wstring().assign(p.name.begin(), p.name.end())
+		//		+ L"     "
+		//		+ std::wstring().assign(p.name.begin(), p.name.end());
+		//	wcscpy(tb.m_pstrText, wstr.c_str());
+		//}
 		roomCreateList.pop();
 	}
 
@@ -64,8 +76,8 @@ void Lobby_GameScene::MakeRoom(std::string name)
 {
 	//Room_UI* room = new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, 0, name, m_pPlayer->m_name);
 	//Rooms.emplace_back(room);
-
-	roomCreateList.push({ 0, name, m_pPlayer->m_name });
+	static int s_roomNum{};
+	roomCreateList.push({ s_roomNum++, name, m_pPlayer->m_name });
 }
 
 void Lobby_GameScene::MakeRoom(int roomNum, std::string name, std::string owner)

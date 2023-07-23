@@ -1,4 +1,5 @@
 #include "UI.h"
+#include <string>
 #include "Shader.h"
 #include "GameScene.h"
 #include "GameFramework.h"
@@ -599,6 +600,22 @@ void Room_UI::OnClick()
 {
 	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum = RoomNum;
 	std::cout << RoomNum << "�� �� - " << RoomName << " - ���� - " << RoomOwner << std::endl;
+}
+
+void Room_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	auto& tb = ChatMGR::m_pUILayer->m_pUITextBlocks[RoomNum % 6];
+	if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page * 6 <= RoomNum &&
+		(dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page + 1) * 6 > RoomNum) { // In Page
+		std::wstring wstr;
+		wstr = std::to_wstring(RoomNum)
+			+ L"               "
+			+ std::wstring().assign(RoomName.begin(), RoomName.end())
+			+ L"     "
+			+ std::wstring().assign(RoomOwner.begin(), RoomOwner.end());
+		wcscpy(tb.m_pstrText, wstr.c_str());
+	}
+	UI::Render(pd3dCommandList, pCamera);
 }
 
 //////////////////////////////////////////////

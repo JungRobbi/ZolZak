@@ -194,6 +194,7 @@ public:
 	Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int num, std::string name, std::string owner);
 	virtual ~Room_UI() {};
 	virtual void OnClick();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 	int RoomNum = -1;
 	std::string RoomName = "";
 	std::string RoomOwner = "";

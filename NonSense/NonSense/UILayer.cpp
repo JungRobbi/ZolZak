@@ -20,7 +20,7 @@ UILayer::UILayer(UINT nFrames, UINT nTextBlocks, ID3D12Device* pd3dDevice, ID3D1
     m_ppd2dRenderTargets = new ID2D1Bitmap1*[nFrames];
 
     m_nTextBlocks = nTextBlocks;
-    for (int i{}; i < m_nTextBlocks; ++i)
+    for (int i{}; i < nTextBlocks; ++i)
         m_pTextBlocks.emplace_back();
 
     InitializeDevice(pd3dDevice, pd3dCommandQueue, ppd3dRenderTargets);
@@ -142,7 +142,6 @@ void UILayer::Render(UINT nFrame)
             continue;
         m_pd2dDeviceContext->DrawText(textblock.m_pstrText, (UINT)wcslen(textblock.m_pstrText), textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
     }
-
     LineDraw();
 
     m_pd2dDeviceContext->EndDraw();
@@ -179,7 +178,14 @@ void UILayer::LineDraw()
         break;
     }
     case LOBBY_SCENE: {
-
+        for (int i{}; i < 10; ++i) {
+            if (m_pUITextBlocks[i].m_pstrText[0]) {
+                auto& textblock = m_pUITextBlocks[i];
+                m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                    (UINT)wcslen(textblock.m_pstrText),
+                    textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+            }
+        }
         break;
     }
     case ROOM_SCENE: {
@@ -378,6 +384,10 @@ void ChatMGR::UpdateText()
         rect.bottom -= i * fontsize + 2;
         m_pUILayer->UpdateTextOutputs(i++, *p, rect, pdwTextFormat, pd2dBrush);
     }
+    for (int i{}; i < 6; ++i) {
+        ZeroMemory(ChatMGR::m_pUILayer->m_pUITextBlocks[i].m_pstrText,
+            sizeof(ChatMGR::m_pUILayer->m_pUITextBlocks[i].m_pstrText));
+    }
 }
 
 void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
@@ -495,15 +505,25 @@ void ChatMGR::SetInGame(int WndClientWidth, int WndClientHeight)
         DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
         fontsize, L"en-us", &pdwTextFormat);
 
-    //m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
-    //    DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-    //    WndClientHeight / 40.0f, L"en-us", &pdwUITextFormat);
+    m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
+        DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+        WndClientHeight / 40.0f, L"en-us", &pdwUITextFormat);
 }
 
 void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
 {
     // TEXT 추가 부분
     m_pUILayer->m_pUITextBlocks.clear();
+    for (int i{}; i < 6; ++i) { // Room Text UI
+        m_pUILayer->m_pUITextBlocks[i] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[i];
+        tb.m_pdwFormat = pdwTextFormat;
+        tb.m_pd2dTextBrush = pd2dBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(-800, 227 + 75.5f * i, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+    //  wcscpy(tb.m_pstrText, L"ROOOOOOOOOOOOOOOOM");
+    }
     {
         m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_1] = TextBlock{};
         auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_1];
