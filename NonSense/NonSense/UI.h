@@ -253,6 +253,24 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	virtual ~Toon_Left_UI() {};
 };
+//
+//class Shadow_Right_UI : public UI
+//{
+//public:
+//	Shadow_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+//	virtual void OnClick();
+//	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+//	virtual ~Shadow_Right_UI() {};
+//};
+//
+//class Shadow_Left_UI : public UI
+//{
+//public:
+//	Shadow_Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+//	virtual void OnClick();
+//	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+//	virtual ~Shadow_Left_UI() {};
+//};
 
 class Mouse_Right_UI : public UI
 {
