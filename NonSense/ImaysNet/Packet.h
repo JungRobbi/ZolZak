@@ -20,6 +20,8 @@ enum E_PACKET
 	E_PACKET_CS_TEMP_HIT_PLAYER_PACKET, E_PACKET_SC_TEMP_HIT_PLAYER_PACKET,
 	E_PACKET_CS_CHAT_PACKET,
 	E_PACKET_CS_ROOM_CREATE_PACKET, E_PACKET_CS_ROOM_JOIN_PACKET,
+	E_PACKET_CS_ROOM_READY_PACKET, 
+	E_PACKET_CS_PLAYERS_REQUEST_PACKET,
 
 	// Server -> Client packet
 	E_PACKET_SC_LOGIN_INFO, E_PACKET_SC_ADD_PLAYER, E_PACKET_SC_REMOVE_PLAYER,
@@ -34,7 +36,8 @@ enum E_PACKET
 	E_PACKET_SC_LOGIN_OK_PACKET,
 	E_PACKET_SC_LOGIN_FAIL_PACKET,
 	E_PACKET_SC_ROOM_CREATE_PACKET,
-	E_PACKET_SC_ROOM_JOIN_FAIL_PACKET, E_PACKET_SC_ROOM_JOIN_OK_PACKET
+	E_PACKET_SC_ROOM_JOIN_FAIL_PACKET, E_PACKET_SC_ROOM_JOIN_OK_PACKET,
+	E_PACKET_SC_ROOM_READY_PACKET, E_PACKET_SC_JOIN_GAME_PACKET
 
 };
 
@@ -97,6 +100,25 @@ public:
 class CS_ROOM_JOIN_PACKET : public PACKET_HEAD {
 public:
 	int roomNum;
+};
+
+class CS_ROOM_READY_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	id;
+	char	name[NAME_SIZE];
+	int playerType; // 0 : 마법사 , 1 : 전사
+};
+
+class CS_PLAYERS_REQUEST_PACKET : public PACKET_HEAD {
+public:
+};
+
+
+class SC_ROOM_READY_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	id;
+	char	name[NAME_SIZE];
+	int playerType; // 0 : 마법사 , 1 : 전사
 };
 
 
@@ -221,10 +243,21 @@ public:
 	int id;
 };
 
-
 class SC_ROOM_JOIN_FAIL_PACKET : public PACKET_HEAD {
 public:
 };
 
+class SC_JOIN_GAME_PACKET : public PACKET_HEAD {
+public:
+	unsigned int	id;
+	char	name[NAME_SIZE];
+	int 	maxHp;
+	float	remainHp;
+	float	x;
+	float	y;
+	float	z;
+	int	clearStage;
+	int playerType; // 0 : 마법사 , 1 : 전사
+};
 
 #pragma pack (pop)
