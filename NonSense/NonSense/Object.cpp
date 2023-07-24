@@ -42,17 +42,27 @@ CTexture::~CTexture()
 {
 	if (m_ppd3dTextures)
 	{
-		for (int i = 0; i < m_nTextures; i++) if (m_ppd3dTextures[i]) m_ppd3dTextures[i]->Release();
+		for (int i = 0; i < m_nTextures; i++) {
+			if (m_ppd3dTextures[i])
+				m_ppd3dTextures[i]->Release();
+		}
 		delete[] m_ppd3dTextures;
+
 	}
-	if (m_pnResourceTypes) delete[] m_pnResourceTypes;
-	if (m_pdxgiBufferFormats) delete[] m_pdxgiBufferFormats;
-	if (m_pnBufferElements) delete[] m_pnBufferElements;
+	if (m_pnResourceTypes) 
+		delete[] m_pnResourceTypes;
+	if (m_pdxgiBufferFormats) 
+		delete[] m_pdxgiBufferFormats;
+	if (m_pnBufferElements) 
+		delete[] m_pnBufferElements;
 
-	if (m_pnRootParameterIndices) delete[] m_pnRootParameterIndices;
-	if (m_pd3dSrvGpuDescriptorHandles) delete[] m_pd3dSrvGpuDescriptorHandles;
+	if (m_pnRootParameterIndices) 
+		delete[] m_pnRootParameterIndices;
+	if (m_pd3dSrvGpuDescriptorHandles) 
+		delete[] m_pd3dSrvGpuDescriptorHandles;
 
-	if (m_pd3dSamplerGpuDescriptorHandles) delete[] m_pd3dSamplerGpuDescriptorHandles;
+	if (m_pd3dSamplerGpuDescriptorHandles) 
+		delete[] m_pd3dSamplerGpuDescriptorHandles;
 }
 
 void CTexture::SetRootParameterIndex(int nIndex, UINT nRootParameterIndex)
@@ -187,13 +197,14 @@ Material::Material(int Textures)
 }
 Material::~Material()
 {
-
 	if (m_pShader)
 		m_pShader->Release();
 	for (int i = 0; i < m_nTextures; i++)
 	{
 		if (m_ppTextures[i]) m_ppTextures[i]->Release();
 	}
+	if (m_pTexture)
+		m_pTexture->Release();
 }
 Shader* Material::m_pSkinnedAnimationShader = NULL;
 Shader* Material::m_pStandardShader = NULL;
@@ -313,9 +324,15 @@ AnimationSet::AnimationSet(float fLength, int nFramesPerSecond, int nKeyFrames, 
 
 AnimationSet::~AnimationSet()
 {
-	if (m_pKeyFrameTimes) delete[] m_pKeyFrameTimes;
-	for (int j = 0; j < m_KeyFrames; j++) if (m_ppKeyFrameTransforms[j]) delete[] m_ppKeyFrameTransforms[j];
-	if (m_ppKeyFrameTransforms) delete[] m_ppKeyFrameTransforms;
+	if (m_pKeyFrameTimes) 
+		delete[] m_pKeyFrameTimes;
+	for (int j = 0; j < m_KeyFrames; j++)
+	{
+		if (m_ppKeyFrameTransforms[j])
+			delete[] m_ppKeyFrameTransforms[j];
+	}
+	if (m_ppKeyFrameTransforms) 
+		delete[] m_ppKeyFrameTransforms;
 }
 
 AnimationSets::AnimationSets(int nAnimationSets)
@@ -426,8 +443,10 @@ AnimationController::~AnimationController()
 		m_ppd3dcbSkinningBoneTransforms[i]->Unmap(0, NULL);
 		m_ppd3dcbSkinningBoneTransforms[i]->Release();
 	}
-	if (m_ppd3dcbSkinningBoneTransforms) delete[] m_ppd3dcbSkinningBoneTransforms;
-	if (m_ppcbxmf4x4MappedSkinningBoneTransforms) delete[] m_ppcbxmf4x4MappedSkinningBoneTransforms;
+	if (m_ppd3dcbSkinningBoneTransforms) 
+		delete[] m_ppd3dcbSkinningBoneTransforms;
+	if (m_ppcbxmf4x4MappedSkinningBoneTransforms) 
+		delete[] m_ppcbxmf4x4MappedSkinningBoneTransforms;
 
 	if (m_pAnimationSets) m_pAnimationSets->Release();
 
@@ -724,8 +743,10 @@ Object::~Object()
 	if (m_pSkinnedAnimationController)
 		delete m_pSkinnedAnimationController;
 	
-	if (m_pMesh) m_pMesh->Release();
-	if (m_pMaterial) m_pMaterial->Release();
+	if (m_pMesh) 
+		m_pMesh->Release();
+	if (m_pMaterial) 
+		m_pMaterial->Release();
 	if (m_nMaterials > 0)
 	{
 		for (int i = 0; i < m_nMaterials; ++i)
@@ -738,8 +759,10 @@ Object::~Object()
 	{
 		delete component;
 	}
-	if (m_pSibling) m_pSibling->Release();
-	if (m_pChild)m_pChild->Release();
+	if (m_pSibling) 
+		m_pSibling->Release();
+	if (m_pChild)
+		m_pChild->Release();
 }
 
 void Object::start()
@@ -1082,7 +1105,7 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 	FILE* OpenedFile = NULL;
 	::fopen_s(&OpenedFile, pstrFileName, "rb");
 	::rewind(OpenedFile);
-	std::map<std::string,LoadedModelInfo*> ModelMap;
+	std::map<std::string,LoadedModelInfo*> ModelMaps;
 	::ReadStringFromFile(OpenedFile, pstrToken);
 	if (!strcmp(pstrToken, "<Objects>:"))
 	{
@@ -1096,7 +1119,7 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 				if (pstrToken[0] == '@') // Mesh�̸��� �´� Mesh�� �̹� �ε尡 �Ǿ��ٸ� true -> �ִ� �� ���� ��
 				{
 					std::string str(pstrToken + 1);
-					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMap[str]);
+					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMaps[str]);
 				}
 				else
 				{
@@ -1109,7 +1132,7 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 
 					LoadedModelInfo* pLoadedModel = LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pstrFilePath, NULL);
 
-					ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ���� ���� map�� ����
+					ModelMaps.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ���� ���� map�� ����
 					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel);
 				}
 			}
@@ -1151,7 +1174,7 @@ void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	FILE* OpenedFile = NULL;
 	::fopen_s(&OpenedFile, pstrFileName, "rb");
 	::rewind(OpenedFile);
-	std::map<std::string, LoadedModelInfo*> ModelMap;
+	std::map<std::string, LoadedModelInfo*> ModelMaps;
 	::ReadStringFromFile(OpenedFile, pstrToken);
 	if (!strcmp(pstrToken, "<Objects>:"))
 	{
@@ -1165,7 +1188,7 @@ void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 				if (pstrToken[0] == '@') // Mesh�̸��� �´� Mesh�� �̹� �ε尡 �Ǿ��ٸ� true -> �ִ� �� ���� ��
 				{
 					std::string str(pstrToken + 1);
-					pObject = new TestModelBlendObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMap[str], pBlendShader);
+					pObject = new TestModelBlendObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMaps[str], pBlendShader);
 
 				}
 				else
@@ -1179,7 +1202,7 @@ void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 					LoadedModelInfo* pLoadedModel = LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pstrFilePath, NULL);
 
-					ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ���� ���� map�� ����
+					ModelMaps.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ���� ���� map�� ����
 
 
 					pObject = new TestModelBlendObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel, pBlendShader);
