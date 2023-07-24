@@ -546,6 +546,10 @@ void MagePlayer::Update(float fTimeElapsed)
 	Player::Update(fTimeElapsed);
 	DWORD nCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
 	UpdateTransform(NULL);
+
+	m_pHP_Dec_UI->Dec_HP = GetRemainHP() / GetHealth();
+	m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * GetRemainHP() / GetHealth(), 0.32);
+
 	if (nCameraMode == FIRST_PERSON_CAMERA && FindFrame("Face"))
 	{
 

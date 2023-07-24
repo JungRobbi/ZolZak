@@ -1243,15 +1243,6 @@ void GameFramework::FrameAdvance()
 void GameFramework::RenderHP()
 {
 	if (scene_type >= SIGHT_SCENE) {
-		//for (auto& p : m_OtherPlayers)
-		//{
-		//	p->m_pHP_Dec_UI->UpdateTransform(NULL);
-		//	p->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
-		//	p->m_pHP_UI->UpdateTransform(NULL);
-		//	p->m_pHP_UI->Render(m_pCommandList, m_pCamera);
-		//	p->m_pUI->UpdateTransform(NULL);
-		//	p->m_pUI->Render(m_pCommandList, m_pCamera);
-		//}
 		m_pPlayer->m_pHP_Dec_UI->UpdateTransform(NULL);
 		m_pPlayer->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
 		m_pPlayer->m_pHP_UI->UpdateTransform(NULL);
