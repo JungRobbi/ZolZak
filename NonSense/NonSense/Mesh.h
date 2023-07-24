@@ -102,7 +102,10 @@ private:
 	int m_nReferences = 0;
 public:
 	void AddRef() { m_nReferences++; }
-	void Release() { if (--m_nReferences <= 0) delete this; }
+	void Release() { 
+		if (--m_nReferences <= 0) 
+			delete this; 
+	}
 	void ReleaseUploadBuffers();
 	BoundingOrientedBox GetBoundingBox() { return(m_xmBoundingBox); }
 	int CheckRayIntersection(XMFLOAT3& xmRayPosition, XMFLOAT3& xmRayDirection, float* pfNearHitDistance);

@@ -262,7 +262,7 @@ class LoadedModelInfo
 {
 public:
 	LoadedModelInfo() {}
-	~LoadedModelInfo() {}
+	~LoadedModelInfo();
 
 	int m_nSkinnedMeshes = 0;
 	SkinnedMesh** m_ppSkinnedMeshes = NULL;

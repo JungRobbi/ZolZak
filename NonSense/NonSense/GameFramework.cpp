@@ -723,7 +723,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				ChangeScene(1);
 				break;
 			case '9':
-				ChangeScene(SIGHT_SCENE);
+				ChangeScene(BOSS_SCENE);
 				break;
 			case 't':
 			case 'T':

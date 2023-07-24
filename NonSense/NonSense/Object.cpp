@@ -399,6 +399,24 @@ XMFLOAT4X4 AnimationSet::GetSRT(int nBonefloat,float fPosition)
 	return(xmf4x4Transform);
 }
 
+LoadedModelInfo::~LoadedModelInfo()
+{
+	//if (m_nSkinnedMeshes > 0)
+	//{
+	//	for (int i = 0; i < m_nSkinnedMeshes; ++i)
+	//	{
+	//		if (m_ppSkinnedMeshes[i])
+	//			m_ppSkinnedMeshes[i]->Release();
+	//	}
+	//	delete[] m_ppSkinnedMeshes;
+	//}
+	//if (m_pAnimationSets)
+	//{
+	//	m_pAnimationSets->Release();
+	//}
+	//if (m_pRoot)
+	//	m_pRoot->Release();
+}
 
 void LoadedModelInfo::PrepareSkinning()
 {
@@ -697,6 +715,8 @@ void AnimationController::AddAnimationEvent(std::string EventName, int nAnimatio
 	m_pAnimationTracks[0].AddAnimationEvent(EventName, nAnimationSet, Position, Callback);
 	m_pAnimationTracks[1].AddAnimationEvent(EventName, nAnimationSet, Position, Callback);
 }
+
+
 
 
 Object::Object()
@@ -1392,7 +1412,7 @@ Object* Object::LoadHierarchy(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 				for (int i = 0; i < nChilds; i++)
 				{
 					Object* pChild = Object::LoadHierarchy(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pObject, OpenedFile, pShader, pnSkinnedMeshes);
-					if (pChild) pObject->SetChild(pChild);
+					if (pChild) pObject->SetChild(pChild,true);
 				}
 			}
 		}

@@ -10,4 +10,10 @@ public:
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	ID3D12Device* m_pd3dDevice = NULL;
 	ID3D12GraphicsCommandList* m_pd3dCommandList = NULL;
+
+	virtual void update();
+
+	Object* Boss = NULL;
+	bool BossDead = false;
+	float SceneChangeCount = 5.0f;
 };

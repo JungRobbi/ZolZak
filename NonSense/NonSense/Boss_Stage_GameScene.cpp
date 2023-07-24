@@ -1,5 +1,7 @@
 #include "Boss_Stage_GameScene.h"
 #include "BoxCollideComponent.h"
+#include "GameFramework.h"
+#include "Timer.h"
 class GameFramework;
 
 void Boss_Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -33,7 +35,7 @@ void Boss_Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graphics
 	TempObject->SetPosition(-177.75f, m_pTerrain->GetHeight(-177.75f, 173.79f), 173.79f);
 	TempObject->SetNum(106);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-
+	Boss = TempObject;
 	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
 
 	m_pBlendShader = new BlendShader();
@@ -80,6 +82,9 @@ bool Boss_Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageI
 	case WM_KEYUP:
 		switch (wParam)
 		{
+		case VK_DELETE:
+			if (Boss)
+				((Character*)Boss)->GetHit(20000);
 		default:
 			break;
 		}
@@ -88,4 +93,20 @@ bool Boss_Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageI
 		break;
 	}
 	return(false);
+}
+
+void Boss_Stage_GameScene::update()
+{
+	GameScene::update();
+	if (BossDead)
+	{
+		if (SceneChangeCount > 0)
+		{
+			SceneChangeCount -= Timer::GetTimeElapsed();
+		}
+		else
+		{
+			GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
+		}
+	}
 }
