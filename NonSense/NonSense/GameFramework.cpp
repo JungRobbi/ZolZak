@@ -775,6 +775,9 @@ void GameFramework::ChangeScene(unsigned char num)
 	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
+	if (m_pPlayer)
+		m_pPlayer->Release();
+
 	if (NetworkMGR::is_mage)
 	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 	else m_pPlayer = new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
@@ -784,6 +787,7 @@ void GameFramework::ChangeScene(unsigned char num)
 	case LOGIN_SCENE:
 		if (m_pPlayer)
 		m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
+	
 		break;
 	case LOBBY_SCENE:
 		if(m_pPlayer)
@@ -794,11 +798,30 @@ void GameFramework::ChangeScene(unsigned char num)
 			m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
 		break;
 	case SIGHT_SCENE:
+		if (m_pPlayer)
+		{
+			m_pPlayer->SetPosition(XMFLOAT3(-25.2f, GameScene::MainScene->GetTerrain()->GetHeight(-25.2, 111.9f), 111.9f));
+			m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = false;
+		}
 	case HEARING_SCENE:
+		if (m_pPlayer)
+		{
+			m_pPlayer->SetPosition(XMFLOAT3(125.f, GameScene::MainScene->GetTerrain()->GetHeight(125.f, 19.f), 19.f));
+			m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = false;
+		}
 	case TOUCH_SCENE:
+		if (m_pPlayer)
+		{
+			m_pPlayer->SetPosition(XMFLOAT3(215.71f, GameScene::MainScene->GetTerrain()->GetHeight(215.71, 61.97f), 61.97f));
+			m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = false;
+		}
 	case BOSS_SCENE:
 		if (m_pPlayer)
-		m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = false;
+		{
+			m_pPlayer->SetPosition(XMFLOAT3(-144.103f, GameScene::MainScene->GetTerrain()->GetHeight(-144.103f, 174.483f), 174.483f));
+			m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = false;
+		}
+
 		break;
 	default:
 		break;
