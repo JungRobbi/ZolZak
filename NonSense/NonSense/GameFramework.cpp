@@ -426,7 +426,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Hearing_Stage_GameScene());
 	m_GameScenes.emplace_back(new Touch_Stage_GameScene());
 	m_GameScenes.emplace_back(new Boss_Stage_GameScene());
-	ChangeScene(SIGHT_SCENE);
+	ChangeScene(LOGIN_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -804,18 +804,21 @@ void GameFramework::ChangeScene(unsigned char num)
 			m_pPlayer->SetPosition(XMFLOAT3(-25.2f, GameScene::MainScene->GetTerrain()->GetHeight(-25.2, 111.9f), 111.9f));
 			m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = false;
 		}
+		break;
 	case HEARING_SCENE:
 		if (m_pPlayer)
 		{
 			m_pPlayer->SetPosition(XMFLOAT3(125.f, GameScene::MainScene->GetTerrain()->GetHeight(125.f, 19.f), 19.f));
 			m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = false;
 		}
+		break;
 	case TOUCH_SCENE:
 		if (m_pPlayer)
 		{
 			m_pPlayer->SetPosition(XMFLOAT3(215.71f, GameScene::MainScene->GetTerrain()->GetHeight(215.71, 61.97f), 61.97f));
 			m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = false;
 		}
+		break;
 	case BOSS_SCENE:
 		if (m_pPlayer)
 		{
