@@ -61,7 +61,8 @@ void AttackComponent::CheckMonsterAttackRange()
 				}
 				printf("%f -> %f = %f", dynamic_cast<Character*>(gameObject)->GetAttack(), GameFramework::MainGameFramework->m_pPlayer->GetDefense(), GameFramework::MainGameFramework->m_pPlayer->GetRemainHP());
 			//	GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
-				GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
+				if(GameFramework::MainGameFramework->GameSceneState == SIGHT_SCENE)
+					GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
 			}
 		}
 }

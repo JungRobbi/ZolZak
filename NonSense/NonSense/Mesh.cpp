@@ -16,12 +16,49 @@ Mesh::Mesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 }
 Mesh::~Mesh()
 {
-	if (m_pd3dVertexBuffer) m_pd3dVertexBuffer->Release();
-	if (m_pd3dVertexUploadBuffer) m_pd3dVertexUploadBuffer->Release();
-	if (m_pd3dIndexBuffer) m_pd3dIndexBuffer->Release();
-	if (m_pd3dIndexUploadBuffer) m_pd3dIndexUploadBuffer->Release();
-	if (m_pVertices) delete[] m_pVertices;
-if (m_pnIndices) delete[] m_pnIndices;
+	if (m_pd3dVertexBuffer) 
+		m_pd3dVertexBuffer->Release();
+	if (m_pd3dVertexUploadBuffer)
+		m_pd3dVertexUploadBuffer->Release();
+	if (m_pd3dIndexBuffer) 
+		m_pd3dIndexBuffer->Release();
+	if (m_pd3dIndexUploadBuffer)
+		m_pd3dIndexUploadBuffer->Release();
+	if (m_pd3dPositionBuffer)
+		m_pd3dPositionBuffer->Release();
+	if (m_pd3dPositionUploadBuffer)
+		m_pd3dPositionUploadBuffer->Release();
+
+
+	if (m_pVertices) 
+		delete[] m_pVertices;
+	if (m_pnIndices) 
+		delete[] m_pnIndices;
+	if (m_pxmf3Positions)
+		delete[] m_pxmf3Positions;
+	if (m_pnSubSetIndices)
+		delete[] m_pnSubSetIndices;
+	if (m_nSubMeshes > 0)
+	{
+		for (int i = 0; i < m_nSubMeshes; ++i)
+		{
+			if (m_ppnSubSetIndices[i])
+				delete[] m_ppnSubSetIndices[i];
+			if (m_ppd3dSubSetIndexBuffers[i])
+				m_ppd3dSubSetIndexBuffers[i]->Release();
+			if (m_ppd3dSubSetIndexUploadBuffers[i])
+				m_ppd3dSubSetIndexUploadBuffers[i]->Release();
+		}
+		if(m_ppnSubSetIndices)
+			delete[] m_ppnSubSetIndices;
+		if (m_ppd3dSubSetIndexBuffers)
+			delete[] m_ppd3dSubSetIndexBuffers;
+		if (m_ppd3dSubSetIndexUploadBuffers)
+			delete[] m_ppd3dSubSetIndexUploadBuffers;
+	}
+	if (m_pd3dSubSetIndexBufferViews)
+		delete[] m_pd3dSubSetIndexBufferViews;
+
 }
 void Mesh::ReleaseUploadBuffers()
 {
@@ -321,17 +358,39 @@ LoadMesh::LoadMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 }
 LoadMesh::~LoadMesh()
 {
-	if (m_pd3dTextureCoord0Buffer) m_pd3dTextureCoord0Buffer->Release();
-	if (m_pd3dNormalBuffer) m_pd3dNormalBuffer->Release();
-	if (m_pd3dTangentBuffer) m_pd3dTangentBuffer->Release();
-	if (m_pd3dBiTangentBuffer) m_pd3dBiTangentBuffer->Release();
+	if (m_pd3dTextureCoord0Buffer) 
+		m_pd3dTextureCoord0Buffer->Release();
+	if (m_pd3dTextureCoord0UploadBuffer)
+		m_pd3dTextureCoord0UploadBuffer->Release();
+	if (m_pd3dTextureCoord1Buffer)
+		m_pd3dTextureCoord1Buffer->Release();
+	if (m_pd3dTextureCoord1UploadBuffer)
+		m_pd3dTextureCoord1UploadBuffer->Release();
+	if (m_pd3dNormalBuffer) 
+		m_pd3dNormalBuffer->Release();
+	if (m_pd3dNormalUploadBuffer)
+		m_pd3dNormalUploadBuffer->Release();
+	if (m_pd3dTangentBuffer) 
+		m_pd3dTangentBuffer->Release();
+	if (m_pd3dTangentUploadBuffer)
+		m_pd3dTangentUploadBuffer->Release();
+	if (m_pd3dBiTangentBuffer) 
+		m_pd3dBiTangentBuffer->Release();
+	if (m_pd3dBiTangentUploadBuffer)
+		m_pd3dBiTangentUploadBuffer->Release();
 
-	if (m_pxmf4Colors) delete[] m_pxmf4Colors;
-	if (m_pxmf3Normals) delete[] m_pxmf3Normals;
-	if (m_pxmf3Tangents) delete[] m_pxmf3Tangents;
-	if (m_pxmf3BiTangents) delete[] m_pxmf3BiTangents;
-	if (m_pxmf2TextureCoords0) delete[] m_pxmf2TextureCoords0;
-	if (m_pxmf2TextureCoords1) delete[] m_pxmf2TextureCoords1;
+	if (m_pxmf4Colors) 
+		delete[] m_pxmf4Colors;
+	if (m_pxmf3Normals) 
+		delete[] m_pxmf3Normals;
+	if (m_pxmf3Tangents)
+		delete[] m_pxmf3Tangents;
+	if (m_pxmf3BiTangents) 
+		delete[] m_pxmf3BiTangents;
+	if (m_pxmf2TextureCoords0) 
+		delete[] m_pxmf2TextureCoords0;
+	if (m_pxmf2TextureCoords1) 
+		delete[] m_pxmf2TextureCoords1;
 }
 
 void LoadMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
@@ -512,17 +571,36 @@ SkinnedMesh::SkinnedMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 
 SkinnedMesh::~SkinnedMesh()
 {
-	if (m_pBoneIndices) delete[] m_pBoneIndices;
-	if (m_pBoneWeight) delete[] m_pBoneWeight;
+	if (m_pBoneIndices) 
+		delete[] m_pBoneIndices;
+	if (m_pBoneWeight) 
+		delete[] m_pBoneWeight;
 
-	if (m_ppSkinningBoneFrameCaches) delete[] m_ppSkinningBoneFrameCaches;
-	if (m_ppstrSkinningBoneNames) delete[] m_ppstrSkinningBoneNames;
+	if (m_ppSkinningBoneFrameCaches) 
+		delete[] m_ppSkinningBoneFrameCaches;
+	if (m_ppstrSkinningBoneNames) 
+		delete[] m_ppstrSkinningBoneNames;
 
-	if (m_pBindPoseBoneOffsets) delete[] m_pBindPoseBoneOffsets;
-	if (m_pd3dcbBindPoseBoneOffsets) m_pd3dcbBindPoseBoneOffsets->Release();
+	if (m_pBindPoseBoneOffsets) 
+		delete[] m_pBindPoseBoneOffsets;
 
-	if (m_pd3dBoneIndexBuffer) m_pd3dBoneIndexBuffer->Release();
-	if (m_pd3dBoneWeightBuffer) m_pd3dBoneWeightBuffer->Release();
+	if (m_pd3dBoneIndexBuffer)
+		m_pd3dBoneIndexBuffer->Release();
+	if (m_pd3dBoneIndexUploadBuffer)
+		m_pd3dBoneIndexUploadBuffer->Release();
+
+	if (m_pd3dcbBindPoseBoneOffsets) 
+		m_pd3dcbBindPoseBoneOffsets->Release();
+
+	if (m_pd3dBoneIndexBuffer) 
+		m_pd3dBoneIndexBuffer->Release();
+	if (m_pd3dBoneIndexUploadBuffer)
+		m_pd3dBoneIndexUploadBuffer->Release();
+	if (m_pd3dBoneWeightBuffer) 
+		m_pd3dBoneWeightBuffer->Release();
+	if (m_pd3dBoneWeightUploadBuffer)
+		m_pd3dBoneWeightUploadBuffer->Release();
+
 
 	//ReleaseShaderVariables();
 }
@@ -918,13 +996,31 @@ HeightMapGridMesh::HeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 HeightMapGridMesh::~HeightMapGridMesh()
 {
-	if (m_pd3dColorBuffer) m_pd3dColorBuffer->Release();
-	if (m_pd3dTextureCoord0Buffer) m_pd3dTextureCoord0Buffer->Release();
-	if (m_pd3dTextureCoord1Buffer) m_pd3dTextureCoord1Buffer->Release();
+	if (m_pd3dColorBuffer) 
+		m_pd3dColorBuffer->Release();
+	if (m_pd3dColorUploadBuffer)
+		m_pd3dColorUploadBuffer->Release();
+	if (m_pd3dTextureCoord0Buffer) 
+		m_pd3dTextureCoord0Buffer->Release();
+	if (m_pd3dTextureCoord0UploadBuffer)
+		m_pd3dTextureCoord0UploadBuffer->Release();
+	if (m_pd3dTextureCoord1Buffer) 
+		m_pd3dTextureCoord1Buffer->Release();
+	if (m_pd3dTextureCoord1UploadBuffer)
+		m_pd3dTextureCoord1UploadBuffer->Release();
+	if (m_pd3dNormalBuffer)
+		m_pd3dNormalBuffer->Release();
+	if (m_pd3dNormalUploadBuffer)
+		m_pd3dNormalUploadBuffer->Release();
 
-	if (m_pxmf4Colors) delete[] m_pxmf4Colors;
-	if (m_pxmf2TextureCoords0) delete[] m_pxmf2TextureCoords0;
-	if (m_pxmf2TextureCoords1) delete[] m_pxmf2TextureCoords1;
+	if (m_pxmf4Colors) 
+		delete[] m_pxmf4Colors;
+	if (m_pxmf2TextureCoords0) 
+		delete[] m_pxmf2TextureCoords0;
+	if (m_pxmf2TextureCoords1) 
+		delete[] m_pxmf2TextureCoords1;
+	if (m_pxmf3Normals)
+		delete[] m_pxmf3Normals;
 }
 
 void HeightMapGridMesh::ReleaseUploadBuffers()
@@ -1129,6 +1225,22 @@ void ParticleMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void*
 }
 ParticleMesh::~ParticleMesh()
 {
+	if (m_pd3dVelBuffer)
+		m_pd3dVelBuffer->Release();
+	if (m_pd3dVelUploadBuffer)
+		m_pd3dVelUploadBuffer->Release();
+	if (m_pd3dEmitBuffer)
+		m_pd3dEmitBuffer->Release();
+	if (m_pd3dEmitUploadBuffer)
+		m_pd3dEmitUploadBuffer->Release();
+	if (m_pd3dLifeBuffer)
+		m_pd3dLifeBuffer->Release();
+	if (m_pd3dLifeUploadBuffer)
+		m_pd3dLifeUploadBuffer->Release();
+	if (m_pd3dColorBuffer)
+		m_pd3dColorBuffer->Release();
+	if (m_pd3dColorUploadBuffer)
+		m_pd3dColorUploadBuffer->Release();
 }
 
 RectMesh::RectMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight) : Mesh(pd3dDevice, pd3dCommandList)

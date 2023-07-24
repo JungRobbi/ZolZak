@@ -766,8 +766,6 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 		{
 		case VK_INSERT:
 			break;
-		case VK_DELETE:
-			break;
 		case VK_SPACE:
 
 			break;

@@ -12,9 +12,12 @@ Shader::Shader()
 
 Shader::~Shader()
 {
-	if (m_pPipelineState) m_pPipelineState->Release();
-	if (m_pGraphicsRootSignature) m_pGraphicsRootSignature->Release();
-	if (m_CBVSRVDescriptorHeap) m_CBVSRVDescriptorHeap->Release();
+	if (m_pPipelineState) 
+		m_pPipelineState->Release();
+	if (m_pGraphicsRootSignature) 
+		m_pGraphicsRootSignature->Release();
+	if (m_CBVSRVDescriptorHeap) 
+		m_CBVSRVDescriptorHeap->Release();
 }
 
 //래스터라이저 상태를 설정하기 위한 구조체를 반환한다.
@@ -254,7 +257,8 @@ void Shader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 void Shader::ReleaseShaderVariables()
 {
-	if (m_CBVSRVDescriptorHeap) m_CBVSRVDescriptorHeap->Release();
+	if (m_CBVSRVDescriptorHeap) 
+		m_CBVSRVDescriptorHeap->Release();
 }
 
 void Shader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
