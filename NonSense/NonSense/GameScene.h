@@ -78,6 +78,7 @@ public:
 	UINT LineSize = 3;
 	UINT ToonShading = 10;
 
+	int SelectNum = 0;
 public:
 	static GameScene* MainScene;
 	Player* m_pPlayer = NULL;

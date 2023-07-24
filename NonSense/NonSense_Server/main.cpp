@@ -484,7 +484,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 				break;
 
 			p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->Jump();
-			for (auto& rc : RemoteClient::remoteClients) {
+			for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 				if (!rc.second->b_Enable.load())
 					continue;
 				SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
@@ -498,7 +498,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			break;
 		case VK_RBUTTON: {
 			p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->Dash();
-			for (auto& rc : RemoteClient::remoteClients) {
+			for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 				if (!rc.second->b_Enable.load())
 					continue;
 				SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
@@ -511,7 +511,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		}
 			break;
 		case VK_LBUTTON: {
-			for (auto& rc : RemoteClient::remoteClients) {
+			for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 				if (!rc.second->b_Enable.load())
 					continue;
 				SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
@@ -578,7 +578,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		Monster->GetHit(recv_packet->hit_damage);
 
 		// 다른 클라이언트들에게 남은 HP 정보 통신
-		for (auto& rc : RemoteClient::remoteClients) {
+		for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 			if (!rc.second->b_Enable.load())
 				continue;
 			SC_TEMP_HIT_MONSTER_PACKET send_packet;
@@ -593,7 +593,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	case E_PACKET::E_PACKET_CS_TEMP_HIT_PLAYER_PACKET: {
 		CS_TEMP_HIT_PLAYER_PACKET* recv_packet = reinterpret_cast<CS_TEMP_HIT_PLAYER_PACKET*>(p_Packet);
 		shared_ptr<Player> player;
-		for (auto& rc : RemoteClient::remoteClients) {
+		for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 			if (!rc.second->b_Enable.load())
 				continue;
 			if (rc.second->m_id == recv_packet->player_id)
@@ -603,7 +603,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		player->GetHit(recv_packet->hit_damage);
 
 		// 다른 클라이언트들에게 남은 HP 정보 통신
-		for (auto& rc : RemoteClient::remoteClients) {
+		for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 			if (!rc.second->b_Enable.load())
 				continue;
 			SC_TEMP_HIT_PLAYER_PACKET send_packet;
@@ -617,8 +617,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	}
 	case E_PACKET::E_PACKET_CS_CHAT_PACKET: {
 		CS_CHAT_PACKET* recv_packet = reinterpret_cast<CS_CHAT_PACKET*>(p_Packet);
-
-		for (auto& rc : RemoteClient::remoteClients) {
+		for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 			if (!rc.second->b_Enable.load())
 				continue;
 			if (rc.second->m_id == p_Client->m_id)
@@ -658,6 +657,9 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	case E_PACKET_CS_ROOM_JOIN_PACKET: {
 		CS_ROOM_JOIN_PACKET* recv_packet = reinterpret_cast<CS_ROOM_JOIN_PACKET*>(p_Packet);
 
+	/*	Room::roomlist[recv_packet->roomNum]->Clients.insert({ p_Client->m_id, p_Client });
+		p_Client->m_pPlayer->m_roomNum = recv_packet->roomNum;*/
+
 		// LOGIN_OK
 		p_Client->m_pPlayer = make_shared<Player>();
 		p_Client->m_pPlayer->start();
@@ -677,7 +679,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 
 		Room::roomlist[recv_packet->roomNum]->Clients.insert({ p_Client->m_id, p_Client });
 		p_Client->m_pPlayer->m_roomNum = recv_packet->roomNum;
-
+		p_Client->m_roomNum = recv_packet->roomNum;
 		{ // 접속한 클라이언트 본인 정보 송신
 			SC_LOGIN_INFO_PACKET send_packet;
 			send_packet.size = sizeof(SC_LOGIN_INFO_PACKET);
@@ -709,6 +711,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			send_packet.y = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
 			send_packet.z = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
 			send_packet.clearStage = rc.second->m_clear_stage;
+			send_packet.type = 0;
 			p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 
@@ -729,6 +732,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			send_packet.y = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
 			send_packet.z = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
 			send_packet.clearStage = p_Client->m_clear_stage;
+			send_packet.type = 0;
 			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 

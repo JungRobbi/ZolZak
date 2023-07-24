@@ -176,15 +176,15 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		cout << "로그인 정보 수신!" << endl;
 
-		int RoomNum = dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum;
+		int RoomNum = GameScene::MainScene->SelectNum;
 		std::string ChannelName = "Channel_";
 		char buf[3];
 		::itoa(RoomNum, buf, 10);
 		ChannelName.append(buf);
 		GameFramework::MainGameFramework->GetVivoxSystem()->JoinChannel(ChannelName.c_str());
-		GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
+	//	GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
 
-	//	GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
+		GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
 
 		break;
 	}

@@ -16,7 +16,7 @@ public:
 public:
 	std::atomic<int> OldAniType{ E_PLAYER_ANIMATION_TYPE::E_IDLE };
 	std::atomic<int> PresentAniType{ E_PLAYER_ANIMATION_TYPE::E_IDLE };
-
+	int type = 0;
 public:
 	Player();
 	virtual ~Player();

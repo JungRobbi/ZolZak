@@ -453,7 +453,7 @@ void Join_Room_UI::OnClick()
 		CS_ROOM_JOIN_PACKET send_packet;
 		send_packet.size = sizeof(CS_ROOM_JOIN_PACKET);
 		send_packet.type = E_PACKET::E_PACKET_CS_ROOM_JOIN_PACKET;
-		send_packet.roomNum = dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum;
+		send_packet.roomNum = GameScene::MainScene->SelectNum;
 		PacketQueue::AddSendPacket(&send_packet);
 	}
 	else {
@@ -598,7 +598,7 @@ Room_UI::Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 
 void Room_UI::OnClick()
 {
-	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum = RoomNum;
+	GameScene::MainScene->SelectNum = RoomNum;
 	std::cout << RoomNum << "�� �� - " << RoomName << " - ���� - " << RoomOwner << std::endl;
 }
 

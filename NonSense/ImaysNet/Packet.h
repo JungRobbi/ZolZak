@@ -4,7 +4,7 @@
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 
-constexpr int NAME_SIZE = 15;
+constexpr int NAME_SIZE = 30;
 constexpr int CHAT_SIZE = 300;
 
 constexpr int MAX_BUFSIZE_CLIENT = 1024;
@@ -151,6 +151,7 @@ public:
 	float	y;
 	float	z;
 	int	clearStage;
+	int playerType; // 0 : 마법사 , 1 : 전사
 };
 
 class SC_REMOVE_PLAYER_PACKET : public PACKET_HEAD {

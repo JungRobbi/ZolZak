@@ -22,7 +22,6 @@ public:
     ID3D12Device* m_pd3dDevice = NULL;
     ID3D12GraphicsCommandList* m_pd3dCommandList = NULL;
     int Page = 0;
-    int SelectNum = 0;
     std::queue<ROOM_CREATE_STRUCT> roomCreateList;
 };
 
