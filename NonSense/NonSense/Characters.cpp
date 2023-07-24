@@ -560,7 +560,7 @@ Shield::Shield(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		bs->SetNum(2);
 		AddComponent<SphereCollideComponent>();
 		GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
-		GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.5);
+		GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 1.5, 0.0), 1.5);
 
 		m_Health = 20000;
 		m_RemainHP = 20000;
