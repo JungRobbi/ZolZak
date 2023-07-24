@@ -466,7 +466,7 @@ void GameFramework::ReleaseObjects()
 
 void GameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	if (NetworkMGR::b_isNet) {
+	if (NetworkMGR::b_isNet && scene_type >= SIGHT_SCENE) {
 		if (nMessageID == WM_RBUTTONDOWN || nMessageID == WM_LBUTTONDOWN) {
 			CS_KEYDOWN_PACKET send_packet;
 			send_packet.size = sizeof(CS_KEYDOWN_PACKET);
@@ -559,10 +559,6 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			switch (wParam)
 			{
 			case VK_RETURN:
-				ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
-				ChatMGR::StoreTextSelf();
-				ChatMGR::m_textindex = 0;
-
 				if (NetworkMGR::b_isNet && scene_type == LOGIN_SCENE) {
 					char* p = ConvertWCtoC(ChatMGR::m_textbuf);
 					NetworkMGR::name = string{ p };
@@ -584,6 +580,14 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 					}
 
 				}
+				else if (NetworkMGR::b_isNet && scene_type >= ROOM_SCENE) {
+					ChatMGR::StoreTextSelf();
+				}
+				else if (!NetworkMGR::b_isNet) {
+					ChatMGR::StoreTextSelf();
+				}
+				ChatMGR::m_textindex = 0;
+				ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
 				ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
 				break;
 			case VK_BACK:
@@ -819,7 +823,7 @@ void GameFramework::ChangeScene(unsigned char num)
 	}
 
 	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
-	if (num >= SIGHT_SCENE) {
+	if (num >= ROOM_SCENE) {
 		ChatMGR::SetInGame(m_nWndClientWidth, m_nWndClientHeight);
 	}
 	else if (num == LOGIN_SCENE) {

@@ -182,9 +182,9 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		::itoa(RoomNum, buf, 10);
 		ChannelName.append(buf);
 		GameFramework::MainGameFramework->GetVivoxSystem()->JoinChannel(ChannelName.c_str());
-	//	GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
+		GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
 
-		GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
+	//	GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
 
 		break;
 	}
@@ -539,6 +539,19 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(recv_packet->roomNum, std::string{ recv_packet->roomName }, std::string{ recv_packet->hostName });
 		}
 		
+		break;
+	}
+	case E_PACKET_SC_ROOM_JOIN_OK_PACKET: {
+		SC_ROOM_JOIN_OK_PACKET* recv_packet = reinterpret_cast<SC_ROOM_JOIN_OK_PACKET*>(p_Packet);
+		NetworkMGR::id = recv_packet->id;
+
+		int RoomNum = GameScene::MainScene->SelectNum;
+		std::string ChannelName = "Channel_";
+		char buf[3];
+		::itoa(RoomNum, buf, 10);
+		ChannelName.append(buf);
+		GameFramework::MainGameFramework->GetVivoxSystem()->JoinChannel(ChannelName.c_str());
+		GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
 		break;
 	}
 
