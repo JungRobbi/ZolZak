@@ -426,7 +426,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Hearing_Stage_GameScene());
 	m_GameScenes.emplace_back(new Touch_Stage_GameScene());
 	m_GameScenes.emplace_back(new Boss_Stage_GameScene());
-	ChangeScene(TOUCH_SCENE);
+	ChangeScene(SIGHT_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -702,6 +702,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 								ScriptMode = false;
 								ScriptNum = 0;
 								TalkingNPC = 0;
+								ChangeScene(GameSceneState+1);
 								break;
 							}
 						//	cout << GameScene::MainScene->EndNPC->script[ScriptNum] << endl;

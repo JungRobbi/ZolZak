@@ -21,8 +21,6 @@ void Lobby_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();
 
-	m_pSkyBox = new SkyBox(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	Lobby_BackGround_UI* m_Lobby_BackGround_UI = new Lobby_BackGround_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Lobby_UI* m_Lobby_UI = new Lobby_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Make_Room_UI* m_Make_Room_UI = new Make_Room_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
