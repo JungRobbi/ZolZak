@@ -104,7 +104,7 @@ public:
 	virtual ~GameScene();
 	std::list<Object*> GetObjects() { return gameObjects; }
 	//���� ��� ����� ������ ����
-	void BuildLightsAndMaterials();
+	virtual void BuildLightsAndMaterials();
 	//���� ��� ����� ������ ���� ���ҽ��� �����ϰ� ����
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);

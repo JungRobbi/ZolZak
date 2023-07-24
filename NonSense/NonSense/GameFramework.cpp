@@ -426,7 +426,7 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Hearing_Stage_GameScene());
 	m_GameScenes.emplace_back(new Touch_Stage_GameScene());
 	m_GameScenes.emplace_back(new Boss_Stage_GameScene());
-	ChangeScene(LOGIN_SCENE);
+	ChangeScene(SIGHT_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -702,6 +702,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 								ScriptMode = false;
 								ScriptNum = 0;
 								TalkingNPC = 0;
+								ChangeScene(GameSceneState+1);
 								break;
 							}
 						//	cout << GameScene::MainScene->EndNPC->script[ScriptNum] << endl;
@@ -1265,15 +1266,6 @@ void GameFramework::FrameAdvance()
 void GameFramework::RenderHP()
 {
 	if (scene_type >= SIGHT_SCENE) {
-		//for (auto& p : m_OtherPlayers)
-		//{
-		//	p->m_pHP_Dec_UI->UpdateTransform(NULL);
-		//	p->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
-		//	p->m_pHP_UI->UpdateTransform(NULL);
-		//	p->m_pHP_UI->Render(m_pCommandList, m_pCamera);
-		//	p->m_pUI->UpdateTransform(NULL);
-		//	p->m_pUI->Render(m_pCommandList, m_pCamera);
-		//}
 		m_pPlayer->m_pHP_Dec_UI->UpdateTransform(NULL);
 		m_pPlayer->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
 		m_pPlayer->m_pHP_UI->UpdateTransform(NULL);
