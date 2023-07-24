@@ -64,7 +64,7 @@ void Touch_Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graphic
 	terrain->SetPosition(-400, 0, -400);
 	m_pTerrain = terrain;
 	StartNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Ent"]);
-	StartNPC->SetPosition(228.04f, m_pTerrain->GetHeight(228.04f, 48.f), 48.f);
+	StartNPC->SetPosition(228.04f, m_pTerrain->GetHeight(228.04f, 48.f) - 10.5f, 48.f);
 	StartNPC->SetNum(102);
 	StartNPC->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	{

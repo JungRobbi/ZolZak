@@ -770,6 +770,8 @@ void GameFramework::SetWindowCentser(RECT rect)
 }
 void GameFramework::ChangeScene(unsigned char num)
 {
+	TouchDebuffLeftTime = -1;
+	IsTouchDebuff = false;
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
 	GameScene::MainScene->ReleaseObjects();
@@ -813,6 +815,7 @@ void GameFramework::ChangeScene(unsigned char num)
 		}
 		break;
 	case TOUCH_SCENE:
+		Touch_Debuff(-10);
 		if (m_pPlayer)
 		{
 			m_pPlayer->SetPosition(XMFLOAT3(215.71f, GameScene::MainScene->GetTerrain()->GetHeight(215.71, 61.97f), 61.97f));
@@ -1233,10 +1236,17 @@ void GameFramework::FrameAdvance()
 	}
 	else
 	{
-		TouchDebuffLeftTime -= Timer::GetTimeElapsed();
-		if (TouchDebuffLeftTime < 0)
+		if (TouchDebuffLeftTime <= -10)
+		{
+
+		}
+		else if (TouchDebuffLeftTime < 0)
 		{
 			IsTouchDebuff = false;
+		}
+		else
+		{
+			TouchDebuffLeftTime -= Timer::GetTimeElapsed();
 		}
 	}
 

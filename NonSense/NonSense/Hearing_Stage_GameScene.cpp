@@ -75,7 +75,7 @@ void Hearing_Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	}
 
 	EndNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Ent"]);
-	EndNPC->SetPosition(285.f, m_pTerrain->GetHeight(285.f, 43.f), 43.f);
+	EndNPC->SetPosition(285.f, m_pTerrain->GetHeight(285.f, 43.f) + 1.5f, 43.f);
 	EndNPC->SetNum(102);
 	EndNPC->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	{
