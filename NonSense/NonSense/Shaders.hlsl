@@ -535,10 +535,12 @@ float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
 	ShadowFactor = saturate(ShadowFactor);
 
 	cColor.rgb *= Lighting(input.positionW, normalize(input.normalW), gf3CameraDirection, ToonShading) * ShadowFactor;
-    cColor.r *= 1- 0.9 * darkness;
-    cColor.g *= 1- 0.9 * darkness;
-    cColor.b *= 1-0.9 * darkness;
+    cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.a);
+    //cColor.r *= 1- 0.9 * darkness;
+    //cColor.g *= 1- 0.9 * darkness;
+    //cColor.b *= 1-0.9 * darkness;
     return (cColor);
+    return (gtxShadowMap.Sample(gssDefaultSamplerState, input.uv));
 }
 
 struct VS_SKINNED_STANDARD_INPUT

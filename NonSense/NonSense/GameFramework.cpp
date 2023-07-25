@@ -724,7 +724,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				ChangeScene(1);
 				break;
 			case '9':
-				ChangeScene(BOSS_SCENE);
+				ChangeScene(SIGHT_SCENE);
 				break;
 			case 't':
 			case 'T':
@@ -1212,6 +1212,7 @@ void GameFramework::FrameAdvance()
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
 
 	// Blend Object
+	
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
 	if(GameScene::MainScene->m_pSkyBox)GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);

@@ -2,6 +2,7 @@
 #include "GameScene.h"
 #include "Timer.h"
 #include "BoxCollideComponent.h"
+#include "GameFramework.h"
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 
 ID3D12DescriptorHeap* GameScene::m_pd3dCbvSrvDescriptorHeap = NULL;
@@ -843,6 +844,7 @@ void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* 
 {
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+
 	for (auto& blendObject : blendGameObjects)
 	{
 		blendObject->UpdateTransform(NULL);

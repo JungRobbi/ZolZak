@@ -16,7 +16,7 @@ void Lobby_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 150);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 51);
 
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();
@@ -64,16 +64,16 @@ void Lobby_GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camer
 
 void Lobby_GameScene::MakeRoom(std::string name)
 {
-	//Room_UI* room = new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, 0, name, m_pPlayer->m_name);
-	//Rooms.emplace_back(room);
-	static int s_roomNum{};
-	roomCreateList.push({ s_roomNum++, name, m_pPlayer->m_name });
+	Room_UI* room = new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, 0, name, m_pPlayer->m_name);
+	Rooms.emplace_back(room);
+	//static int s_roomNum{};
+	//roomCreateList.push({ s_roomNum++, name, m_pPlayer->m_name });
 }
 
 void Lobby_GameScene::MakeRoom(int roomNum, std::string name, std::string owner)
 {
-	//Room_UI* room = new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, roomNum, name, owner);
-	//Rooms.emplace_back(room);
+	Room_UI* room = new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, roomNum, name, owner);
+	Rooms.emplace_back(room);
 
-	roomCreateList.push({ roomNum, name, owner });
+	//roomCreateList.push({ roomNum, name, owner });
 }
