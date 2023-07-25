@@ -1130,7 +1130,26 @@ Ready_UI::Ready_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 void Ready_UI::OnClick()
 {
-	GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
+	if (NetworkMGR::b_isNet) {
+		{
+			CS_ROOM_READY_PACKET send_packet;
+			send_packet.size = sizeof(CS_ROOM_READY_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_READY_PACKET;
+			send_packet.id = NetworkMGR::id;
+			memcpy(send_packet.name, NetworkMGR::name.c_str(), sizeof(NetworkMGR::name.c_str()));
+			send_packet.playerType = NetworkMGR::is_mage ? 0 : 1; // 0 : mage, 1 : warrior
+			PacketQueue::AddSendPacket(&send_packet);
+		}
+		{
+			CS_ROOM_START_PACKET send_packet;
+			send_packet.size = sizeof(CS_ROOM_START_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_START_PACKET;
+			PacketQueue::AddSendPacket(&send_packet);
+		}
+	}
+	else {
+		GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
+	}
 }
 
 Room_Back_UI::Room_Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)

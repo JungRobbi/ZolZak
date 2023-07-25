@@ -165,15 +165,6 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	{
 	case E_PACKET::E_PACKET_SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* recv_packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(p_Packet);
-		NetworkMGR::id = recv_packet->id;
-		auto& player = GameFramework::MainGameFramework->m_pPlayer;
-		if (player) {
-			player->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
-			player->GetCamera()->Update(player->GetPosition(), Timer::GetTimeElapsed());
-			player->SetHealth(recv_packet->maxHp);
-			player->SetRemainHP(recv_packet->remainHp);
-			GameFramework::MainGameFramework->m_clearStage = recv_packet->clearStage;
-		}
 		cout << "로그인 정보 수신!" << endl;
 
 		int RoomNum = GameScene::MainScene->SelectNum;
@@ -554,6 +545,47 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
 		break;
 	}
+	case E_PACKET_SC_ROOM_READY_PACKET: {
+		SC_ROOM_READY_PACKET* recv_packet = reinterpret_cast<SC_ROOM_READY_PACKET*>(p_Packet);
+		// Room UI 갱신
+		break;
+	}
+	case E_PACKET_SC_ROOM_UNREADY_PACKET: {
+		SC_ROOM_UNREADY_PACKET* recv_packet = reinterpret_cast<SC_ROOM_UNREADY_PACKET*>(p_Packet);
+		// Room UI 갱신
+		
+		break; 
+	}
+	case E_PACKET_SC_JOIN_GAME_PACKET: {
+		SC_JOIN_GAME_PACKET* recv_packet = reinterpret_cast<SC_JOIN_GAME_PACKET*>(p_Packet);
+		NetworkMGR::id = recv_packet->id;
+	//	GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
+		auto& player = GameFramework::MainGameFramework->m_pPlayer;
+		if (player) {
+			player->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
+			player->GetCamera()->Update(player->GetPosition(), Timer::GetTimeElapsed());
+			player->SetHealth(recv_packet->maxHp);
+			player->SetRemainHP(recv_packet->remainHp);
+			GameFramework::MainGameFramework->m_clearStage = recv_packet->clearStage;
+		}
+
+		{
+			CS_JOIN_COMPLETE_PACKET send_packet;
+			send_packet.size = sizeof(CS_JOIN_COMPLETE_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_JOIN_COMPLETE_PACKET;
+			PacketQueue::AddSendPacket(&send_packet);
+		}
+		break;
+	}
+	case E_PACKET_SC_EVERYONE_JOIN_PACKET: {
+		GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
+		CS_PLAYERS_REQUEST_PACKET send_packet;
+		send_packet.size = sizeof(CS_PLAYERS_REQUEST_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_CS_PLAYERS_REQUEST_PACKET;
+		PacketQueue::AddSendPacket(&send_packet);
+		break;
+	}
+
 
 									
 	default:

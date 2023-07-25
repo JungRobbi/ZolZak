@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <list>
 #include <atomic>
 #include <memory>
 #include <string>
@@ -17,6 +18,9 @@ public:
 	static std::unordered_map<int, shared_ptr<Room>> roomlist;
 	static int g_roomNum;
 	std::atomic<int> m_roomNum = 0;
+	std::list<std::shared_ptr<RemoteClient>> m_ReadyPlayer{};
+	int Ready_cnt = 0;
+	bool b_Accessible = true;
 
 	std::string roomName{""};
 	std::string hostName{""};
