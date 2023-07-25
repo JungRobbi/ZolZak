@@ -559,7 +559,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	case E_PACKET_SC_JOIN_GAME_PACKET: {
 		SC_JOIN_GAME_PACKET* recv_packet = reinterpret_cast<SC_JOIN_GAME_PACKET*>(p_Packet);
 		NetworkMGR::id = recv_packet->id;
-	//	GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
+		GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
 		auto& player = GameFramework::MainGameFramework->m_pPlayer;
 		if (player) {
 			player->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
@@ -578,7 +578,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		break;
 	}
 	case E_PACKET_SC_EVERYONE_JOIN_PACKET: {
-		GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
+	//	GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
 		CS_PLAYERS_REQUEST_PACKET send_packet;
 		send_packet.size = sizeof(CS_PLAYERS_REQUEST_PACKET);
 		send_packet.type = E_PACKET::E_PACKET_CS_PLAYERS_REQUEST_PACKET;

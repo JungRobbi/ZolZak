@@ -780,7 +780,7 @@ void GameFramework::ChangeScene(unsigned char num)
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
 	if (NetworkMGR::is_mage)
-	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+		m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 	else m_pPlayer = new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
 
 	switch (num)
