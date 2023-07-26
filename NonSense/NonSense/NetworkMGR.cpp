@@ -548,6 +548,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	case E_PACKET_SC_ROOM_READY_PACKET: {
 		SC_ROOM_READY_PACKET* recv_packet = reinterpret_cast<SC_ROOM_READY_PACKET*>(p_Packet);
 		// Room UI °»½Å
+	//	GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
 		break;
 	}
 	case E_PACKET_SC_ROOM_UNREADY_PACKET: {
@@ -578,7 +579,6 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		break;
 	}
 	case E_PACKET_SC_EVERYONE_JOIN_PACKET: {
-	//	GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
 		CS_PLAYERS_REQUEST_PACKET send_packet;
 		send_packet.size = sizeof(CS_PLAYERS_REQUEST_PACKET);
 		send_packet.type = E_PACKET::E_PACKET_CS_PLAYERS_REQUEST_PACKET;
