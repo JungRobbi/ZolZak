@@ -18,6 +18,18 @@ void BossAttackComponent::start()
 
 void BossAttackComponent::update()
 {
+	if (AttackRange)
+	{
+		AttackRange->Center = XMFLOAT3(0, 0.3, 2.0);
+		AttackRange->Extents = XMFLOAT3(2, 0.6, 2.3);
+		AttackRange->Orientation = XMFLOAT4(0, 0, 0, 1);
+
+		AttackRange->Transform(*AttackRange, XMLoadFloat4x4(&gameObject->GetWorld()));
+
+		AttackRange->m_xmf4x4ToParent = gameObject->GetWorld();
+		AttackRange->SetScale(AttackRange->Extents.x, AttackRange->Extents.y, AttackRange->Extents.z);
+		AttackRange->SetPosition(AttackRange->Center.x, AttackRange->Center.y, AttackRange->Center.z);
+	}
 
 	if(AttackTimeLeft <= 0.0f)
 	{
@@ -68,7 +80,7 @@ void BossAttackComponent::Attack()
 				PacketQueue::AddSendPacket(&send_packet);
 			}
 			printf("%f -> %f = %f", dynamic_cast<Character*>(gameObject)->GetAttack(), GameFramework::MainGameFramework->m_pPlayer->GetDefense(), GameFramework::MainGameFramework->m_pPlayer->GetRemainHP());
-			//	GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Goblin*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+			GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Monster*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
 		}
 	}
 }

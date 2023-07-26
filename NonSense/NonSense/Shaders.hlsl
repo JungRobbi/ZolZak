@@ -362,7 +362,7 @@ float CalcShadowFactor(float4 shadowPosH)
 	return percentLit / 9.0f;
 }
 
-float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
+float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target 
 {
 	int Edge = false;
 	float fObjectID = RenderInfor[1][int2(input.position.xy)].a;
@@ -536,11 +536,8 @@ float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
 
 	cColor.rgb *= Lighting(input.positionW, normalize(input.normalW), gf3CameraDirection, ToonShading) * ShadowFactor;
     cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.a);
-    //cColor.r *= 1- 0.9 * darkness;
-    //cColor.g *= 1- 0.9 * darkness;
-    //cColor.b *= 1-0.9 * darkness;
-    return (cColor);
     return (gtxShadowMap.Sample(gssDefaultSamplerState, input.uv));
+    return (cColor);
 }
 
 struct VS_SKINNED_STANDARD_INPUT

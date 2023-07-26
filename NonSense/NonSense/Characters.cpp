@@ -558,6 +558,8 @@ Shield::Shield(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	case MONSTER_TYPE_BOSS:
 		AddComponent<BossFSMComponent>();
 		AddComponent<BossAttackComponent>();
+		bb->SetNum(5);
+		GetComponent<BossAttackComponent>()->SetBoundingObject(bb);
 		bs->SetNum(2);
 		AddComponent<SphereCollideComponent>();
 		GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);

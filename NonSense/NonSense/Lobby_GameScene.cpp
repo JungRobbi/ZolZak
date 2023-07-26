@@ -5,10 +5,7 @@ void Lobby_GameScene::update()
 	while (!roomCreateList.empty()) {
 		auto p = roomCreateList.front();
 		std::cout << p.num << " " << p.name << " " << p.owner << std::endl;
-		m_ppRooms[p.num]->RoomNum = p.num;
-		m_ppRooms[p.num]->RoomName = p.name;
-		m_ppRooms[p.num]->RoomOwner = p.owner;
-		Rooms.emplace_back(m_ppRooms[p.num]);
+		Rooms.emplace_back(new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, p.num, p.name, p.owner));
 		roomCreateList.pop();
 	}
 
@@ -18,7 +15,8 @@ void Lobby_GameScene::update()
 void Lobby_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 200);
+
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 100);
 
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();
@@ -31,12 +29,6 @@ void Lobby_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	Right_UI* m_Right_UI = new Right_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Left_UI* m_Left_UI = new Left_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Title_UI* m_Title_UI = new Title_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-
-	m_ppRooms = new Room_UI * [50];
-
-	for (int i = 0; i < 50; ++i) {
-		m_ppRooms[i] =  new Room_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 0, "p.name", "df");
-	}
 	m_Make_Title_UI = new Make_Title_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_pd3dDevice = pd3dDevice;
@@ -74,9 +66,8 @@ void Lobby_GameScene::MakeRoom(std::string name)
 {
 	//Room_UI* room = new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, 0, name, m_pPlayer->m_name);
 	//Rooms.emplace_back(room);
-	/*static int s_roomNum{};
-	roomCreateList.push({ s_roomNum++, name, m_pPlayer->m_name });*/
-	MakingRoom = true;
+	static int s_roomNum{};
+	roomCreateList.push({ s_roomNum++, name, m_pPlayer->m_name });
 }
 
 void Lobby_GameScene::MakeRoom(int roomNum, std::string name, std::string owner)
