@@ -53,6 +53,7 @@ CTexture::~CTexture()
 	if (m_pd3dSrvGpuDescriptorHandles) delete[] m_pd3dSrvGpuDescriptorHandles;
 
 	if (m_pd3dSamplerGpuDescriptorHandles) delete[] m_pd3dSamplerGpuDescriptorHandles;
+	std::cout << "~CTexture()" << std::endl;
 }
 
 void CTexture::SetRootParameterIndex(int nIndex, UINT nRootParameterIndex)
@@ -187,13 +188,23 @@ Material::Material(int Textures)
 }
 Material::~Material()
 {
-
 	if (m_pShader)
 		m_pShader->Release();
-	for (int i = 0; i < m_nTextures; i++)
-	{
-		if (m_ppTextures[i]) m_ppTextures[i]->Release();
+	if (m_ppTextures) {
+		for (int i = 0; i < m_nTextures; i++)
+		{
+			if (m_ppTextures[i]) {
+				m_ppTextures[i]->Release();
+			//	delete m_ppTextures[i];
+			}
+		}
+	//	delete[] m_ppTextures;
 	}
+	//if (m_pTexture) {
+	//	m_pTexture->Release();
+	////	delete m_pTexture;
+	//}
+	//std::cout << "~Material()" << std::endl;
 }
 Shader* Material::m_pSkinnedAnimationShader = NULL;
 Shader* Material::m_pStandardShader = NULL;
@@ -216,7 +227,11 @@ void Material::SetShader(Shader* pShader)
 }
 void Material::SetTexture(CTexture* pTexture)
 {
-	if (m_pTexture) m_pTexture->Release();
+	if (m_pTexture) {
+		m_pTexture->Release();
+		delete m_pTexture;
+		m_pTexture = nullptr;
+	}
 	m_pTexture = pTexture;
 	if (m_pTexture) m_pTexture->AddRef();
 }
@@ -740,6 +755,7 @@ Object::~Object()
 	}
 	if (m_pSibling) m_pSibling->Release();
 	if (m_pChild)m_pChild->Release();
+	//std::cout << "~Object()" << std::endl;
 }
 
 void Object::start()

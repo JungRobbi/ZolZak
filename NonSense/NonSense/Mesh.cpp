@@ -21,7 +21,10 @@ Mesh::~Mesh()
 	if (m_pd3dIndexBuffer) m_pd3dIndexBuffer->Release();
 	if (m_pd3dIndexUploadBuffer) m_pd3dIndexUploadBuffer->Release();
 	if (m_pVertices) delete[] m_pVertices;
-if (m_pnIndices) delete[] m_pnIndices;
+	if (m_pnIndices) delete[] m_pnIndices;
+
+	if (m_pxmf3Positions) delete[] m_pxmf3Positions;
+	//std::cout << "~Mesh()" << std::endl;
 }
 void Mesh::ReleaseUploadBuffers()
 {
@@ -332,6 +335,37 @@ LoadMesh::~LoadMesh()
 	if (m_pxmf3BiTangents) delete[] m_pxmf3BiTangents;
 	if (m_pxmf2TextureCoords0) delete[] m_pxmf2TextureCoords0;
 	if (m_pxmf2TextureCoords1) delete[] m_pxmf2TextureCoords1;
+
+	if (m_ppnSubSetIndices) {
+		for (int i{}; i < m_nSubMeshes; ++i) {
+			delete[] m_ppnSubSetIndices[i];
+		}
+		delete[] m_ppnSubSetIndices;
+	}
+	if (m_ppd3dSubSetIndexBuffers) {
+		for (int i{}; i < sizeof(m_ppd3dSubSetIndexBuffers) / sizeof(m_ppd3dSubSetIndexBuffers[0]); ++i) {
+			if (m_ppd3dSubSetIndexBuffers[i]) {
+				for (int j{}; j < sizeof(m_ppd3dSubSetIndexBuffers[i]) / sizeof(m_ppd3dSubSetIndexBuffers[i][0]); ++j) {
+					m_ppd3dSubSetIndexBuffers[i][j].Release();
+				}
+			//	delete[] m_ppd3dSubSetIndexBuffers[i];
+			}
+		}
+		delete[] m_ppd3dSubSetIndexBuffers;
+	}
+	if (m_ppd3dSubSetIndexUploadBuffers) {
+		for (int i{}; i < sizeof(m_ppd3dSubSetIndexUploadBuffers) / sizeof(m_ppd3dSubSetIndexUploadBuffers[0]); ++i) {
+			if (m_ppd3dSubSetIndexUploadBuffers[i]) {
+				for (int j{}; j < sizeof(m_ppd3dSubSetIndexUploadBuffers[i]) / sizeof(m_ppd3dSubSetIndexUploadBuffers[i][0]); ++j) {
+					m_ppd3dSubSetIndexUploadBuffers[i][j].Release();
+				}
+			//	delete[] m_ppd3dSubSetIndexUploadBuffers[i];
+			}
+		}
+		delete[] m_ppd3dSubSetIndexUploadBuffers;
+	}
+	if (m_pd3dSubSetIndexBufferViews) delete[] m_pd3dSubSetIndexBufferViews;
+	if (m_pnSubSetIndices) delete[] m_pnSubSetIndices;
 }
 
 void LoadMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
@@ -515,7 +549,12 @@ SkinnedMesh::~SkinnedMesh()
 	if (m_pBoneIndices) delete[] m_pBoneIndices;
 	if (m_pBoneWeight) delete[] m_pBoneWeight;
 
-	if (m_ppSkinningBoneFrameCaches) delete[] m_ppSkinningBoneFrameCaches;
+	if (m_ppSkinningBoneFrameCaches) {
+		for (int i{}; i < m_nSkinningBones; ++i) {
+			m_ppSkinningBoneFrameCaches[i]->Release();
+		}
+		delete[] m_ppSkinningBoneFrameCaches;
+	}
 	if (m_ppstrSkinningBoneNames) delete[] m_ppstrSkinningBoneNames;
 
 	if (m_pBindPoseBoneOffsets) delete[] m_pBindPoseBoneOffsets;
@@ -625,11 +664,6 @@ void SkinnedMesh::LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 		{
 			break;
 		}
-
-
-
-
-
 	}
 }
 
@@ -1121,6 +1155,12 @@ ParticleMesh::ParticleMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	m_d3dLifeBufferView.BufferLocation = m_pd3dLifeBuffer->GetGPUVirtualAddress();
 	m_d3dLifeBufferView.StrideInBytes = sizeof(float);
 	m_d3dLifeBufferView.SizeInBytes = sizeof(float) * m_nVertices;
+
+	if (PositionData) delete[] PositionData;
+	if (VelocityData) delete[] VelocityData;
+	if (ColorData) delete[] ColorData;
+	if (EmitTimeData) delete[] EmitTimeData;
+	if (LifeTimeData) delete[] LifeTimeData;
 }
 void ParticleMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
 {

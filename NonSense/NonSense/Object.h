@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 #include <functional>
+#include <memory>
 #include "Mesh.h"
 #include "../AnimationType.h"
 #include "Camera.h"
