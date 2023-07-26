@@ -542,7 +542,23 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		::itoa(RoomNum, buf, 10);
 		ChannelName.append(buf);
 		GameFramework::MainGameFramework->GetVivoxSystem()->JoinChannel(ChannelName.c_str());
-		GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
+	
+		//	GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
+		{
+			CS_ROOM_READY_PACKET send_packet;
+			send_packet.size = sizeof(CS_ROOM_READY_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_READY_PACKET;
+			send_packet.id = NetworkMGR::id;
+			memcpy(send_packet.name, NetworkMGR::name.c_str(), sizeof(NetworkMGR::name.c_str()));
+			send_packet.playerType = NetworkMGR::is_mage ? 0 : 1; // 0 : mage, 1 : warrior
+			PacketQueue::AddSendPacket(&send_packet);
+		}
+		{
+			CS_ROOM_START_PACKET send_packet;
+			send_packet.size = sizeof(CS_ROOM_START_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_START_PACKET;
+			PacketQueue::AddSendPacket(&send_packet);
+		}
 		break;
 	}
 	case E_PACKET_SC_ROOM_READY_PACKET: {
