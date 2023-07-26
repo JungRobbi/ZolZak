@@ -1125,7 +1125,6 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 	FILE* OpenedFile = NULL;
 	::fopen_s(&OpenedFile, pstrFileName, "rb");
 	::rewind(OpenedFile);
-	std::map<std::string,LoadedModelInfo*> ModelMaps;
 	::ReadStringFromFile(OpenedFile, pstrToken);
 	if (!strcmp(pstrToken, "<Objects>:"))
 	{
@@ -1135,26 +1134,39 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 			if (!strcmp(pstrToken, "<Mesh>:"))
 			{
 				BYTE Length = ::ReadStringFromFile(OpenedFile, pstrToken);
-			
 				if (pstrToken[0] == '@') // Mesh�̸��� �´� Mesh�� �̹� �ε尡 �Ǿ��ٸ� true -> �ִ� �� ���� ��
 				{
 					std::string str(pstrToken + 1);
-					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMaps[str]);
+
+					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap[str]);
+
 				}
 				else
 				{
 					std::string str(pstrToken);
-					char pstrFilePath[64] = { '\0' };
-					strcpy_s(pstrFilePath, 64, "Model/");
-					strcpy_s(pstrFilePath + 6, 64 - 6, pstrToken);
-					strcpy_s(pstrFilePath + 6 + Length, 64 - 6 - Length, ".bin");
+					if (GameScene::MainScene->ModelMap.find(str) != GameScene::MainScene->ModelMap.end())
+					{
+						pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap[str]);
+					}
+					else
+					{
+						char pstrFilePath[64] = { '\0' };
+						strcpy_s(pstrFilePath, 64, "Model/");
+						strcpy_s(pstrFilePath + 6, 64 - 6, pstrToken);
+						strcpy_s(pstrFilePath + 6 + Length, 64 - 6 - Length, ".bin");
 
 
-					LoadedModelInfo* pLoadedModel = LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pstrFilePath, NULL);
+						LoadedModelInfo* pLoadedModel = LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pstrFilePath, NULL);
 
-					ModelMaps.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ���� ���� map�� ����
-					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel);
+
+						GameScene::MainScene->ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ���� ���� map�� ����
+						pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap[str]);
+					}
+
+
+
 				}
+
 			}
 			if (!strcmp(pstrToken, "<Position>:"))
 			{
@@ -1194,7 +1206,6 @@ void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	FILE* OpenedFile = NULL;
 	::fopen_s(&OpenedFile, pstrFileName, "rb");
 	::rewind(OpenedFile);
-	std::map<std::string, LoadedModelInfo*> ModelMaps;
 	::ReadStringFromFile(OpenedFile, pstrToken);
 	if (!strcmp(pstrToken, "<Objects>:"))
 	{
@@ -1204,11 +1215,10 @@ void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 			if (!strcmp(pstrToken, "<Mesh>:"))
 			{
 				BYTE Length = ::ReadStringFromFile(OpenedFile, pstrToken);
-
 				if (pstrToken[0] == '@') // Mesh�̸��� �´� Mesh�� �̹� �ε尡 �Ǿ��ٸ� true -> �ִ� �� ���� ��
 				{
 					std::string str(pstrToken + 1);
-					pObject = new TestModelBlendObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMaps[str], pBlendShader);
+					pObject = new TestModelBlendObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap[str], pBlendShader);
 
 				}
 				else
@@ -1222,12 +1232,13 @@ void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 					LoadedModelInfo* pLoadedModel = LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pstrFilePath, NULL);
 
-					ModelMaps.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ���� ���� map�� ����
+					GameScene::MainScene->ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ���� ���� map�� ����
 
 
 					pObject = new TestModelBlendObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel, pBlendShader);
 
 				}
+				
 			}
 			if (!strcmp(pstrToken, "<Position>:"))
 			{
