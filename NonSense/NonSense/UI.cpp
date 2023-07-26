@@ -599,7 +599,7 @@ Room_UI::Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 void Room_UI::OnClick()
 {
 	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum = RoomNum;
-	std::cout << RoomNum << "�� �� - " << RoomName << " - ���� - " << RoomOwner << std::endl;
+	std::cout << RoomNum << "Room Name - " << RoomName << " - Room Owner - " << RoomOwner << std::endl;
 }
 
 void Room_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
