@@ -286,7 +286,7 @@ WhiteRect_UI::WhiteRect_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	SetMaterial(pUIMaterial);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.3, 0.4, 0.4, 0.05);
+	SetMyPos(0.35, 0.4, 0.3, 0.05);
 }
 
 Login_UI::Login_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -305,7 +305,7 @@ Login_UI::Login_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 	SetMaterial(pUIMaterial);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.4, 0.2, 0.2, 0.15);
+	SetMyPos(0.4, 0.23, 0.2, 0.15);
 }
 
 void Login_UI::OnClick()
@@ -966,7 +966,7 @@ Shadow_Right_UI::Shadow_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	SetMaterial(pUIMaterial);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.82, 0.615, 0.02, 0.05);
+	SetMyPos(0.82, 0.475, 0.02, 0.05);
 }
 
 void Shadow_Right_UI::OnClick()
@@ -1008,7 +1008,7 @@ Shadow_Left_UI::Shadow_Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	SetMaterial(pUIMaterial);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.59, 0.615, 0.02, 0.05);
+	SetMyPos(0.59, 0.475, 0.02, 0.05);
 }
 
 void Shadow_Left_UI::OnClick()
