@@ -72,6 +72,10 @@ public:
 	std::deque<Object*> deletionBoundingQueue;
 	std::list<Object*> BoundingGameObjects;
 
+	std::queue<Object*> creationForwardQueue;
+	std::deque<Object*> deletionForwardQueue;
+	std::list<Object*> ForwardObjects;
+
 	std::list<Sound*> Sounds;
 
 	XMFLOAT4 LineColor = XMFLOAT4(0, 0, 0, 1);
@@ -120,7 +124,7 @@ public:
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	virtual void RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
-	void RenderWater(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	void RenderForward(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void RenderBoundingBox(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void ReleaseUploadBuffers();
 	HeightMapTerrain* GetTerrain() { return(m_pTerrain); }

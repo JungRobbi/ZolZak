@@ -41,7 +41,9 @@ GameScene::~GameScene()
 	for (auto object : MonsterObjects)
 		delete object;
 	MonsterObjects.clear();
-
+	for (auto object : ForwardObjects)
+		delete object;
+	ForwardObjects.clear();
 }
 
 Object* GameScene::CreateEmpty()
@@ -86,6 +88,13 @@ void GameScene::update()
 		MonsterObjects.push_back(gameObject);
 		creationMonsterQueue.pop();
 	}
+	while (!creationForwardQueue.empty()) //Forward Object
+	{
+		auto gameObject = creationForwardQueue.front();
+		gameObject->start();
+		ForwardObjects.push_back(gameObject);
+		creationForwardQueue.pop();
+	}
 
 
 	for (auto gameObject : gameObjects)
@@ -94,9 +103,11 @@ void GameScene::update()
 		gameObject->update();
 	for (auto gameObject : UIGameObjects) //UI Object
 		gameObject->update();
-	for (auto gameObject : BoundingGameObjects) //Bounding Object
+	for (auto gameObject : BoundingGameObjects) // Bounding Object
 		gameObject->update();
-	for (auto gameObject : MonsterObjects) //Monster Object
+	for (auto gameObject : MonsterObjects) // Monster Object
+		gameObject->update();
+	for (auto gameObject : ForwardObjects) // Forward Object
 		gameObject->update();
 
 	auto t = deletionQueue;
@@ -137,6 +148,14 @@ void GameScene::update()
 		auto gameObject = deletionMonsterQueue.front();
 		MonsterObjects.erase(std::find(MonsterObjects.begin(), MonsterObjects.end(), gameObject));
 		deletionMonsterQueue.pop_front();
+
+		delete gameObject;
+	}
+	while (!deletionForwardQueue.empty()) //Forward Object
+	{
+		auto gameObject = deletionForwardQueue.front();
+		ForwardObjects.erase(std::find(ForwardObjects.begin(), ForwardObjects.end(), gameObject));
+		deletionForwardQueue.pop_front();
 
 		delete gameObject;
 	}
@@ -188,6 +207,8 @@ void GameScene::PushDelete(Object* gameObject)
 		deletionBoundingQueue.push_back(gameObject);
 	if (std::find(deletionMonsterQueue.begin(), deletionMonsterQueue.end(), (Monster*)gameObject) == deletionMonsterQueue.end())
 		deletionMonsterQueue.push_back((Monster*)gameObject);
+	if (std::find(deletionForwardQueue.begin(), deletionForwardQueue.end(), gameObject) == deletionForwardQueue.end())
+		deletionForwardQueue.push_back(gameObject);
 }
 
 void GameScene::render()
@@ -324,6 +345,11 @@ void GameScene::ReleaseObjects()
 		for (auto& object : MonsterObjects)
 			delete object;
 		MonsterObjects.clear();
+	}
+	if (&ForwardObjects) {
+		for (auto& object : ForwardObjects)
+			delete object;
+		ForwardObjects.clear();
 	}
 	if (&ModelMap)
 	{
@@ -845,7 +871,6 @@ void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* 
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
-	//pd3dCommandList->SetGraphicsRootDescriptorTable(23, GameFramework::MainGameFramework->m_ShadowMap->Srv());
 	pd3dCommandList->SetGraphicsRootDescriptorTable(23, GameFramework::MainGameFramework->m_BlendShadowGPUSRV);
 
 	for (auto& blendObject : blendGameObjects)
@@ -884,6 +909,17 @@ void GameScene::RenderBoundingBox(ID3D12GraphicsCommandList* pd3dCommandList, Ca
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 	for (auto& object : BoundingGameObjects)
+	{
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
+	}
+}
+
+void GameScene::RenderForward(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	OnPrepareRender(pd3dCommandList, pCamera);
+	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	for (auto& object : ForwardObjects)
 	{
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);

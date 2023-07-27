@@ -784,7 +784,7 @@ void GameFramework::ChangeScene(unsigned char num)
 
 	/////////////////////////////////////////////////////////
 
-	if (num!= LOGIN_SCENE) {
+	if (m_pPlayer) {
 		LoadingMode = true;
 		m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
 		GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
@@ -1186,13 +1186,11 @@ void GameFramework::FrameAdvance()
 
 	for (auto& object : GameScene::MainScene->MonsterObjects)
 	{
-		//object->Animate(elapseTime);
 		object->UpdateTransform(NULL);
 		object->Render(m_pCommandList, m_pCamera);
 	}
 	for (auto& object : GameScene::MainScene->gameObjects)
 	{
-		//object->Animate(elapseTime);
 		object->UpdateTransform(NULL);
 		object->Render(m_pCommandList, m_pCamera);
 	}
@@ -1229,8 +1227,6 @@ void GameFramework::FrameAdvance()
 		}
 	}
 	// Blend Object
-	//m_pCommandList->SetGraphicsRootDescriptorTable(23, m_ShadowMap->Srv());
-	//m_pCommandList->SetGraphicsRootDescriptorTable(23, GameScene::MainScene->m_d3dSrvGPUDescriptorNextHandle);
 	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	//////////////////////////////////////////////////////////
 
@@ -1239,13 +1235,13 @@ void GameFramework::FrameAdvance()
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
 
 	// MRT
-	//m_pCommandList->SetGraphicsRootDescriptorTable(23, m_ShadowMap->Srv());
 	m_pScreen->Render(m_pCommandList, m_pCamera);
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
-
 	// Sky Box
 	m_pCommandList->SetDescriptorHeaps(1, &GameScene::MainScene->m_pd3dCbvSrvDescriptorHeap);
 	if(GameScene::MainScene->m_pSkyBox)GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
+	// Forward
+	GameScene::MainScene->RenderForward(m_pCommandList, m_pCamera);
 
 	// Bounding Box
 	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
@@ -1255,8 +1251,6 @@ void GameFramework::FrameAdvance()
 	{
 		m_pScreen->SetDescriptorHeap(m_pCommandList);
 		m_pCommandList->SetGraphicsRootDescriptorTable(23, m_ShadowMap->Srv());
-		//m_pCommandList->SetDescriptorHeaps(1, &GameScene::MainScene->m_pd3dCbvSrvDescriptorHeap);
-		//m_pCommandList->SetGraphicsRootDescriptorTable(23, m_BlendShadowGPUSRV);
 		m_pDebug->Render(m_pCommandList, m_pCamera);
 	}
 
@@ -1284,8 +1278,6 @@ void GameFramework::FrameAdvance()
 	}
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-
-	//m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 
 	hResult = m_pCommandList->Close();
 
