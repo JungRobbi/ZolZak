@@ -53,7 +53,6 @@ CTexture::~CTexture()
 	if (m_pd3dSrvGpuDescriptorHandles) delete[] m_pd3dSrvGpuDescriptorHandles;
 
 	if (m_pd3dSamplerGpuDescriptorHandles) delete[] m_pd3dSamplerGpuDescriptorHandles;
-	std::cout << "~CTexture()" << std::endl;
 }
 
 void CTexture::SetRootParameterIndex(int nIndex, UINT nRootParameterIndex)
