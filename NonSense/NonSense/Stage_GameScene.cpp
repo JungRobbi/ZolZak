@@ -49,86 +49,200 @@ void Stage_GameScene::LoadAllModels(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Boss_Shield.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Boss_Shield", Model));
+	if(Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if(Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
+
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Ent.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Ent", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
+
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/F05.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("F05", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
+
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Close", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_L.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Close_Weapon_L", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Close_Weapon_R.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Close_Weapon_R", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Far", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
+
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far_Weapon_L.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Far_Weapon_L", Model));
 
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
+
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far_Weapon_R.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Far_Weapon_R", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	//Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Rush.bin", NULL);
 	//ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Rush", Model));
 
+
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Rush_Weapon_L.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Rush_Weapon_L", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Rush_Weapon_R.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Rush_Weapon_R", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/M05.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("M05", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Orc_Close.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Orc_Close", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Orc_Close_Weapon.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Orc_Close_Weapon", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Orc_Far.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Orc_Far", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Orc_Far_Weapon.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Orc_Far_Weapon", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Orc_Rush.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Orc_Rush", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Orc_Rush_Weapon.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Orc_Rush_Weapon", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Skull_Close.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Skull_Close", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Skull_Close_Weapon.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Skull_Close_Weapon", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Skull_Far.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Skull_Far", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Skull_Far_Weapon.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Skull_Far_Weapon", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Skull_Rush.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Skull_Rush", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Skull_Rush_Weapon.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Skull_Rush_Weapon", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Sword_M05.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Sword_M05", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Wand", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Wand_F05.bin", NULL);
 	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Wand_F05", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
 
 }

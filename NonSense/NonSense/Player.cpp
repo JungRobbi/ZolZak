@@ -30,6 +30,9 @@ Player::Player() : Object(false)
 
 Player::~Player()
 {
+	m_pUI->Release();
+	m_pHP_UI->Release();
+	m_pHP_Dec_UI->Release();
 	ReleaseShaderVariables();
 	if (m_pCamera) delete m_pCamera;
 }
