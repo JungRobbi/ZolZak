@@ -2312,6 +2312,13 @@ FireBall::FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 	SetNum(0);
 }
 
+FireBall::~FireBall() {
+	/*if (m_pBoundingShader) {
+		m_pBoundingShader->ReleaseShaderVariables();
+		m_pBoundingShader->Release();
+	}*/
+}
+
 void FireBall::OnPrepareRender()
 {
 	SetPosition(GetPosition().x + Direction.x, GetPosition().y + Direction.y, GetPosition().z + Direction.z);

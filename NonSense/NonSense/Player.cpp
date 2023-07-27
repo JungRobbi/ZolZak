@@ -35,6 +35,7 @@ Player::~Player()
 	m_pHP_Dec_UI->Release();
 	ReleaseShaderVariables();
 	if (m_pCamera) delete m_pCamera;
+	cout << "~Player()" << endl;
 }
 
 void Player::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -469,6 +470,36 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	}
 }
 
+MagePlayer::~MagePlayer()
+{
+	if (m_pHP_Dec_UI) {
+		m_pHP_Dec_UI->ReleaseShaderVariables();
+		m_pHP_Dec_UI->ReleaseUploadBuffers();
+		m_pHP_Dec_UI->Release();
+	}
+	if (m_pHP_UI) {
+		m_pHP_UI->ReleaseShaderVariables();
+		m_pHP_UI->ReleaseUploadBuffers();
+		m_pHP_UI->Release();
+	}
+	if (m_pUI) {
+		m_pUI->ReleaseShaderVariables();
+		m_pUI->ReleaseUploadBuffers();
+		m_pUI->Release();
+	}
+	if (fireball) {
+		fireball->ReleaseShaderVariables();
+		fireball->ReleaseUploadBuffers();
+		fireball->Release();
+	}
+	if (pWeaponObject) {
+		pWeaponObject->ReleaseShaderVariables();
+		pWeaponObject->ReleaseUploadBuffers();
+		pWeaponObject->Release();
+		delete pWeaponObject;
+	}
+}
+
 void MagePlayer::FootStepR()
 {
 	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
@@ -683,6 +714,36 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 		m_pSkinnedAnimationController->AddAnimationEvent("FootStepREvent", E_RUN, 0.13, FootStepREvent);
 		m_pSkinnedAnimationController->AddAnimationEvent("FootStepLEvent", E_RUN, 0.33, FootStepLEvent);
+	}
+}
+
+WarriorPlayer::~WarriorPlayer()
+{
+	if (m_pHP_Dec_UI) {
+		m_pHP_Dec_UI->ReleaseShaderVariables();
+		m_pHP_Dec_UI->ReleaseUploadBuffers();
+		m_pHP_Dec_UI->Release();
+	}
+	if (m_pHP_UI) {
+		m_pHP_UI->ReleaseShaderVariables();
+		m_pHP_UI->ReleaseUploadBuffers();
+		m_pHP_UI->Release();
+	}
+	if (m_pUI) {
+		m_pUI->ReleaseShaderVariables();
+		m_pUI->ReleaseUploadBuffers();
+		m_pUI->Release();
+	}
+	if (fireball) {
+		fireball->ReleaseShaderVariables();
+		fireball->ReleaseUploadBuffers();
+		fireball->Release();
+	}
+	if (pWeaponObject) {
+		pWeaponObject->ReleaseShaderVariables();
+		pWeaponObject->ReleaseUploadBuffers();
+		pWeaponObject->Release();
+		delete pWeaponObject;
 	}
 }
 

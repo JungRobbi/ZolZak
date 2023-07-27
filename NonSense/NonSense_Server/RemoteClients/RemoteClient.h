@@ -33,7 +33,7 @@ public:
 
 	std::atomic<bool> b_Enable;
 	std::atomic<bool> b_Login = false;
-
+	int m_playScene = 0;
 	int m_roomNum = 0;
 
 	RemoteClient() : thread(), tcpConnection(SocketType::Tcp), m_KeyInput(), m_pPlayer(), b_Enable(true) {}
