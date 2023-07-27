@@ -779,9 +779,26 @@ void GameFramework::ChangeScene(unsigned char num)
 	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
-	if (NetworkMGR::is_mage)
-		m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
-	else m_pPlayer = new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+	if (NetworkMGR::is_mage) {
+		if (m_pPlayer) {
+			auto tempPlayer = m_pPlayer;
+			m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+			tempPlayer->ReleaseShaderVariables();
+			tempPlayer->Release();
+		}
+		else
+			m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+	}
+	else {
+		if (m_pPlayer) {
+			auto tempPlayer = m_pPlayer;
+			m_pPlayer = new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+			tempPlayer->ReleaseShaderVariables();
+			tempPlayer->Release();
+		}
+		else
+			m_pPlayer = new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+	}
 
 	switch (num)
 	{

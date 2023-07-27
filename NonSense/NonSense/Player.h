@@ -123,7 +123,7 @@ public:
 	SphereMesh* m_pSphereMesh = NULL;
 
 	MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext);
-	virtual ~MagePlayer() {}
+	virtual ~MagePlayer();
 
 	virtual Camera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 
@@ -143,7 +143,7 @@ public:
 	SphereMesh* m_pSphereMesh = NULL;
 
 	WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext);
-	virtual ~WarriorPlayer() {}
+	virtual ~WarriorPlayer();
 
 	virtual Camera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 

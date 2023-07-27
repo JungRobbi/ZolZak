@@ -53,7 +53,6 @@ CTexture::~CTexture()
 	if (m_pd3dSrvGpuDescriptorHandles) delete[] m_pd3dSrvGpuDescriptorHandles;
 
 	if (m_pd3dSamplerGpuDescriptorHandles) delete[] m_pd3dSamplerGpuDescriptorHandles;
-	std::cout << "~CTexture()" << std::endl;
 }
 
 void CTexture::SetRootParameterIndex(int nIndex, UINT nRootParameterIndex)
@@ -749,12 +748,14 @@ Object::~Object()
 				m_ppMaterials[i]->Release();
 		}
 	}
-	for (auto component : components)
-	{
-		delete component;
+	if (components.size()) {
+		for (auto component : components)
+		{
+			delete component;
+		}
 	}
 	if (m_pSibling) m_pSibling->Release();
-	if (m_pChild)m_pChild->Release();
+//	if (m_pChild)m_pChild->Release();
 	//std::cout << "~Object()" << std::endl;
 }
 
@@ -2186,6 +2187,13 @@ FireBall::FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 	SetMaterial(pMaterial);
 	SetNum(0);
+}
+
+FireBall::~FireBall() {
+	/*if (m_pBoundingShader) {
+		m_pBoundingShader->ReleaseShaderVariables();
+		m_pBoundingShader->Release();
+	}*/
 }
 
 void FireBall::OnPrepareRender()
