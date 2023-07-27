@@ -181,16 +181,30 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET::E_PACKET_SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(p_Packet);
-		if (!GameFramework::MainGameFramework->m_OtherPlayersPool.empty()) {
-			auto player = GameFramework::MainGameFramework->m_OtherPlayersPool.back();
+		
+		if (GameFramework::MainGameFramework->m_OtherPlayers.size() < 4) {
+			Player* player;
+			if (recv_packet->playerType == 0) {
+				player = new MagePlayer(GameFramework::MainGameFramework->m_pDevice,
+					GameFramework::MainGameFramework->m_pCommandList,
+					GameScene::MainScene->GetGraphicsRootSignature(),
+					GameScene::MainScene->GetTerrain());
+			}
+			else {
+				player = new WarriorPlayer(GameFramework::MainGameFramework->m_pDevice,
+					GameFramework::MainGameFramework->m_pCommandList,
+					GameScene::MainScene->GetGraphicsRootSignature(),
+					GameScene::MainScene->GetTerrain());
+			}
 			dynamic_cast<Player*>(player)->id = recv_packet->id;
 			dynamic_cast<Player*>(player)->m_name = recv_packet->name;
 			dynamic_cast<Player*>(player)->SetPosition(XMFLOAT3(recv_packet->x, recv_packet->y, recv_packet->z));
 			dynamic_cast<Player*>(player)->SetHealth(recv_packet->maxHp);
 			dynamic_cast<Player*>(player)->SetRemainHP(recv_packet->remainHp);
 			GameFramework::MainGameFramework->m_OtherPlayers.push_back(player);
-
-			GameFramework::MainGameFramework->m_OtherPlayersPool.pop_back();
+		}
+		else {
+			cout << "OtherPlayer 생성 실패!" << endl;
 		}
 		break;
 	}
@@ -543,22 +557,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		ChannelName.append(buf);
 		GameFramework::MainGameFramework->GetVivoxSystem()->JoinChannel(ChannelName.c_str());
 	
-		//	GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
-		{
-			CS_ROOM_READY_PACKET send_packet;
-			send_packet.size = sizeof(CS_ROOM_READY_PACKET);
-			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_READY_PACKET;
-			send_packet.id = NetworkMGR::id;
-			memcpy(send_packet.name, NetworkMGR::name.c_str(), sizeof(NetworkMGR::name.c_str()));
-			send_packet.playerType = NetworkMGR::is_mage ? 0 : 1; // 0 : mage, 1 : warrior
-			PacketQueue::AddSendPacket(&send_packet);
-		}
-		{
-			CS_ROOM_START_PACKET send_packet;
-			send_packet.size = sizeof(CS_ROOM_START_PACKET);
-			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_START_PACKET;
-			PacketQueue::AddSendPacket(&send_packet);
-		}
+		GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
 		break;
 	}
 	case E_PACKET_SC_ROOM_READY_PACKET: {

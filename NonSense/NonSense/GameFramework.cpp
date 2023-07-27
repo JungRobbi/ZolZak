@@ -733,6 +733,42 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			case 't':
 			case 'T':
 				ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_CHAT;
+				break;
+			case 'm':
+			case 'M':
+			{
+				CS_ROOM_READY_PACKET send_packet;
+				send_packet.size = sizeof(CS_ROOM_READY_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_CS_ROOM_READY_PACKET;
+				send_packet.id = NetworkMGR::id;
+				memcpy(send_packet.name, NetworkMGR::name.c_str(), sizeof(NetworkMGR::name.c_str()));
+				send_packet.playerType = NetworkMGR::is_mage ? 0 : 1; // 0 : mage, 1 : warrior
+				PacketQueue::AddSendPacket(&send_packet);
+				cout << "READY!" << endl;
+			}
+			case 'n':
+			case 'N':
+			{
+				Player* player;
+
+				player = new MagePlayer(m_pDevice, m_pCommandList,
+					GameScene::MainScene->GetGraphicsRootSignature(),
+					GameScene::MainScene->GetTerrain());
+
+
+				//player = new WarriorPlayer(m_pDevice, m_pCommandList,
+				//	GameScene::MainScene->GetGraphicsRootSignature(),
+				//	GameScene::MainScene->GetTerrain());
+				dynamic_cast<Player*>(player)->id = 123;
+				dynamic_cast<Player*>(player)->m_name = "abc";
+				dynamic_cast<Player*>(player)->SetPosition(GameScene::MainScene->m_pPlayer->GetPosition());
+				dynamic_cast<Player*>(player)->SetHealth(1000);
+				dynamic_cast<Player*>(player)->SetRemainHP(1000);
+				player->SetUsed(true);
+				player->ReleaseUploadBuffers();
+				m_OtherPlayers.push_back(player);
+			}
+				break;
 			default:
 				break;
 			}
@@ -842,14 +878,14 @@ void GameFramework::ChangeScene(unsigned char num)
 
 
 	if (num != LOGIN_SCENE) {
-		m_OtherPlayers.clear();
+	/*	m_OtherPlayers.clear();
 		m_OtherPlayersPool.clear();
 		for (int i{}; i < 3; ++i) {
 			if (i == 1) m_OtherPlayersPool.emplace_back(new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
 			else m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
 			dynamic_cast<Player*>(m_OtherPlayersPool.back())->SetCamera(dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f));
 			m_OtherPlayersPool.back()->SetUsed(true);
-		}
+		}*/
 	}
 
 	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
