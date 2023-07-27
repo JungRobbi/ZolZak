@@ -91,6 +91,8 @@ public:
 	Object* m_pSelectedObject = NULL;
 	POINT m_ptOldCursorPos;
 	SCENE_TYPE scene_type;
+	D3D12_CPU_DESCRIPTOR_HANDLE	m_BlendShadowCPUSRV;
+	D3D12_GPU_DESCRIPTOR_HANDLE	m_BlendShadowGPUSRV;
 
 	ID3D12Resource* m_pShadowCamera = NULL;
 	VS_CB_CAMERA_INFO* m_pShadowMappedCamera = NULL;

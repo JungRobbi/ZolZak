@@ -845,6 +845,9 @@ void GameScene::RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* 
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
+	//pd3dCommandList->SetGraphicsRootDescriptorTable(23, GameFramework::MainGameFramework->m_ShadowMap->Srv());
+	pd3dCommandList->SetGraphicsRootDescriptorTable(23, GameFramework::MainGameFramework->m_BlendShadowGPUSRV);
+
 	for (auto& blendObject : blendGameObjects)
 	{
 		blendObject->UpdateTransform(NULL);
@@ -856,6 +859,7 @@ void GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCa
 {
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+
 	if (m_pMappedScreenOptions->darkness <= 0.5) {
 		for (auto& object : MonsterObjects)
 		{

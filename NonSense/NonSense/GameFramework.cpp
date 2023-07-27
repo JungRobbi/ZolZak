@@ -259,7 +259,6 @@ void GameFramework::CreateShadowMap()
 	/// 
 
 	m_ShadowMap->BuildDescriptors(m_pScreen->m_SRVCPUDescriptorNextHandle, m_pScreen->m_SRVGPUDescriptorNextHandle, d3dDsvCPUDescriptorHandle);
-
 	{
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc{};
 
@@ -426,7 +425,8 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Hearing_Stage_GameScene());
 	m_GameScenes.emplace_back(new Touch_Stage_GameScene());
 	m_GameScenes.emplace_back(new Boss_Stage_GameScene());
-	ChangeScene(BOSS_SCENE);
+	
+	ChangeScene(LOGIN_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
@@ -567,8 +567,11 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 					char* p = ConvertWCtoC(ChatMGR::m_textbuf);
 					NetworkMGR::name = string{ p };
 					delete[] p;
-					if(!NetworkMGR::b_isNet) // 클라 모드일 때 
+					if (!NetworkMGR::b_isNet) // 클라 모드일 때 
+					{
+						
 						ChangeScene(SIGHT_SCENE);
+					}
 					else if (!NetworkMGR::b_isLogin && !NetworkMGR::b_isLoginProg) { // 로그인 하지 않은 상태
 						NetworkMGR::b_isLoginProg = true; // 로그인 진행
 						CS_LOGIN_PACKET send_packet;
@@ -702,6 +705,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 								ScriptMode = false;
 								ScriptNum = 0;
 								TalkingNPC = 0;
+								
 								ChangeScene(GameSceneState+1);
 								break;
 							}
@@ -718,12 +722,15 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				GameScene::MainScene->m_pPlayer = m_pPlayer;
 				break;
 			case '7':
+				
 				ChangeScene(0);
 				break;
 			case '8':
+				
 				ChangeScene(1);
 				break;
 			case '9':
+				
 				ChangeScene(SIGHT_SCENE);
 				break;
 			case 't':
@@ -772,11 +779,33 @@ void GameFramework::ChangeScene(unsigned char num)
 {
 	TouchDebuffLeftTime = -1;
 	IsTouchDebuff = false;
+
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
+
+	/////////////////////////////////////////////////////////
+
+	if (num!= LOGIN_SCENE) {
+		LoadingMode = true;
+		m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
+		GameScene::MainScene->RenderUI(m_pCommandList, m_pCamera);
+		m_pCommandList->Close();
+		ID3D12CommandList* pd3dCommandLists[] = { m_pCommandList };
+		m_pCommandQueue->ExecuteCommandLists(1, pd3dCommandLists);
+		WaitForGpuComplete();
+		m_pSwapChain->Present(0, 0);
+		MoveToNextFrame();
+		m_pCommandList->Reset(m_pCommandAllocator, NULL);
+	}
+
+	////////////////////////////////////////////////////////
 
 	GameScene::MainScene->ReleaseObjects();
 	GameScene::MainScene = m_GameScenes.at(num);
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
+
+	if (num != LOGIN_SCENE) {
+		m_ShadowMap->ReBuildDescriptors();
+	}
 
 	if (m_pPlayer)
 		m_pPlayer->Release();
@@ -865,6 +894,7 @@ void GameFramework::ChangeScene(unsigned char num)
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
+	LoadingMode = false;
 }
 
 VivoxSystem* GameFramework::GetVivoxSystem()
@@ -1044,6 +1074,7 @@ void GameFramework::MoveToNextFrame()
 		hResult = m_pFence->SetEventOnCompletion(nFenceValue, m_FenceEventHandle);
 		::WaitForSingleObject(m_FenceEventHandle, INFINITE);
 	}
+
 }
 
 void GameFramework::InitializeVivoxSystem(std::string UserName)
@@ -1070,8 +1101,6 @@ void GameFramework::FrameAdvance()
 	if (NetworkMGR::b_isNet)
 		NetworkMGR::Tick();
 
-	HRESULT hResult = m_pCommandAllocator->Reset();
-	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 	ChatMGR::UpdateText();
 	ProcessInput();
 
@@ -1084,6 +1113,9 @@ void GameFramework::FrameAdvance()
 			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());
 		}
 	}
+
+	HRESULT hResult = m_pCommandAllocator->Reset();
+	hResult = m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
 	/////////////// Shadow Map Render ////////////////////////
 	GameScene::MainScene->OnPrepareRender(m_pCommandList, m_pCamera);
@@ -1178,53 +1210,53 @@ void GameFramework::FrameAdvance()
 
 	ResourceTransition(m_pCommandList, m_ShadowMap->Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ);
 
-	//GameScene::MainScene->m_pLights->m_pLights[0]
-	//////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
 	GameScene::MainScene->OnPrepareRender(m_pCommandList, m_pCamera);
-
 	m_pCommandList->ClearDepthStencilView(m_DSVDescriptorCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 
-	//////////// MRT Render Target /////////////
+	//////////// MRT Render Target ///////////////////////////
 	m_pScreen->OnPrepareRenderTarget(m_pCommandList, 1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], m_DSVDescriptorCPUHandle);
 	// Object , Terrain
 	GameScene::MainScene->Render(m_pCommandList, m_pCamera);
 
-	// �÷��̾�
+	// Player
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	for (auto& p : m_OtherPlayers) {
 		if (p->GetUsed()) {
 			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
 		}
 	}
-	///////////////////////////////////////////
+	// Blend Object
+	//m_pCommandList->SetGraphicsRootDescriptorTable(23, m_ShadowMap->Srv());
+	//m_pCommandList->SetGraphicsRootDescriptorTable(23, GameScene::MainScene->m_d3dSrvGPUDescriptorNextHandle);
+	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
+	//////////////////////////////////////////////////////////
 
 
 	////////// Back Buffer ///////////
 	m_pCommandList->OMSetRenderTargets(1, &m_pSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_DSVDescriptorCPUHandle);
 
-	// MRT ���
-	m_pCommandList->SetGraphicsRootDescriptorTable(23, m_ShadowMap->Srv());
+	// MRT
+	//m_pCommandList->SetGraphicsRootDescriptorTable(23, m_ShadowMap->Srv());
 	m_pScreen->Render(m_pCommandList, m_pCamera);
-
 	m_pScreen->OnPostRenderTarget(m_pCommandList);
 
-	// Blend Object
-	
-	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	// Sky Box
+	m_pCommandList->SetDescriptorHeaps(1, &GameScene::MainScene->m_pd3dCbvSrvDescriptorHeap);
 	if(GameScene::MainScene->m_pSkyBox)GameScene::MainScene->m_pSkyBox->Render(m_pCommandList, m_pCamera);
+
 	// Bounding Box
 	if (DebugMode) GameScene::MainScene->RenderBoundingBox(m_pCommandList, m_pCamera);
-	// Debug ȭ��
-	
+
+	// Debug
 	if (DebugMode)
 	{
 		m_pScreen->SetDescriptorHeap(m_pCommandList);
 		m_pCommandList->SetGraphicsRootDescriptorTable(23, m_ShadowMap->Srv());
-
+		//m_pCommandList->SetDescriptorHeaps(1, &GameScene::MainScene->m_pd3dCbvSrvDescriptorHeap);
+		//m_pCommandList->SetGraphicsRootDescriptorTable(23, m_BlendShadowGPUSRV);
 		m_pDebug->Render(m_pCommandList, m_pCamera);
 	}
 
@@ -1253,7 +1285,7 @@ void GameFramework::FrameAdvance()
 
 	ResourceTransition(m_pCommandList, m_ppRenderTargetBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
-	m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
+	//m_pCommandList->SetDescriptorHeaps(1, &GameScene::m_pd3dCbvSrvDescriptorHeap);
 
 	hResult = m_pCommandList->Close();
 

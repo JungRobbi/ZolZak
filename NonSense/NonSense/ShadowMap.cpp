@@ -1,5 +1,7 @@
 #include "ShadowMap.h"
 #include "Camera.h"
+#include "GameScene.h"
+#include "GameFrameWork.h"
 
 ShadowMap::ShadowMap(ID3D12Device* device, UINT width, UINT height)
 {
@@ -96,6 +98,26 @@ void ShadowMap::BuildDescriptors()
 	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	dsvDesc.Texture2D.MipSlice = 0;
 	md3dDevice->CreateDepthStencilView(mShadowMap.Get(), &dsvDesc, mhCpuDsv);
+}
+
+void ShadowMap::ReBuildDescriptors()
+{
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+	srvDesc.Texture2D.PlaneSlice = 0;
+
+	GameFramework::MainGameFramework->m_BlendShadowCPUSRV = GameScene::MainScene->m_d3dSrvCPUDescriptorNextHandle;
+	GameFramework::MainGameFramework->m_BlendShadowGPUSRV = GameScene::MainScene->m_d3dSrvGPUDescriptorNextHandle;
+
+	md3dDevice->CreateShaderResourceView(mShadowMap.Get(), &srvDesc, GameFramework::MainGameFramework->m_BlendShadowCPUSRV);
+
+	GameScene::MainScene->m_d3dSrvCPUDescriptorNextHandle.ptr += (::CBVSRVDescriptorSize);
+	GameScene::MainScene->m_d3dSrvGPUDescriptorNextHandle.ptr += (::CBVSRVDescriptorSize);
 }
 
 void ShadowMap::BuildResource()

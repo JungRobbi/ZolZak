@@ -495,6 +495,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+    clip(cAlbedoColor.a-0.1);
 	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
 	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -504,6 +505,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
 	output.Texture = (cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor);
+	
 	float3 normalW;
 
 	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
@@ -536,7 +538,7 @@ float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
 
 	cColor.rgb *= Lighting(input.positionW, normalize(input.normalW), gf3CameraDirection, ToonShading) * ShadowFactor;
     cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.a);
-    return (gtxShadowMap.Sample(gssDefaultSamplerState, input.uv));
+    //return (float4(gtxShadowMap.Sample(gssDefaultSamplerState, input.uv).rgb, 1.0f));
     return (cColor);
 }
 
