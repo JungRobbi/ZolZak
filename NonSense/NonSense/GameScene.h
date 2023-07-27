@@ -16,7 +16,7 @@
 struct CB_SCREEN_INFO
 {
 	XMFLOAT4 LineColor = XMFLOAT4(0,0,0,1);
-	UINT LineSize=3;
+	UINT LineSize=1;
 	UINT ToonShading=1;
 	float darkness=0;
 };
@@ -79,7 +79,7 @@ public:
 	std::list<Sound*> Sounds;
 
 	XMFLOAT4 LineColor = XMFLOAT4(0, 0, 0, 1);
-	UINT LineSize = 3;
+	UINT LineSize = 1;
 	UINT ToonShading = 10;
 
 public:
