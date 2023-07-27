@@ -766,8 +766,6 @@ bool GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 		{
 		case VK_INSERT:
 			break;
-		case VK_DELETE:
-			break;
 		case VK_SPACE:
 
 			break;
@@ -856,10 +854,12 @@ void GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCa
 {
 	OnPrepareRender(pd3dCommandList, pCamera);
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
-	for (auto& object : MonsterObjects)
-	{
-		object->m_pHP->UpdateTransform(NULL);
-		object->m_pHP->Render(pd3dCommandList, pCamera);;
+	if (m_pMappedScreenOptions->darkness <= 0.5) {
+		for (auto& object : MonsterObjects)
+		{
+			object->m_pHP->UpdateTransform(NULL);
+			object->m_pHP->Render(pd3dCommandList, pCamera);;
+		}
 	}
 	for (auto& object : UIGameObjects)
 	{

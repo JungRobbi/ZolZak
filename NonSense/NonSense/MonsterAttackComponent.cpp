@@ -65,7 +65,8 @@ void MonsterAttackComponent::update()
 			else {
 				GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Character*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
 			}
-			GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
+			if (GameFramework::MainGameFramework->GameSceneState == SIGHT_SCENE)
+				GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
 			RushTime = 0;
 		}
 	}

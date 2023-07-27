@@ -13,6 +13,7 @@
 #include "PlayerMovementComponent.h"
 #include "SphereCollideComponent.h"
 #include "NetworkMGR.h"
+#include "Boss_Stage_GameScene.h"
 
 WeaponObject::WeaponObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel) : Object(DEFAULT_OBJECT)
 {
@@ -560,7 +561,7 @@ Shield::Shield(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		bs->SetNum(2);
 		AddComponent<SphereCollideComponent>();
 		GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
-		GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.5);
+		GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 1.5, 0.0), 1.5);
 
 		m_Health = 20000;
 		m_RemainHP = 20000;
@@ -636,7 +637,17 @@ Shield::Shield(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 				float len = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_TORNADO]->m_Length - 0.1;
 				m_pSkinnedAnimationController->AddAnimationEvent("EndEvent", E_B_TORNADO, len, EndEvent);
 			}
+
 		} // 스킬 이벤트 // Boss Skill Event
+
+
+		{
+			std::function<void()> DeathEvent = [this]() {
+				((Boss_Stage_GameScene*)GameScene::MainScene)->BossDead = true;
+			};
+			float len = m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_M_DEATH]->m_Length - 0.05;
+			m_pSkinnedAnimationController->AddAnimationEvent("DeathEvent", E_M_DEATH, len, DeathEvent);
+		}
 
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_ROAR]->m_nType = ANIMATION_TYPE_ONCE;
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[E_B_SUMMON]->m_nType = ANIMATION_TYPE_ONCE;

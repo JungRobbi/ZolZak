@@ -176,7 +176,7 @@ void VivoxSystem::JoinChannel(const char* Channel)
 {
 	char* uri = vx_get_general_channel_uri(Channel, "mt1s.vivox.com", "jeawoo0732-no23-dev");
 	std::cout << uri << std::endl;
-	uri = vx_get_random_channel_uri_ex("confctl-e-", "mt1s.vivox.com", "jeawoo0732-no23-dev");
+	//uri = vx_get_random_channel_uri_ex("confctl-e-", "mt1s.vivox.com", "jeawoo0732-no23-dev");
 	vx_req_sessiongroup_add_session* req;
 	vx_req_sessiongroup_add_session_create(&req);
 	req->sessiongroup_handle = vx_strdup("sg1");

@@ -8,6 +8,13 @@ public:
 	void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	virtual void BuildLightsAndMaterials();
 	ID3D12Device* m_pd3dDevice = NULL;
 	ID3D12GraphicsCommandList* m_pd3dCommandList = NULL;
+
+	virtual void update();
+
+	Object* Boss = NULL;
+	bool BossDead = false;
+	float SceneChangeCount = 5.0f;
 };

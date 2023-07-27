@@ -66,7 +66,7 @@ private:
 
 	VivoxSystem* m_pVivoxSystem;
 
-	int GameSceneState;
+	
 
 public:
 	static GameFramework* MainGameFramework;
@@ -81,7 +81,7 @@ public:
 	float MouseSen = 3;
 	bool IsTouchDebuff = false;
 	float TouchDebuffLeftTime = -1.0;
-
+	int GameSceneState;
 public:
 	HWND m_hWnd;
 	Camera* m_pCamera = NULL;

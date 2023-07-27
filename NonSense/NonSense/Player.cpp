@@ -8,6 +8,7 @@
 #include "SphereCollideComponent.h"
 #include "../ImaysNet/PacketQueue.h"
 #include "NetworkMGR.h"
+#include "GameFramework.h"
 
 Player::Player() : Object(false)
 {
@@ -29,6 +30,9 @@ Player::Player() : Object(false)
 
 Player::~Player()
 {
+	m_pUI->Release();
+	m_pHP_UI->Release();
+	m_pHP_Dec_UI->Release();
 	ReleaseShaderVariables();
 	if (m_pCamera) delete m_pCamera;
 }
@@ -467,14 +471,20 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 
 void MagePlayer::FootStepR()
 {
-	Sound* s = new Sound("Sound/GrassFootstep_R.mp3", false);
-	GameScene::MainScene->AddSound(s);
+	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
+	{
+		Sound* s = new Sound("Sound/GrassFootstep_R.mp3", false);
+		GameScene::MainScene->AddSound(s);
+	}
 }
 
 void MagePlayer::FootStepL()
 {
-	Sound* s = new Sound("Sound/GrassFootstep_L.mp3", false);
-	GameScene::MainScene->AddSound(s);
+	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
+	{
+		Sound* s = new Sound("Sound/GrassFootstep_L.mp3", false);
+		GameScene::MainScene->AddSound(s);
+	}
 }
 
 Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
@@ -492,7 +502,7 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0, 0.7f, 0.25));
-		m_pCamera->GenerateProjectionMatrix(0.1f, 1000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->GenerateProjectionMatrix(0.1f, 300.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
@@ -539,6 +549,10 @@ void MagePlayer::Update(float fTimeElapsed)
 	Player::Update(fTimeElapsed);
 	DWORD nCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
 	UpdateTransform(NULL);
+
+	m_pHP_Dec_UI->Dec_HP = GetRemainHP() / GetHealth();
+	m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * GetRemainHP() / GetHealth(), 0.32);
+
 	if (nCameraMode == FIRST_PERSON_CAMERA && FindFrame("Face"))
 	{
 
@@ -674,14 +688,20 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 void WarriorPlayer::FootStepR()
 {
-	Sound* s = new Sound("Sound/GrassFootstep_R.mp3", false);
-	GameScene::MainScene->AddSound(s);
+	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
+	{
+		Sound* s = new Sound("Sound/GrassFootstep_R.mp3", false);
+		GameScene::MainScene->AddSound(s);
+	}
 }
 
 void WarriorPlayer::FootStepL()
 {
-	Sound* s = new Sound("Sound/GrassFootstep_L.mp3", false);
-	GameScene::MainScene->AddSound(s);
+	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
+	{
+		Sound* s = new Sound("Sound/GrassFootstep_L.mp3", false);
+		GameScene::MainScene->AddSound(s);
+	}
 }
 Camera* WarriorPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 {
@@ -698,7 +718,7 @@ Camera* WarriorPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0, 0.7f, 0.25));
-		m_pCamera->GenerateProjectionMatrix(0.01f, 1000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->GenerateProjectionMatrix(0.01f, 300.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;

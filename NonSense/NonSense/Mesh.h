@@ -102,7 +102,10 @@ private:
 	int m_nReferences = 0;
 public:
 	void AddRef() { m_nReferences++; }
-	void Release() { if (--m_nReferences <= 0) delete this; }
+	void Release() { 
+		if (--m_nReferences <= 0) 
+			delete this; 
+	}
 	void ReleaseUploadBuffers();
 	BoundingOrientedBox GetBoundingBox() { return(m_xmBoundingBox); }
 	int CheckRayIntersection(XMFLOAT3& xmRayPosition, XMFLOAT3& xmRayDirection, float* pfNearHitDistance);
@@ -195,7 +198,12 @@ public:
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoordBufferView;
 public:
 	RectMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 2.0f, float fHeight = 2.0f);
-	virtual ~RectMesh() {};
+	virtual ~RectMesh() {
+		if (m_pd3dTextureCoordBuffer)
+			m_pd3dTextureCoordBuffer->Release();
+		if (m_pd3dTextureCoordUploadBuffer)
+			m_pd3dTextureCoordUploadBuffer->Release();
+	};
 
 	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
 };

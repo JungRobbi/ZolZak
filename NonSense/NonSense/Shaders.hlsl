@@ -296,7 +296,7 @@ VS_BillboardOUTPUT VSBillboard(VS_BillboardINPUT input, uint nVertexID : SV_Vert
 float4 PSBillboard(VS_BillboardOUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtUITexture.Sample(gssBorder, input.uv);
-	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),10) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),10) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),10) * darkness),cColor.a);
+	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),3) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),3) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),3) * darkness),cColor.a);
 	return(cColor);
 
 }
@@ -380,7 +380,7 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 	ShadowFactor += 0.5f;
 	ShadowFactor = saturate(ShadowFactor);
 	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection, ToonShading) * ShadowFactor;
-	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),10) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),10) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),10) * darkness), cColor.a);
+	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.a);
 	if (Edge)
 		return (LineColor);
 
@@ -535,8 +535,10 @@ float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
 	ShadowFactor = saturate(ShadowFactor);
 
 	cColor.rgb *= Lighting(input.positionW, normalize(input.normalW), gf3CameraDirection, ToonShading) * ShadowFactor;
-	cColor = float4(cColor.r*(1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),10) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),10) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),10) * darkness),cColor.a);
-	return(cColor);
+    cColor.r *= 1- 0.9 * darkness;
+    cColor.g *= 1- 0.9 * darkness;
+    cColor.b *= 1-0.9 * darkness;
+    return (cColor);
 }
 
 struct VS_SKINNED_STANDARD_INPUT

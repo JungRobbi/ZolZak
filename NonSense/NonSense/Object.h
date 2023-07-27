@@ -209,7 +209,10 @@ private:
 
 public:
 	void AddRef() { m_nReferences++; }
-	void Release() { if (--m_nReferences <= 0) delete this; }
+	void Release() { 
+		if (--m_nReferences <= 0)
+		delete this; 
+	}
 
 public:
 	AnimationSets(int nAnimationSets);
@@ -263,7 +266,7 @@ class LoadedModelInfo
 {
 public:
 	LoadedModelInfo() {}
-	~LoadedModelInfo() {}
+	~LoadedModelInfo();
 
 	int m_nSkinnedMeshes = 0;
 	SkinnedMesh** m_ppSkinnedMeshes = NULL;
@@ -542,7 +545,6 @@ public:
 	Explosion* explode = NULL;
 };
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class SkyBox : public Object
 {
@@ -552,6 +554,31 @@ public:
 
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 };
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class DaySkyBox : public SkyBox
+{
+public:
+	DaySkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~DaySkyBox();
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class NightSkyBox : public SkyBox
+{
+public:
+	NightSkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~NightSkyBox();
+};
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class SunsetSkyBox : public SkyBox
+{
+public:
+	SunsetSkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~SunsetSkyBox();
+};
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class BoundBox : public Object
