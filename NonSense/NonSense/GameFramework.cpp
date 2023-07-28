@@ -670,7 +670,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 						else
 						{
 							ScriptNum++;
-							if (ScriptNum >= GameScene::MainScene->StartNPC->script.size())	// 대화 끝
+							if (ScriptNum >= GameScene::MainScene->StartNPC->script.size())
 							{
 								::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
@@ -679,7 +679,6 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 								TalkingNPC = 0;
 								break;
 							}
-						//	cout << GameScene::MainScene->StartNPC->script[ScriptNum] << endl;
 						}
 					}
 
@@ -695,18 +694,17 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 						else
 						{
 							ScriptNum++;
-							if (ScriptNum >= GameScene::MainScene->EndNPC->script.size())	// 대화 끝
+							if (ScriptNum >= GameScene::MainScene->EndNPC->script.size())
 							{
 								::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
 								ScriptMode = false;
 								ScriptNum = 0;
 								TalkingNPC = 0;
-								
-								ChangeScene(GameSceneState+1);
+
+								ChangeScene(GameSceneState + 1);
 								break;
 							}
-						//	cout << GameScene::MainScene->EndNPC->script[ScriptNum] << endl;
 						}
 					}
 				}
@@ -736,12 +734,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				ChangeScene(0);
 				break;
 			case '8':
-				
 				ChangeScene(1);
-				break;
-			case '9':
-				
-				ChangeScene(SIGHT_SCENE);
 				break;
 			case 't':
 			case 'T':
@@ -792,16 +785,7 @@ void GameFramework::ChangeScene(unsigned char num)
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
-	if (num > ROOM_SCENE)
-	{
-		if (GameSceneState > ROOM_SCENE)
-		{
-			ChangeStage(num);
-			GameSceneState = num;
-			scene_type = (SCENE_TYPE)num;
-			return;
-		}
-	}
+
 
 	/////////////////////////////////////////////////////////
 
@@ -819,6 +803,18 @@ void GameFramework::ChangeScene(unsigned char num)
 	}
 
 	////////////////////////////////////////////////////////
+
+	if (num > ROOM_SCENE)
+	{
+		if (GameSceneState > ROOM_SCENE)
+		{
+			ChangeStage(num);
+			GameSceneState = num;
+			scene_type = (SCENE_TYPE)num;
+			return;
+		}
+	}
+
 
 	GameScene::MainScene->ReleaseObjects();
 	if (num > ROOM_SCENE)
