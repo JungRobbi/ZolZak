@@ -1101,8 +1101,8 @@ void Object::SetChild(Object* pChild, bool bReferenceUpdate)
 void Object::SetDo_Render(bool b)
 {
 	Do_Render = b;
-	if (m_pSibling) m_pSibling->SetDo_Render(b);
-	if (m_pChild) m_pChild->SetDo_Render(b);
+	//if (m_pSibling) m_pSibling->SetDo_Render(b);
+	//if (m_pChild) m_pChild->SetDo_Render(b);
 
 }
 
@@ -2344,6 +2344,8 @@ void FireBall::OnPrepareRender()
 				}
 				else {
 					o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
+					o->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_HIT);
+					o->HitSound();
 				}
 				explode->Active = true;
 				explode->SetPosition(GetPosition());

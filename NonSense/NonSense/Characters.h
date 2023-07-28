@@ -15,6 +15,8 @@ class WeaponObject : public Object
 public:
 	WeaponObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel);
 	virtual ~WeaponObject();
+	//virtual void update();
+
 	void Fire(XMFLOAT3& look, XMFLOAT3& pos);
 };
 
@@ -65,6 +67,8 @@ public:
 public:
 	void FarTypeAttack();
 	void RushTypeAttack();
+	virtual void HitSound() {}
+	virtual void DeadSound() {}
 };
 
 class Goblin : public Monster
@@ -75,6 +79,8 @@ public:
 	virtual ~Goblin();
 
 	void CloseAttackEvent();
+	virtual void HitSound();
+	virtual void DeadSound();
 };
 
 class Orc : public Monster
@@ -84,6 +90,8 @@ public:
 	virtual ~Orc();
 
 	void CloseAttackEvent();
+	virtual void HitSound();
+	virtual void DeadSound();
 };
 
 class Skull : public Monster
@@ -93,6 +101,8 @@ public:
 	virtual ~Skull();
 
 	void CloseAttackEvent();
+	virtual void HitSound();
+	virtual void DeadSound();
 };
 
 class Shield : public Monster

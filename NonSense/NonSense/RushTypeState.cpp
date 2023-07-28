@@ -120,6 +120,7 @@ void DeathState_Rush::Enter(RushTypeFSMComponent* pOwner)
 {
 	//std::cout << "Unit Die" << std::endl;
 	pOwner->gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_DEATH);
+	((Monster*)pOwner->gameObject)->DeadSound();
 }
 
 void DeathState_Rush::Execute(RushTypeFSMComponent* pOwner)
