@@ -414,19 +414,6 @@ void Make_Room_UI::OnClick()
 	{
 		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom = true;
 	}
-	std::string name = "Test Room";
-	//	std::cout << "�� ������ �Է��ϼ��� : " << std::endl;
-	//	std::cin >> name;
-	if (NetworkMGR::b_isNet) {
-		CS_ROOM_CREATE_PACKET send_packet;
-		send_packet.size = sizeof(CS_ROOM_CREATE_PACKET);
-		send_packet.type = E_PACKET::E_PACKET_CS_ROOM_CREATE_PACKET;
-		memcpy(send_packet.roomName, name.c_str(), name.size());
-		PacketQueue::AddSendPacket(&send_packet);
-	}
-	else {
-		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(name);
-	}
 }
 
 Join_Room_UI::Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -562,6 +549,7 @@ Title_UI::Title_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 Make_Title_UI::Make_Title_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
 {
+	GameScene::MainScene->creationUIQueue.push(this);
 	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
 	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Make_Title.dds", RESOURCE_TEXTURE2D, 0);
 
@@ -576,6 +564,74 @@ Make_Title_UI::Make_Title_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	SetMyPos(0.25, 0.25, 0.54, 0.44);
+}
+void Make_Title_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
+}
+
+Real_Make_Room_UI::Real_Make_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Real_Make_Room.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.35, 0.2, 0.3, 0.3);
+}
+
+void Real_Make_Room_UI::OnClick()
+{
+	std::string name = "Test Room";
+	if (NetworkMGR::b_isNet) {
+		CS_ROOM_CREATE_PACKET send_packet;
+		send_packet.size = sizeof(CS_ROOM_CREATE_PACKET);
+		send_packet.type = E_PACKET::E_PACKET_CS_ROOM_CREATE_PACKET;
+		memcpy(send_packet.roomName, name.c_str(), name.size());
+		PacketQueue::AddSendPacket(&send_packet);
+	}
+	else {
+		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(name);
+	}
+
+	if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom)
+	{
+		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom = false;
+	}
+}
+
+void Real_Make_Room_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
 }
 
 Room_UI::Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int num, std::string name, std::string owner) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)

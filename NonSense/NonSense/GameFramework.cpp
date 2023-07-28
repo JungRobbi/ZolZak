@@ -1227,7 +1227,7 @@ void GameFramework::FrameAdvance()
 		}
 	}
 	// Blend Object
-	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
+	//GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	//////////////////////////////////////////////////////////
 
 

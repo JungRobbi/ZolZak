@@ -186,6 +186,16 @@ class Make_Title_UI : public UI
 public:
 	Make_Title_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~Make_Title_UI() {};
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+};
+
+class Real_Make_Room_UI : public UI
+{
+public:
+	Real_Make_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Real_Make_Room_UI() {};
+	virtual void OnClick();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 };
 
 class Room_UI : public UI
