@@ -123,7 +123,15 @@ public:
 	SphereMesh* m_pSphereMesh = NULL;
 
 	MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext);
-	virtual ~MagePlayer() {}
+	virtual ~MagePlayer()
+	{
+		if (pWeaponObject)
+			pWeaponObject->Release();
+		if (m_pBoundMesh)
+			m_pBoundMesh->Release();
+		if (m_pSphereMesh)
+			m_pSphereMesh->Release();
+	}
 
 	virtual Camera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 
@@ -143,7 +151,18 @@ public:
 	SphereMesh* m_pSphereMesh = NULL;
 
 	WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext);
-	virtual ~WarriorPlayer() {}
+	virtual ~WarriorPlayer() {
+		if (fireball)
+			fireball->Release();
+		if (pWeaponObject)
+			pWeaponObject->Release();
+		if (m_pBoundingShader)
+			m_pBoundingShader->Release();
+		if (m_pBoundMesh)
+			m_pBoundMesh->Release();
+		if (m_pSphereMesh)
+			m_pSphereMesh->Release();
+	}
 
 	virtual Camera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 

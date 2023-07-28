@@ -343,7 +343,7 @@ AnimationSets::AnimationSets(int nAnimationSets)
 
 AnimationSets::~AnimationSets()
 {
-	for (int i = 0; i < m_nAnimationSets; i++) if (m_pAnimationSets[i]) delete m_pAnimationSets[i];
+	//for (int i = 0; i < m_nAnimationSets; i++) if (m_pAnimationSets[i]) delete m_pAnimationSets[i];
 	if (m_pAnimationSets) delete[] m_pAnimationSets;
 
 	if (m_ppAnimatedBoneFrameCaches) delete[] m_ppAnimatedBoneFrameCaches;
@@ -401,21 +401,25 @@ XMFLOAT4X4 AnimationSet::GetSRT(int nBonefloat,float fPosition)
 
 LoadedModelInfo::~LoadedModelInfo()
 {
-	//if (m_nSkinnedMeshes > 0)
-	//{
-	//	for (int i = 0; i < m_nSkinnedMeshes; ++i)
-	//	{
-	//		if (m_ppSkinnedMeshes[i])
-	//			m_ppSkinnedMeshes[i]->Release();
-	//	}
-	//	delete[] m_ppSkinnedMeshes;
-	//}
-	//if (m_pAnimationSets)
-	//{
-	//	m_pAnimationSets->Release();
-	//}
-	//if (m_pRoot)
-	//	m_pRoot->Release();
+	if (m_nSkinnedMeshes > 0)
+	{
+		//for (int i = 0; i < m_nSkinnedMeshes; ++i)
+		//{
+		//	if (m_ppSkinnedMeshes[i])
+		//		m_ppSkinnedMeshes[i]->Release();
+		//}
+		//delete[] m_ppSkinnedMeshes;
+	}
+	if (m_pAnimationSets)
+	{
+		m_pAnimationSets->Release();
+		m_pAnimationSets = NULL;
+	}
+	if (m_pRoot)
+	{
+		m_pRoot->Release();
+		m_pRoot = NULL;
+	}
 }
 
 void LoadedModelInfo::PrepareSkinning()
@@ -454,7 +458,8 @@ AnimationController::AnimationController(ID3D12Device* pd3dDevice, ID3D12Graphic
 
 AnimationController::~AnimationController()
 {
-	if (m_pAnimationTracks) delete[] m_pAnimationTracks;
+	if (m_pAnimationTracks) 
+		delete[] m_pAnimationTracks;
 
 	for (int i = 0; i < m_nSkinnedMeshes; i++)
 	{
@@ -766,8 +771,11 @@ Object::~Object()
 	if (m_pSkinnedAnimationController)
 		delete m_pSkinnedAnimationController;
 	
-	if (m_pMesh) 
+	if (m_pMesh)
+	{
 		m_pMesh->Release();
+		m_pMesh = NULL;
+	}
 	if (m_pMaterial) 
 		m_pMaterial->Release();
 	if (m_nMaterials > 0)
@@ -775,12 +783,18 @@ Object::~Object()
 		for (int i = 0; i < m_nMaterials; ++i)
 		{
 			if (m_ppMaterials[i])
+			{
 				m_ppMaterials[i]->Release();
+				m_ppMaterials[i] = NULL;
+			}
 		}
 	}
-	for (auto component : components)
+	if (!components.empty())
 	{
-		delete component;
+		for (auto component : components)
+		{
+			delete component;
+		}
 	}
 	if (m_pSibling) 
 		m_pSibling->Release();
@@ -1019,7 +1033,10 @@ void Object::ReleaseShaderVariables()
 void Object::FindAndSetSkinnedMesh(SkinnedMesh** ppSkinnedMeshes, int* pnSkinnedMesh)
 {
 	if (m_pMesh)
+	{
 		ppSkinnedMeshes[(*pnSkinnedMesh)++] = (SkinnedMesh*)m_pMesh;
+		//m_pMesh->AddRef();
+	}
 
 	if (m_pSibling)
 		m_pSibling->FindAndSetSkinnedMesh(ppSkinnedMeshes, pnSkinnedMesh);
@@ -1128,7 +1145,6 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 	FILE* OpenedFile = NULL;
 	::fopen_s(&OpenedFile, pstrFileName, "rb");
 	::rewind(OpenedFile);
-	std::map<std::string,LoadedModelInfo*> ModelMaps;
 	::ReadStringFromFile(OpenedFile, pstrToken);
 	if (!strcmp(pstrToken, "<Objects>:"))
 	{
@@ -1138,26 +1154,43 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 			if (!strcmp(pstrToken, "<Mesh>:"))
 			{
 				BYTE Length = ::ReadStringFromFile(OpenedFile, pstrToken);
-			
 				if (pstrToken[0] == '@') // Mesh�̸��� �´� Mesh�� �̹� �ε尡 �Ǿ��ٸ� true -> �ִ� �� ���� ��
 				{
 					std::string str(pstrToken + 1);
-					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMaps[str]);
+
+					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap[str]);
+
 				}
 				else
 				{
 					std::string str(pstrToken);
-					char pstrFilePath[64] = { '\0' };
-					strcpy_s(pstrFilePath, 64, "Model/");
-					strcpy_s(pstrFilePath + 6, 64 - 6, pstrToken);
-					strcpy_s(pstrFilePath + 6 + Length, 64 - 6 - Length, ".bin");
+					if (GameScene::MainScene->ModelMap.find(str) != GameScene::MainScene->ModelMap.end())
+					{
+						pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap[str]);
+					}
+					else
+					{
+						char pstrFilePath[64] = { '\0' };
+						strcpy_s(pstrFilePath, 64, "Model/");
+						strcpy_s(pstrFilePath + 6, 64 - 6, pstrToken);
+						strcpy_s(pstrFilePath + 6 + Length, 64 - 6 - Length, ".bin");
 
 
-					LoadedModelInfo* pLoadedModel = LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pstrFilePath, NULL);
+						LoadedModelInfo* pLoadedModel = LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pstrFilePath, NULL);
 
-					ModelMaps.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ���� ���� map�� ����
-					pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel);
+
+						GameScene::MainScene->ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ���� ���� map�� ����
+						if (pLoadedModel->m_pRoot)
+							pLoadedModel->m_pRoot->AddRef();
+						if (pLoadedModel->m_pAnimationSets)
+							pLoadedModel->m_pAnimationSets->AddRef();
+						pObject = new ModelObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap[str]);
+					}
+
+
+
 				}
+
 			}
 			if (!strcmp(pstrToken, "<Position>:"))
 			{
@@ -1197,7 +1230,6 @@ void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	FILE* OpenedFile = NULL;
 	::fopen_s(&OpenedFile, pstrFileName, "rb");
 	::rewind(OpenedFile);
-	std::map<std::string, LoadedModelInfo*> ModelMaps;
 	::ReadStringFromFile(OpenedFile, pstrToken);
 	if (!strcmp(pstrToken, "<Objects>:"))
 	{
@@ -1207,11 +1239,10 @@ void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 			if (!strcmp(pstrToken, "<Mesh>:"))
 			{
 				BYTE Length = ::ReadStringFromFile(OpenedFile, pstrToken);
-
 				if (pstrToken[0] == '@') // Mesh�̸��� �´� Mesh�� �̹� �ε尡 �Ǿ��ٸ� true -> �ִ� �� ���� ��
 				{
 					std::string str(pstrToken + 1);
-					pObject = new TestModelBlendObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, ModelMaps[str], pBlendShader);
+					pObject = new TestModelBlendObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap[str], pBlendShader);
 
 				}
 				else
@@ -1225,12 +1256,16 @@ void Object::LoadMapData_Blend(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 					LoadedModelInfo* pLoadedModel = LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pstrFilePath, NULL);
 
-					ModelMaps.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ���� ���� map�� ����
-
+					GameScene::MainScene->ModelMap.insert(std::pair<std::string, LoadedModelInfo*>(str, pLoadedModel)); // ���� ���� map�� ����
+					if (pLoadedModel->m_pRoot)
+						pLoadedModel->m_pRoot->AddRef();
+					if (pLoadedModel->m_pAnimationSets)
+						pLoadedModel->m_pAnimationSets->AddRef();
 
 					pObject = new TestModelBlendObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pLoadedModel, pBlendShader);
 
 				}
+				
 			}
 			if (!strcmp(pstrToken, "<Position>:"))
 			{
@@ -1519,7 +1554,7 @@ LoadedModelInfo* Object::LoadAnimationModel(ID3D12Device* pd3dDevice, ID3D12Grap
 			break;
 		}
 	}
-
+	::fclose(OpenedFile);
 	return pLoadedModel;
 }
 

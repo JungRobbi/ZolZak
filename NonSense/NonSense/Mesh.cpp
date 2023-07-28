@@ -571,13 +571,27 @@ SkinnedMesh::SkinnedMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 
 SkinnedMesh::~SkinnedMesh()
 {
-	if (m_pBoneIndices) 
+	if (m_pBoneIndices)
+	{
 		delete[] m_pBoneIndices;
-	if (m_pBoneWeight) 
+		m_pBoneIndices = NULL;
+	}
+	if (m_pBoneWeight)
+	{
 		delete[] m_pBoneWeight;
+		m_pBoneWeight = NULL;
+	}
 
+	
+	if (m_ppSkinningBoneFrameCaches[0])
+	{
+		//m_ppSkinningBoneFrameCaches[0]->Release();
+		for (int i = 0; i < m_nSkinningBones; ++i)
+			m_ppSkinningBoneFrameCaches[i] = NULL;
+	}
 	if (m_ppSkinningBoneFrameCaches) 
 		delete[] m_ppSkinningBoneFrameCaches;
+
 	if (m_ppstrSkinningBoneNames) 
 		delete[] m_ppstrSkinningBoneNames;
 
