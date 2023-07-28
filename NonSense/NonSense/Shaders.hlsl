@@ -362,7 +362,7 @@ float CalcShadowFactor(float4 shadowPosH)
 	return percentLit / 9.0f;
 }
 
-float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
+float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target 
 {
 	int Edge = false;
 	float fObjectID = RenderInfor[1][int2(input.position.xy)].a;
@@ -381,7 +381,7 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 	ShadowFactor = saturate(ShadowFactor);
 	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection, ToonShading) * ShadowFactor;
 	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.a);
-	if (Edge)
+	if (Edge && darkness<0.5)
 		return (LineColor);
 
 	else
@@ -495,6 +495,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+    clip(cAlbedoColor.a-0.1);
 	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
 	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -504,6 +505,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
 	output.Texture = (cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor);
+	
 	float3 normalW;
 
 	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
@@ -535,9 +537,8 @@ float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
 	ShadowFactor = saturate(ShadowFactor);
 
 	cColor.rgb *= Lighting(input.positionW, normalize(input.normalW), gf3CameraDirection, ToonShading) * ShadowFactor;
-    cColor.r *= 1- 0.9 * darkness;
-    cColor.g *= 1- 0.9 * darkness;
-    cColor.b *= 1-0.9 * darkness;
+    cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.a);
+    //return (float4(gtxShadowMap.Sample(gssDefaultSamplerState, input.uv).rgb, 1.0f));
     return (cColor);
 }
 

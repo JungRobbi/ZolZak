@@ -26,6 +26,7 @@ public:
 		D3D12_CPU_DESCRIPTOR_HANDLE hCpuDsv);
 
 	void OnResize(UINT newWidth, UINT newHeight);
+	void ReBuildDescriptors();
 
 
 private:

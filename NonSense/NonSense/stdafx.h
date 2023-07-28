@@ -88,6 +88,7 @@ extern UINT DSVDescriptorSize;
 extern bool DebugMode;
 extern bool ScriptMode;
 extern bool OptionMode;
+extern bool LoadingMode;
 extern UINT OBJNum;
 
 extern UINT	gnRtvDescriptorIncrementSize;

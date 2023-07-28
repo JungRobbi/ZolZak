@@ -15,4 +15,5 @@ void Login_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	Login_UI* Login = new Login_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	WhiteRect_UI* WhiteRect = new WhiteRect_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	Loading_UI* m_Loading_UI = new Loading_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 }

@@ -16,6 +16,7 @@ private:
 	float DefenceTimeLeft = 0;
 public:
 	~BossAttackComponent() {}
+	void SetBoundingObject(BoundBox* bd) { AttackRange = bd; }
 	void start();
 	void update();
 	void SetAttackSpeed(float speed);

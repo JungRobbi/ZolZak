@@ -2,10 +2,13 @@
 #include <iostream>
 void Lobby_GameScene::update()
 {
-	while (!roomCreateList.empty()) {
+	while (!roomCreateList.empty() && m_ppRooms) {
 		auto p = roomCreateList.front();
 		std::cout << p.num << " " << p.name << " " << p.owner << std::endl;
-		Rooms.emplace_back(new Room_UI(m_pd3dDevice, m_pd3dCommandList, m_pGraphicsRootSignature, p.num, p.name, p.owner));
+		m_ppRooms[p.num]->RoomNum = p.num;
+		m_ppRooms[p.num]->RoomName = p.name;
+		m_ppRooms[p.num]->RoomOwner = p.owner;
+		Rooms.emplace_back(m_ppRooms[p.num]);
 		roomCreateList.pop();
 	}
 
@@ -16,7 +19,7 @@ void Lobby_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 150);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 100);
 
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();
@@ -29,7 +32,17 @@ void Lobby_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	Right_UI* m_Right_UI = new Right_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Left_UI* m_Left_UI = new Left_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Title_UI* m_Title_UI = new Title_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	m_Make_Title_UI = new Make_Title_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	m_ppRooms = new Room_UI * [30];
+	for (int i = 0; i < 30; ++i)
+	{
+		m_ppRooms[i] = new Room_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature,0,"name","owner");
+	}
+
+	Make_Title_UI* m_Make_Title_UI = new Make_Title_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Real_Make_Room_UI* m_Real_Make_Room_UI = new Real_Make_Room_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	m_Real_Make_Room_UI->SetParentUI(m_Make_Title_UI);
+
+	Loading_UI* m_Loading_UI = new Loading_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dCommandList = pd3dCommandList;
@@ -44,10 +57,6 @@ void Lobby_GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camer
 	{
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
-	}
-	if (MakingRoom) {
-		m_Make_Title_UI->UpdateTransform(NULL);
-		m_Make_Title_UI->Render(pd3dCommandList, pCamera);
 	}
 	for (int i = Page*6; i < (Page+1) * 6; ++i)
 	{

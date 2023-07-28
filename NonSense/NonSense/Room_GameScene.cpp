@@ -22,6 +22,7 @@ void Room_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	Warrior_UI* m_Warrior_UI = new Warrior_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Ready_UI* m_Ready_UI = new Ready_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Leave_Room_UI* m_Leave_Room_UI = new Leave_Room_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Loading_UI* m_Loading_UI = new Loading_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 }
 void Room_GameScene::ReleaseObjects()
 {
