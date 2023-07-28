@@ -353,3 +353,11 @@ public:
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	virtual ~Loading_UI() {};
 };
+
+class GameOver_UI : public UI
+{
+public:
+	GameOver_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	virtual ~GameOver_UI() {};
+};

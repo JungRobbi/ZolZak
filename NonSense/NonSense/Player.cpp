@@ -293,7 +293,7 @@ void Player::GetHit(float damage)
 	m_RemainHP -= damage;
 	if (m_RemainHP <= 0)
 	{
-		cout << "asdf";
+		Die = true;
 	}
 }
 Camera* Player::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)

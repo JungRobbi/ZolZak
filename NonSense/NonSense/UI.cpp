@@ -1349,3 +1349,37 @@ void Loading_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCam
 	}
 
 }
+
+GameOver_UI::GameOver_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/GameOver.dds", RESOURCE_TEXTURE2D, 0);
+	CanClick = false;
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.3, 0.85, 0.4, 0.15);
+}
+
+void GameOver_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (Die) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
+}
