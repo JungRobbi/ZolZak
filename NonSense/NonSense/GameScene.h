@@ -16,7 +16,7 @@
 struct CB_SCREEN_INFO
 {
 	XMFLOAT4 LineColor = XMFLOAT4(0,0,0,1);
-	UINT LineSize=3;
+	UINT LineSize=1;
 	UINT ToonShading=1;
 	float darkness=0;
 };
@@ -72,10 +72,14 @@ public:
 	std::deque<Object*> deletionBoundingQueue;
 	std::list<Object*> BoundingGameObjects;
 
+	std::queue<Object*> creationForwardQueue;
+	std::deque<Object*> deletionForwardQueue;
+	std::list<Object*> ForwardObjects;
+
 	std::list<Sound*> Sounds;
 
 	XMFLOAT4 LineColor = XMFLOAT4(0, 0, 0, 1);
-	UINT LineSize = 3;
+	UINT LineSize = 1;
 	UINT ToonShading = 10;
 
 public:
@@ -120,6 +124,7 @@ public:
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void RenderBlend(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	virtual void RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
+	void RenderForward(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void RenderBoundingBox(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void ReleaseUploadBuffers();
 	HeightMapTerrain* GetTerrain() { return(m_pTerrain); }
@@ -143,6 +148,15 @@ public:
 	void Sound_Debuff(float time);
 	void AddSound(Sound* s);
 	ID3D12RootSignature* m_pGraphicsRootSignature = NULL;
+	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorStartHandle;
+	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorStartHandle;
+	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dSrvCPUDescriptorStartHandle;
+	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dSrvGPUDescriptorStartHandle;
+
+	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorNextHandle;
+	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorNextHandle;
+	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dSrvCPUDescriptorNextHandle;
+	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dSrvGPUDescriptorNextHandle;
 protected:
 
 	int m_nShaders = 0;
@@ -171,14 +185,6 @@ protected:
 	Object* TempObject = NULL;
 	
 
-	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorStartHandle;
-	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorStartHandle;
-	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dSrvCPUDescriptorStartHandle;
-	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dSrvGPUDescriptorStartHandle;
 
-	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorNextHandle;
-	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorNextHandle;
-	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dSrvCPUDescriptorNextHandle;
-	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dSrvGPUDescriptorNextHandle;
 
 };

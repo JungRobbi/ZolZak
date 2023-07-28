@@ -182,6 +182,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		::itoa(RoomNum, buf, 10);
 		ChannelName.append(buf);
 		GameFramework::MainGameFramework->GetVivoxSystem()->JoinChannel(ChannelName.c_str());
+		
 		GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
 
 	//	GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
@@ -526,6 +527,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		if (b_isLoginProg) { // 로그인 진행 하는 동안
 			b_isLogin = true;
 			GameFramework::MainGameFramework->InitializeVivoxSystem(name);
+			
 			GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
 			b_isLoginProg = false;
 		}

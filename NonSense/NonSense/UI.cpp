@@ -286,7 +286,7 @@ WhiteRect_UI::WhiteRect_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	SetMaterial(pUIMaterial);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.3, 0.4, 0.4, 0.05);
+	SetMyPos(0.35, 0.4, 0.3, 0.05);
 }
 
 Login_UI::Login_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -305,11 +305,12 @@ Login_UI::Login_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 	SetMaterial(pUIMaterial);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.4, 0.2, 0.2, 0.15);
+	SetMyPos(0.4, 0.23, 0.2, 0.15);
 }
 
 void Login_UI::OnClick()
 {
+	
 	GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
 }
 
@@ -409,10 +410,10 @@ Make_Room_UI::Make_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 void Make_Room_UI::OnClick()
 {
-	//if (!dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom)
-	//{
-	//	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom = true;
-	//}
+	if (!dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom)
+	{
+		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom = true;
+	}
 	std::string name = "Test Room";
 	//	std::cout << "�� ������ �Է��ϼ��� : " << std::endl;
 	//	std::cin >> name;
@@ -457,6 +458,7 @@ void Join_Room_UI::OnClick()
 		PacketQueue::AddSendPacket(&send_packet);
 	}
 	else {
+		
 		GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
 	}
 }
@@ -482,6 +484,7 @@ Back_UI::Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 
 void Back_UI::OnClick()
 {
+	
 	GameFramework::MainGameFramework->ChangeScene(LOGIN_SCENE);
 }
 
@@ -599,7 +602,7 @@ Room_UI::Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 void Room_UI::OnClick()
 {
 	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->SelectNum = RoomNum;
-	std::cout << RoomNum << "�� �� - " << RoomName << " - ���� - " << RoomOwner << std::endl;
+	std::cout << RoomNum << " Room Name - " << RoomName << " - Room Owner - " << RoomOwner << std::endl;
 }
 
 void Room_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -946,90 +949,90 @@ void Toon_Left_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pC
 
 }
 
-//
-//Toon_Right_UI::Toon_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
-//{
-//	GameScene::MainScene->creationUIQueue.push(this);
-//	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-//	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Right.dds", RESOURCE_TEXTURE2D, 0);
-//
-//	UIShader* pUIShader = new UIShader();
-//	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-//	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
-//	CanClick = true;
-//	Material* pUIMaterial = new Material();
-//	pUIMaterial->SetTexture(pUITexture);
-//	pUIMaterial->SetShader(pUIShader);
-//	SetMaterial(pUIMaterial);
-//
-//	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-//	SetMyPos(0.4, 0.320, 0.02, 0.05);
-//}
-//
-//void Toon_Right_UI::OnClick()
-//{
-//	if (OptionMode) {
-//		if (GameScene::MainScene->LineSize < 10)
-//			GameScene::MainScene->ToonShading++;
-//	}
-//}
-//
-//void Toon_Right_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
-//{
-//	if (OptionMode) {
-//		OnPreRender();
-//		UpdateShaderVariables(pd3dCommandList);
-//
-//		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
-//		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
-//
-//		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-//		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
-//	}
-//
-//}
-//
-//Toon_Left_UI::Toon_Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
-//{
-//	GameScene::MainScene->creationUIQueue.push(this);
-//	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-//	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Left.dds", RESOURCE_TEXTURE2D, 0);
-//
-//	UIShader* pUIShader = new UIShader();
-//	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-//	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
-//	CanClick = true;
-//	Material* pUIMaterial = new Material();
-//	pUIMaterial->SetTexture(pUITexture);
-//	pUIMaterial->SetShader(pUIShader);
-//	SetMaterial(pUIMaterial);
-//
-//	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-//	SetMyPos(0.17, 0.320, 0.02, 0.05);
-//}
-//
-//void Toon_Left_UI::OnClick()
-//{
-//	if (OptionMode) {
-//		if (GameScene::MainScene->ToonShading > 0)
-//			GameScene::MainScene->ToonShading--;
-//	}
-//}
-//
-//void Toon_Left_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
-//{
-//	if (OptionMode) {
-//		OnPreRender();
-//		UpdateShaderVariables(pd3dCommandList);
-//
-//		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
-//		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
-//
-//		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-//		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
-//	}
-//
-//}
+
+Shadow_Right_UI::Shadow_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Right.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.82, 0.475, 0.02, 0.05);
+}
+
+void Shadow_Right_UI::OnClick()
+{
+	if (OptionMode) {
+		if (GameFramework::MainGameFramework->ShadowRange)
+			GameFramework::MainGameFramework->ShadowRange+=10;
+	}
+}
+
+void Shadow_Right_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (OptionMode) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
+}
+
+Shadow_Left_UI::Shadow_Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Left.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = true;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.59, 0.475, 0.02, 0.05);
+}
+
+void Shadow_Left_UI::OnClick()
+{
+	if (OptionMode) {
+		if (GameFramework::MainGameFramework->ShadowRange > 20)
+			GameFramework::MainGameFramework->ShadowRange -= 10;
+	}
+}
+
+void Shadow_Left_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (OptionMode) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
+}
 
 
 Mouse_Right_UI::Mouse_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -1215,6 +1218,7 @@ Ready_UI::Ready_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 void Ready_UI::OnClick()
 {
+	
 	GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
 }
 
@@ -1235,4 +1239,38 @@ Room_Back_UI::Room_Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	SetMyPos(0.0, 0.0, 1, 1);
+}
+
+Loading_UI::Loading_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	GameScene::MainScene->creationUIQueue.push(this);
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Loading.dds", RESOURCE_TEXTURE2D, 0);
+	CanClick = false;
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.0, 0.0, 1, 1);
+}
+
+void Loading_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	if (LoadingMode) {
+		OnPreRender();
+		UpdateShaderVariables(pd3dCommandList);
+
+		if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+		pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+	}
+
 }

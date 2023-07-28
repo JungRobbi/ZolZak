@@ -57,6 +57,9 @@ void Hearing_Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graph
 	Toon_Right_UI* m_Toon_Right_UI = new Toon_Right_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Mouse_Left_UI* m_Mouse_Left_UI = new Mouse_Left_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Mouse_Right_UI* m_Mouse_Right_UI = new Mouse_Right_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Shadow_Left_UI* m_Shadow_Left_UI = new Shadow_Left_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Shadow_Right_UI* m_Shadow_Right_UI = new Shadow_Right_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	Loading_UI* m_Loading_UI = new Loading_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
 	ScriptUI = new NPCScript(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 

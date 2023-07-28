@@ -759,6 +759,9 @@ Object::Object(OBJECT_TYPE type)
 	case BOUNDING_OBJECT:
 		GameScene::MainScene->creationBoundingQueue.push(this);
 		break;
+	case FORWARD_OBJECT:
+		GameScene::MainScene->creationForwardQueue.push(this);
+		break;
 
 	}
 }
@@ -2278,7 +2281,7 @@ bool BoundSphere::Intersects(BoundSphere& sh)
 	return XMVector3LessOrEqual(DistanceSquared, RadiusSquared);
 }
 
-FireBall::FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BLEND_OBJECT)
+FireBall::FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(FORWARD_OBJECT)
 {
 	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 200);
 	SetMesh(pMesh);
@@ -2376,7 +2379,7 @@ void FireBall::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 }
 
 
-Explosion::Explosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(BLEND_OBJECT)
+Explosion::Explosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(FORWARD_OBJECT)
 {
 	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 500);
 	SetMesh(pMesh);
@@ -2464,7 +2467,7 @@ void Explosion::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 1, &time, 3);
 }
 
-Water::Water(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float h, float w) : Object(BLEND_OBJECT)
+Water::Water(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float h, float w) : Object(FORWARD_OBJECT)
 {
 	RectMesh* pWaterMesh = new RectMesh(pd3dDevice, pd3dCommandList, h, w);
 	SetMesh(pWaterMesh);
