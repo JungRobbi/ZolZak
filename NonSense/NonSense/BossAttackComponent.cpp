@@ -207,7 +207,7 @@ void BossAttackComponent::Tornado()
 	XMFLOAT3 PlayerPos = GameFramework::MainGameFramework->m_pPlayer->GetPosition();
 	XMFLOAT3 BossPos = gameObject->GetPosition();
 
-	if (Vector3::Length(Vector3::Subtract(PlayerPos, BossPos)) < 1.5f)
+	if (Vector3::Length(Vector3::Subtract(PlayerPos, BossPos)) <= 4.0f)
 	{
 		if (!NetworkMGR::b_isNet) {
 			GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Character*>(gameObject)->GetAttack() * 0.7f * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));

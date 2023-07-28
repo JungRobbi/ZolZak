@@ -121,7 +121,7 @@ void BossFSMComponent::Track()
 	if (ToTargetAngle > 7.0f)
 		gameObject->Rotate(0.0f, Angle * Timer::GetTimeElapsed(), 0.0f);
 	float Distance = Vector3::Length(Vector3::Subtract(TargetPos, CurrentPos));
-	if (Distance > 4.5f)
+	if (Distance > 4.0f)
 		Move_Run(2.5f * Timer::GetTimeElapsed());
 	else
 	{
