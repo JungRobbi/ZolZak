@@ -410,10 +410,10 @@ Make_Room_UI::Make_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 
 void Make_Room_UI::OnClick()
 {
-	//if (!dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom)
-	//{
-	//	dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom = true;
-	//}
+	if (!dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom)
+	{
+		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom = true;
+	}
 	std::string name = "Test Room";
 	//	std::cout << "�� ������ �Է��ϼ��� : " << std::endl;
 	//	std::cin >> name;

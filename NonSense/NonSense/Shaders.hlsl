@@ -381,7 +381,7 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 	ShadowFactor = saturate(ShadowFactor);
 	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection, ToonShading) * ShadowFactor;
 	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.a);
-	if (Edge)
+	if (Edge && darkness<0.5)
 		return (LineColor);
 
 	else
