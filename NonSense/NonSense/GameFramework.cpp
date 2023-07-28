@@ -607,12 +607,26 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				}
 				break;
 			case ' ':
-				ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
+				if (scene_type < ROOM_SCENE) {
+					if (ChatMGR::m_textindex < NAME_SIZE)
+						ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
+				}
+				else {
+					if (ChatMGR::m_textindex < CHAT_SIZE)
+						ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
+				}
 				break;
 			default:
 				if (ChatMGR::m_HangulMode == E_MODE_HANGUL::E_MODE_ENGLISH) {
 					if (isalpha(wParam)) {
-						ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
+						if (scene_type < ROOM_SCENE) {
+							if (ChatMGR::m_textindex < NAME_SIZE)
+								ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
+						}
+						else {
+							if (ChatMGR::m_textindex < CHAT_SIZE)
+								ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
+						}
 					}
 				}
 				break;
@@ -939,6 +953,9 @@ void GameFramework::ChangeScene(unsigned char num)
 	}
 	else if (num == LOGIN_SCENE) {
 		ChatMGR::SetLoginScene(m_nWndClientWidth, m_nWndClientHeight);
+	}
+	else if (num == LOBBY_SCENE) {
+		ChatMGR::SetLobbyScene(m_nWndClientWidth, m_nWndClientHeight);
 	}
 	for (auto& Chat_tb : ChatMGR::m_pUILayer->m_pTextBlocks) {
 		ZeroMemory(Chat_tb.m_pstrText, 256);
@@ -1344,10 +1361,10 @@ void GameFramework::FrameAdvance()
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	if (scene_type == LOGIN_SCENE) {
+	if (scene_type < ROOM_SCENE) {
 		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
 	}
-	else if (scene_type >= LOBBY_SCENE) {
+	else if (scene_type >= ROOM_SCENE) {
 		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
 	}
 

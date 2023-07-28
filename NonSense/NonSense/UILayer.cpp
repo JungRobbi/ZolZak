@@ -419,6 +419,7 @@ void ChatMGR::SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTY
     else if (type == E_CHAT_SORTTYPE::E_SORTTYPE_MID) {
         pdwTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); // 가운데 정렬
     }
+    pdwUITextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
 }
 
 void ChatMGR::StoreTextSelf()
@@ -473,8 +474,25 @@ void ChatMGR::SetLoginScene(int WndClientWidth, int WndClientHeight)
     m_combtext = NULL;
 
     SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_MID);
-    d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, 
-        (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
+    d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f,
+        (float)WndClientWidth, (float)WndClientHeight);
+
+    pdwUITextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
+
+    fontsize = WndClientHeight / 25.0f;
+
+}
+
+void ChatMGR::SetLobbyScene(int WndClientWidth, int WndClientHeight)
+{
+    CreateTextUI(WndClientWidth, WndClientHeight);
+
+    memset(m_textbuf, NULL, sizeof(m_textbuf));
+    m_combtext = NULL;
+
+    SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_LEFT);
+    d2dRect = D2D1::RectF((float)WndClientHeight / 1.37f, (float)WndClientHeight / 1.83f,
+        (float)WndClientWidth, (float)WndClientHeight);
 
     pdwUITextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
 
@@ -519,14 +537,8 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         auto& tb = m_pUILayer->m_pUITextBlocks[i];
         tb.m_pdwFormat = pdwTextFormat;
         tb.m_pd2dTextBrush = pd2dBrush;
-        if (NetworkMGR::b_isNet) {
-            tb.m_d2dLayoutRect =
-                D2D1::RectF(-700, 227 + 75.5f * i, WndClientWidth, WndClientHeight);
-        }
-        else {
-            tb.m_d2dLayoutRect =
-                D2D1::RectF(-800, 227 + 75.5f * i, WndClientWidth, WndClientHeight);
-        }
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(100, 227 + 75.5f * i, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
     //  wcscpy(tb.m_pstrText, L"ROOOOOOOOOOOOOOOOM");
     }

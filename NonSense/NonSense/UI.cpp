@@ -623,16 +623,23 @@ Real_Make_Room_UI::Real_Make_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 void Real_Make_Room_UI::OnClick()
 {
-	std::string name = "Test Room";
-	if (NetworkMGR::b_isNet) {
+	if (!NetworkMGR::b_isNet) {
+		std::string name = "Test Room";
+		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(name);
+	}
+	else {
+		char* p = ConvertWCtoC(ChatMGR::m_textbuf);
+
 		CS_ROOM_CREATE_PACKET send_packet;
 		send_packet.size = sizeof(CS_ROOM_CREATE_PACKET);
 		send_packet.type = E_PACKET::E_PACKET_CS_ROOM_CREATE_PACKET;
-		memcpy(send_packet.roomName, name.c_str(), name.size());
+		memcpy(send_packet.roomName, p, sizeof(p));
 		PacketQueue::AddSendPacket(&send_packet);
-	}
-	else {
-		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakeRoom(name);
+		delete[] p;
+
+		ChatMGR::m_textindex = 0;
+		ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
+		ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
 	}
 
 	if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom)

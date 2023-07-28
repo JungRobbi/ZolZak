@@ -151,6 +151,7 @@ public:
     static void StoreText(WCHAR* buf);
 
     static void SetLoginScene(int WndClientWidth, int WndClientHeight);
+    static void SetLobbyScene(int WndClientWidth, int WndClientHeight);
     static void SetInGame(int WndClientWidth, int WndClientHeight);
 
     static void CreateTextUI(int WndClientWidth, int WndClientHeight);
