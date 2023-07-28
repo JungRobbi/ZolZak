@@ -45,6 +45,7 @@ public:
 class SkillState_Boss : public State<BossFSMComponent>
 {
 	float m_Timer = 0.0f;
+	bool b_Enter = true;
 public:
 	~SkillState_Boss() {}
 	static SkillState_Boss* GetInstance();

@@ -101,7 +101,8 @@ void BossFSMComponent::Move_Run(float dist)
 }
 void BossFSMComponent::Attack()
 {
-	if (!gameObject->GetComponent<BossAttackComponent>()->During_Attack)
+	if (!gameObject->GetComponent<BossAttackComponent>()->During_Attack 
+		&& !gameObject->GetComponent<BossAttackComponent>()->During_Skill)
 		gameObject->GetComponent<BossAttackComponent>()->AttackAnimation();
 }
 

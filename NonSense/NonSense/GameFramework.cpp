@@ -746,15 +746,16 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				PacketQueue::AddSendPacket(&send_packet);
 				cout << "READY!" << endl;
 			}
+			break;
 			case 'n':
 			case 'N':
 			{
 				Player* player;
 
-				player = new MagePlayer(m_pDevice, m_pCommandList,
+			/*	player = new MagePlayer(m_pDevice, m_pCommandList,
 					GameScene::MainScene->GetGraphicsRootSignature(),
-					GameScene::MainScene->GetTerrain());
-
+					GameScene::MainScene->GetTerrain());*/
+				player = m_OtherPlayersPool.back();
 
 				//player = new WarriorPlayer(m_pDevice, m_pCommandList,
 				//	GameScene::MainScene->GetGraphicsRootSignature(),
@@ -767,8 +768,18 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				player->SetUsed(true);
 				player->ReleaseUploadBuffers();
 				m_OtherPlayers.push_back(player);
+				m_OtherPlayersPool.pop_back();
 			}
 				break;
+			case 'U':
+			case 'u':
+			{
+				cout << "m_OtherPlayers.size() - " << m_OtherPlayers.size() << endl;
+				cout << "m_OtherPlayers.pos.x - " << m_OtherPlayers.back()->GetPosition().x << endl;
+				cout << "m_OtherPlayers.pos.y - " << m_OtherPlayers.back()->GetPosition().y << endl;
+				cout << "m_OtherPlayers.pos.z - " << m_OtherPlayers.back()->GetPosition().z << endl;
+			}
+			break;
 			default:
 				break;
 			}
@@ -877,15 +888,20 @@ void GameFramework::ChangeScene(unsigned char num)
 	GameSceneState = num;
 
 
-	if (num != LOGIN_SCENE) {
-	/*	m_OtherPlayers.clear();
+	if (num == SIGHT_SCENE) {
+		m_OtherPlayers.clear();
+		m_OtherPlayersPool.clear();
 		m_OtherPlayersPool.clear();
 		for (int i{}; i < 3; ++i) {
-			if (i == 1) m_OtherPlayersPool.emplace_back(new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
-			else m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
+			m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
 			dynamic_cast<Player*>(m_OtherPlayersPool.back())->SetCamera(dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f));
 			m_OtherPlayersPool.back()->SetUsed(true);
-		}*/
+		}
+		for (int i{}; i < 3; ++i) {
+			m_OtherPlayersPool.emplace_back(new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
+			dynamic_cast<Player*>(m_OtherPlayersPool.back())->SetCamera(dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f));
+			m_OtherPlayersPool.back()->SetUsed(true);
+		}
 	}
 
 	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
@@ -1213,7 +1229,8 @@ void GameFramework::FrameAdvance()
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	for (auto& p : m_OtherPlayers) {
 		if (p->GetUsed()) {
-			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
+			p->UpdateTransform(NULL);
+			p->Render(m_pCommandList, m_pCamera);
 		}
 	}
 
@@ -1237,7 +1254,8 @@ void GameFramework::FrameAdvance()
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	for (auto& p : m_OtherPlayers) {
 		if (p->GetUsed()) {
-			dynamic_cast<Player*>(p)->Render(m_pCommandList, m_pCamera);
+			p->UpdateTransform(NULL);
+			p->Render(m_pCommandList, m_pCamera);
 		}
 	}
 	///////////////////////////////////////////

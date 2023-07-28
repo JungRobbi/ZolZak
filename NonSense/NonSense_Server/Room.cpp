@@ -49,12 +49,12 @@ void Room::start()
 	TempObject = new Goblin(MONSTER_TYPE_CLOSE, scene);
 	TempObject->SetPosition(113.0f, Scene::terrain->GetHeight(113.0f, 20.0f), 20.0f);
 	((Goblin*)TempObject)->num = 10006;
-	TempObject->m_roomNum = m_roomNum;
+	TempObject->m_roomNum = m_roomNum;*/
 
 	TempObject = new Shield(MONSTER_TYPE_BOSS, scene);
 	TempObject->SetPosition(-16.7, Scene::terrain->GetHeight(-16.7, 96.5), 96.5);
 	((Shield*)TempObject)->num = 206;
-	TempObject->m_roomNum = m_roomNum;*/
+	TempObject->m_roomNum = m_roomNum;
 	
 }
 

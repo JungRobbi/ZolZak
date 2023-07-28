@@ -693,7 +693,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	case E_PACKET_CS_ROOM_READY_PACKET: {
 		CS_ROOM_READY_PACKET* recv_packet = reinterpret_cast<CS_ROOM_READY_PACKET*>(p_Packet);
 		
-		p_Client->m_pPlayer->type = recv_packet->type;
+		p_Client->m_pPlayer->type = recv_packet->playerType;
 		Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.emplace_back(p_Client);
 		
 		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients)
@@ -711,8 +711,6 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	}
 	case E_PACKET_CS_ROOM_UNREADY_PACKET: {
 		CS_ROOM_UNREADY_PACKET* recv_packet = reinterpret_cast<CS_ROOM_UNREADY_PACKET*>(p_Packet);
-
-		p_Client->m_pPlayer->type = recv_packet->type;
 		Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.erase(
 			find(Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.begin(),
 				Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.end(),
@@ -754,31 +752,9 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			send_packet.y = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
 			send_packet.z = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
 			send_packet.clearStage = rc.second->m_clear_stage;
-			send_packet.type = rc.second->m_pPlayer->type;
+			send_packet.playerType = rc.second->m_pPlayer->type;
 			p_Client->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
-
-		// 다른 클라이언트들에게 접속한 클라이언트 정보 송신
-		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
-			if (!rc.second->b_Enable.load())
-				continue;
-			if (rc.second->m_id == p_Client->m_id)
-				continue;
-			SC_ADD_PLAYER_PACKET send_packet;
-			send_packet.size = sizeof(SC_ADD_PLAYER_PACKET);
-			send_packet.type = E_PACKET::E_PACKET_SC_ADD_PLAYER;
-			send_packet.id = p_Client->m_id;
-			memcpy(send_packet.name, p_Client->name, sizeof(p_Client->name));
-			send_packet.maxHp = p_Client->m_pPlayer->GetHealth();
-			send_packet.remainHp = p_Client->m_pPlayer->GetRemainHP();
-			send_packet.x = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
-			send_packet.y = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
-			send_packet.z = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
-			send_packet.clearStage = p_Client->m_clear_stage;
-			send_packet.type = p_Client->m_pPlayer->type;
-			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
-		}
-
 		break;
 	}
 	case E_PACKET_CS_ROOM_START_PACKET: {

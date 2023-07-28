@@ -130,10 +130,16 @@ void Sight_Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graphic
 	TempObject->SetNum(10006);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);*/
 
-	TempObject = new Water(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature,20,20);
+	/*TempObject = new Water(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature,20,20);
 	TempObject->SetPosition(40.59f, 5.4f, -29.63f);
 	TempObject->SetNum(10000);
-	TempObject->Rotate(0.f, 30.f, 0.f);
+	TempObject->Rotate(0.f, 30.f, 0.f);*/
+
+	TempObject = new Shield(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Boss_Shield"], NULL, NULL, MONSTER_TYPE_BOSS);
+	TempObject->SetPosition(-16.7f, m_pTerrain->GetHeight(-16.7f, 96.5f), 96.5f);
+	TempObject->SetNum(206);	
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+
 	DXGI_FORMAT pdxgiRtvFormats[MRT] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM };
 
 

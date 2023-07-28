@@ -310,7 +310,30 @@ Login_UI::Login_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 void Login_UI::OnClick()
 {
-	GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
+	if (NetworkMGR::b_isNet) {
+		char* p = ConvertWCtoC(ChatMGR::m_textbuf);
+		NetworkMGR::name = string{ p };
+		delete[] p;
+		if (!NetworkMGR::b_isLogin && !NetworkMGR::b_isLoginProg) { // 로그인 하지 않은 상태
+			NetworkMGR::b_isLoginProg = true; // 로그인 진행
+			CS_LOGIN_PACKET send_packet;
+			send_packet.size = sizeof(CS_LOGIN_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
+			memcpy(send_packet.name, NetworkMGR::name.c_str(), NetworkMGR::name.size());
+			PacketQueue::AddSendPacket(&send_packet);
+		}
+		else {
+			//로그인 실패
+			cout << "로그인 시도 실패!" << endl;
+			cout << "Login Try Fail!" << endl;
+		}
+	}
+	else {
+		GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
+	}
+	ChatMGR::m_textindex = 0;
+	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
+	ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
 }
 
 Aim::Aim(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)

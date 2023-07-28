@@ -822,47 +822,47 @@ Shield::~Shield()
 void Shield::BossAttackEvent()
 {
 	PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_ATTACK;
-	GetComponent<BossAttackComponent>()->Attack();
+//	GetComponent<BossAttackComponent>()->Attack();
 	EndSkillEvent();
 }
 
 void Shield::BossStealSenseEvent()
 {
 	PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_ROAR;
-	GetComponent<BossAttackComponent>()->StealSense();
+//	GetComponent<BossAttackComponent>()->StealSense();
 	EndSkillEvent();
 }
 
 void Shield::BossSummonEvent()
 {
 	PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_SUMMON;
-	GetComponent<BossAttackComponent>()->Summon(GetPosition());
+//	GetComponent<BossAttackComponent>()->Summon(GetPosition());
 	EndSkillEvent();
 }
 
 void Shield::BossDefenceEvent()
 {
 	PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_DEFENCE;
-	GetComponent<BossAttackComponent>()->Defence();
+//	GetComponent<BossAttackComponent>()->Defence();
 	EndSkillEvent();
 }
 
 void Shield::BossJumpAttackEvent()
 {
 	PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_JUMPATTACK;
-	GetComponent<BossAttackComponent>()->JumpAttack();
+//	GetComponent<BossAttackComponent>()->JumpAttack();
 	EndSkillEvent();
 }
 
 void Shield::BossTorandoEvent()
 {
 	PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_TORNADO;
-	GetComponent<BossAttackComponent>()->Tornado();
+//	GetComponent<BossAttackComponent>()->Tornado();
 	EndSkillEvent();
 }
 
 void Shield::EndSkillEvent()
 {
-	std::cout << "end" << std::endl;
+	std::cout << "EndSkillEvent" << std::endl;
 	GetComponent<BossAttackComponent>()->End_Skill = true;
 }

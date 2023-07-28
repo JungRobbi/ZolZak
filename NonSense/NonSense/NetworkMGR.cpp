@@ -181,20 +181,14 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET::E_PACKET_SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* recv_packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(p_Packet);
-		
-		if (GameFramework::MainGameFramework->m_OtherPlayers.size() < 4) {
+		cout << "ADD PLAYER!" << endl;
+		if (GameFramework::MainGameFramework->m_OtherPlayers.size() < 3) {
 			Player* player;
-			if (recv_packet->playerType == 0) {
-				player = new MagePlayer(GameFramework::MainGameFramework->m_pDevice,
-					GameFramework::MainGameFramework->m_pCommandList,
-					GameScene::MainScene->GetGraphicsRootSignature(),
-					GameScene::MainScene->GetTerrain());
+			if (recv_packet->playerType == 0) { // mage
+				player = GameFramework::MainGameFramework->m_OtherPlayersPool.front();
 			}
-			else {
-				player = new WarriorPlayer(GameFramework::MainGameFramework->m_pDevice,
-					GameFramework::MainGameFramework->m_pCommandList,
-					GameScene::MainScene->GetGraphicsRootSignature(),
-					GameScene::MainScene->GetTerrain());
+			else { // warrior
+				player = GameFramework::MainGameFramework->m_OtherPlayersPool.back();
 			}
 			dynamic_cast<Player*>(player)->id = recv_packet->id;
 			dynamic_cast<Player*>(player)->m_name = recv_packet->name;
@@ -202,6 +196,12 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			dynamic_cast<Player*>(player)->SetHealth(recv_packet->maxHp);
 			dynamic_cast<Player*>(player)->SetRemainHP(recv_packet->remainHp);
 			GameFramework::MainGameFramework->m_OtherPlayers.push_back(player);
+			if (recv_packet->playerType == 0) { // mage
+				GameFramework::MainGameFramework->m_OtherPlayersPool.pop_front();
+			}
+			else { // warrior
+				GameFramework::MainGameFramework->m_OtherPlayersPool.pop_back();
+			}
 		}
 		else {
 			cout << "OtherPlayer 생성 실패!" << endl;
@@ -356,6 +356,9 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 				Monster->GetComponent<BossFSMComponent>()->JumpAttack();
 			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_TORNADO)
 				Monster->GetComponent<BossFSMComponent>()->Tornado();
+			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_IDLE) {
+				Monster->GetComponent<BossAttackComponent>()->During_Skill = false;
+			}
 		}
 		break;
 	}

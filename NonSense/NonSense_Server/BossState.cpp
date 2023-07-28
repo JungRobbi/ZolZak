@@ -148,6 +148,7 @@ void SkillState_Boss::Enter(BossFSMComponent* pOwner)
 {
 	pOwner->Stop();
 	std::cout << "Boss Skill" << std::endl;
+	b_Enter = true;
 }
 
 void SkillState_Boss::Execute(BossFSMComponent* pOwner)
@@ -156,17 +157,7 @@ void SkillState_Boss::Execute(BossFSMComponent* pOwner)
 	{
 		pOwner->TornadoTrack();
 	}
-	if (pOwner->gameObject->GetComponent<BossAttackComponent>()->During_Skill) {
-		m_Timer -= Timer::GetTimeElapsed();
-		if (m_Timer <= 0.0f)
-		{
-			pOwner->GetFSM()->ChangeState(TrackEnemyState_Boss::GetInstance());
-			pOwner->IsTornado = false;
-			m_Timer = 0.0f;
-			return;
-		}
-	}
-	else {
+	if (b_Enter) {
 		int Skill = RandomSkill(rd);
 		std::cout << "SKill : " << Skill << std::endl;
 		switch (Skill)
@@ -177,7 +168,7 @@ void SkillState_Boss::Execute(BossFSMComponent* pOwner)
 			break;
 
 		case 1:
-		//	pOwner->Summon();
+			//	pOwner->Summon();
 			pOwner->StealSense();
 			m_Timer = 2.5f;
 			break;
@@ -199,6 +190,18 @@ void SkillState_Boss::Execute(BossFSMComponent* pOwner)
 			break;
 		default:
 			break;
+		}
+		b_Enter = false;
+	}
+	else if (pOwner->gameObject->GetComponent<BossAttackComponent>()->During_Skill 
+		|| pOwner->IsTornado) {
+		m_Timer -= Timer::GetTimeElapsed();
+		if (m_Timer <= 0.0f)
+		{
+			pOwner->GetFSM()->ChangeState(TrackEnemyState_Boss::GetInstance());
+			pOwner->IsTornado = false;
+			m_Timer = 0.0f;
+			return;
 		}
 	}
 
