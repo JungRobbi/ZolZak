@@ -39,6 +39,7 @@ public:
 	void SetAttackDuration(float d) { AttackDuration = d; }
 
 	void Attack();
+	void ProjectileAttack(XMFLOAT3 dir);
 	void CheckMonsterAttackRange();
 	void AttackAnimate();
 	void SetBoundingObject(BoundBox* bd) { AttackRange = bd; }

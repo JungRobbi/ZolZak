@@ -792,6 +792,24 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		}
 		break;
 	}
+	case E_PACKET_CS_CAMERA_LOOK_PACKET: {
+		CS_CAMERA_LOOK_PACKET* recv_packet = reinterpret_cast<CS_CAMERA_LOOK_PACKET*>(p_Packet);
+
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
+			if (rc->m_id == p_Client->m_id)
+				continue;
+			SC_PROJECTILE_ATTACK_PACKET send_packet;
+			send_packet.size = sizeof(SC_PROJECTILE_ATTACK_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_PROJECTILE_ATTACK_PACKET;
+			send_packet.id = p_Client->m_id;
+			send_packet.x = recv_packet->x;
+			send_packet.y = recv_packet->y;
+			send_packet.z = recv_packet->z;
+			rc->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+
+		break;
+	}
 	default:
 		break;
 	}

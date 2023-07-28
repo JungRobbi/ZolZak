@@ -14,6 +14,16 @@ void AttackComponent::Attack()
 		dynamic_cast<MagePlayer*>(gameObject)->fireball->SetPosition(gameObject->GetPosition().x, gameObject->GetPosition().y+0.5, gameObject->GetPosition().z);
 		dynamic_cast<MagePlayer*>(gameObject)->fireball->Direction = dynamic_cast<Player*>(gameObject)->GetCamera()->GetLookVector();
 		dynamic_cast<MagePlayer*>(gameObject)->fireball->Active = true;
+
+		if (NetworkMGR::b_isNet) {
+			CS_CAMERA_LOOK_PACKET send_packet;
+			send_packet.size = sizeof(CS_CAMERA_LOOK_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_CAMERA_LOOK_PACKET;
+			send_packet.x = dynamic_cast<MagePlayer*>(gameObject)->fireball->Direction.x;
+			send_packet.y = dynamic_cast<MagePlayer*>(gameObject)->fireball->Direction.y;
+			send_packet.z = dynamic_cast<MagePlayer*>(gameObject)->fireball->Direction.z;
+			PacketQueue::AddSendPacket(&send_packet);
+		}
 	}
 	else if (dynamic_cast<Player*>(gameObject))	// Player
 	{
@@ -38,6 +48,19 @@ void AttackComponent::Attack()
 	else // Monster
 	{	
 		
+	}
+	AttackAnimate();
+}
+
+void AttackComponent::ProjectileAttack(XMFLOAT3 dir)
+{
+	AttackTimeLeft = AttackDuration + NextAttackInputTime;
+	During_Attack = true;
+	if (dynamic_cast<MagePlayer*>(gameObject))	// Mage Player
+	{
+		dynamic_cast<MagePlayer*>(gameObject)->fireball->SetPosition(gameObject->GetPosition().x, gameObject->GetPosition().y + 0.5, gameObject->GetPosition().z);
+		dynamic_cast<MagePlayer*>(gameObject)->fireball->Direction = dir;
+		dynamic_cast<MagePlayer*>(gameObject)->fireball->Active = true;
 	}
 	AttackAnimate();
 }

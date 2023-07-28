@@ -692,6 +692,9 @@ void Room_UI::OnClick()
 
 void Room_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
+	if (LoadingMode)
+		return;
+
 	auto& tb = ChatMGR::m_pUILayer->m_pUITextBlocks[RoomNum % 6];
 	if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page * 6 <= RoomNum &&
 		(dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->Page + 1) * 6 > RoomNum) { // In Page

@@ -528,7 +528,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			}
 		}
 	}
-
+	
 	HIMC hIMC;
 	DWORD dwConversion, dwSentence;
 

@@ -158,7 +158,8 @@ void SkillState_Boss::Execute(BossFSMComponent* pOwner)
 		pOwner->TornadoTrack();
 	}
 	if (b_Enter) {
-		int Skill = RandomSkill(rd);
+	//	int Skill = RandomSkill(rd);
+		int Skill = 4;
 		std::cout << "SKill : " << Skill << std::endl;
 		switch (Skill)
 		{

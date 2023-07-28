@@ -311,7 +311,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			player->GetComponent<PlayerMovementComponent>()->b_Dash = true;
 		}
 		else if ((E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype == E_PLAYER_ANIMATION_TYPE::E_ATTACK0) {
-			player->GetComponent<AttackComponent>()->b_Attack = true;
+			player->GetComponent<AttackComponent>()->Attack();
 		}
 		else {
 			player->GetComponent<PlayerMovementComponent>()->Animation_type = (E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype;
@@ -355,8 +355,10 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 				Monster->GetComponent<BossFSMComponent>()->Defence();
 			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_JUMPATTACK)
 				Monster->GetComponent<BossFSMComponent>()->JumpAttack();
-			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_TORNADO)
+			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_TORNADO) {
 				Monster->GetComponent<BossFSMComponent>()->Tornado();
+				Monster->GetComponent<BossFSMComponent>()->IsTornado = true;
+			}
 			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_IDLE) {
 				Monster->GetComponent<BossAttackComponent>()->During_Skill = false;
 			}
@@ -603,6 +605,44 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		send_packet.size = sizeof(CS_PLAYERS_REQUEST_PACKET);
 		send_packet.type = E_PACKET::E_PACKET_CS_PLAYERS_REQUEST_PACKET;
 		PacketQueue::AddSendPacket(&send_packet);
+		break;
+	}
+	case E_PACKET_SC_PROJECTILE_ATTACK_PACKET: {
+		SC_PROJECTILE_ATTACK_PACKET* recv_packet = reinterpret_cast<SC_PROJECTILE_ATTACK_PACKET*>(p_Packet);
+		if (recv_packet->id < 10000) { //player
+			Player* player;
+			if (recv_packet->id == NetworkMGR::id) {
+				player = GameFramework::MainGameFramework->m_pPlayer;
+			}
+			else {
+				auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+					GameFramework::MainGameFramework->m_OtherPlayers.end(),
+					[&recv_packet](Object* lhs) {
+						return dynamic_cast<Player*>(lhs)->id == recv_packet->id;
+					});
+
+				if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+					break;
+
+				player = dynamic_cast<Player*>(*p);
+			}
+			player->GetComponent<AttackComponent>()->ProjectileAttack(XMFLOAT3{ recv_packet->x, recv_packet->y, recv_packet->z});
+		}
+		else { //monster
+			Character* Monster;
+			{
+				auto p = find_if(GameScene::MainScene->MonsterObjects.begin(),
+					GameScene::MainScene->MonsterObjects.end(),
+					[&recv_packet](Object* lhs) {
+						return dynamic_cast<Character*>(lhs)->GetNum() == recv_packet->id;
+					});
+
+				if (p == GameScene::MainScene->MonsterObjects.end())
+					break;
+
+				Monster = dynamic_cast<Character*>(*p);
+			}
+		}
 		break;
 	}
 
