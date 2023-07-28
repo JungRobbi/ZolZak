@@ -131,16 +131,5 @@ bool Boss_Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageI
 
 void Boss_Stage_GameScene::update()
 {
-	GameScene::update();
-	if (BossDead)
-	{
-		if (SceneChangeCount > 0)
-		{
-			SceneChangeCount -= Timer::GetTimeElapsed();
-		}
-		else
-		{
-			GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
-		}
-	}
+	
 }
