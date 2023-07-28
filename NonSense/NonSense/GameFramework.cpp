@@ -811,6 +811,7 @@ void GameFramework::ChangeScene(unsigned char num)
 			ChangeStage(num);
 			GameSceneState = num;
 			scene_type = (SCENE_TYPE)num;
+			LoadingMode = false;
 			return;
 		}
 	}

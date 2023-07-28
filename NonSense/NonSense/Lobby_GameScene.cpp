@@ -58,12 +58,14 @@ void Lobby_GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camer
 		object->UpdateTransform(NULL);
 		object->Render(pd3dCommandList, pCamera);
 	}
-	for (int i = Page*6; i < (Page+1) * 6; ++i)
-	{
-		if (Rooms.size() > i) {
-			Rooms[i]->SetMyPos(0.025, 0.6115 - (i%6)*0.105, 0.67, 0.09);
-			Rooms[i]->UpdateTransform(NULL);
-			Rooms[i]->Render(pd3dCommandList, pCamera);
+	if (!LoadingMode && !MakingRoom) {
+		for (int i = Page * 6; i < (Page + 1) * 6; ++i)
+		{
+			if (Rooms.size() > i) {
+				Rooms[i]->SetMyPos(0.025, 0.6115 - (i % 6) * 0.105, 0.67, 0.09);
+				Rooms[i]->UpdateTransform(NULL);
+				Rooms[i]->Render(pd3dCommandList, pCamera);
+			}
 		}
 	}
 	for (auto& Chat_tb : ChatMGR::m_pUILayer->m_pTextBlocks) {
