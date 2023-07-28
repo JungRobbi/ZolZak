@@ -1551,7 +1551,7 @@ LoadedModelInfo* Object::LoadAnimationModel(ID3D12Device* pd3dDevice, ID3D12Grap
 			break;
 		}
 	}
-
+	::fclose(OpenedFile);
 	return pLoadedModel;
 }
 

@@ -182,6 +182,10 @@ bool Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WP
 	case WM_KEYUP:
 		switch (wParam)
 		{
+		case VK_DELETE:
+			if (Boss)
+				((Character*)Boss)->GetHit(20000);
+			break;
 		default:
 			break;
 		}
@@ -194,6 +198,7 @@ bool Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WP
 
 void Stage_GameScene::TouchStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	IsSoundDebuff = false;
 	StartNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Ent"]);
 	StartNPC->SetPosition(228.04f, m_pTerrain->GetHeight(228.04f, 48.f) - 10.5f, 48.f);
 	StartNPC->SetNum(102);
@@ -269,6 +274,7 @@ void Stage_GameScene::TouchStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 void Stage_GameScene::HearingStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	Sound_Debuff(-10);
 	StartNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Ent"]);
 	StartNPC->SetPosition(139.85f, m_pTerrain->GetHeight(139.85f, 13.24f), 13.24f);
 	StartNPC->SetNum(102);
@@ -352,6 +358,7 @@ void Stage_GameScene::HearingStage(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 void Stage_GameScene::SightStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	IsSoundDebuff = false;
 	StartNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Ent"]);
 	StartNPC->SetPosition(-16.7, m_pTerrain->GetHeight(-16.7, 96.5), 96.5);
 	StartNPC->SetNum(102);
@@ -428,6 +435,7 @@ void Stage_GameScene::SightStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 void Stage_GameScene::BossStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	IsSoundDebuff = false;
 	Object* TempObject = NULL;
 	TempObject = new Shield(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Boss_Shield"], NULL, NULL, MONSTER_TYPE_BOSS);
 	TempObject->SetPosition(-177.75f, m_pTerrain->GetHeight(-177.75f, 173.79f), 173.79f);
@@ -445,6 +453,10 @@ void Stage_GameScene::ClearMonster()
 		MonsterObjects.clear();
 	}
 	Boss = NULL;
+	auto iter = std::find(gameObjects.begin(), gameObjects.end(), StartNPC);
+	gameObjects.erase(iter);
+	iter = std::find(gameObjects.begin(), gameObjects.end(), EndNPC);
+	gameObjects.erase(iter);
 }
 
 void Stage_GameScene::LoadAllModels(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -662,6 +674,8 @@ void Stage_GameScene::update()
 		}
 		else
 		{
+			BossDead = false;
+			SceneChangeCount = 5;
 			GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
 		}
 	}

@@ -422,10 +422,8 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new Room_GameScene());
-	m_GameScenes.emplace_back(new Sight_Stage_GameScene());
-	m_GameScenes.emplace_back(new Hearing_Stage_GameScene());
-	m_GameScenes.emplace_back(new Touch_Stage_GameScene());
-	m_GameScenes.emplace_back(new Boss_Stage_GameScene());
+	m_GameScenes.emplace_back(new Stage_GameScene());
+
 	ChangeScene(LOGIN_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
@@ -651,7 +649,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			case VK_F11: // �� �ٿ�� �ڽ� ���Ϸ� ����
 				SaveSceneOBB();
 				break;
-			case '2':
+			case '5':
 				cout << m_pPlayer->GetPosition().x << ", " << m_pPlayer->GetPosition().y << ", " << m_pPlayer->GetPosition().z << endl;
 				break;
 			case 'f':	// 상호작용
@@ -717,6 +715,19 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				m_pCamera = m_pPlayer->GetCamera();
 				GameScene::MainScene->m_pPlayer = m_pPlayer;
 				break;
+
+			case '1':
+				ChangeScene(SIGHT_SCENE);
+				break;
+			case '2':
+				ChangeScene(HEARING_SCENE);
+				break;
+			case '3':
+				ChangeScene(TOUCH_SCENE);
+				break;
+			case '4':
+				ChangeScene(BOSS_SCENE);
+				break;
 			case '7':
 				ChangeScene(0);
 				break;
@@ -775,8 +786,27 @@ void GameFramework::ChangeScene(unsigned char num)
 	IsTouchDebuff = false;
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
+	if (num > ROOM_SCENE)
+	{
+		if (GameSceneState > ROOM_SCENE)
+		{
+			ChangeStage(num);
+			GameSceneState = num;
+			scene_type = (SCENE_TYPE)num;
+			return;
+		}
+	}
+
 	GameScene::MainScene->ReleaseObjects();
-	GameScene::MainScene = m_GameScenes.at(num);
+	if (num > ROOM_SCENE)
+	{
+		GameScene::MainScene = m_GameScenes.at(3);
+	}
+	else
+	{
+		GameScene::MainScene = m_GameScenes.at(num);
+	}
+	
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
 	if (m_pPlayer)
@@ -866,6 +896,33 @@ void GameFramework::ChangeScene(unsigned char num)
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pCommandList };
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
+}
+
+void GameFramework::ChangeStage(unsigned char num)
+{
+	((Stage_GameScene*)GameScene::MainScene)->ClearMonster();
+	((Stage_GameScene*)GameScene::MainScene)->IsSoundDebuff = false;
+
+	switch (num)
+	{
+	case SIGHT_SCENE:
+		IsTouchDebuff = false;
+		((Stage_GameScene*)GameScene::MainScene)->SightStage(m_pDevice, m_pCommandList);
+		break;
+	case HEARING_SCENE:
+		IsTouchDebuff = false;
+		((Stage_GameScene*)GameScene::MainScene)->HearingStage(m_pDevice, m_pCommandList);
+		break;
+	case TOUCH_SCENE:
+		IsTouchDebuff = false;
+		((Stage_GameScene*)GameScene::MainScene)->TouchStage(m_pDevice, m_pCommandList);
+		break;
+	case BOSS_SCENE:
+		((Stage_GameScene*)GameScene::MainScene)->BossStage(m_pDevice, m_pCommandList);
+		break;
+	default:
+		break;
+	}
 }
 
 VivoxSystem* GameFramework::GetVivoxSystem()

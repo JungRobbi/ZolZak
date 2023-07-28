@@ -130,6 +130,7 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,LPARAM lParam);
 	void SetWindowCentser(RECT rect);
 	void ChangeScene(unsigned char num);
+	void ChangeStage(unsigned char num);
 
 	void SaveSceneOBB();
 	VivoxSystem* GetVivoxSystem();
