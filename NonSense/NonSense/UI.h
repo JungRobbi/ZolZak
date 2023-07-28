@@ -181,6 +181,13 @@ public:
 	virtual ~Title_UI() {};
 };
 
+class Players_UI : public UI
+{
+public:
+	Players_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Players_UI() {};
+};
+
 class Make_Title_UI : public UI
 {
 public:

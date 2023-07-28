@@ -1280,7 +1280,8 @@ void GameFramework::FrameAdvance()
 		}
 	}
 	// Blend Object
-	//GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
+	if(scene_type!=LOGIN_SCENE)
+	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	//////////////////////////////////////////////////////////
 
 
