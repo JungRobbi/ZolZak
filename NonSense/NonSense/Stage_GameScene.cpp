@@ -52,6 +52,22 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	}
 
 	Object* TempObject = NULL;
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Close"], NULL, ModelMap["Skull_Close_Weapon"], MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(-1000.f, -1000.f, 1000.f);
+	TempObject->SetNum(10001);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Far"], NULL, ModelMap["Skull_Far_Weapon"], MONSTER_TYPE_FAR);
+	TempObject->SetPosition(-1000.f, -1000.f, 1000.f);
+	TempObject->SetNum(10002);
+	TempObject = new Orc(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Orc_Close"], NULL, ModelMap["Orc_Close_Weapon"], MONSTER_TYPE_CLOSE);
+	TempObject->SetPosition(-1000.f, -1000.f, 1000.f);
+	TempObject->SetNum(10001);
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	TempObject = new Orc(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Orc_Far"], NULL, ModelMap["Orc_Far_Weapon"], MONSTER_TYPE_FAR);
+	TempObject->SetPosition(-1000.f, -1000.f, 1000.f);
+	TempObject->SetNum(10002);
+
+	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	TempObject = new Goblin(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Goblin_Close"], ModelMap["Goblin_Close_Weapon_L"], ModelMap["Goblin_Close_Weapon_R"], MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(-8.1f, m_pTerrain->GetHeight(-8.1f, 91.15f), 91.15f);
 	TempObject->SetNum(10001);
@@ -198,7 +214,9 @@ bool Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WP
 
 void Stage_GameScene::TouchStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	IsSoundDebuff = false;
+	Sound_Debuff(-1);
+	if (m_pPlayer)
+		m_pPlayer->SetPosition(XMFLOAT3(226.04f, m_pTerrain->GetHeight(226.04f, 46.f), 46.f));
 	StartNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Ent"]);
 	StartNPC->SetPosition(228.04f, m_pTerrain->GetHeight(228.04f, 48.f) - 10.5f, 48.f);
 	StartNPC->SetNum(102);
@@ -221,11 +239,11 @@ void Stage_GameScene::TouchStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	}
 
 	Object* TempObject = NULL;
-	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Close"], ModelMap["Skull_Close_Weapon_L"], ModelMap["Skull_Close_Weapon_R"], MONSTER_TYPE_CLOSE);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Close"], NULL, NULL, MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(206.1f, m_pTerrain->GetHeight(206.1f, 82.9f), 82.9f);
 	TempObject->SetNum(10001);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Far"], ModelMap["Skull_Far_Weapon_L"], ModelMap["Skull_Far_Weapon_R"], MONSTER_TYPE_FAR);
+	TempObject = new Skull(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Skull_Far"],NULL,NULL, MONSTER_TYPE_FAR);
 	TempObject->SetPosition(172.9f, m_pTerrain->GetHeight(172.9f, 71.6f), 71.6f);
 	TempObject->SetNum(10002);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
@@ -274,6 +292,8 @@ void Stage_GameScene::TouchStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 void Stage_GameScene::HearingStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	if (m_pPlayer)
+		m_pPlayer->SetPosition(XMFLOAT3(125.31, m_pTerrain->GetHeight(125.31, 18.39), 18.39));
 	Sound_Debuff(-10);
 	StartNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Ent"]);
 	StartNPC->SetPosition(139.85f, m_pTerrain->GetHeight(139.85f, 13.24f), 13.24f);
@@ -297,11 +317,11 @@ void Stage_GameScene::HearingStage(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	}
 
 	Object* TempObject = NULL;
-	TempObject = new Orc(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Orc_Close"], ModelMap["Orc_Close_Weapon_L"], ModelMap["Orc_Close_Weapon_R"], MONSTER_TYPE_CLOSE);
+	TempObject = new Orc(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Orc_Close"], NULL,NULL, MONSTER_TYPE_CLOSE);
 	TempObject->SetPosition(-149.62f, m_pTerrain->GetHeight(-149.62f, 8.02f), 8.02f);
 	TempObject->SetNum(10001);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	TempObject = new Orc(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Orc_Far"], ModelMap["Orc_Far_Weapon_L"], ModelMap["Orc_Far_Weapon_R"], MONSTER_TYPE_FAR);
+	TempObject = new Orc(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Orc_Far"], NULL, NULL, MONSTER_TYPE_FAR);
 	TempObject->SetPosition(-159.09f, m_pTerrain->GetHeight(-159.09f, 31.32f), 31.32f);
 	TempObject->SetNum(10002);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
@@ -358,7 +378,9 @@ void Stage_GameScene::HearingStage(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 void Stage_GameScene::SightStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	IsSoundDebuff = false;
+	Sound_Debuff(-1);
+	if (m_pPlayer)
+		m_pPlayer->SetPosition(XMFLOAT3( -21.73f, m_pTerrain->GetHeight(-21.73f, 108.9f), 108.9f));
 	StartNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Ent"]);
 	StartNPC->SetPosition(-16.7, m_pTerrain->GetHeight(-16.7, 96.5), 96.5);
 	StartNPC->SetNum(102);
@@ -435,7 +457,9 @@ void Stage_GameScene::SightStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 void Stage_GameScene::BossStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	IsSoundDebuff = false;
+	if (m_pPlayer)
+		m_pPlayer->SetPosition(XMFLOAT3(-145.1f, m_pTerrain->GetHeight(-145.1f, 174.98f), 174.98f));
+	Sound_Debuff(-1);
 	Object* TempObject = NULL;
 	TempObject = new Shield(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Boss_Shield"], NULL, NULL, MONSTER_TYPE_BOSS);
 	TempObject->SetPosition(-177.75f, m_pTerrain->GetHeight(-177.75f, 173.79f), 173.79f);
@@ -660,6 +684,26 @@ void Stage_GameScene::LoadAllModels(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		Model->m_pRoot->AddRef();
 	if (Model->m_pAnimationSets)
 		Model->m_pAnimationSets->AddRef();
+
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Skull_Far_Weapon.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Skull_Far_Weapon_Fire", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Goblin_Far_Weapon_R.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Goblin_Far_Weapon_R_Fire", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
+	Model = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, "Model/Orc_Far_Weapon.bin", NULL);
+	ModelMap.insert(std::pair<std::string, LoadedModelInfo*>("Orc_Far_Weapon_Fire", Model));
+	if (Model->m_pRoot)
+		Model->m_pRoot->AddRef();
+	if (Model->m_pAnimationSets)
+		Model->m_pAnimationSets->AddRef();
+
 
 }
 
