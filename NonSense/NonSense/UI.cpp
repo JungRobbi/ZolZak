@@ -972,8 +972,8 @@ Shadow_Right_UI::Shadow_Right_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 void Shadow_Right_UI::OnClick()
 {
 	if (OptionMode) {
-		if (GameScene::MainScene->LineSize < 10)
-			GameScene::MainScene->ToonShading++;
+		if (GameFramework::MainGameFramework->ShadowRange)
+			GameFramework::MainGameFramework->ShadowRange+=10;
 	}
 }
 
@@ -1014,8 +1014,8 @@ Shadow_Left_UI::Shadow_Left_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 void Shadow_Left_UI::OnClick()
 {
 	if (OptionMode) {
-		if (GameScene::MainScene->ToonShading > 0)
-			GameScene::MainScene->ToonShading--;
+		if (GameFramework::MainGameFramework->ShadowRange > 20)
+			GameFramework::MainGameFramework->ShadowRange -= 10;
 	}
 }
 

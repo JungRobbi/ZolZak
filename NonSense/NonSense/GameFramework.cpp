@@ -1131,7 +1131,7 @@ void GameFramework::FrameAdvance()
 
 	XMFLOAT3 pos;
 	XMFLOAT3 dir = XMFLOAT3(-0.707f, -0.707f, 0.0f);
-	float radius = 20;
+	float radius = ShadowRange;
 
 	XMFLOAT3 targetpos = m_pPlayer->GetPosition();
 	//XMFLOAT3 targetpos = XMFLOAT3(-16,0,103);

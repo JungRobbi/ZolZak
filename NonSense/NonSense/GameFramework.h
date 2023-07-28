@@ -82,6 +82,7 @@ public:
 	bool IsTouchDebuff = false;
 	float TouchDebuffLeftTime = -1.0;
 	int GameSceneState;
+	float ShadowRange = 20;
 public:
 	HWND m_hWnd;
 	Camera* m_pCamera = NULL;
