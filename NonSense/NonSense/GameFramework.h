@@ -115,6 +115,7 @@ public:
 
 	void CreateRenderTargetViews();
 	void CreateDepthStencilView();
+	void ChangeToSpaceShipCamera() { m_pCamera = m_pPlayer->ChangeCamera(SPACESHIP_CAMERA, Timer::GetTimeElapsed()); }
 
 	void BuildObjects();
 	void ReleaseObjects();

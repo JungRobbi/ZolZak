@@ -1357,7 +1357,7 @@ void GameFramework::FrameAdvance()
 
 void GameFramework::RenderHP()
 {
-	if (scene_type >= SIGHT_SCENE) {
+	if (scene_type >= SIGHT_SCENE && !Die) {
 		m_pPlayer->m_pHP_Dec_UI->UpdateTransform(NULL);
 		m_pPlayer->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
 		m_pPlayer->m_pHP_UI->UpdateTransform(NULL);

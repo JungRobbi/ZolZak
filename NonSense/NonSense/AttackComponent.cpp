@@ -7,37 +7,35 @@
 
 void AttackComponent::Attack()
 {
-	AttackTimeLeft = AttackDuration + NextAttackInputTime;
-	During_Attack = true;
-	if (dynamic_cast<MagePlayer*>(gameObject))	// Mage Player
-	{
-		dynamic_cast<MagePlayer*>(gameObject)->fireball->SetPosition(gameObject->GetPosition().x, gameObject->GetPosition().y+0.5, gameObject->GetPosition().z);
-		dynamic_cast<MagePlayer*>(gameObject)->fireball->Direction = dynamic_cast<Player*>(gameObject)->GetCamera()->GetLookVector();
-		dynamic_cast<MagePlayer*>(gameObject)->fireball->Active = true;
-	}
-	else if (dynamic_cast<Player*>(gameObject))	// Player
-	{
-		if (AttackRange) {
-			for (auto& monster : GameScene::MainScene->MonsterObjects)
-			{
-				if (AttackRange->Intersects(*monster->GetComponent<SphereCollideComponent>()->GetBoundingObject())) {
-					if (!NetworkMGR::b_isNet) {
-						monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100)));
-						continue;
+	if (!Die) {
+		AttackTimeLeft = AttackDuration + NextAttackInputTime;
+		During_Attack = true;
+		if (dynamic_cast<MagePlayer*>(gameObject))	// Mage Player
+		{
+			dynamic_cast<MagePlayer*>(gameObject)->fireball->SetPosition(gameObject->GetPosition().x, gameObject->GetPosition().y + 0.5, gameObject->GetPosition().z);
+			dynamic_cast<MagePlayer*>(gameObject)->fireball->Direction = dynamic_cast<Player*>(gameObject)->GetCamera()->GetLookVector();
+			dynamic_cast<MagePlayer*>(gameObject)->fireball->Active = true;
+		}
+		else if (dynamic_cast<Player*>(gameObject))	// Player
+		{
+			if (AttackRange) {
+				for (auto& monster : GameScene::MainScene->MonsterObjects)
+				{
+					if (AttackRange->Intersects(*monster->GetComponent<SphereCollideComponent>()->GetBoundingObject())) {
+						if (!NetworkMGR::b_isNet) {
+							monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100)));
+							continue;
+						}
+						CS_TEMP_HIT_MONSTER_PACKET send_packet;
+						send_packet.size = sizeof(CS_TEMP_HIT_MONSTER_PACKET);
+						send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_MONSTER_PACKET;
+						send_packet.monster_id = monster->GetNum();
+						send_packet.hit_damage = dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100));
+						PacketQueue::AddSendPacket(&send_packet);
 					}
-					CS_TEMP_HIT_MONSTER_PACKET send_packet;
-					send_packet.size = sizeof(CS_TEMP_HIT_MONSTER_PACKET);
-					send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_MONSTER_PACKET;
-					send_packet.monster_id = monster->GetNum();
-					send_packet.hit_damage = dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100));
-					PacketQueue::AddSendPacket(&send_packet);
 				}
 			}
 		}
-	}
-	else // Monster
-	{	
-		
 	}
 	AttackAnimate();
 }

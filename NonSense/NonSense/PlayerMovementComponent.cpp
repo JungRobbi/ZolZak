@@ -8,7 +8,7 @@
 
 void PlayerMovementComponent::Jump()
 {
-
+	if (!Die) {
 		if (NetworkMGR::b_isNet) {
 			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(0, (int)E_PLAYER_ANIMATION_TYPE::E_JUMP);
 			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, (int)E_PLAYER_ANIMATION_TYPE::E_JUMP);
@@ -28,12 +28,13 @@ void PlayerMovementComponent::Jump()
 			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, (int)E_PLAYER_ANIMATION_TYPE::E_JUMP);
 			((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, (int)E_PLAYER_ANIMATION_TYPE::E_JUMP);
 		}
+	}
 
 }
 
 void PlayerMovementComponent::Dash()
 {
-
+	if (!Die) {
 		Dashing = true;
 		CanDash = false;
 		DashTimeLeft = DashDuration;
@@ -50,7 +51,7 @@ void PlayerMovementComponent::Dash()
 		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(1, (int)E_PLAYER_ANIMATION_TYPE::E_DASH);
 		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackAnimationSet(2, (int)E_PLAYER_ANIMATION_TYPE::E_DASH);
 		((Player*)gameObject)->m_pSkinnedAnimationController->SetTrackSpeed(0, 2.0f);
-
+	}
 }
 
 void PlayerMovementComponent::SetWindowPos(RECT pos)

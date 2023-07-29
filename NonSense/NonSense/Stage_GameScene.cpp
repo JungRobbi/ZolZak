@@ -723,6 +723,7 @@ void Stage_GameScene::update()
 		{
 			BossDead = false;
 			SceneChangeCount = 5;
+			Die = false;
 			GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
 		}
 	}

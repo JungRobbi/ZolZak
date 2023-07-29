@@ -838,12 +838,18 @@ void GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Came
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
 	UpdateShaderVariables(pd3dCommandList);
-	if (m_pPlayer->dark && m_pMappedScreenOptions->darkness <= 1)
+	if (Die)
 	{
-		m_pMappedScreenOptions->darkness += 0.01;
+		m_pMappedScreenOptions->darkness = -1;
 	}
-	else if (!m_pPlayer->dark && m_pMappedScreenOptions->darkness >= 0) {
-		m_pMappedScreenOptions->darkness -= 0.01;
+	else {
+		if (m_pPlayer->dark && m_pMappedScreenOptions->darkness <= 1)
+		{
+			m_pMappedScreenOptions->darkness += 0.01;
+		}
+		else if (!m_pPlayer->dark && m_pMappedScreenOptions->darkness >= 0) {
+			m_pMappedScreenOptions->darkness -= 0.01;
+		}
 	}
 }
 

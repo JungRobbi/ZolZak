@@ -296,6 +296,8 @@ VS_BillboardOUTPUT VSBillboard(VS_BillboardINPUT input, uint nVertexID : SV_Vert
 float4 PSBillboard(VS_BillboardOUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtUITexture.Sample(gssBorder, input.uv);
+    if (darkness < -0.5)
+        return (float4((cColor.r + cColor.b + cColor.g) / 3, (cColor.r + cColor.b + cColor.g) / 3, (cColor.r + cColor.b + cColor.g) / 3, 1));
 	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),3) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),3) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),3) * darkness),cColor.a);
 	return(cColor);
 
@@ -380,6 +382,8 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 	ShadowFactor += 0.5f;
 	ShadowFactor = saturate(ShadowFactor);
 	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection, ToonShading) * ShadowFactor;
+	if(darkness < -0.5)
+        return (float4((cColor.r + cColor.b + cColor.g) / 3, (cColor.r + cColor.b + cColor.g) / 3, (cColor.r + cColor.b + cColor.g) / 3,1));
 	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.a);
 	if (Edge && darkness<0.5)
 		return (LineColor);
@@ -523,25 +527,6 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStandard(VS_STANDARD_OUTPUT input) : SV_TARG
 	return(output);
 }
 
-float4 PSBlend(VS_STANDARD_OUTPUT input) : SV_TARGET
-{
-	float4 cColor = gtxtAlbedoTexture.Sample(gssDefaultSamplerState, input.uv);
-
-	float4 ShadowPosH = mul(float4(input.positionW, 1.0f), gmtxShadowTransform);
-	float ShadowFactor = CalcShadowFactor(ShadowPosH);
-	if (ShadowPosH.x > 1 || ShadowPosH.y > 1 || ShadowPosH.z > 1 || ShadowPosH.x < 0 || ShadowPosH.y < 0 || ShadowPosH.z < 0)
-	{
-		ShadowFactor = 1.0f;
-	}
-	ShadowFactor += 0.5f;
-	ShadowFactor = saturate(ShadowFactor);
-
-	cColor.rgb *= Lighting(input.positionW, normalize(input.normalW), gf3CameraDirection, ToonShading) * ShadowFactor;
-    cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r), 10) * darkness), cColor.a);
-    //return (float4(gtxShadowMap.Sample(gssDefaultSamplerState, input.uv).rgb, 1.0f));
-    return (cColor);
-}
-
 struct VS_SKINNED_STANDARD_INPUT
 {
 	float3 position : POSITION;
@@ -602,6 +587,8 @@ VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtSkyCubeTexture.Sample(gssDefaultSamplerState, input.positionL);
+    if (darkness < -0.5)
+        return (float4((cColor.r + cColor.b + cColor.g) / 3, (cColor.r + cColor.b + cColor.g) / 3, (cColor.r + cColor.b + cColor.g) / 3, 1));
 	cColor *= 1-darkness;
 	return(cColor);
 }
