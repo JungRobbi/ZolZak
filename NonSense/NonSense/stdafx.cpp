@@ -15,6 +15,7 @@ bool DebugMode = false;
 bool OptionMode = false;
 bool ScriptMode = false;
 bool LoadingMode = false;
+bool Die = false;
 UINT OBJNum = 2;
 
 ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList

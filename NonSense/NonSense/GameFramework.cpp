@@ -421,11 +421,8 @@ void GameFramework::BuildObjects()
 	m_GameScenes.emplace_back(new Login_GameScene());
 	m_GameScenes.emplace_back(new Lobby_GameScene());
 	m_GameScenes.emplace_back(new Room_GameScene());
-	m_GameScenes.emplace_back(new Sight_Stage_GameScene());
-	m_GameScenes.emplace_back(new Hearing_Stage_GameScene());
-	m_GameScenes.emplace_back(new Touch_Stage_GameScene());
-	m_GameScenes.emplace_back(new Boss_Stage_GameScene());
-	
+	m_GameScenes.emplace_back(new Stage_GameScene());
+
 	ChangeScene(LOGIN_SCENE);
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
@@ -672,7 +669,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			case VK_F11: // �� �ٿ�� �ڽ� ���Ϸ� ����
 				SaveSceneOBB();
 				break;
-			case '2':
+			case '5':
 				cout << m_pPlayer->GetPosition().x << ", " << m_pPlayer->GetPosition().y << ", " << m_pPlayer->GetPosition().z << endl;
 				break;
 			case 'f':	// 상호작용
@@ -691,7 +688,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 						else
 						{
 							ScriptNum++;
-							if (ScriptNum >= GameScene::MainScene->StartNPC->script.size())	// 대화 끝
+							if (ScriptNum >= GameScene::MainScene->StartNPC->script.size())
 							{
 								::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
@@ -700,7 +697,6 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 								TalkingNPC = 0;
 								break;
 							}
-						//	cout << GameScene::MainScene->StartNPC->script[ScriptNum] << endl;
 						}
 					}
 
@@ -716,18 +712,17 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 						else
 						{
 							ScriptNum++;
-							if (ScriptNum >= GameScene::MainScene->EndNPC->script.size())	// 대화 끝
+							if (ScriptNum >= GameScene::MainScene->EndNPC->script.size())
 							{
 								::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
 								ScriptMode = false;
 								ScriptNum = 0;
 								TalkingNPC = 0;
-								
-								ChangeScene(GameSceneState+1);
+
+								ChangeScene(GameSceneState + 1);
 								break;
 							}
-						//	cout << GameScene::MainScene->EndNPC->script[ScriptNum] << endl;
 						}
 					}
 				}
@@ -739,17 +734,25 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				m_pCamera = m_pPlayer->GetCamera();
 				GameScene::MainScene->m_pPlayer = m_pPlayer;
 				break;
+
+			case '1':
+				ChangeScene(SIGHT_SCENE);
+				break;
+			case '2':
+				ChangeScene(HEARING_SCENE);
+				break;
+			case '3':
+				ChangeScene(TOUCH_SCENE);
+				break;
+			case '4':
+				ChangeScene(BOSS_SCENE);
+				break;
 			case '7':
 				
 				ChangeScene(0);
 				break;
 			case '8':
-				
 				ChangeScene(1);
-				break;
-			case '9':
-				
-				ChangeScene(SIGHT_SCENE);
 				break;
 			case 't':
 			case 'T':
@@ -801,6 +804,8 @@ void GameFramework::ChangeScene(unsigned char num)
 
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
+
+
 	/////////////////////////////////////////////////////////
 
 	if (m_pPlayer) {
@@ -818,8 +823,29 @@ void GameFramework::ChangeScene(unsigned char num)
 
 	////////////////////////////////////////////////////////
 
+	if (num > ROOM_SCENE)
+	{
+		if (GameSceneState > ROOM_SCENE)
+		{
+			ChangeStage(num);
+			GameSceneState = num;
+			scene_type = (SCENE_TYPE)num;
+			LoadingMode = false;
+			return;
+		}
+	}
+
+
 	GameScene::MainScene->ReleaseObjects();
-	GameScene::MainScene = m_GameScenes.at(num);
+	if (num > ROOM_SCENE)
+	{
+		GameScene::MainScene = m_GameScenes.at(3);
+	}
+	else
+	{
+		GameScene::MainScene = m_GameScenes.at(num);
+	}
+	
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
 	if (num != LOGIN_SCENE) {
@@ -924,6 +950,33 @@ void GameFramework::ChangeScene(unsigned char num)
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 	LoadingMode = false;
+}
+
+void GameFramework::ChangeStage(unsigned char num)
+{
+	((Stage_GameScene*)GameScene::MainScene)->ClearMonster();
+	((Stage_GameScene*)GameScene::MainScene)->IsSoundDebuff = false;
+
+	switch (num)
+	{
+	case SIGHT_SCENE:
+		IsTouchDebuff = false;
+		((Stage_GameScene*)GameScene::MainScene)->SightStage(m_pDevice, m_pCommandList);
+		break;
+	case HEARING_SCENE:
+		IsTouchDebuff = false;
+		((Stage_GameScene*)GameScene::MainScene)->HearingStage(m_pDevice, m_pCommandList);
+		break;
+	case TOUCH_SCENE:
+		IsTouchDebuff = false;
+		((Stage_GameScene*)GameScene::MainScene)->TouchStage(m_pDevice, m_pCommandList);
+		break;
+	case BOSS_SCENE:
+		((Stage_GameScene*)GameScene::MainScene)->BossStage(m_pDevice, m_pCommandList);
+		break;
+	default:
+		break;
+	}
 }
 
 VivoxSystem* GameFramework::GetVivoxSystem()
@@ -1263,7 +1316,8 @@ void GameFramework::FrameAdvance()
 		}
 	}
 	// Blend Object
-	//GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
+	if(scene_type!=LOGIN_SCENE)
+	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
 	//////////////////////////////////////////////////////////
 
 
@@ -1348,7 +1402,7 @@ void GameFramework::FrameAdvance()
 
 void GameFramework::RenderHP()
 {
-	if (scene_type >= SIGHT_SCENE) {
+	if (scene_type >= SIGHT_SCENE && !Die) {
 		m_pPlayer->m_pHP_Dec_UI->UpdateTransform(NULL);
 		m_pPlayer->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
 		m_pPlayer->m_pHP_UI->UpdateTransform(NULL);

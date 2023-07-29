@@ -289,6 +289,17 @@ void Player::OnCameraUpdateCallback(float fTimeElapsed)
 	}
 }
 
+void Player::GetHit(float damage)
+{
+	if (!Die) {
+		m_RemainHP -= damage;
+		if (m_RemainHP <= 0)
+		{
+			Die = true;
+			GameFramework::MainGameFramework->ChangeToSpaceShipCamera();
+		}
+	}
+}
 Camera* Player::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
 	//새로운 카메라의 모드에 따라 카메라를 새로 생성한다.
@@ -562,6 +573,10 @@ void MagePlayer::Update(float fTimeElapsed)
 
 void MagePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
+	if (Die)
+	{
+		return;
+	}
 	if (GameScene::MainScene->m_pPlayer == this)
 	{
 		DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
@@ -774,6 +789,10 @@ void WarriorPlayer::Update(float fTimeElapsed)
 
 void WarriorPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
+	if (Die)
+	{
+		return;
+	}
 	if (GameScene::MainScene->m_pPlayer == this)
 	{
 		DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;

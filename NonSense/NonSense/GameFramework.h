@@ -115,6 +115,7 @@ public:
 
 	void CreateRenderTargetViews();
 	void CreateDepthStencilView();
+	void ChangeToSpaceShipCamera() { m_pCamera = m_pPlayer->ChangeCamera(SPACESHIP_CAMERA, Timer::GetTimeElapsed()); }
 
 	void BuildObjects();
 	void ReleaseObjects();
@@ -133,6 +134,7 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,LPARAM lParam);
 	void SetWindowCentser(RECT rect);
 	void ChangeScene(unsigned char num);
+	void ChangeStage(unsigned char num);
 
 	void SaveSceneOBB();
 	VivoxSystem* GetVivoxSystem();

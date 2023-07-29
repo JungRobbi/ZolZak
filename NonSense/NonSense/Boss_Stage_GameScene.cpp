@@ -61,6 +61,7 @@ void Boss_Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graphics
 	Mouse_Right_UI* m_Mouse_Right_UI = new Mouse_Right_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Shadow_Left_UI* m_Shadow_Left_UI = new Shadow_Left_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Shadow_Right_UI* m_Shadow_Right_UI = new Shadow_Right_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	GameOver_UI* m_GameOver_UI = new GameOver_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Loading_UI* m_Loading_UI = new Loading_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
 	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, 37, 37, xmf3Scale, xmf4Color);
@@ -145,16 +146,5 @@ bool Boss_Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageI
 
 void Boss_Stage_GameScene::update()
 {
-	GameScene::update();
-	if (BossDead)
-	{
-		if (SceneChangeCount > 0)
-		{
-			SceneChangeCount -= Timer::GetTimeElapsed();
-		}
-		else
-		{
-			GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
-		}
-	}
+	
 }

@@ -148,8 +148,7 @@ Goblin::Goblin(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		break;
 	case MONSTER_TYPE_FAR:
 		{
-		WeaponFrame = new WeaponObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Goblin_Far_Weapon_R"]);
-		WeaponFrame->SetScale(0.1f, 0.1f, 0.1f);
+		WeaponFrame = new WeaponObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Goblin_Far_Weapon_R_Fire"]);
 		WeaponFrame->SetScale(0.1f, 0.1f, 0.1f);
 		BoundingShader* m_pBoundingShader = new BoundingShader();
 		m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -276,8 +275,7 @@ Orc::Orc(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, I
 		break;
 	case MONSTER_TYPE_FAR:
 	{
-		WeaponFrame = new WeaponObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Orc_Far_Weapon"]);
-		WeaponFrame->SetScale(0.1f, 0.1f, 0.1f);
+		WeaponFrame = new WeaponObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Orc_Far_Weapon_Fire"]);
 		WeaponFrame->SetScale(0.1f, 0.1f, 0.1f);
 		BoundingShader* m_pBoundingShader = new BoundingShader();
 		m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -398,8 +396,7 @@ Skull::Skull(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 		break;
 	case MONSTER_TYPE_FAR:
 	{
-		WeaponFrame = new WeaponObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Skull_Far_Weapon"]);
-		WeaponFrame->SetScale(0.1f, 0.1f, 0.1f);
+		WeaponFrame = new WeaponObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, GameScene::MainScene->ModelMap["Skull_Far_Weapon_Fire"]);
 		WeaponFrame->SetScale(0.1f, 0.1f, 0.1f);
 		BoundingShader* m_pBoundingShader = new BoundingShader();
 		m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);

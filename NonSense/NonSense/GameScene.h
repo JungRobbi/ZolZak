@@ -135,7 +135,9 @@ public:
 	//���� ��� ���� ��ü�鿡 ���� ���콺 ��ŷ�� �����Ѵ�.
 	Object* PickObjectPointedByCursor(int xClient, int yClient, Camera* pCamera);
 	SkyBox* m_pSkyBox = NULL;
-
+	SkyBox* m_pDaySkyBox = NULL;
+	SkyBox* m_pNightSkyBox = NULL;
+	SkyBox* m_pSunsetSkyBox = NULL;
 
 	void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
 	static D3D12_GPU_DESCRIPTOR_HANDLE CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nRootParameter, bool bAutoIncrement);
