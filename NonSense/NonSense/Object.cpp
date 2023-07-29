@@ -1101,8 +1101,6 @@ void Object::SetChild(Object* pChild, bool bReferenceUpdate)
 void Object::SetDo_Render(bool b)
 {
 	Do_Render = b;
-	//if (m_pSibling) m_pSibling->SetDo_Render(b);
-	//if (m_pChild) m_pChild->SetDo_Render(b);
 
 }
 

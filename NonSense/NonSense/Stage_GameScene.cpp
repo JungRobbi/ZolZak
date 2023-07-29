@@ -165,9 +165,9 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pSunsetSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_pSkyBox = m_pDaySkyBox;
-	Sound* s;
-	s = new Sound("Sound/TestMusic.mp3", true);
-	AddSound(s);
+
+	MainBGM = new Sound("Sound/TestMusic.mp3", true);
+	AddSound(MainBGM);
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dCommandList = pd3dCommandList;
 }
