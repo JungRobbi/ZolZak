@@ -2339,12 +2339,18 @@ void FireBall::OnPrepareRender()
 			}
 		}
 	}
+
 	for (auto& o : GameScene::MainScene->MonsterObjects)
 	{
 		if (o->GetComponent<SphereCollideComponent>())
 		{
 			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
+				explode->Active = true;
+				explode->SetPosition(GetPosition());
+				Active = false;
+				if (ownerID != GameFramework::MainGameFramework->m_pPlayer->id)
+					break;
 				if (NetworkMGR::b_isNet) {
 					CS_TEMP_HIT_MONSTER_PACKET send_packet;
 					send_packet.size = sizeof(CS_TEMP_HIT_MONSTER_PACKET);
@@ -2356,9 +2362,6 @@ void FireBall::OnPrepareRender()
 				else {
 					o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
 				}
-				explode->Active = true;
-				explode->SetPosition(GetPosition());
-				Active = false;
 				break;
 			}
 		}

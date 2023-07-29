@@ -187,6 +187,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			Player* player;
 			if (recv_packet->playerType == 0) { // mage
 				player = GameFramework::MainGameFramework->m_OtherPlayersPool.front();
+				dynamic_cast<MagePlayer*>(player)->fireball->ownerID = recv_packet->id;
 			}
 			else { // warrior
 				player = GameFramework::MainGameFramework->m_OtherPlayersPool.back();
