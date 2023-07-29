@@ -1105,8 +1105,6 @@ void Object::SetChild(Object* pChild, bool bReferenceUpdate)
 void Object::SetDo_Render(bool b)
 {
 	Do_Render = b;
-	if (m_pSibling) m_pSibling->SetDo_Render(b);
-	if (m_pChild) m_pChild->SetDo_Render(b);
 
 }
 
@@ -2332,6 +2330,8 @@ void FireBall::OnPrepareRender()
 		{
 			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
 			{
+				Sound* s = new Sound("Sound/Mage_Blast.mp3", false);
+				GameScene::MainScene->AddSound(s);
 				explode->Active = true;
 				explode->SetPosition(GetPosition());
 				Active = false;
@@ -2346,6 +2346,8 @@ void FireBall::OnPrepareRender()
 			{
 				if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 				{
+					Sound* s = new Sound("Sound/Mage_Blast.mp3", false);
+					GameScene::MainScene->AddSound(s);
 					explode->Active = true;
 					explode->SetPosition(GetPosition());
 					Active = false;
@@ -2356,10 +2358,19 @@ void FireBall::OnPrepareRender()
 						send_packet.monster_id = o->GetNum();
 						send_packet.hit_damage = GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100));
 						PacketQueue::AddSendPacket(&send_packet);
-						cout << "Send Hit Monster!(Fire)" << endl;
+						
 					}
 					else {
 						o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
+						if (dynamic_cast<Shield*>(o))
+						{
+
+						}
+						else
+						{
+							o->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_HIT);
+						}
+						o->HitSound();
 					}
 					break;
 				}

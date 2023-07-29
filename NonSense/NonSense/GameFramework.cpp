@@ -411,6 +411,8 @@ void GameFramework::CreateDepthStencilView()
 
 void GameFramework::BuildObjects()
 {
+
+
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
@@ -451,6 +453,7 @@ void GameFramework::BuildObjects()
 		p->ReleaseUploadBuffers();
 	m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
 	Timer::Reset();
+	MainBGM = new Sound("Sound/LobbyBGM.mp3", true);
 }
 
 void GameFramework::ReleaseObjects()
@@ -840,12 +843,21 @@ void GameFramework::ChangeScene(unsigned char num)
 	if (num > ROOM_SCENE)
 	{
 		GameScene::MainScene = m_GameScenes.at(3);
+		delete MainBGM;
 	}
 	else
 	{
 		GameScene::MainScene = m_GameScenes.at(num);
 	}
 	
+	if (num <= ROOM_SCENE)
+	{
+		if (GameSceneState > ROOM_SCENE)
+		{
+			MainBGM = new Sound("Sound/LobbyBGM.mp3",true);
+		}
+	}
+
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
 	if (num != LOGIN_SCENE) {
@@ -956,23 +968,43 @@ void GameFramework::ChangeStage(unsigned char num)
 {
 	((Stage_GameScene*)GameScene::MainScene)->ClearMonster();
 	((Stage_GameScene*)GameScene::MainScene)->IsSoundDebuff = false;
-
+	
+	if (GameSceneState == BOSS_SCENE && num != BOSS_SCENE)
+	{
+		auto iter = std::find(GameScene::MainScene->Sounds.begin(), GameScene::MainScene->Sounds.end(), GameScene::MainScene->MainBGM);
+		GameScene::MainScene->Sounds.erase(iter);
+		Sound* s = new Sound("Sound/TestMusic.mp3", true);
+		GameScene::MainScene->MainBGM = s;
+		GameScene::MainScene->AddSound(s);
+	}
+	
 	switch (num)
 	{
 	case SIGHT_SCENE:
 		IsTouchDebuff = false;
 		((Stage_GameScene*)GameScene::MainScene)->SightStage(m_pDevice, m_pCommandList);
+		GameScene::MainScene->MainBGM->Replay();
 		break;
 	case HEARING_SCENE:
 		IsTouchDebuff = false;
 		((Stage_GameScene*)GameScene::MainScene)->HearingStage(m_pDevice, m_pCommandList);
+		GameScene::MainScene->MainBGM->Replay();
 		break;
 	case TOUCH_SCENE:
 		IsTouchDebuff = false;
 		((Stage_GameScene*)GameScene::MainScene)->TouchStage(m_pDevice, m_pCommandList);
+		GameScene::MainScene->MainBGM->Replay();
 		break;
 	case BOSS_SCENE:
 		((Stage_GameScene*)GameScene::MainScene)->BossStage(m_pDevice, m_pCommandList);
+		{
+			auto iter = std::find(GameScene::MainScene->Sounds.begin(), GameScene::MainScene->Sounds.end(), GameScene::MainScene->MainBGM);
+			GameScene::MainScene->Sounds.erase(iter);
+			delete GameScene::MainScene->MainBGM;
+			Sound* s = new Sound("Sound/BossStageBGM.mp3", true);
+			GameScene::MainScene->MainBGM = s;
+			GameScene::MainScene->AddSound(s);
+		}
 		break;
 	default:
 		break;
@@ -1316,8 +1348,9 @@ void GameFramework::FrameAdvance()
 		}
 	}
 	// Blend Object
-	if(scene_type!=LOGIN_SCENE)
-	GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
+	if (GameSceneState != LOGIN_SCENE) {
+		GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);
+	}
 	//////////////////////////////////////////////////////////
 
 

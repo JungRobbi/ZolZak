@@ -92,7 +92,7 @@ public:
 	HeightMapTerrain* m_pTerrain = NULL;
 	bool IsSoundDebuff = false;
 	float SoundDebuffLeftTime = -1.0f;
-
+	Sound* MainBGM = NULL;
 protected:
 	Object* CreateEmpty();
 	float elapseTime;

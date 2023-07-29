@@ -27,7 +27,8 @@ public:
 	static void SystemUpdate();
 	void Play();
 	void Stop();
-	
+	void Replay();
+
 	void AddDsp();
 	void RemoveDsp();
 

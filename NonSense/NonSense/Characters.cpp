@@ -35,6 +35,11 @@ WeaponObject::~WeaponObject()
 {
 }
 
+//void WeaponObject::update()
+//{
+//	
+//}
+
 void WeaponObject::Fire(XMFLOAT3& look, XMFLOAT3& pos)
 {
 	SetPosition(pos);
@@ -227,6 +232,18 @@ void Goblin::CloseAttackEvent()
 	GetComponent<AttackComponent>()->CheckMonsterAttackRange();
 }
 
+void Goblin::HitSound()
+{
+	Sound* s = new Sound("Sound/GoblinHit.mp3", false);
+	GameScene::MainScene->AddSound(s);
+}
+
+void Goblin::DeadSound()
+{
+	Sound* s = new Sound("Sound/GoblinDeath.mp3", false);
+	GameScene::MainScene->AddSound(s);
+}
+
 Orc::Orc(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) : Monster(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
 	Object* Hand = NULL;
@@ -348,6 +365,16 @@ void Orc::CloseAttackEvent()
 {
 	GetComponent<AttackComponent>()->CheckMonsterAttackRange();
 }
+void Orc::HitSound()
+{
+	Sound* s = new Sound("Sound/OrcHit.mp3", false);
+	GameScene::MainScene->AddSound(s);
+}
+void Orc::DeadSound()
+{
+	Sound* s = new Sound("Sound/OrcDeath.mp3", false);
+	GameScene::MainScene->AddSound(s);
+}
 Skull::Skull(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) : Monster(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
 	Object* Hand = NULL;
@@ -467,6 +494,18 @@ Skull::~Skull()
 void Skull::CloseAttackEvent()
 {
 	GetComponent<AttackComponent>()->CheckMonsterAttackRange();
+}
+
+void Skull::HitSound()
+{
+	Sound* s = new Sound("Sound/SkullHit.mp3", false);
+	GameScene::MainScene->AddSound(s);
+}
+
+void Skull::DeadSound()
+{
+	Sound* s = new Sound("Sound/SkullDeath.mp3", false);
+	GameScene::MainScene->AddSound(s);
 }
 
 
@@ -674,6 +713,8 @@ void Shield::BossAttackEvent()
 void Shield::BossStealSenseEvent()
 {
 	GetComponent<BossAttackComponent>()->StealSense();
+	Sound* s = new Sound("Sound/BossRoar.mp3", false);
+	GameScene::MainScene->AddSound(s);
 }
 
 void Shield::BossSummonEvent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)

@@ -152,5 +152,8 @@ public:
 	ShadowMap* m_ShadowMap = NULL;
 	RECT WindowPos;
 	POINT CenterOfWindow;
+
+	Sound* MainBGM = NULL;
+
 };
 
