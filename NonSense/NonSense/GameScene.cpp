@@ -367,18 +367,9 @@ void GameScene::ReleaseObjects()
 		}
 		Sounds.clear();
 	}
-	if (!TextureMap.empty())
-	{
-		for (auto& t : TextureMap)
-		{
-			if (t.second)
-			{
-				t.second->Release();
-			}
-		}
-		TextureMap.clear();
-	}
-	
+
+	TextureMap.clear();
+
 }
 
 void GameScene::ReleaseUploadBuffers()
