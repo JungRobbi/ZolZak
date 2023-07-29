@@ -7,7 +7,8 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 {
 	m_pGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 500);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 700);
+	LoadAllTextures(pd3dDevice, pd3dCommandList);
 	LoadAllModels(pd3dDevice, pd3dCommandList);
 	Material::PrepareShaders(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	BuildLightsAndMaterials();
@@ -706,6 +707,252 @@ void Stage_GameScene::LoadAllModels(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		Model->m_pRoot->AddRef();
 	if (Model->m_pAnimationSets)
 		Model->m_pAnimationSets->AddRef();
+
+
+}
+
+void Stage_GameScene::LoadAllTextures(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	CTexture* tex = NULL;
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Ent_3.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Ent_3", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/F05.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("F05", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Face.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Face", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/face02.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("face02", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/face03.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("face03", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Goblin_2.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Goblin_2", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Goblin_3.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Goblin_3", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Goblin_4.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Goblin_4", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Hair05.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Hair05", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/HairF05.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("HairF05", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/M05.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("M05", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Orc.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Orc", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Orc_2.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Orc_2", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Orc_3.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Orc_3", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Orc_4.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Orc_4", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Shield_2.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Shield_2", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Skin.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Skin", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Skull_2.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Skull_2", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Skull_3.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Skull_3", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/Skull_4.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("Skull_4", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/SwordM05.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("SwordM05", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Atlas_1A_D.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Atlas_1A_D", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Atlas_Billboards_1A_D.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Atlas_Billboards_1A_D", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Atlas_Lights_1A_D.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Atlas_Lights_1A_D", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Atlas_Vegetation_1A_D.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Atlas_Vegetation_1A_D", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Flower_Patch_01A.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Flower_Patch_01A", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Flower_Patch_01B.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Flower_Patch_01B", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Flower_Patch_01C.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Flower_Patch_01C", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Glass_Gradient_1A.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Glass_Gradient_1A", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Gradient_Mask_1.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Gradient_Mask_1", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Grass_Patch_01A.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Grass_Patch_01A", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Grass_Patch_02A.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Grass_Patch_02A", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Grass_Patch_02C.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Grass_Patch_02C", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_LUT_Day_1.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_LUT_Day_1", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_LUT_Day_2.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_LUT_Day_2", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_LUT_Day_3.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_LUT_Day_3", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_LUT_Day_4.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_LUT_Day_4", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_LUT_Dusk_1.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_LUT_Dusk_1", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_LUT_Night_1.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_LUT_Night_1", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Noise_1.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Noise_1", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Toon_Ramp_1A.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Toon_Ramp_1A", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Toon_Ramp_1B.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Toon_Ramp_1B", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Toon_Ramp_1C.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Toon_Ramp_1C", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/TFF_Water_Normal_1.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("TFF_Water_Normal_1", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/WandF05.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("WandF05", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/weapon_2.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("weapon_2", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/weapon_3.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("weapon_3", tex));
+
+	tex = new CTexture(1, RESOURCE_TEXTURE2D, 0, 8);
+	tex->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Model/Textures/weapon_4.dds", RESOURCE_TEXTURE2D, 0);
+	GameScene::CreateShaderResourceViews(pd3dDevice, tex, 8, false);
+	TextureMap.insert(std::pair<std::string, CTexture*>("weapon_4", tex));
 
 
 }

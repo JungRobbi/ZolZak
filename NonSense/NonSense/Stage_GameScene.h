@@ -24,7 +24,7 @@ public:
 	void ClearMonster();
 
 	void LoadAllModels(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-
+	void LoadAllTextures(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void update();
 public:
 	Object* Boss = NULL;

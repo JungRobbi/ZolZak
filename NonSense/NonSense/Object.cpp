@@ -288,11 +288,12 @@ void Material::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 #endif
 		if (!bDuplicated)
 		{
-			*ppTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0 , nRootParameter);
-			(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
+			*ppTexture = GameScene::MainScene->TextureMap[pstrTextureName];
+			//*ppTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0 , nRootParameter);
+			//(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
 			if (*ppTexture) (*ppTexture)->AddRef();
 
-			GameScene::CreateShaderResourceViews(pd3dDevice, *ppTexture, nRootParameter, false);
+			//GameScene::CreateShaderResourceViews(pd3dDevice, *ppTexture, nRootParameter, false);
 		}
 		else
 		{
@@ -303,8 +304,11 @@ void Material::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 					if (!pParent->m_pParent) break;
 					pParent = pParent->m_pParent;
 				}
-				Object* pRootGameObject = pParent;
-				*ppTexture = pRootGameObject->FindReplicatedTexture(pwstrTextureName);
+				//Object* pRootGameObject = pParent;
+				//*ppTexture = pRootGameObject->FindReplicatedTexture(pwstrTextureName);
+				char extractedString[63];
+				std::strcpy(extractedString, pstrTextureName + 1);
+				*ppTexture = GameScene::MainScene->TextureMap[extractedString];
 				if (*ppTexture) (*ppTexture)->AddRef();
 			}
 		}
@@ -1356,7 +1360,7 @@ void Object::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 		{
 			pMaterial->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_ALBEDO_MAP, 8, pMaterial->m_ppstrTextureNames[0], &(pMaterial->m_ppTextures[0]), pParent, OpenedFile, pShader);
 		}
-		else if (!strcmp(pstrToken, "<SpecularMap>:"))
+		/*else if (!strcmp(pstrToken, "<SpecularMap>:"))
 		{
 			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_SPECULAR_MAP, 9, pMaterial->m_ppstrTextureNames[1], &(pMaterial->m_ppTextures[1]), pParent, OpenedFile, pShader);
 		}
@@ -1379,7 +1383,7 @@ void Object::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 		else if (!strcmp(pstrToken, "<DetailNormalMap>:"))
 		{
 			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_DETAIL_NORMAL_MAP, 14, pMaterial->m_ppstrTextureNames[6], &(pMaterial->m_ppTextures[6]), pParent, OpenedFile, pShader);
-		}
+		}*/
 		else if (!strcmp(pstrToken, "</Materials>"))
 		{
 			break;
@@ -1599,6 +1603,7 @@ void Object::OnPrepareRender()
 }
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
+
 	if (Do_Render)
 	{
 		OnPrepareRender();

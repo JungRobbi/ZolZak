@@ -51,6 +51,7 @@ class GameScene
 {
 public:
 	std::map<std::string, LoadedModelInfo*> ModelMap;
+	std::map<std::string, CTexture*> TextureMap;
 
 	std::queue<Object*> creationQueue;
 	std::deque<Object*> deletionQueue;
