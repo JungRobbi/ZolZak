@@ -34,6 +34,15 @@ void AttackComponent::Attack()
 					if (AttackRange->Intersects(*monster->GetComponent<SphereCollideComponent>()->GetBoundingObject())) {
 						if (!NetworkMGR::b_isNet) {
 							monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100)));
+							if (dynamic_cast<Shield*>(monster))
+							{
+
+							}
+							else
+							{
+								monster->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_HIT);
+							}
+							monster->HitSound();
 							continue;
 						}
 						CS_TEMP_HIT_MONSTER_PACKET send_packet;
@@ -42,6 +51,15 @@ void AttackComponent::Attack()
 						send_packet.monster_id = monster->GetNum();
 						send_packet.hit_damage = dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100));
 						PacketQueue::AddSendPacket(&send_packet);
+						if (dynamic_cast<Shield*>(monster))
+						{
+
+						}
+						else
+						{
+							monster->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_HIT);
+						}
+						monster->HitSound();
 					}
 				}
 			}

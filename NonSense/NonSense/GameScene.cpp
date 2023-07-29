@@ -374,7 +374,6 @@ void GameScene::ReleaseObjects()
 			if (t.second)
 			{
 				t.second->Release();
-				t.second = NULL;
 			}
 		}
 		TextureMap.clear();

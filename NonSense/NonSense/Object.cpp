@@ -2365,7 +2365,15 @@ void FireBall::OnPrepareRender()
 						send_packet.monster_id = o->GetNum();
 						send_packet.hit_damage = GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100));
 						PacketQueue::AddSendPacket(&send_packet);
-						
+						if (dynamic_cast<Shield*>(o))
+						{
+
+						}
+						else
+						{
+							o->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_HIT);
+						}
+						o->HitSound();
 					}
 					else {
 						o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));

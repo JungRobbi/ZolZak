@@ -705,6 +705,27 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 		m_pSkinnedAnimationController->AddAnimationEvent("FootStepREvent", E_RUN, 0.13, FootStepREvent);
 		m_pSkinnedAnimationController->AddAnimationEvent("FootStepLEvent", E_RUN, 0.33, FootStepLEvent);
+
+		std::function<void()> SwingSound1 = [this]() {
+			Sound* s = new Sound("Sound/Warrior_Swip_1.mp3", false);
+			GameScene::MainScene->AddSound(s);
+		};
+		std::function<void()> SwingSound2 = [this]() {
+			Sound* s = new Sound("Sound/Warrior_Swip_2.mp3", false);
+			GameScene::MainScene->AddSound(s);
+		};
+		std::function<void()> SwingSound3 = [this]() {
+			Sound* s = new Sound("Sound/Warrior_Swip_3.mp3", false);
+			GameScene::MainScene->AddSound(s);
+		};
+
+		m_pSkinnedAnimationController->AddAnimationEvent("SwingSound1", 6, 0.15, SwingSound1);
+
+		m_pSkinnedAnimationController->AddAnimationEvent("SwingSound2", 8, 0.15, SwingSound2);
+
+		m_pSkinnedAnimationController->AddAnimationEvent("SwingSound3", 9, 0.15, SwingSound3);
+
+
 	}
 }
 
