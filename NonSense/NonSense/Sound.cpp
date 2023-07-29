@@ -55,6 +55,13 @@ void Sound::Stop()
 	FMOD_Channel_Stop(m_Channel);
 }
 
+void Sound::Replay()
+{
+	FMOD_Channel_SetPaused(m_Channel, true);
+	FMOD_Channel_SetPosition(m_Channel, 0, FMOD_TIMEUNIT_MS);
+	FMOD_Channel_SetPaused(m_Channel, false);
+}
+
 void Sound::AddDsp()
 {
 	FMOD_Channel_AddDSP(m_Channel, 0, Lowpass);
