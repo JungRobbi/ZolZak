@@ -134,7 +134,7 @@ void UILayer::Render(UINT nFrame)
 
     m_pd2dDeviceContext->SetTarget(m_ppd2dRenderTargets[nFrame]);
     m_pd3d11On12Device->AcquireWrappedResources(ppResources, _countof(ppResources));
-
+    int i{};
     m_pd2dDeviceContext->BeginDraw();
     for (auto& textblock : m_pTextBlocks)
     {
@@ -150,7 +150,7 @@ void UILayer::Render(UINT nFrame)
     m_pd3d11DeviceContext->Flush();
 }
 
-void UILayer::RenderSingle(UINT nFrame)
+void UILayer::RenderSingle(UINT nFrame, bool HideChat)
 {
     ID3D11Resource* ppResources[] = { m_ppd3d11WrappedRenderTargets[nFrame] };
 
@@ -158,9 +158,11 @@ void UILayer::RenderSingle(UINT nFrame)
     m_pd3d11On12Device->AcquireWrappedResources(ppResources, _countof(ppResources));
 
     m_pd2dDeviceContext->BeginDraw();
-    if (m_pTextBlocks[0].m_pstrText[0])
-        m_pd2dDeviceContext->DrawText(m_pTextBlocks[0].m_pstrText, (UINT)wcslen(m_pTextBlocks[0].m_pstrText), m_pTextBlocks[0].m_pdwFormat, m_pTextBlocks[0].m_d2dLayoutRect, m_pTextBlocks[0].m_pd2dTextBrush);
-    
+    if (false == HideChat) {
+        if (m_pTextBlocks[0].m_pstrText[0]) {
+            m_pd2dDeviceContext->DrawText(m_pTextBlocks[0].m_pstrText, (UINT)wcslen(m_pTextBlocks[0].m_pstrText), m_pTextBlocks[0].m_pdwFormat, m_pTextBlocks[0].m_d2dLayoutRect, m_pTextBlocks[0].m_pd2dTextBrush);
+        }
+    }
     LineDraw();
 
     m_pd2dDeviceContext->EndDraw();
@@ -480,18 +482,23 @@ void ChatMGR::SetLoginScene(int WndClientWidth, int WndClientHeight)
     pdwUITextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
 
     fontsize = WndClientHeight / 25.0f;
-
+    ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_CHAT;
 }
 
 void ChatMGR::SetLobbyScene(int WndClientWidth, int WndClientHeight)
 {
-    CreateTextUI(WndClientWidth, WndClientHeight);
-
     memset(m_textbuf, NULL, sizeof(m_textbuf));
     m_combtext = NULL;
 
-    SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_LEFT);
-    d2dRect = D2D1::RectF((float)WndClientHeight / 1.37f, (float)WndClientHeight / 1.83f,
+    for (auto p{ m_pPrevTexts.begin() }; p != m_pPrevTexts.end(); ++p) {
+        delete[] (*p);
+    }
+    m_pPrevTexts.clear();
+    for (int i{}; i < m_pUILayer->m_nTextBlocks - 1; ++i)
+        m_pPrevTexts.emplace_back();
+
+    SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_MID);
+    d2dRect = D2D1::RectF(50, (float)WndClientHeight / 2.23f,
         (float)WndClientWidth, (float)WndClientHeight);
 
     pdwUITextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
@@ -506,12 +513,40 @@ void ChatMGR::SetInGame(int WndClientWidth, int WndClientHeight)
     m_combtext = NULL;
 
     for (auto p{ m_pPrevTexts.begin() }; p != m_pPrevTexts.end(); ++p) {
-        delete (*p);
+        delete[] (*p);
     }
     m_pPrevTexts.clear();
 
     SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_LEFT);
     d2dRect = D2D1::RectF((float)WndClientWidth / 48.f, (float)WndClientHeight / 1.4f, 
+        (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
+
+    fontsize = WndClientHeight / 50.0f;
+
+    for (int i{}; i < m_pUILayer->m_nTextBlocks - 1; ++i)
+        m_pPrevTexts.emplace_back();
+
+    m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
+        DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+        fontsize, L"en-us", &pdwTextFormat);
+
+    m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
+        DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+        WndClientHeight / 40.0f, L"en-us", &pdwUITextFormat);
+}
+
+void ChatMGR::SetInRoom(int WndClientWidth, int WndClientHeight)
+{
+    memset(m_textbuf, NULL, sizeof(m_textbuf));
+    m_combtext = NULL;
+
+    for (auto p{ m_pPrevTexts.begin() }; p != m_pPrevTexts.end(); ++p) {
+        delete[] (*p);
+    }
+    m_pPrevTexts.clear();
+
+    SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_LEFT);
+    d2dRect = D2D1::RectF((float)WndClientWidth / 48.f, (float)WndClientHeight / 1.4f,
         (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
 
     fontsize = WndClientHeight / 50.0f;

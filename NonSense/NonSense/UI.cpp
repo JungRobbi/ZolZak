@@ -436,6 +436,9 @@ void Make_Room_UI::OnClick()
 	{
 		dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom = true;
 	}
+	ChatMGR::m_textindex = 0;
+	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_CHAT;
+	ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
 }
 
 Join_Room_UI::Join_Room_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -467,9 +470,11 @@ void Join_Room_UI::OnClick()
 		PacketQueue::AddSendPacket(&send_packet);
 	}
 	else {
-		
 		GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
 	}
+	ChatMGR::m_textindex = 0;
+	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
+	ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
 }
 
 Back_UI::Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
@@ -637,10 +642,18 @@ void Real_Make_Room_UI::OnClick()
 		PacketQueue::AddSendPacket(&send_packet);
 		delete[] p;
 
-		ChatMGR::m_textindex = 0;
-		ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
-		ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
+		{
+			CS_ROOM_JOIN_PACKET send_packet;
+			send_packet.size = sizeof(CS_ROOM_JOIN_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_JOIN_PACKET;
+			send_packet.roomNum = GameScene::MainScene->SelectNum;
+			PacketQueue::AddSendPacket(&send_packet);
+		}
 	}
+
+	ChatMGR::m_textindex = 0;
+	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
+	ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
 
 	if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom)
 	{
@@ -1309,25 +1322,29 @@ Ready_UI::Ready_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 void Ready_UI::OnClick()
 {
 	if (NetworkMGR::b_isNet) {
-		//{
-		//	CS_ROOM_READY_PACKET send_packet;
-		//	send_packet.size = sizeof(CS_ROOM_READY_PACKET);
-		//	send_packet.type = E_PACKET::E_PACKET_CS_ROOM_READY_PACKET;
-		//	send_packet.id = NetworkMGR::id;
-		//	memcpy(send_packet.name, NetworkMGR::name.c_str(), sizeof(NetworkMGR::name.c_str()));
-		//	send_packet.playerType = NetworkMGR::is_mage ? 0 : 1; // 0 : mage, 1 : warrior
-		//	PacketQueue::AddSendPacket(&send_packet);
-		//}
 		{
+			CS_ROOM_READY_PACKET send_packet;
+			send_packet.size = sizeof(CS_ROOM_READY_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_READY_PACKET;
+			send_packet.id = NetworkMGR::id;
+			memcpy(send_packet.name, NetworkMGR::name.c_str(), sizeof(NetworkMGR::name.c_str()));
+			send_packet.playerType = NetworkMGR::is_mage ? 0 : 1; // 0 : mage, 1 : warrior
+			PacketQueue::AddSendPacket(&send_packet);
+			cout << "READY!" << endl;
+		}
+		/*{
 			CS_ROOM_START_PACKET send_packet;
 			send_packet.size = sizeof(CS_ROOM_START_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_START_PACKET;
 			PacketQueue::AddSendPacket(&send_packet);
-		}
+		}*/
 	}
 	else {
 		GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
 	}
+	ChatMGR::m_textindex = 0;
+	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
+	ZeroMemory(ChatMGR::m_textbuf, sizeof(ChatMGR::m_textbuf));
 }
 
 Room_Back_UI::Room_Back_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)

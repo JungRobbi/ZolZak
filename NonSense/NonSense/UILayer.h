@@ -48,7 +48,7 @@ public:
   
     void UpdateTextOutputs(UINT nIndex, WCHAR* pstrUIText, D2D1_RECT_F pd2dLayoutRect, IDWriteTextFormat* pdwFormat, ID2D1SolidColorBrush* pd2dTextBrush);
     void Render(UINT nFrame);
-    void RenderSingle(UINT nFrame);
+    void RenderSingle(UINT nFrame, bool HideChat);
     void LineDraw();
     void ReleaseResources();
 
@@ -153,6 +153,7 @@ public:
     static void SetLoginScene(int WndClientWidth, int WndClientHeight);
     static void SetLobbyScene(int WndClientWidth, int WndClientHeight);
     static void SetInGame(int WndClientWidth, int WndClientHeight);
+    static void SetInRoom(int WndClientWidth, int WndClientHeight);
 
     static void CreateTextUI(int WndClientWidth, int WndClientHeight);
 };

@@ -755,52 +755,6 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 			case 'T':
 				ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_CHAT;
 				break;
-			case 'm':
-			case 'M':
-			{
-				CS_ROOM_READY_PACKET send_packet;
-				send_packet.size = sizeof(CS_ROOM_READY_PACKET);
-				send_packet.type = E_PACKET::E_PACKET_CS_ROOM_READY_PACKET;
-				send_packet.id = NetworkMGR::id;
-				memcpy(send_packet.name, NetworkMGR::name.c_str(), sizeof(NetworkMGR::name.c_str()));
-				send_packet.playerType = NetworkMGR::is_mage ? 0 : 1; // 0 : mage, 1 : warrior
-				PacketQueue::AddSendPacket(&send_packet);
-				cout << "READY!" << endl;
-			}
-			break;
-			case 'n':
-			case 'N':
-			{
-				Player* player;
-
-			/*	player = new MagePlayer(m_pDevice, m_pCommandList,
-					GameScene::MainScene->GetGraphicsRootSignature(),
-					GameScene::MainScene->GetTerrain());*/
-				player = m_OtherPlayersPool.back();
-
-				//player = new WarriorPlayer(m_pDevice, m_pCommandList,
-				//	GameScene::MainScene->GetGraphicsRootSignature(),
-				//	GameScene::MainScene->GetTerrain());
-				dynamic_cast<Player*>(player)->id = 123;
-				dynamic_cast<Player*>(player)->m_name = "abc";
-				dynamic_cast<Player*>(player)->SetPosition(GameScene::MainScene->m_pPlayer->GetPosition());
-				dynamic_cast<Player*>(player)->SetHealth(1000);
-				dynamic_cast<Player*>(player)->SetRemainHP(1000);
-				player->SetUsed(true);
-				player->ReleaseUploadBuffers();
-				m_OtherPlayers.push_back(player);
-				m_OtherPlayersPool.pop_back();
-			}
-				break;
-			case 'U':
-			case 'u':
-			{
-				cout << "m_OtherPlayers.size() - " << m_OtherPlayers.size() << endl;
-				cout << "m_OtherPlayers.pos.x - " << m_OtherPlayers.back()->GetPosition().x << endl;
-				cout << "m_OtherPlayers.pos.y - " << m_OtherPlayers.back()->GetPosition().y << endl;
-				cout << "m_OtherPlayers.pos.z - " << m_OtherPlayers.back()->GetPosition().z << endl;
-			}
-			break;
 			default:
 				break;
 			}
@@ -884,7 +838,6 @@ void GameFramework::ChangeScene(unsigned char num)
 	case LOGIN_SCENE:
 		if (m_pPlayer)
 		m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
-	
 		break;
 	case LOBBY_SCENE:
 		if(m_pPlayer)
@@ -1176,6 +1129,7 @@ void GameFramework::FrameAdvance()
 		NetworkMGR::Tick();
 
 	ChatMGR::UpdateText();
+
 	ProcessInput();
 
 	AnimateObjects();
@@ -1361,8 +1315,17 @@ void GameFramework::FrameAdvance()
 	m_pCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 	WaitForGpuComplete();
 
-	if (scene_type < ROOM_SCENE) {
-		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex);
+	if (scene_type == LOGIN_SCENE) {
+		ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex, false);
+	}
+	if (scene_type == LOBBY_SCENE) {
+		ZeroMemory(ChatMGR::m_pUILayer->m_pTextBlocks[0].m_pstrText, sizeof(ChatMGR::m_pUILayer->m_pTextBlocks[0].m_pstrText));
+		if (ChatMGR::m_textbuf[0])
+			wcscpy_s(ChatMGR::m_pUILayer->m_pTextBlocks[0].m_pstrText, 256, ChatMGR::m_textbuf);
+		if (dynamic_cast<Lobby_GameScene*>(GameScene::MainScene)->MakingRoom)
+			ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex, false);
+		else
+			ChatMGR::m_pUILayer->RenderSingle(m_nSwapChainBufferIndex, true);
 	}
 	else if (scene_type >= ROOM_SCENE) {
 		ChatMGR::m_pUILayer->Render(m_nSwapChainBufferIndex);
