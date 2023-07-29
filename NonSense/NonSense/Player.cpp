@@ -308,7 +308,7 @@ void Player::GetHit(float damage)
 }
 Camera* Player::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
-	//»õ·Î¿î Ä«¸Þ¶óÀÇ ¸ðµå¿¡ µû¶ó Ä«¸Þ¶ó¸¦ »õ·Î »ý¼ºÇÑ´Ù.
+	//ï¿½ï¿½ï¿½Î¿ï¿½ Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½å¿¡ ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	Camera* pNewCamera = NULL;
 	switch (nNewCameraMode)
 	{
@@ -439,7 +439,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		if (pModel)
 			SetChild(pModel->m_pRoot, true);
 		if (pWeaponModel) {
-			Object* Hand = FindFrame("Sword_parentR"); // ¹«±â¸¦ ºÙ¿©ÁÙ ÆÈ Ã£±â
+			Object* Hand = FindFrame("Sword_parentR"); // ï¿½ï¿½ï¿½â¸¦ ï¿½Ù¿ï¿½ï¿½ï¿½ ï¿½ï¿½ Ã£ï¿½ï¿½
 			if (Hand) {
 				CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 0.1f, 0.1f, 0.1f);
 				BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
@@ -512,7 +512,7 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	switch (nNewCameraMode)
 	{
 	case FIRST_PERSON_CAMERA:
-		//ÇÃ·¹ÀÌ¾îÀÇ Æ¯¼ºÀ» 1ÀÎÄª Ä«¸Þ¶ó ¸ðµå¿¡ ¸Â°Ô º¯°æÇÑ´Ù. Áß·ÂÀº Àû¿ëÇÏÁö ¾Ê´Â´Ù.
+		//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ Æ¯ï¿½ï¿½ï¿½ï¿½ 1ï¿½ï¿½Äª Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½å¿¡ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½. ï¿½ß·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½.
 		SetFriction(30.0f);
 		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
 		SetMaxVelocityXZ(5.0f);
@@ -520,12 +520,12 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0, 0.7f, 0.25));
-		m_pCamera->GenerateProjectionMatrix(0.1f, 1000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->GenerateProjectionMatrix(0.1f, 100.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
 	case SPACESHIP_CAMERA:
-		//ÇÃ·¹ÀÌ¾îÀÇ Æ¯¼ºÀ» ½ºÆäÀÌ½º-½± Ä«¸Þ¶ó ¸ðµå¿¡ ¸Â°Ô º¯°æÇÑ´Ù. Áß·ÂÀº Àû¿ëÇÏÁö ¾Ê´Â´Ù.
+		//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ Æ¯ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½-ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½å¿¡ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½. ï¿½ß·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½.
 		SetFriction(50.0f);
 		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		SetMaxVelocityXZ(100.0f);
@@ -538,13 +538,13 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
 	case THIRD_PERSON_CAMERA:
-		//ÇÃ·¹ÀÌ¾îÀÇ Æ¯¼ºÀ» 3ÀÎÄª Ä«¸Þ¶ó ¸ðµå¿¡ ¸Â°Ô º¯°æÇÑ´Ù. Áö¿¬ È¿°ú¿Í Ä«¸Þ¶ó ¿ÀÇÁ¼ÂÀ» ¼³Á¤ÇÑ´Ù.
+		//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ Æ¯ï¿½ï¿½ï¿½ï¿½ 3ï¿½ï¿½Äª Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½å¿¡ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½. ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 		SetFriction(30.0f);
 		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
 		SetMaxVelocityXZ(5.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
-		//3ÀÎÄª Ä«¸Þ¶óÀÇ Áö¿¬ È¿°ú¸¦ ¼³Á¤ÇÑ´Ù. °ªÀ» 0.25f ´ë½Å¿¡ 0.0f¿Í 1.0f·Î ¼³Á¤ÇÑ °á°ú¸¦ ºñ±³ÇÏ±â ¹Ù¶õ´Ù.
+		//3ï¿½ï¿½Äª Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½. ï¿½ï¿½ï¿½ï¿½ 0.25f ï¿½ï¿½Å¿ï¿½ 0.0fï¿½ï¿½ 1.0fï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½Ù¶ï¿½ï¿½ï¿½.
 		m_pCamera->SetTimeLag(0.25f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 1.5f, -3.0f));
 		//m_pCamera->SetOffset(XMFLOAT3(0, 0.8f, 0.2));
@@ -557,7 +557,7 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		break;
 	}
 	m_pCamera->SetPosition(Vector3::Add(m_xmf3Position, m_pCamera->GetOffset()));
-	//ÇÃ·¹ÀÌ¾î¸¦ ½Ã°£ÀÇ °æ°ú¿¡ µû¶ó °»½Å(À§Ä¡¿Í ¹æÇâÀ» º¯°æ: ¼Óµµ, ¸¶Âû·Â, Áß·Â µîÀ» Ã³¸®)ÇÑ´Ù.
+	//ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: ï¿½Óµï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ß·ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½)ï¿½Ñ´ï¿½.
 	Update(fTimeElapsed);
 	return(m_pCamera);
 }
@@ -579,7 +579,7 @@ void MagePlayer::Update(float fTimeElapsed)
 
 void MagePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	if (Die)
+	if (m_die)
 	{
 		return;
 	}
@@ -661,7 +661,7 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		if (pModel)
 			SetChild(pModel->m_pRoot, true);
 		if (pWeaponModel) {
-			Object* Hand = FindFrame("Sword_parentR"); // ¹«±â¸¦ ºÙ¿©ÁÙ ÆÈ Ã£±â
+			Object* Hand = FindFrame("Sword_parentR"); // ï¿½ï¿½ï¿½â¸¦ ï¿½Ù¿ï¿½ï¿½ï¿½ ï¿½ï¿½ Ã£ï¿½ï¿½
 			if (Hand) {
 				CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 0.1f, 0.1f, 0.1f);
 				BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
@@ -732,7 +732,7 @@ Camera* WarriorPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	switch (nNewCameraMode)
 	{
 	case FIRST_PERSON_CAMERA:
-		//ÇÃ·¹ÀÌ¾îÀÇ Æ¯¼ºÀ» 1ÀÎÄª Ä«¸Þ¶ó ¸ðµå¿¡ ¸Â°Ô º¯°æÇÑ´Ù. Áß·ÂÀº Àû¿ëÇÏÁö ¾Ê´Â´Ù.
+		//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ Æ¯ï¿½ï¿½ï¿½ï¿½ 1ï¿½ï¿½Äª Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½å¿¡ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½. ï¿½ß·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½.
 		SetFriction(30.0f);
 		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
 		SetMaxVelocityXZ(5.0f);
@@ -740,12 +740,12 @@ Camera* WarriorPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0, 0.7f, 0.25));
-		m_pCamera->GenerateProjectionMatrix(0.01f, 1000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->GenerateProjectionMatrix(0.01f, 100.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
 	case SPACESHIP_CAMERA:
-		//ÇÃ·¹ÀÌ¾îÀÇ Æ¯¼ºÀ» ½ºÆäÀÌ½º-½± Ä«¸Þ¶ó ¸ðµå¿¡ ¸Â°Ô º¯°æÇÑ´Ù. Áß·ÂÀº Àû¿ëÇÏÁö ¾Ê´Â´Ù.
+		//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ Æ¯ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½-ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½å¿¡ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½. ï¿½ß·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½.
 		SetFriction(50.0f);
 		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		SetMaxVelocityXZ(100.0f);
@@ -753,18 +753,18 @@ Camera* WarriorPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera = OnChangeCamera(SPACESHIP_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		m_pCamera->GenerateProjectionMatrix(0.01f, 1000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->GenerateProjectionMatrix(0.01f, 100.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
 	case THIRD_PERSON_CAMERA:
-		//ÇÃ·¹ÀÌ¾îÀÇ Æ¯¼ºÀ» 3ÀÎÄª Ä«¸Þ¶ó ¸ðµå¿¡ ¸Â°Ô º¯°æÇÑ´Ù. Áö¿¬ È¿°ú¿Í Ä«¸Þ¶ó ¿ÀÇÁ¼ÂÀ» ¼³Á¤ÇÑ´Ù.
+		//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ Æ¯ï¿½ï¿½ï¿½ï¿½ 3ï¿½ï¿½Äª Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½å¿¡ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½. ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 		SetFriction(30.0f);
 		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
 		SetMaxVelocityXZ(5.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
-		//3ÀÎÄª Ä«¸Þ¶óÀÇ Áö¿¬ È¿°ú¸¦ ¼³Á¤ÇÑ´Ù. °ªÀ» 0.25f ´ë½Å¿¡ 0.0f¿Í 1.0f·Î ¼³Á¤ÇÑ °á°ú¸¦ ºñ±³ÇÏ±â ¹Ù¶õ´Ù.
+		//3ï¿½ï¿½Äª Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½. ï¿½ï¿½ï¿½ï¿½ 0.25f ï¿½ï¿½Å¿ï¿½ 0.0fï¿½ï¿½ 1.0fï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½Ù¶ï¿½ï¿½ï¿½.
 		m_pCamera->SetTimeLag(0.25f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 1.5f, -3.0f));
 		//m_pCamera->SetOffset(XMFLOAT3(0, 0.8f, 0.2));
@@ -777,7 +777,7 @@ Camera* WarriorPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		break;
 	}
 	m_pCamera->SetPosition(Vector3::Add(m_xmf3Position, m_pCamera->GetOffset()));
-	//ÇÃ·¹ÀÌ¾î¸¦ ½Ã°£ÀÇ °æ°ú¿¡ µû¶ó °»½Å(À§Ä¡¿Í ¹æÇâÀ» º¯°æ: ¼Óµµ, ¸¶Âû·Â, Áß·Â µîÀ» Ã³¸®)ÇÑ´Ù.
+	//ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: ï¿½Óµï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ß·ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½)ï¿½Ñ´ï¿½.
 	Update(fTimeElapsed);
 	return(m_pCamera);
 }
@@ -795,7 +795,7 @@ void WarriorPlayer::Update(float fTimeElapsed)
 
 void WarriorPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	if (Die)
+	if (m_die)
 	{
 		return;
 	}

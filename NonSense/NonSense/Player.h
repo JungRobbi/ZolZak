@@ -46,6 +46,7 @@ public:
 	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;
 	float last_DeBuff = 0;
 	bool dark = false;
+	bool m_die = false;
 public:
 
 	LPVOID m_pPlayerUpdatedContext;
