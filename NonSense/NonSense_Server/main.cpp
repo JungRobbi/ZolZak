@@ -831,6 +831,21 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 
 		break;
 	}
+	case E_PACKET_CS_DIE_PACKET: {
+		CS_DIE_PACKET* recv_packet = reinterpret_cast<CS_DIE_PACKET*>(p_Packet);
+
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
+			if (rc->m_id == p_Client->m_id)
+				continue;
+			SC_PLAYER_DIE_PACKET send_packet;
+			send_packet.size = sizeof(SC_PLAYER_DIE_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_PLAYER_DIE_PACKET;
+			send_packet.player_id = p_Client->m_id;
+			rc->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+
+		break;
+	}
 	default:
 		break;
 	}

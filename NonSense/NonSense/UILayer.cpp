@@ -497,8 +497,8 @@ void ChatMGR::SetLobbyScene(int WndClientWidth, int WndClientHeight)
     for (int i{}; i < m_pUILayer->m_nTextBlocks - 1; ++i)
         m_pPrevTexts.emplace_back();
 
-    SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_MID);
-    d2dRect = D2D1::RectF(50, (float)WndClientHeight / 2.23f,
+    SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_LEFT);
+    d2dRect = D2D1::RectF((float)WndClientWidth / 2.33f, (float)WndClientHeight / 2.23f,
         (float)WndClientWidth, (float)WndClientHeight);
 
     pdwUITextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬

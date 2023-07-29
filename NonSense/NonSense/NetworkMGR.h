@@ -23,7 +23,7 @@ public:
 	static char* SERVERIP;
 	static shared_ptr<Socket> tcpSocket;
 
-	static unsigned int id;
+	static int id;
 	static string name;
 	static bool is_mage;
 

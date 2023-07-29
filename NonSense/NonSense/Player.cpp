@@ -296,6 +296,12 @@ void Player::GetHit(float damage)
 		if (m_RemainHP <= 0)
 		{
 			Die = true;
+			{
+				CS_DIE_PACKET send_packet;
+				send_packet.size = sizeof(CS_DIE_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_CS_DIE_PACKET;
+				PacketQueue::AddSendPacket(&send_packet);
+			}
 			GameFramework::MainGameFramework->ChangeToSpaceShipCamera();
 		}
 	}

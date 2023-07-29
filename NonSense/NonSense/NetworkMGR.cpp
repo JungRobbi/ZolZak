@@ -27,7 +27,7 @@ recursive_mutex NetworkMGR::mutex;
 
 shared_ptr<Socket> NetworkMGR::tcpSocket;
 
-unsigned int	NetworkMGR::id{};
+int	NetworkMGR::id{ -1 };
 string			NetworkMGR::name{};
 bool			NetworkMGR::is_mage = true;
 bool			NetworkMGR::b_isNet{true};
@@ -648,9 +648,27 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		break;
 	}
+	case E_PACKET_SC_PLAYER_DIE_PACKET: {
+		SC_PLAYER_DIE_PACKET* recv_packet = reinterpret_cast<SC_PLAYER_DIE_PACKET*>(p_Packet);
+		Player* player;
+		if (recv_packet->player_id == NetworkMGR::id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->player_id;
+				});
 
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
 
-									
+			player = dynamic_cast<Player*>(*p);
+		}
+
+		break;
+	}								
 	default:
 		break;
 	}

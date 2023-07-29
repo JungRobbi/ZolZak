@@ -2377,9 +2377,6 @@ void FireBall::OnPrepareRender()
 			}
 		}
 	}
-	else {
-		cout << "ownerID - " << ownerID << "  NetworkMGR::id - " << NetworkMGR::id << endl;
-	}
 }
 
 void FireBall::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -2458,7 +2455,6 @@ void Explosion::OnPrepareRender()
 							send_packet.monster_id = o->GetNum();
 							send_packet.hit_damage = GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100));
 							PacketQueue::AddSendPacket(&send_packet);
-							cout << "Send Hit Monster!(Explosion)" << endl;
 						}
 						else {
 							o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
