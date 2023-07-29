@@ -36,7 +36,7 @@ bool RushTypeFSMComponent::CheckDistanceFromPlayer()
 	float Distance = ChangeStateDistance;
 	std::shared_ptr<Player> cand_player = nullptr;
 	for (auto& rc : Room::roomlist.at(gameObject->m_roomNum)->Clients) {
-		if (!rc.second->b_Enable)
+		if (!rc.second->b_Enable || !rc.second->m_pPlayer->alive)
 			continue;
 		auto PlayerPos = rc.second->m_pPlayer->GetPosition();
 		float cand_length = Vector3::Length(Vector3::Subtract(PlayerPos, OwnerPos));

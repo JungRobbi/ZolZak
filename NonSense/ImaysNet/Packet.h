@@ -5,7 +5,7 @@
 #include <DirectXPackedVector.h>
 
 constexpr int NAME_SIZE = 10;
-constexpr int CHAT_SIZE = 100;
+constexpr int CHAT_SIZE = 30;
 
 constexpr int MAX_BUFSIZE_CLIENT = 1024;
 
@@ -159,6 +159,7 @@ public:
 class SC_ROOM_UNREADY_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	id;
+	char	name[NAME_SIZE];
 };
 
 

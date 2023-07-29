@@ -148,7 +148,7 @@ public:
     static void SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTYPE type);
     static void UpdateText();
     static void StoreTextSelf();
-    static void StoreText(WCHAR* buf);
+    static void StoreText(const WCHAR* buf);
 
     static void SetLoginScene(int WndClientWidth, int WndClientHeight);
     static void SetLobbyScene(int WndClientWidth, int WndClientHeight);

@@ -457,7 +457,7 @@ void ChatMGR::StoreTextSelf()
     }
 }
 
-void ChatMGR::StoreText(WCHAR* buf)
+void ChatMGR::StoreText(const WCHAR* buf)
 {
     WCHAR* temp = new WCHAR[CHAT_SIZE];
     wcscpy(temp, buf);
@@ -546,10 +546,10 @@ void ChatMGR::SetInRoom(int WndClientWidth, int WndClientHeight)
     m_pPrevTexts.clear();
 
     SetTextSort(WndClientWidth, WndClientHeight, E_CHAT_SORTTYPE::E_SORTTYPE_LEFT);
-    d2dRect = D2D1::RectF((float)WndClientWidth / 48.f, (float)WndClientHeight / 1.4f,
+    d2dRect = D2D1::RectF((float)WndClientWidth / 30.f, (float)WndClientHeight / 1.1f,
         (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
 
-    fontsize = WndClientHeight / 50.0f;
+    fontsize = WndClientHeight / 25.0f;
 
     for (int i{}; i < m_pUILayer->m_nTextBlocks - 1; ++i)
         m_pPrevTexts.emplace_back();

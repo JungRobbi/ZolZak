@@ -661,13 +661,13 @@ void Real_Make_Room_UI::OnClick()
 		PacketQueue::AddSendPacket(&send_packet);
 		delete[] p;
 
-		{
+		/*{
 			CS_ROOM_JOIN_PACKET send_packet;
 			send_packet.size = sizeof(CS_ROOM_JOIN_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_JOIN_PACKET;
-			send_packet.roomNum = GameScene::MainScene->SelectNum;
+			send_packet.roomNum = -1;
 			PacketQueue::AddSendPacket(&send_packet);
-		}
+		}*/
 	}
 
 	ChatMGR::m_textindex = 0;
@@ -1341,7 +1341,7 @@ Ready_UI::Ready_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 void Ready_UI::OnClick()
 {
 	if (NetworkMGR::b_isNet) {
-		{
+		if (false == b_Ready) {
 			CS_ROOM_READY_PACKET send_packet;
 			send_packet.size = sizeof(CS_ROOM_READY_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_READY_PACKET;
@@ -1350,6 +1350,15 @@ void Ready_UI::OnClick()
 			send_packet.playerType = NetworkMGR::is_mage ? 0 : 1; // 0 : mage, 1 : warrior
 			PacketQueue::AddSendPacket(&send_packet);
 			cout << "READY!" << endl;
+			b_Ready = true;
+		}
+		else {
+			CS_ROOM_UNREADY_PACKET send_packet;
+			send_packet.size = sizeof(CS_ROOM_UNREADY_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_UNREADY_PACKET;
+			PacketQueue::AddSendPacket(&send_packet);
+			cout << "UNREADY!" << endl;
+			b_Ready = false;
 		}
 		/*{
 			CS_ROOM_START_PACKET send_packet;
