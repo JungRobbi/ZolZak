@@ -661,13 +661,13 @@ void Real_Make_Room_UI::OnClick()
 		PacketQueue::AddSendPacket(&send_packet);
 		delete[] p;
 
-		{
+		/*{
 			CS_ROOM_JOIN_PACKET send_packet;
 			send_packet.size = sizeof(CS_ROOM_JOIN_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_JOIN_PACKET;
-			send_packet.roomNum = GameScene::MainScene->SelectNum;
+			send_packet.roomNum = -1;
 			PacketQueue::AddSendPacket(&send_packet);
-		}
+		}*/
 	}
 
 	ChatMGR::m_textindex = 0;

@@ -654,6 +654,9 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		p_room->m_roomNum = rN;
 		p_room->start();
 		Room::roomlist.insert({ rN, p_room });
+
+		p_Client->m_roomNum = rN;
+		p_Client->m_pPlayer->m_roomNum = p_Client->m_roomNum;
 		for (auto& rc : RemoteClient::remoteClients) {
 			if (!rc.second->b_Enable.load())
 				continue;
@@ -681,7 +684,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 
 		p_Client->m_roomNum = recv_packet->roomNum;
 		p_Client->m_pPlayer->m_roomNum = p_Client->m_roomNum;
-
+		
 		Room::roomlist[recv_packet->roomNum]->Clients.insert({ p_Client->m_id, p_Client });
 
 		{ // Room Join Message
