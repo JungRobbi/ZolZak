@@ -829,10 +829,12 @@ void GameFramework::ChangeScene(unsigned char num)
 	if (m_pPlayer)
 		m_pPlayer->Release();
 
-	if (NetworkMGR::is_mage)
+	if (NetworkMGR::is_mage) {
 		m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
-	else m_pPlayer = new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
-
+	}
+	else {
+		m_pPlayer = new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
+	}
 	switch (num)
 	{
 	case LOGIN_SCENE:
@@ -1136,6 +1138,10 @@ void GameFramework::FrameAdvance()
 	GameScene::MainScene->update();
 
 	m_pPlayer->Update(Timer::GetTimeElapsed());
+	if (NetworkMGR::is_mage) {
+		dynamic_cast<MagePlayer*>(m_pPlayer)->fireball->ownerID = NetworkMGR::id;
+		dynamic_cast<MagePlayer*>(m_pPlayer)->fireball->explode->ownerID = NetworkMGR::id;
+	}
 	for (auto& p : m_OtherPlayers) {
 		if (p->GetUsed()) {
 			dynamic_cast<Player*>(p)->Update(Timer::GetTimeElapsed());

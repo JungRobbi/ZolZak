@@ -575,20 +575,22 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		CS_TEMP_HIT_MONSTER_PACKET* recv_packet = reinterpret_cast<CS_TEMP_HIT_MONSTER_PACKET*>(p_Packet);
 		Character* Monster;
 		{
-			auto p = find_if(Scene::scene->MonsterObjects.begin(),
-				Scene::scene->MonsterObjects.end(),
-				[&recv_packet](Object* lhs) {
-					return dynamic_cast<Character*>(lhs)->num == recv_packet->monster_id;
+			auto p = find_if(Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.begin(),
+				Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.end(),
+				[&recv_packet](Character* lhs) {
+					return lhs->num == recv_packet->monster_id;
 				});
 
-			if (p == Scene::scene->MonsterObjects.end())
+			if (p == Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.end()) {
+				cout << "찾을 수 없는 Monster Hit!" << endl;
+				cout << "recv_packet->monster_id - " << recv_packet->monster_id << endl;
 				break;
+			}
 
-			Monster = dynamic_cast<Character*>(*p);
+			Monster = *p;
 		}
 
 		Monster->GetHit(recv_packet->hit_damage);
-
 		// 다른 클라이언트들에게 남은 HP 정보 통신
 		for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 			if (!rc.second->b_Enable.load())

@@ -120,8 +120,19 @@ bool Boss_Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageI
 		switch (wParam)
 		{
 		case VK_DELETE:
-			if (Boss)
-				((Character*)Boss)->GetHit(20000);
+			if (Boss) {
+				if (!NetworkMGR::b_isNet) {
+					((Character*)Boss)->GetHit(20000);
+				}
+				else {
+					CS_TEMP_HIT_PLAYER_PACKET send_packet;
+					send_packet.size = sizeof(CS_TEMP_HIT_PLAYER_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_PLAYER_PACKET;
+					send_packet.player_id = NetworkMGR::id;
+					send_packet.hit_damage = 20000;
+					PacketQueue::AddSendPacket(&send_packet);
+				}
+			}
 		default:
 			break;
 		}
