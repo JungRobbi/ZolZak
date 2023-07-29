@@ -481,10 +481,13 @@ void Stage_GameScene::ClearMonster()
 		MonsterObjects.clear();
 	}
 	Boss = NULL;
-	auto iter = std::find(gameObjects.begin(), gameObjects.end(), StartNPC);
-	gameObjects.erase(iter);
-	iter = std::find(gameObjects.begin(), gameObjects.end(), EndNPC);
-	gameObjects.erase(iter);
+	if (gameObjects.size() > 0)
+	{
+		auto iter = std::find(gameObjects.begin(), gameObjects.end(), StartNPC);
+		gameObjects.erase(iter);
+		iter = std::find(gameObjects.begin(), gameObjects.end(), EndNPC);
+		gameObjects.erase(iter);
+	}
 }
 
 void Stage_GameScene::LoadAllModels(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
