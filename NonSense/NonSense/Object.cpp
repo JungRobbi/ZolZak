@@ -2319,6 +2319,8 @@ void FireBall::OnPrepareRender()
 		{
 			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
 			{
+				Sound* s = new Sound("Sound/Mage_Blast.mp3", false);
+				GameScene::MainScene->AddSound(s);
 				explode->Active = true;
 				explode->SetPosition(GetPosition());
 				Active = false;
@@ -2342,9 +2344,18 @@ void FireBall::OnPrepareRender()
 				}
 				else {
 					o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
-					o->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_HIT);
+					if (dynamic_cast<Shield*>(o))
+					{
+
+					}
+					else
+					{
+						o->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_HIT);
+					}
 					o->HitSound();
 				}
+				Sound* s = new Sound("Sound/Mage_Blast.mp3", false);
+				GameScene::MainScene->AddSound(s);
 				explode->Active = true;
 				explode->SetPosition(GetPosition());
 				Active = false;

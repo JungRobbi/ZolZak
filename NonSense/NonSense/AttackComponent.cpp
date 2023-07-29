@@ -14,6 +14,8 @@ void AttackComponent::Attack()
 		dynamic_cast<MagePlayer*>(gameObject)->fireball->SetPosition(gameObject->GetPosition().x, gameObject->GetPosition().y+0.5, gameObject->GetPosition().z);
 		dynamic_cast<MagePlayer*>(gameObject)->fireball->Direction = dynamic_cast<Player*>(gameObject)->GetCamera()->GetLookVector();
 		dynamic_cast<MagePlayer*>(gameObject)->fireball->Active = true;
+		Sound* s = new Sound("Sound/Mage_Fire.mp3", false);
+		GameScene::MainScene->AddSound(s);
 	}
 	else if (dynamic_cast<Player*>(gameObject))	// Player
 	{

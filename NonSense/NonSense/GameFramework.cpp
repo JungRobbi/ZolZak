@@ -939,23 +939,43 @@ void GameFramework::ChangeStage(unsigned char num)
 {
 	((Stage_GameScene*)GameScene::MainScene)->ClearMonster();
 	((Stage_GameScene*)GameScene::MainScene)->IsSoundDebuff = false;
-
+	
+	if (GameSceneState == BOSS_SCENE && num != BOSS_SCENE)
+	{
+		auto iter = std::find(GameScene::MainScene->Sounds.begin(), GameScene::MainScene->Sounds.end(), GameScene::MainScene->MainBGM);
+		GameScene::MainScene->Sounds.erase(iter);
+		Sound* s = new Sound("Sound/TestMusic.mp3", true);
+		GameScene::MainScene->MainBGM = s;
+		GameScene::MainScene->AddSound(s);
+	}
+	
 	switch (num)
 	{
 	case SIGHT_SCENE:
 		IsTouchDebuff = false;
 		((Stage_GameScene*)GameScene::MainScene)->SightStage(m_pDevice, m_pCommandList);
+		GameScene::MainScene->MainBGM->Replay();
 		break;
 	case HEARING_SCENE:
 		IsTouchDebuff = false;
 		((Stage_GameScene*)GameScene::MainScene)->HearingStage(m_pDevice, m_pCommandList);
+		GameScene::MainScene->MainBGM->Replay();
 		break;
 	case TOUCH_SCENE:
 		IsTouchDebuff = false;
 		((Stage_GameScene*)GameScene::MainScene)->TouchStage(m_pDevice, m_pCommandList);
+		GameScene::MainScene->MainBGM->Replay();
 		break;
 	case BOSS_SCENE:
 		((Stage_GameScene*)GameScene::MainScene)->BossStage(m_pDevice, m_pCommandList);
+		{
+			auto iter = std::find(GameScene::MainScene->Sounds.begin(), GameScene::MainScene->Sounds.end(), GameScene::MainScene->MainBGM);
+			GameScene::MainScene->Sounds.erase(iter);
+			delete GameScene::MainScene->MainBGM;
+			Sound* s = new Sound("Sound/BossStageBGM.mp3", true);
+			GameScene::MainScene->MainBGM = s;
+			GameScene::MainScene->AddSound(s);
+		}
 		break;
 	default:
 		break;
