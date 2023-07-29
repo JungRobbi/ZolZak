@@ -705,7 +705,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			send_packet.type = E_PACKET::E_PACKET_SC_ROOM_READY_PACKET;
 			send_packet.id = p_Client->m_id;
 			send_packet.playerType = p_Client->m_pPlayer->type;
-			strcpy_s(send_packet.name, recv_packet->name);
+			strcpy_s(send_packet.name, p_Client->name);
 			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 
@@ -743,6 +743,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			send_packet.size = sizeof(SC_ROOM_UNREADY_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_ROOM_UNREADY_PACKET;
 			send_packet.id = p_Client->m_id;
+			strcpy_s(send_packet.name, p_Client->name);
 			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 
@@ -833,6 +834,8 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	}
 	case E_PACKET_CS_DIE_PACKET: {
 		CS_DIE_PACKET* recv_packet = reinterpret_cast<CS_DIE_PACKET*>(p_Packet);
+		
+		p_Client->m_pPlayer->alive = false;
 
 		for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
 			if (rc->m_id == p_Client->m_id)

@@ -941,7 +941,10 @@ void GameFramework::ChangeScene(unsigned char num)
 	}
 
 	ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_PLAY;
-	if (num >= ROOM_SCENE) {
+	if (num == ROOM_SCENE) {
+		ChatMGR::SetInRoom(m_nWndClientWidth, m_nWndClientHeight);
+	}
+	else if (num >= SIGHT_SCENE) {
 		ChatMGR::SetInGame(m_nWndClientWidth, m_nWndClientHeight);
 	}
 	else if (num == LOGIN_SCENE) {

@@ -164,17 +164,17 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	switch (p_Packet[1]) // 패킷 타입
 	{
 	case E_PACKET::E_PACKET_SC_LOGIN_INFO: {
-		SC_LOGIN_INFO_PACKET* recv_packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(p_Packet);
-		cout << "로그인 정보 수신!" << endl;
+		//SC_LOGIN_INFO_PACKET* recv_packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(p_Packet);
+		//cout << "로그인 정보 수신!" << endl;
 
-		int RoomNum = GameScene::MainScene->SelectNum;
-		std::string ChannelName = "Channel_";
-		char buf[3];
-		::itoa(RoomNum, buf, 10);
-		ChannelName.append(buf);
-		GameFramework::MainGameFramework->GetVivoxSystem()->JoinChannel(ChannelName.c_str());
-		
-		GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
+		//int RoomNum = GameScene::MainScene->SelectNum;
+		//std::string ChannelName = "Channel_";
+		//char buf[3];
+		//::itoa(RoomNum, buf, 10);
+		//ChannelName.append(buf);
+		//GameFramework::MainGameFramework->GetVivoxSystem()->JoinChannel(ChannelName.c_str());
+		//
+		//GameFramework::MainGameFramework->ChangeScene(ROOM_SCENE);
 
 	//	GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
 
@@ -447,6 +447,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 
 		Monster->SetRemainHP(recv_packet->remain_hp);
+		Monster->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_HIT);
 		break;
 	}
 	case E_PACKET_SC_TEMP_HIT_PLAYER_PACKET: {
@@ -573,13 +574,35 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	case E_PACKET_SC_ROOM_READY_PACKET: {
 		SC_ROOM_READY_PACKET* recv_packet = reinterpret_cast<SC_ROOM_READY_PACKET*>(p_Packet);
 		// Room UI 갱신
-	//	GameFramework::MainGameFramework->ChangeScene(SIGHT_SCENE);
+		if (recv_packet->playerType == 0) { // mage
+			auto wname = ConverCtoWC(recv_packet->name);
+			std::wstring wstr{ wname };
+			wstr += L" Player - MAGE Ready!";
+
+			ChatMGR::StoreText(wstr.c_str());
+			delete wname;
+		}
+		else { // warrior
+			auto wname = ConverCtoWC(recv_packet->name);
+			std::wstring wstr{ wname };
+			wstr += L" Player - WARRIOR Ready!";
+
+			ChatMGR::StoreText(wstr.c_str());
+			delete wname;
+		}
+
 		break;
 	}
 	case E_PACKET_SC_ROOM_UNREADY_PACKET: {
 		SC_ROOM_UNREADY_PACKET* recv_packet = reinterpret_cast<SC_ROOM_UNREADY_PACKET*>(p_Packet);
 		// Room UI 갱신
-		
+
+		auto wname = ConverCtoWC(recv_packet->name);
+		std::wstring wstr{ wname };
+		wstr += L" Player - UnReady!";
+
+		ChatMGR::StoreText(wstr.c_str());
+		delete wname;
 		break; 
 	}
 	case E_PACKET_SC_JOIN_GAME_PACKET: {
