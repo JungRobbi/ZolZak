@@ -671,7 +671,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	case E_PACKET_CS_ROOM_JOIN_PACKET: {
 		CS_ROOM_JOIN_PACKET* recv_packet = reinterpret_cast<CS_ROOM_JOIN_PACKET*>(p_Packet);
 
-		if (false == Room::roomlist[p_Client->m_roomNum]->b_Accessible) {
+		if (false == Room::roomlist[recv_packet->roomNum]->b_Accessible) {
 			SC_ROOM_JOIN_FAIL_PACKET send_packet;
 			send_packet.size = sizeof(SC_ROOM_JOIN_FAIL_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_ROOM_JOIN_FAIL_PACKET;
@@ -679,9 +679,10 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			break;
 		}
 
-		Room::roomlist[recv_packet->roomNum]->Clients.insert({ p_Client->m_id, p_Client });
 		p_Client->m_roomNum = recv_packet->roomNum;
 		p_Client->m_pPlayer->m_roomNum = p_Client->m_roomNum;
+
+		Room::roomlist[recv_packet->roomNum]->Clients.insert({ p_Client->m_id, p_Client });
 
 		{ // Room Join Message
 			SC_ROOM_JOIN_OK_PACKET send_packet;
