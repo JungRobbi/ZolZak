@@ -295,6 +295,7 @@ void Player::GetHit(float damage)
 		if (m_RemainHP <= 0)
 		{
 			Die = true;
+			m_die = true;
 			GameFramework::MainGameFramework->ChangeToSpaceShipCamera();
 		}
 	}
@@ -572,7 +573,7 @@ void MagePlayer::Update(float fTimeElapsed)
 
 void MagePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	if (Die)
+	if (m_die)
 	{
 		return;
 	}
@@ -788,7 +789,7 @@ void WarriorPlayer::Update(float fTimeElapsed)
 
 void WarriorPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	if (Die)
+	if (m_die)
 	{
 		return;
 	}
