@@ -699,7 +699,20 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 
 		break;
-	}								
+	}				
+	case E_PACKET_SC_CLEAR_PACKET: {
+		SC_CLEAR_PACKET* recv_packet = reinterpret_cast<SC_CLEAR_PACKET*>(p_Packet);
+
+		if (recv_packet->ClearScene == (int)BOSS_SCENE) {
+			GameFramework::MainGameFramework->GameSceneState = LOBBY_SCENE;
+			GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
+		}
+		else {
+			GameFramework::MainGameFramework->GameSceneState = recv_packet->ClearScene;
+			GameFramework::MainGameFramework->ChangeScene(recv_packet->ClearScene + 1);
+		}
+		break;
+	}
 	default:
 		break;
 	}

@@ -34,4 +34,8 @@ public:
 
 	void start();
 	void update();
+
+	void CreateHearing();
+	void CreateTouch();
+	void CreateBoss();
 };

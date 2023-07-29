@@ -423,7 +423,6 @@ void Orc::CloseAttackEvent()
 }
 Skull::Skull(MonsterType type, int roomNum) : Monster(roomNum)
 {
-	Object* Hand = NULL;
 	m_type = type;
 	BoundSphere* bs = new BoundSphere();
 	BoundBox* bb = new BoundBox();
@@ -453,14 +452,14 @@ Skull::Skull(MonsterType type, int roomNum) : Monster(roomNum)
 	
 		break;
 	case MONSTER_TYPE_FAR:
-	{
+	/*{
 		
 		BoundSphere* bs2 = new BoundSphere();
 		bs2->SetNum(5);
 		WeaponFrame->AddComponent<SphereCollideComponent>();
 		WeaponFrame->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs2);
 		WeaponFrame->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, -0.05), 7);
-	}
+	}*/
 	AddComponent<MonsterAttackComponent>();
 	GetComponent<MonsterAttackComponent>()->SetAttackSpeed(3.0f);
 
@@ -506,7 +505,6 @@ Skull::Skull(MonsterType type, int roomNum) : Monster(roomNum)
 Skull::Skull(MonsterType type, std::shared_ptr<Scene> pScene) :
 	Monster(pScene)
 {
-	Object* Hand = NULL;
 	m_type = type;
 	BoundSphere* bs = new BoundSphere();
 	BoundBox* bb = new BoundBox();
@@ -536,14 +534,14 @@ Skull::Skull(MonsterType type, std::shared_ptr<Scene> pScene) :
 
 		break;
 	case MONSTER_TYPE_FAR:
-	{
+	/*{
 
 		BoundSphere* bs2 = new BoundSphere();
 		bs2->SetNum(5);
 		WeaponFrame->AddComponent<SphereCollideComponent>();
 		WeaponFrame->GetComponent<SphereCollideComponent>()->SetBoundingObject(bs2);
 		WeaponFrame->GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, -0.05), 7);
-	}
+	}*/
 	AddComponent<MonsterAttackComponent>();
 	GetComponent<MonsterAttackComponent>()->SetAttackSpeed(3.0f);
 

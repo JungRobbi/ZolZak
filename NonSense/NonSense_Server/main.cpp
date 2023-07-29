@@ -853,6 +853,52 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 
 		break;
 	}
+	case E_PACKET_CS_CLEAR_PACKET: {
+		CS_CLEAR_PACKET* recv_packet = reinterpret_cast<CS_CLEAR_PACKET*>(p_Packet);
+		// Clear 처리, Monster 빌드, Player 위치 변환
+
+		switch (recv_packet->ClearScene)
+		{
+		case 3: // SIGHT -> HEARING
+			for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
+				rc->m_pPlayer->SetPosition(XMFLOAT3(125.31, Scene::terrain->GetHeight(125.31, 18.39), 18.39));
+				rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(125.31, Scene::terrain->GetHeight(125.31, 18.39), 18.39));
+			}
+			Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.clear();
+			Room::roomlist[p_Client->m_roomNum]->CreateHearing();
+			break;		
+		case 4: // HEARING -> TOUCH
+			for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
+				rc->m_pPlayer->SetPosition(XMFLOAT3(226.04f, Scene::terrain->GetHeight(226.04f, 46.f), 46.f));
+				rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(226.04f, Scene::terrain->GetHeight(226.04f, 46.f), 46.f));
+			}
+			Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.clear();
+			Room::roomlist[p_Client->m_roomNum]->CreateTouch();
+			break;		
+		case 5: // TOUCH -> BOSS
+			for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
+				rc->m_pPlayer->SetPosition(XMFLOAT3(-145.1f, Scene::terrain->GetHeight(-145.1f, 174.98f), 174.98f));
+				rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(-145.1f, Scene::terrain->GetHeight(-145.1f, 174.98f), 174.98f));
+			}
+			Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.clear();
+			Room::roomlist[p_Client->m_roomNum]->CreateBoss();
+			break;		
+		case 6: // BOSS , all clear
+			break;
+		default:
+			break;
+		}
+
+
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
+			SC_CLEAR_PACKET send_packet;
+			send_packet.size = sizeof(SC_CLEAR_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_CLEAR_PACKET;
+			send_packet.ClearScene = recv_packet->ClearScene;
+			rc->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+		break;
+	}
 	default:
 		break;
 	}

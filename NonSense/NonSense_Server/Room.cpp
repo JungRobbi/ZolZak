@@ -28,48 +28,47 @@ void Room::start()
 	Object* TempObject = NULL;
 	TempObject = new Goblin(MONSTER_TYPE_CLOSE, scene);
 	TempObject->SetPosition(-8.1f, Scene::terrain->GetHeight(-8.1f, 91.15f), 91.15f);
-	((Character*)TempObject)->num = 10001;
+	((Character*)TempObject)->num = 11001;
 	TempObject->m_roomNum = m_roomNum;
 	TempObject = new Goblin(MONSTER_TYPE_FAR, scene);
 	TempObject->SetPosition(-2.23f, Scene::terrain->GetHeight(2.23f, 85.3f), 85.3f);
-	((Character*)TempObject)->num = 10002;
+	((Character*)TempObject)->num = 11002;
 	TempObject->m_roomNum = m_roomNum;
 	TempObject = new Goblin(MONSTER_TYPE_RUSH, scene);
 	TempObject->SetPosition(19.42f, Scene::terrain->GetHeight(19.42f, 80.73f), 80.73f);
-	((Character*)TempObject)->num = 10003;
+	((Character*)TempObject)->num = 11003;
 	TempObject->m_roomNum = m_roomNum;
-
 	TempObject = new Goblin(MONSTER_TYPE_RUSH, scene);
 	TempObject->SetPosition(-1.27f, Scene::terrain->GetHeight(-1.27f, 60.32f), 60.32f);
-	((Character*)TempObject)->num = 10004;
+	((Character*)TempObject)->num = 11004;
 	TempObject->m_roomNum = m_roomNum;
 	TempObject = new Goblin(MONSTER_TYPE_CLOSE, scene);
 	TempObject->SetPosition(-0.14f, Scene::terrain->GetHeight(-0.14f, 36.66f), 36.66f);
-	((Character*)TempObject)->num = 10005;
+	((Character*)TempObject)->num = 11005;
 	TempObject->m_roomNum = m_roomNum;
 	TempObject = new Goblin(MONSTER_TYPE_CLOSE, scene);
 	TempObject->SetPosition(15.05f, Scene::terrain->GetHeight(15.05f, 26.07f), 26.07f);
-	((Character*)TempObject)->num = 10006;
+	((Character*)TempObject)->num = 11006;
 	TempObject->m_roomNum = m_roomNum;
 	TempObject = new Goblin(MONSTER_TYPE_FAR, scene);
 	TempObject->SetPosition(25.01f, Scene::terrain->GetHeight(25.01f, 42.33f), 42.33f);
-	((Character*)TempObject)->num = 10007;
+	((Character*)TempObject)->num = 11007;
 	TempObject->m_roomNum = m_roomNum;
 	TempObject = new Goblin(MONSTER_TYPE_FAR, scene);
 	TempObject->SetPosition(53.29f, Scene::terrain->GetHeight(53.29f, 45.72f), 45.72f);
-	((Character*)TempObject)->num = 10008;
+	((Character*)TempObject)->num = 11008;
 	TempObject->m_roomNum = m_roomNum;
 	TempObject = new Goblin(MONSTER_TYPE_FAR, scene);
 	TempObject->SetPosition(93.69f, Scene::terrain->GetHeight(93.69f, 34.69f), 34.69f);
-	((Character*)TempObject)->num = 10009;
+	((Character*)TempObject)->num = 11009;
 	TempObject->m_roomNum = m_roomNum;
 	TempObject = new Goblin(MONSTER_TYPE_FAR, scene);
 	TempObject->SetPosition(100.43f, Scene::terrain->GetHeight(100.43f, 31.01f), 31.01f);
-	((Character*)TempObject)->num = 10010;
+	((Character*)TempObject)->num = 11010;
 	TempObject->m_roomNum = m_roomNum;
 	TempObject = new Goblin(MONSTER_TYPE_RUSH, scene);
 	TempObject->SetPosition(97.29f, Scene::terrain->GetHeight(97.29f, 30.13f), 30.13f);
-	((Character*)TempObject)->num = 10011;
+	((Character*)TempObject)->num = 11011;
 	TempObject->m_roomNum = m_roomNum;
 
 	//TempObject = new Shield(MONSTER_TYPE_BOSS, scene);
@@ -258,8 +257,9 @@ void Room::update()
 
 	//Monster test
 	for (auto& monster : scene->MonsterObjects) {
-		if (monster->GetRemainHP() < 0.f)
+		if (monster->GetRemainHP() < 0.f) {
 			continue;
+		}
 
 		if (((Character*)monster)->GetRemainHP() > 0.f) {
 			//Monster Pos
@@ -400,4 +400,141 @@ void Room::update()
 			
 		}
 	}
+}
+
+void Room::CreateHearing()
+{
+	Object* TempObject = NULL;
+	TempObject = new Orc(MONSTER_TYPE_CLOSE, scene);
+	TempObject->SetPosition(-149.62f, Scene::terrain->GetHeight(-149.62f, 8.02f), 8.02f);
+	((Character*)TempObject)->num = 10101;
+	TempObject->m_roomNum = m_roomNum;
+	
+	TempObject = new Orc(MONSTER_TYPE_FAR, scene);
+	TempObject->SetPosition(-159.09f, Scene::terrain->GetHeight(-159.09f, 31.32f), 31.32f);
+	((Character*)TempObject)->num = 10102;
+	TempObject->m_roomNum = m_roomNum;
+
+	TempObject = new Orc(MONSTER_TYPE_RUSH, scene);
+	TempObject->SetPosition(176.4f, Scene::terrain->GetHeight(176.4f, 42.8f), 42.8f);
+	((Character*)TempObject)->num = 10103;
+	TempObject->m_roomNum = m_roomNum;
+
+	TempObject = new Orc(MONSTER_TYPE_CLOSE, scene);
+	TempObject->SetPosition(195.55f, Scene::terrain->GetHeight(195.55f, 50.82f), 50.82f);
+	((Character*)TempObject)->num = 10104;
+	TempObject->m_roomNum = m_roomNum;
+
+	TempObject = new Orc(MONSTER_TYPE_CLOSE, scene);
+	TempObject->SetPosition(226.1f, Scene::terrain->GetHeight(226.1f, 53.4f), 53.4f);
+	((Character*)TempObject)->num = 10105;
+	TempObject->m_roomNum = m_roomNum;
+	
+	TempObject = new Orc(MONSTER_TYPE_FAR, scene);
+	TempObject->SetPosition(247.1f, Scene::terrain->GetHeight(247.1f, 31.1f), 31.1f);
+	((Character*)TempObject)->num = 10106;
+	TempObject->m_roomNum = m_roomNum;
+
+	TempObject = new Orc(MONSTER_TYPE_FAR, scene);
+	TempObject->SetPosition(280.7, Scene::terrain->GetHeight(280.7, 20.2), 20.2);
+	((Character*)TempObject)->num = 10107;
+	TempObject->m_roomNum = m_roomNum;
+
+	TempObject = new Orc(MONSTER_TYPE_RUSH, scene);
+	TempObject->SetPosition(273.1f, Scene::terrain->GetHeight(273.1f, -12.6f), -12.6f);
+	((Character*)TempObject)->num = 10108;
+	TempObject->m_roomNum = m_roomNum;
+
+	TempObject = new Orc(MONSTER_TYPE_RUSH, scene);
+	TempObject->SetPosition(256.9f, Scene::terrain->GetHeight(256.9f, -37.3f), -37.3f);
+	((Character*)TempObject)->num = 10109;
+	TempObject->m_roomNum = m_roomNum;
+
+	TempObject = new Orc(MONSTER_TYPE_RUSH, scene);
+	TempObject->SetPosition(215.f, Scene::terrain->GetHeight(215.f, -52.21f), -52.21f);
+	((Character*)TempObject)->num = 10110;
+	TempObject->m_roomNum = m_roomNum;
+	
+	TempObject = new Orc(MONSTER_TYPE_CLOSE, scene);
+	TempObject->SetPosition(196.f, Scene::terrain->GetHeight(196.f, -46.3f), -46.3f);
+	((Character*)TempObject)->num = 10111;
+	TempObject->m_roomNum = m_roomNum;
+
+	TempObject = new Orc(MONSTER_TYPE_CLOSE, scene);
+	TempObject->SetPosition(176.2f, Scene::terrain->GetHeight(176.2f, -25.f), -25.f);
+	((Character*)TempObject)->num = 10112;
+	TempObject->m_roomNum = m_roomNum;
+
+	TempObject = new Orc(MONSTER_TYPE_FAR, scene);
+	TempObject->SetPosition(178.5f, Scene::terrain->GetHeight(178.5f, -48.3f), -48.3f);
+	((Character*)TempObject)->num = 10113;
+	TempObject->m_roomNum = m_roomNum;
+	
+	TempObject = new Orc(MONSTER_TYPE_RUSH, scene);
+	TempObject->SetPosition(184.9f, Scene::terrain->GetHeight(184.9f, -70.3f), -70.3f);
+	((Character*)TempObject)->num = 10114;
+	TempObject->m_roomNum = m_roomNum;
+	
+}
+
+void Room::CreateTouch()
+{
+	Object* TempObject = NULL;
+	TempObject = new Skull(MONSTER_TYPE_CLOSE, scene);
+	TempObject->SetPosition(206.1f, Scene::terrain->GetHeight(206.1f, 82.9f), 82.9f);
+	((Character*)TempObject)->num = 10201;
+	TempObject->m_roomNum = m_roomNum;
+	TempObject = new Skull(MONSTER_TYPE_FAR, scene);
+	TempObject->SetPosition(172.9f, Scene::terrain->GetHeight(172.9f, 71.6f), 71.6f);
+	((Character*)TempObject)->num = 10202;
+	TempObject->m_roomNum = m_roomNum;
+	TempObject = new Skull(MONSTER_TYPE_RUSH, scene);
+	TempObject->SetPosition(190.1f, Scene::terrain->GetHeight(190.1f, 128.8f), 128.8f);
+	((Character*)TempObject)->num = 10203;
+	TempObject->m_roomNum = m_roomNum;
+	TempObject = new Skull(MONSTER_TYPE_RUSH, scene);
+	TempObject->SetPosition(166.62f, Scene::terrain->GetHeight(166.62f, 142.3f), 142.3f);
+	((Character*)TempObject)->num = 10204;
+	TempObject->m_roomNum = m_roomNum;
+	TempObject = new Skull(MONSTER_TYPE_CLOSE, scene);
+	TempObject->SetPosition(141.4f, Scene::terrain->GetHeight(141.4f, 156.7f), 156.7f);
+	((Character*)TempObject)->num = 10205;
+	TempObject->m_roomNum = m_roomNum;
+	TempObject = new Skull(MONSTER_TYPE_CLOSE, scene);
+	TempObject->SetPosition(126.5f, Scene::terrain->GetHeight(126.5f, 184.9f), 184.9f);
+	((Character*)TempObject)->num = 10206;
+	TempObject->m_roomNum = m_roomNum;
+	TempObject = new Skull(MONSTER_TYPE_FAR, scene);
+	TempObject->SetPosition(99.f, Scene::terrain->GetHeight(99.f, 171.5f), 171.5f);
+	((Character*)TempObject)->num = 10207;
+	TempObject->m_roomNum = m_roomNum;
+	TempObject = new Skull(MONSTER_TYPE_FAR, scene);
+	TempObject->SetPosition(74.1f, Scene::terrain->GetHeight(74.1f, 162.1f), 162.1f);
+	((Character*)TempObject)->num = 10208;
+	TempObject->m_roomNum = m_roomNum;
+	TempObject = new Skull(MONSTER_TYPE_CLOSE, scene);
+	TempObject->SetPosition(45.9f, Scene::terrain->GetHeight(45.9f, 153.3f), 153.3f);
+	((Character*)TempObject)->num = 10209;
+	TempObject->m_roomNum = m_roomNum;
+	TempObject = new Skull(MONSTER_TYPE_FAR, scene);
+	TempObject->SetPosition(153.3f, Scene::terrain->GetHeight(153.3f, 146.6f), 146.6f);
+	((Character*)TempObject)->num = 10210;
+	TempObject->m_roomNum = m_roomNum;
+	TempObject = new Skull(MONSTER_TYPE_RUSH, scene);
+	TempObject->SetPosition(154.9f, Scene::terrain->GetHeight(154.9f, 151.8f), 151.8f);
+	((Character*)TempObject)->num = 10211;
+	TempObject->m_roomNum = m_roomNum;
+	TempObject = new Skull(MONSTER_TYPE_RUSH, scene);
+	TempObject->SetPosition(161.9f, Scene::terrain->GetHeight(161.9f, 128.8f), 128.8f);
+	((Character*)TempObject)->num = 10212;
+	TempObject->m_roomNum = m_roomNum;
+}
+
+void Room::CreateBoss()
+{
+	Object* TempObject = NULL;
+	TempObject = new Shield(MONSTER_TYPE_BOSS, scene);
+	TempObject->SetPosition(-177.75f, Scene::terrain->GetHeight(-177.75f, 173.79f), 173.79f);
+	((Character*)TempObject)->num = 22222;
+	TempObject->m_roomNum = m_roomNum;
 }
