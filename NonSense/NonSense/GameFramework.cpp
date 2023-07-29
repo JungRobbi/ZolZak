@@ -411,6 +411,8 @@ void GameFramework::CreateDepthStencilView()
 
 void GameFramework::BuildObjects()
 {
+
+
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_RTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (::RTVDescriptorSize * m_nSwapChainBuffers);
 
@@ -451,6 +453,7 @@ void GameFramework::BuildObjects()
 		p->ReleaseUploadBuffers();
 	m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
 	Timer::Reset();
+	MainBGM = new Sound("Sound/LobbyBGM.mp3", true);
 }
 
 void GameFramework::ReleaseObjects()
@@ -821,12 +824,21 @@ void GameFramework::ChangeScene(unsigned char num)
 	if (num > ROOM_SCENE)
 	{
 		GameScene::MainScene = m_GameScenes.at(3);
+		delete MainBGM;
 	}
 	else
 	{
 		GameScene::MainScene = m_GameScenes.at(num);
 	}
 	
+	if (num <= ROOM_SCENE)
+	{
+		if (GameSceneState > ROOM_SCENE)
+		{
+			MainBGM = new Sound("Sound/LobbyBGM.mp3",true);
+		}
+	}
+
 	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
 	if (num != LOGIN_SCENE) {
