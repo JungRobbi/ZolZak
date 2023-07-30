@@ -2347,20 +2347,20 @@ void FireBall::OnPrepareRender()
 			}
 		}
 	}
-	if (ownerID == NetworkMGR::id) {
-		for (auto& o : GameScene::MainScene->MonsterObjects)
+	for (auto& o : GameScene::MainScene->MonsterObjects)
+	{
+		if (o->GetRemainHP() <= 0.0f)
+			continue;
+		if (o->GetComponent<SphereCollideComponent>())
 		{
-			if (o->GetRemainHP() <= 0.0f)
-				continue;
-			if (o->GetComponent<SphereCollideComponent>())
+			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
-				if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
-				{
-					Sound* s = new Sound("Sound/Mage_Blast.mp3", false);
-					GameScene::MainScene->AddSound(s);
-					explode->Active = true;
-					explode->SetPosition(GetPosition());
-					Active = false;
+				Sound* s = new Sound("Sound/Mage_Blast.mp3", false);
+				GameScene::MainScene->AddSound(s);
+				explode->Active = true;
+				explode->SetPosition(GetPosition());
+				Active = false;
+				if (ownerID == NetworkMGR::id) {
 					if (NetworkMGR::b_isNet) {
 						CS_TEMP_HIT_MONSTER_PACKET send_packet;
 						send_packet.size = sizeof(CS_TEMP_HIT_MONSTER_PACKET);
@@ -2381,11 +2381,12 @@ void FireBall::OnPrepareRender()
 						}
 						o->HitSound();
 					}
-					break;
 				}
+				break;
 			}
 		}
 	}
+	
 }
 
 void FireBall::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -2448,17 +2449,18 @@ Explosion::Explosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCo
 void Explosion::OnPrepareRender()
 {
 	GetComponent<SphereCollideComponent>()->Radius += 0.05;
-	if (ownerID == NetworkMGR::id) {
-		for (auto& o : GameScene::MainScene->MonsterObjects)
+	
+	for (auto& o : GameScene::MainScene->MonsterObjects)
+	{
+		if (o->GetRemainHP() <= 0.0f)
+			continue;
+		if (o->GetComponent<SphereCollideComponent>())
 		{
-			if (o->GetRemainHP() <= 0.0f)
-				continue;
-			if (o->GetComponent<SphereCollideComponent>())
+			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
-				if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
+				if (!o->MageDamage)
 				{
-					if (!o->MageDamage)
-					{
+					if (ownerID == NetworkMGR::id) {
 						if (NetworkMGR::b_isNet) {
 							CS_TEMP_HIT_MONSTER_PACKET send_packet;
 							send_packet.size = sizeof(CS_TEMP_HIT_MONSTER_PACKET);
@@ -2473,11 +2475,9 @@ void Explosion::OnPrepareRender()
 						o->MageDamage = true;
 					}
 				}
+
 			}
 		}
-	}
-	else {
-		cout << "ownerID - " << ownerID << "  NetworkMGR::id - " << NetworkMGR::id << endl; 
 	}
 	if (GetComponent<SphereCollideComponent>()->Radius >= 2.5)
 	{
