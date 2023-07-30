@@ -2349,6 +2349,8 @@ void FireBall::OnPrepareRender()
 	if (ownerID == NetworkMGR::id) {
 		for (auto& o : GameScene::MainScene->MonsterObjects)
 		{
+			if (o->GetRemainHP() <= 0.0f)
+				continue;
 			if (o->GetComponent<SphereCollideComponent>())
 			{
 				if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
@@ -2365,15 +2367,6 @@ void FireBall::OnPrepareRender()
 						send_packet.monster_id = o->GetNum();
 						send_packet.hit_damage = GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100));
 						PacketQueue::AddSendPacket(&send_packet);
-						if (dynamic_cast<Shield*>(o))
-						{
-
-						}
-						else
-						{
-							o->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_HIT);
-						}
-						o->HitSound();
 					}
 					else {
 						o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
@@ -2457,6 +2450,8 @@ void Explosion::OnPrepareRender()
 	if (ownerID == NetworkMGR::id) {
 		for (auto& o : GameScene::MainScene->MonsterObjects)
 		{
+			if (o->GetRemainHP() <= 0.0f)
+				continue;
 			if (o->GetComponent<SphereCollideComponent>())
 			{
 				if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))

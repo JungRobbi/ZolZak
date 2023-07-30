@@ -314,7 +314,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			player->GetComponent<PlayerMovementComponent>()->b_Dash = true;
 		}
 		else if ((E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype == E_PLAYER_ANIMATION_TYPE::E_ATTACK0) {
-			player->GetComponent<AttackComponent>()->Attack();
+			player->GetComponent<AttackComponent>()->b_Attack = true;
 		}
 		else {
 			player->GetComponent<PlayerMovementComponent>()->Animation_type = (E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype;
@@ -432,7 +432,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET_SC_TEMP_HIT_MONSTER_PACKET: {
 		SC_TEMP_HIT_MONSTER_PACKET* recv_packet = reinterpret_cast<SC_TEMP_HIT_MONSTER_PACKET*>(p_Packet);
-		Character* Monster;
+		Character* monster;
 		{
 			auto p = find_if(GameScene::MainScene->MonsterObjects.begin(),
 				GameScene::MainScene->MonsterObjects.end(),
@@ -443,11 +443,14 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			if (p == GameScene::MainScene->MonsterObjects.end())
 				break;
 
-			Monster = dynamic_cast<Character*>(*p);
+			monster = dynamic_cast<Character*>(*p);
 		}
 
-		Monster->SetRemainHP(recv_packet->remain_hp);
-		Monster->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_HIT);
+		monster->SetRemainHP(recv_packet->remain_hp);
+		if (recv_packet->remain_hp > 0.0f) {
+			monster->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_HIT);
+			dynamic_cast<Monster*>(monster)->HitSound();
+		}
 		break;
 	}
 	case E_PACKET_SC_TEMP_HIT_PLAYER_PACKET: {
@@ -684,6 +687,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		Player* player;
 		if (recv_packet->player_id == NetworkMGR::id) {
 			player = GameFramework::MainGameFramework->m_pPlayer;
+			Die = true;
 		}
 		else {
 			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
@@ -697,7 +701,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 
 			player = dynamic_cast<Player*>(*p);
 		}
-
+		player->m_die = true;
 		break;
 	}				
 	case E_PACKET_SC_CLEAR_PACKET: {

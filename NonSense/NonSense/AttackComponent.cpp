@@ -31,6 +31,8 @@ void AttackComponent::Attack()
 			if (AttackRange) {
 				for (auto& monster : GameScene::MainScene->MonsterObjects)
 				{
+					if (monster->GetRemainHP() <= 0.0f)
+						continue;
 					if (AttackRange->Intersects(*monster->GetComponent<SphereCollideComponent>()->GetBoundingObject())) {
 						if (!NetworkMGR::b_isNet) {
 							monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100)));
@@ -51,15 +53,6 @@ void AttackComponent::Attack()
 						send_packet.monster_id = monster->GetNum();
 						send_packet.hit_damage = dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100));
 						PacketQueue::AddSendPacket(&send_packet);
-						if (dynamic_cast<Shield*>(monster))
-						{
-
-						}
-						else
-						{
-							monster->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_M_HIT);
-						}
-						monster->HitSound();
 					}
 				}
 			}
