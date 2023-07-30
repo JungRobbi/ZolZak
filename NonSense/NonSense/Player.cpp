@@ -417,6 +417,18 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 
 	AddComponent<PlayerMovementComponent>();
 	AddComponent<AttackComponent>();
+	if (!Magical)
+	{
+		CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
+		BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
+		bb->SetNum(3);
+		GetComponent<AttackComponent>()->SetBoundingObject(bb);
+		GetComponent<AttackComponent>()->Type_ComboAttack = true;
+	}
+	else
+	{
+		GetComponent<AttackComponent>()->Type_ComboAttack = false;
+	}
 	GetComponent<AttackComponent>()->SetAttackDuration(1.5);
 	{
 		XMFLOAT3 pos;
@@ -494,6 +506,25 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 
 		m_pSkinnedAnimationController->AddAnimationEvent("FootStepREvent", E_RUN, 0.13, FootStepREvent);
 		m_pSkinnedAnimationController->AddAnimationEvent("FootStepLEvent", E_RUN, 0.33, FootStepLEvent);
+
+		std::function<void()> SwingSound1 = [this]() {
+			Sound* s = new Sound("Sound/Warrior_Swip_1.mp3", false);
+			GameScene::MainScene->AddSound(s);
+		};
+		std::function<void()> SwingSound2 = [this]() {
+			Sound* s = new Sound("Sound/Warrior_Swip_2.mp3", false);
+			GameScene::MainScene->AddSound(s);
+		};
+		std::function<void()> SwingSound3 = [this]() {
+			Sound* s = new Sound("Sound/Warrior_Swip_3.mp3", false);
+			GameScene::MainScene->AddSound(s);
+		};
+
+		m_pSkinnedAnimationController->AddAnimationEvent("SwingSound1", 6, 0.15, SwingSound1);
+
+		m_pSkinnedAnimationController->AddAnimationEvent("SwingSound2", 8, 0.15, SwingSound2);
+
+		m_pSkinnedAnimationController->AddAnimationEvent("SwingSound3", 9, 0.15, SwingSound3);
 	}
 }
 
