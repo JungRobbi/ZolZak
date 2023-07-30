@@ -394,7 +394,11 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 
 	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,Magical);
 	fireball = new FireBall(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	
+	m_pHP_UI->SetParentUI(m_pUI);
+	m_pHP_Dec_UI->SetParentUI(m_pUI);
 
 	m_pBoundingShader = new BoundingShader();
 	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -415,7 +419,6 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	AddComponent<AttackComponent>();
 	if (!Magical)
 	{
-		m_pUI = new Warrior_Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
 		BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
 		bb->SetNum(3);
@@ -424,12 +427,9 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	}
 	else
 	{
-		m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		GetComponent<AttackComponent>()->Type_ComboAttack = false;
 	}
 	GetComponent<AttackComponent>()->SetAttackDuration(1.5);
-	m_pHP_UI->SetParentUI(m_pUI);
-	m_pHP_Dec_UI->SetParentUI(m_pUI);
 	{
 		XMFLOAT3 pos;
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
@@ -667,7 +667,6 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pUI = new Warrior_Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	fireball = new FireBall(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	m_pHP_UI->SetParentUI(m_pUI);
