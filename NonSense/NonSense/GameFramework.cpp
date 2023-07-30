@@ -573,6 +573,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 						CS_LOGIN_PACKET send_packet;
 						send_packet.size = sizeof(CS_LOGIN_PACKET);
 						send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
+						ZeroMemory(send_packet.name, sizeof(send_packet.name));
 						memcpy(send_packet.name, NetworkMGR::name.c_str(), NetworkMGR::name.size());
 						PacketQueue::AddSendPacket(&send_packet);
 					}
@@ -620,11 +621,11 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				if (ChatMGR::m_HangulMode == E_MODE_HANGUL::E_MODE_ENGLISH) {
 					if (isalpha(wParam)) {
 						if (scene_type < ROOM_SCENE) {
-							if (ChatMGR::m_textindex < NAME_SIZE)
+							if (ChatMGR::m_textindex < NAME_SIZE - 1)
 								ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
 						}
 						else {
-							if (ChatMGR::m_textindex < CHAT_SIZE)
+							if (ChatMGR::m_textindex < CHAT_SIZE - 1)
 								ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
 						}
 					}

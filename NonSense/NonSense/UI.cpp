@@ -319,6 +319,7 @@ void Login_UI::OnClick()
 			CS_LOGIN_PACKET send_packet;
 			send_packet.size = sizeof(CS_LOGIN_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_CS_LOGIN;
+			ZeroMemory(send_packet.name, sizeof(send_packet.name));
 			memcpy(send_packet.name, NetworkMGR::name.c_str(), NetworkMGR::name.size());
 			PacketQueue::AddSendPacket(&send_packet);
 		}
@@ -1350,6 +1351,7 @@ void Ready_UI::OnClick()
 			send_packet.size = sizeof(CS_ROOM_READY_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_CS_ROOM_READY_PACKET;
 			send_packet.id = NetworkMGR::id;
+			ZeroMemory(send_packet.name, sizeof(send_packet.name));
 			memcpy(send_packet.name, NetworkMGR::name.c_str(), sizeof(NetworkMGR::name.c_str()));
 			send_packet.playerType = NetworkMGR::is_mage ? 0 : 1; // 0 : mage, 1 : warrior
 			PacketQueue::AddSendPacket(&send_packet);
