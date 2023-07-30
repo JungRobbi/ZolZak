@@ -722,8 +722,17 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 								ScriptMode = false;
 								ScriptNum = 0;
 								TalkingNPC = 0;
-
-								ChangeScene(GameSceneState + 1);
+								//Clear Packet
+								if (NetworkMGR::b_isNet) {
+									CS_CLEAR_PACKET send_packet;
+									send_packet.size = sizeof(CS_CLEAR_PACKET);
+									send_packet.type = E_PACKET::E_PACKET_CS_CLEAR_PACKET;
+									send_packet.ClearScene = (int)GameSceneState;
+									PacketQueue::AddSendPacket(&send_packet);
+								}
+								else {
+									ChangeScene(GameSceneState + 1);
+								}
 								break;
 							}
 						}
@@ -739,16 +748,52 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				break;
 
 			case '1':
-				ChangeScene(SIGHT_SCENE);
+				if (NetworkMGR::b_isNet) {
+					CS_CLEAR_PACKET send_packet;
+					send_packet.size = sizeof(CS_CLEAR_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_CS_CLEAR_PACKET;
+					send_packet.ClearScene = (int)SIGHT_SCENE;
+					PacketQueue::AddSendPacket(&send_packet);
+				}
+				else {
+					ChangeScene(SIGHT_SCENE);
+				}
 				break;
 			case '2':
-				ChangeScene(HEARING_SCENE);
+				if (NetworkMGR::b_isNet) {
+					CS_CLEAR_PACKET send_packet;
+					send_packet.size = sizeof(CS_CLEAR_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_CS_CLEAR_PACKET;
+					send_packet.ClearScene = (int)HEARING_SCENE;
+					PacketQueue::AddSendPacket(&send_packet);
+				}
+				else {
+					ChangeScene(HEARING_SCENE);
+				}
 				break;
 			case '3':
-				ChangeScene(TOUCH_SCENE);
+				if (NetworkMGR::b_isNet) {
+					CS_CLEAR_PACKET send_packet;
+					send_packet.size = sizeof(CS_CLEAR_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_CS_CLEAR_PACKET;
+					send_packet.ClearScene = (int)TOUCH_SCENE;
+					PacketQueue::AddSendPacket(&send_packet);
+				}
+				else {
+					ChangeScene(TOUCH_SCENE);
+				}
 				break;
 			case '4':
-				ChangeScene(BOSS_SCENE);
+				if (NetworkMGR::b_isNet) {
+					CS_CLEAR_PACKET send_packet;
+					send_packet.size = sizeof(CS_CLEAR_PACKET);
+					send_packet.type = E_PACKET::E_PACKET_CS_CLEAR_PACKET;
+					send_packet.ClearScene = (int)BOSS_SCENE;
+					PacketQueue::AddSendPacket(&send_packet);
+				}
+				else {
+					ChangeScene(BOSS_SCENE);
+				}
 				break;
 			case '7':
 				

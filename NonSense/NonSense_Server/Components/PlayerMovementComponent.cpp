@@ -216,7 +216,7 @@ void PlayerMovementComponent::Dash()
 
 	XMFLOAT3 look = GetLookVector();
 	float DistanceRatio = DashDistance / DashDuration;
-//	SetMaxVelocityXZ(6.5f);
+	SetMaxVelocityXZ(6.5f);
 	m_xmf3Velocity.x += look.x * DistanceRatio;
 	m_xmf3Velocity.y += look.y * DistanceRatio;
 	m_xmf3Velocity.z += look.z * DistanceRatio;
