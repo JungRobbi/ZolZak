@@ -40,7 +40,6 @@ void Lobby_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	Make_Title_UI* m_Make_Title_UI = new Make_Title_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Real_Make_Room_UI* m_Real_Make_Room_UI = new Real_Make_Room_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	m_Real_Make_Room_UI->SetParentUI(m_Make_Title_UI);
 
 	Loading_UI* m_Loading_UI = new Loading_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);

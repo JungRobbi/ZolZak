@@ -298,7 +298,7 @@ float4 PSBillboard(VS_BillboardOUTPUT input) : SV_TARGET
 	float4 cColor = gtxtUITexture.Sample(gssBorder, input.uv);
     if (darkness < -0.5)
         return (float4((cColor.r + cColor.b + cColor.g) / 3, (cColor.r + cColor.b + cColor.g) / 3, (cColor.r + cColor.b + cColor.g) / 3, 1));
-	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),3) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),3) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),3) * darkness),cColor.a);
+	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),7) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),7) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),7) * darkness),cColor.a);
 	return(cColor);
 
 }
@@ -384,7 +384,7 @@ float4 PSScreen(VS_SCREEN_OUTPUT input) : SV_Target
 	float4 cColor = RenderInfor[2][int2(input.position.xy)] * Lighting(RenderInfor[0][int2(input.position.xy)], RenderInfor[1][int2(input.position.xy)], gf3CameraDirection, ToonShading) * ShadowFactor;
 	if(darkness < -0.5)
         return (float4((cColor.r + cColor.b + cColor.g) / 3, (cColor.r + cColor.b + cColor.g) / 3, (cColor.r + cColor.b + cColor.g) / 3,1));
-	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),3) * darkness), cColor.a);
+	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),7) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),7) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.position.xy)].r),7) * darkness), cColor.a);
 	if (Edge && darkness<0.5)
 		return (LineColor);
 
