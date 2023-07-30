@@ -1062,6 +1062,7 @@ void GameFramework::ChangeStage(unsigned char num)
 		break;
 	case TOUCH_SCENE:
 		IsTouchDebuff = false;
+		Touch_Debuff(-10);
 		((Stage_GameScene*)GameScene::MainScene)->TouchStage(m_pDevice, m_pCommandList);
 		GameScene::MainScene->MainBGM->Replay();
 		ChatMGR::TouchTextUI();
