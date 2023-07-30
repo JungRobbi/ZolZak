@@ -411,7 +411,7 @@ void LoadMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandL
 		{
 			nReads = (UINT)::fread(&BBCenter, sizeof(XMFLOAT3), 1, OpenedFile);
 			nReads = (UINT)::fread(&BBExtents, sizeof(XMFLOAT3), 1, OpenedFile);
-			//m_xmBoundingBox = BoundingOrientedBox(BBCenter, BBExtents, XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+			m_xmBoundingBox = BoundingOrientedBox(BBCenter, BBExtents, XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 		}
 		else if (!strcmp(pstrToken, "<Positions>:"))
 		{

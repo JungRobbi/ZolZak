@@ -1209,6 +1209,7 @@ void Object::LoadMapData(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 				bs->SetNum(4);
 				nReads = (UINT)::fread(&pObject->m_xmf4x4ToParent, sizeof(float), 16, OpenedFile);
 
+				pObject->UpdateTransform(NULL);
 				pObject->AddComponent<BoxCollideComponent>();
 				pObject->GetComponent<BoxCollideComponent>()->SetBoundingObject(bb);
 
@@ -1606,7 +1607,7 @@ void Object::OnPrepareRender()
 }
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	if (Do_Render)
+	if (Do_Render && IsVisible(pCamera))
 	{
 		OnPrepareRender();
 		if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
