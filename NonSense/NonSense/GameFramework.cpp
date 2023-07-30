@@ -609,11 +609,11 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 				break;
 			case ' ':
 				if (scene_type < ROOM_SCENE) {
-					if (ChatMGR::m_textindex < NAME_SIZE)
+					if (ChatMGR::m_textindex < NAME_SIZE - 1)
 						ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
 				}
 				else {
-					if (ChatMGR::m_textindex < CHAT_SIZE)
+					if (ChatMGR::m_textindex < CHAT_SIZE - 1)
 						ChatMGR::m_textbuf[ChatMGR::m_textindex++] = wParam;
 				}
 				break;
