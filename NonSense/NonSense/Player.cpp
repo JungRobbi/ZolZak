@@ -302,7 +302,7 @@ void Player::GetHit(float damage)
 				send_packet.type = E_PACKET::E_PACKET_CS_DIE_PACKET;
 				PacketQueue::AddSendPacket(&send_packet);
 			}
-			GameFramework::MainGameFramework->ChangeToSpaceShipCamera();
+		//	GameFramework::MainGameFramework->ChangeToSpaceShipCamera();
 		}
 	}
 }
