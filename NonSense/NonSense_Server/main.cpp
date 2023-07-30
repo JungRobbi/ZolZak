@@ -741,9 +741,11 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	case E_PACKET_CS_ROOM_UNREADY_PACKET: {
 		CS_ROOM_UNREADY_PACKET* recv_packet = reinterpret_cast<CS_ROOM_UNREADY_PACKET*>(p_Packet);
 		Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.erase(
-			find(Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.begin(),
+			find_if(Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.begin(),
 				Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.end(),
-				p_Client));
+				[p_Client](const shared_ptr<RemoteClient>& lhs) {
+					return lhs->m_id == p_Client->m_id;
+				}));
 
 		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients)
 		{
@@ -888,6 +890,9 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			Room::roomlist[p_Client->m_roomNum]->CreateBoss();
 			break;		
 		case 6: // BOSS , all clear
+		//	Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.clear();
+		//	Room::roomlist[p_Client->m_roomNum]->Clients.clear();
+			Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.clear();
 			break;
 		default:
 			break;

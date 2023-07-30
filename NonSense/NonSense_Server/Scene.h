@@ -30,8 +30,8 @@ public:
 	static std::shared_ptr<Scene> scene;
 	static HeightMapTerrain* terrain;
 
-//	concurrency::concurrent_vector<Character*> MonsterObjects;
-	std::vector<Character*> MonsterObjects;
+	concurrency::concurrent_vector<Character*> MonsterObjects;
+//	std::vector<Character*> MonsterObjects;
 protected:
 	Object* CreateEmpty();
 
