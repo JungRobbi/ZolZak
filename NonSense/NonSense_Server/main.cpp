@@ -551,6 +551,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		XMFLOAT3 xmf3Dir{ XMFLOAT3(recv_packet->dirX, recv_packet->dirY, recv_packet->dirZ) };
 		auto pm = p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>();
 		pm->Move(xmf3Dir, true);
+		//p_Client->m_pPlayer->alive
 		break;
 	}
 	case E_PACKET::E_PACKET_CS_ROTATE: {
@@ -848,8 +849,6 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		p_Client->m_pPlayer->alive = false;
 
 		for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
-			if (rc->m_id == p_Client->m_id)
-				continue;
 			SC_PLAYER_DIE_PACKET send_packet;
 			send_packet.size = sizeof(SC_PLAYER_DIE_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_PLAYER_DIE_PACKET;

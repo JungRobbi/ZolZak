@@ -25,6 +25,8 @@ bool BossFSMComponent::CheckDistanceFromPlayer()
 {
 	XMFLOAT3 OwnerPos = gameObject->GetPosition();
 	XMFLOAT3 PlayerPos = TargetPlayer->GetPosition();
+	if (((Player*)TargetPlayer)->m_die)
+		return false;
 	float Distance = Vector3::Length(Vector3::Subtract(OwnerPos, PlayerPos));
 	if (Distance < ChangeStateDistance)
 		return true;
