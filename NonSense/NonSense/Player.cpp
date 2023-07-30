@@ -661,7 +661,7 @@ WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		if (pModel)
 			SetChild(pModel->m_pRoot, true);
 		if (pWeaponModel) {
-			Object* Hand = FindFrame("Sword_parentR"); // ���⸦ �ٿ��� �� ã��
+			Object* Hand = FindFrame("Sword_parentR");
 			if (Hand) {
 				CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 0.1f, 0.1f, 0.1f);
 				BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
