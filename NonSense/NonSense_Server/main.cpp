@@ -687,6 +687,10 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		
 		Room::roomlist[recv_packet->roomNum]->Clients.insert({ p_Client->m_id, p_Client });
 
+		if (Room::roomlist[recv_packet->roomNum]->Clients.size() == 4) {
+			Room::roomlist[recv_packet->roomNum]->b_Accessible = false;
+		}
+
 		{ // Room Join Message
 			SC_ROOM_JOIN_OK_PACKET send_packet;
 			send_packet.size = sizeof(SC_ROOM_JOIN_OK_PACKET);

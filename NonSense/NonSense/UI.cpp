@@ -734,7 +734,9 @@ void Room_UI::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera
 		wstr = std::to_wstring(RoomNum)
 			+ L"               "
 			+ std::wstring().assign(RoomName.begin(), RoomName.end())
-			+ L"     "
+			+ L"                 "
+			+ L"1/4"
+			+ L"       "
 			+ std::wstring().assign(RoomOwner.begin(), RoomOwner.end());
 		wcscpy(tb.m_pstrText, wstr.c_str());
 	}
