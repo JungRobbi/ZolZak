@@ -191,6 +191,9 @@ void Player::Rotate(float x, float y, float z)
 }
 void Player::Update(float fTimeElapsed)
 {
+	if (GameFramework::MainGameFramework->GameSceneState <= ROOM_SCENE)
+		return;
+
 	if (last_DeBuff >= Timer::GetTotalTime())
 	{
 		dark = true;
