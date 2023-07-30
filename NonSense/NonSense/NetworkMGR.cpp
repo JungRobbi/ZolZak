@@ -710,6 +710,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		if (recv_packet->ClearScene == (int)BOSS_SCENE) {
 			GameFramework::MainGameFramework->GameSceneState = LOBBY_SCENE;
 			GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
+			GameFramework::MainGameFramework->GetVivoxSystem()->LeaveChannel();
 		}
 		else {
 			GameFramework::MainGameFramework->GameSceneState = recv_packet->ClearScene;
