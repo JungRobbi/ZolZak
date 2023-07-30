@@ -867,24 +867,24 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		{
 		case 3: // SIGHT -> HEARING
 			for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
-				rc->m_pPlayer->SetPosition(XMFLOAT3(125.31, Scene::terrain->GetHeight(125.31, 18.39), 18.39));
-				rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(125.31, Scene::terrain->GetHeight(125.31, 18.39), 18.39));
+				rc->m_pPlayer->SetPosition(XMFLOAT3(125.31, Scene::terrain->GetHeight(125.31, 18.39) + 15, 18.39));
+				rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(125.31, Scene::terrain->GetHeight(125.31, 18.39) + 15, 18.39));
 			}
 			Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.clear();
 			Room::roomlist[p_Client->m_roomNum]->CreateHearing();
 			break;		
 		case 4: // HEARING -> TOUCH
 			for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
-				rc->m_pPlayer->SetPosition(XMFLOAT3(226.04f, Scene::terrain->GetHeight(226.04f, 46.f), 46.f));
-				rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(226.04f, Scene::terrain->GetHeight(226.04f, 46.f), 46.f));
+				rc->m_pPlayer->SetPosition(XMFLOAT3(226.04f, Scene::terrain->GetHeight(226.04f, 46.f) + 15, 46.f));
+				rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(226.04f, Scene::terrain->GetHeight(226.04f, 46.f) + 15, 46.f));
 			}
 			Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.clear();
 			Room::roomlist[p_Client->m_roomNum]->CreateTouch();
 			break;		
 		case 5: // TOUCH -> BOSS
 			for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
-				rc->m_pPlayer->SetPosition(XMFLOAT3(-145.1f, Scene::terrain->GetHeight(-145.1f, 174.98f), 174.98f));
-				rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(-145.1f, Scene::terrain->GetHeight(-145.1f, 174.98f), 174.98f));
+				rc->m_pPlayer->SetPosition(XMFLOAT3(-145.1f, Scene::terrain->GetHeight(-145.1f, 174.98f) + 15, 174.98f));
+				rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(-145.1f, Scene::terrain->GetHeight(-145.1f, 174.98f) + 15, 174.98f));
 			}
 			Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.clear();
 			Room::roomlist[p_Client->m_roomNum]->CreateBoss();
