@@ -29,6 +29,10 @@ enum E_UI_ID {
     START_NPC_LINE2_1, START_NPC_LINE2_2, START_NPC_LINE2_3,
     START_NPC_LINE3_1, START_NPC_LINE3_2, START_NPC_LINE3_3,
     START_NPC_LINE4_1, START_NPC_LINE4_2, START_NPC_LINE4_3,
+    END_NPC_LINE1_1, END_NPC_LINE1_2, END_NPC_LINE1_3,
+    END_NPC_LINE2_1, END_NPC_LINE2_2, END_NPC_LINE2_3,
+    END_NPC_LINE3_1, END_NPC_LINE3_2, END_NPC_LINE3_3,
+    END_NPC_LINE4_1, END_NPC_LINE4_2, END_NPC_LINE4_3,
 };
 
 struct TextBlock
@@ -156,4 +160,6 @@ public:
     static void SetInRoom(int WndClientWidth, int WndClientHeight);
 
     static void CreateTextUI(int WndClientWidth, int WndClientHeight);
+    static void HearingTextUI();
+    static void TouchTextUI();
 };

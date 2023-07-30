@@ -692,7 +692,22 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 						else
 						{
 							ScriptNum++;
-							if (ScriptNum >= GameScene::MainScene->StartNPC->script.size())
+							int LineNum;
+							switch (scene_type)
+							{
+							case SIGHT_SCENE:
+								LineNum = 4;
+								break;
+							case HEARING_SCENE:
+								LineNum = 3;
+								break;
+							case TOUCH_SCENE:
+								LineNum = 3;
+								break;
+							default:
+								break;
+							}
+							if (ScriptNum >= LineNum)
 							{
 								::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
@@ -716,7 +731,22 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 						else
 						{
 							ScriptNum++;
-							if (ScriptNum >= GameScene::MainScene->EndNPC->script.size())
+							int LineNum;
+							switch (scene_type)
+							{
+							case SIGHT_SCENE:
+								LineNum = 2;
+								break;
+							case HEARING_SCENE:
+								LineNum = 2;
+								break;
+							case TOUCH_SCENE:
+								LineNum = 3;
+								break;
+							default:
+								break;
+							}
+							if (ScriptNum >= LineNum)
 							{
 								::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
 								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
@@ -1028,11 +1058,13 @@ void GameFramework::ChangeStage(unsigned char num)
 		IsTouchDebuff = false;
 		((Stage_GameScene*)GameScene::MainScene)->HearingStage(m_pDevice, m_pCommandList);
 		GameScene::MainScene->MainBGM->Replay();
+		ChatMGR::HearingTextUI();
 		break;
 	case TOUCH_SCENE:
 		IsTouchDebuff = false;
 		((Stage_GameScene*)GameScene::MainScene)->TouchStage(m_pDevice, m_pCommandList);
 		GameScene::MainScene->MainBGM->Replay();
+		ChatMGR::TouchTextUI();
 		break;
 	case BOSS_SCENE:
 		((Stage_GameScene*)GameScene::MainScene)->BossStage(m_pDevice, m_pCommandList);

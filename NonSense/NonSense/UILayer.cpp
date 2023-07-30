@@ -315,7 +315,262 @@ void UILayer::LineDraw()
                 break;
             }
             case 2: { // End NPC
-
+                switch (GameFramework::MainGameFramework->ScriptNum) // ScriptNum
+                {
+                case 0: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::END_NPC_LINE1_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::END_NPC_LINE1_2];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                case 1: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::END_NPC_LINE2_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
+                }
+                break;
+            }
+            default:
+                break;
+            }
+        }
+        break;
+    }
+    case HEARING_SCENE: {
+        if (ScriptMode) { // ScriptMode
+            switch (GameFramework::MainGameFramework->TalkingNPC) // NPC type
+            {
+            case 1: { // Start NPC
+                switch (GameFramework::MainGameFramework->ScriptNum) // ScriptNum
+                {
+                case 0: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_2];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_3];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                case 1: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_2];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_3];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                case 2: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_2];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_3];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
+                }
+                break;
+            }
+            case 2: { // End NPC
+                switch (GameFramework::MainGameFramework->ScriptNum) // ScriptNum
+                {
+                case 0: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::END_NPC_LINE1_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                case 1: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::END_NPC_LINE2_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
+                }
+                break;
+            }
+            default:
+                break;
+            }
+        }
+        break;
+    }
+    case TOUCH_SCENE: {
+        if (ScriptMode) { // ScriptMode
+            switch (GameFramework::MainGameFramework->TalkingNPC) // NPC type
+            {
+            case 1: { // Start NPC
+                switch (GameFramework::MainGameFramework->ScriptNum) // ScriptNum
+                {
+                case 0: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                case 1: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                case 2: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
+                }
+                break;
+            }
+            case 2: { // End NPC
+                switch (GameFramework::MainGameFramework->ScriptNum) // ScriptNum
+                {
+                case 0: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::END_NPC_LINE1_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                case 1: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::END_NPC_LINE2_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                case 2: {
+                    {
+                        auto& textblock = m_pUITextBlocks[E_UI_ID::END_NPC_LINE3_1];
+                        if (textblock.m_pstrText[0]) {
+                            m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                                (UINT)wcslen(textblock.m_pstrText),
+                                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
+                }
                 break;
             }
             default:
@@ -585,7 +840,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_d2dLayoutRect =
             D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
-        wcscpy(tb.m_pstrText, L"NPC START_NPC_LINE1_1");
+        wcscpy(tb.m_pstrText, L"너는 너의 감각을 믿고있는가?");
     }
     {
         m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_2] = TextBlock{};
@@ -595,7 +850,15 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_d2dLayoutRect =
             D2D1::RectF(200, 570, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
-        wcscpy(tb.m_pstrText, L"NPC START_NPC_LINE1_2");
+    }
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_3] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_3];
+        tb.m_pdwFormat = pdwUITextFormat;
+        tb.m_pd2dTextBrush = pd2dUIBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(200, 610, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
     }
     {
         m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_1] = TextBlock{};
@@ -605,7 +868,17 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_d2dLayoutRect =
             D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
-        wcscpy(tb.m_pstrText, L"NPC START_NPC_LINE2_1");
+        wcscpy(tb.m_pstrText, L"그저 도전 정신으로");
+    }
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_2] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_2];
+        tb.m_pdwFormat = pdwUITextFormat;
+        tb.m_pd2dTextBrush = pd2dUIBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(200, 570, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"이 곳에 도전하는 것이라면 큰코 다칠것이네");
     }
     {
         m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_1] = TextBlock{};
@@ -615,7 +888,17 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_d2dLayoutRect =
             D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
-        wcscpy(tb.m_pstrText, L"NPC START_NPC_LINE3_1");
+        wcscpy(tb.m_pstrText, L"이곳은 시각을 빼앗는 고블린들이 돌아다니니");
+    }
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_2] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_2];
+        tb.m_pdwFormat = pdwUITextFormat;
+        tb.m_pd2dTextBrush = pd2dUIBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(200, 570, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"조심히 돌아다니는것이 좋을걸세");
     }
     {
         m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE4_1] = TextBlock{};
@@ -625,7 +908,97 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_d2dLayoutRect =
             D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
-        wcscpy(tb.m_pstrText, L"NPC START_NPC_LINE4_1");
+        wcscpy(tb.m_pstrText, L"행운을 비네");
     }
-    
+
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::END_NPC_LINE1_1] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::END_NPC_LINE1_1];
+        tb.m_pdwFormat = pdwUITextFormat;
+        tb.m_pd2dTextBrush = pd2dUIBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"여기까지 무사히 오다니 그저 호기심에 온것은 아닌가보군");
+    }
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::END_NPC_LINE2_1] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::END_NPC_LINE2_1];
+        tb.m_pdwFormat = pdwUITextFormat;
+        tb.m_pd2dTextBrush = pd2dUIBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"다음 장소로 보내주지");
+    }
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::END_NPC_LINE3_1] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::END_NPC_LINE3_1];
+        tb.m_pdwFormat = pdwUITextFormat;
+        tb.m_pd2dTextBrush = pd2dUIBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"");
+    }
+}
+
+
+void ChatMGR::HearingTextUI()
+{
+    for (auto p : m_pUILayer->m_pUITextBlocks) {
+        ZeroMemory(p.second.m_pstrText, sizeof(p.second.m_pstrText));
+    }
+
+    {
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_1];
+        wcscpy(tb.m_pstrText, L"갑자기 귀가 먹먹해져서 놀랐나?");
+    }
+    {
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_1];
+        wcscpy(tb.m_pstrText, L"오크들은 너의 청력을 빼앗아가지.");
+    }
+    {
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_1];
+        wcscpy(tb.m_pstrText, L"별거 아닐 것 같아도 굉장히 신경쓰일거라네.");
+    }
+    {
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::END_NPC_LINE1_1];
+        wcscpy(tb.m_pstrText, L"자네들을 과소평가한것 같군... 기대가 되려고 해");
+    }
+    {
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::END_NPC_LINE2_1];
+        wcscpy(tb.m_pstrText, L"다음 장소로 보내주지.");
+    }
+}
+void ChatMGR::TouchTextUI()
+{
+    for (auto p : m_pUILayer->m_pUITextBlocks) {
+        ZeroMemory(p.second.m_pstrText, sizeof(p.second.m_pstrText));
+    }
+
+    {
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE1_1];
+        wcscpy(tb.m_pstrText, L"몸의 감각이 사라지는게 느껴지나?");
+    }
+    {
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE2_1];
+        wcscpy(tb.m_pstrText, L"여기서는 스컬의 저주로 너의 체력을 느낄 수 없어.");
+    }
+    {
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::START_NPC_LINE3_1];
+        wcscpy(tb.m_pstrText, L"아픈지도 모르고 맞다가 사망하고 말걸세.");
+    }
+    {
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::END_NPC_LINE1_1];
+        wcscpy(tb.m_pstrText, L"사지 멀쩡한가? 하하하");
+    }
+    {
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::END_NPC_LINE2_1];
+        wcscpy(tb.m_pstrText, L"뭐 지금은 자네도 자네의 상태를 모르겠지만...");
+    }
+    {
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::END_NPC_LINE3_1];
+        wcscpy(tb.m_pstrText, L"다음은 이 던전의 최강자 '쉴드'가 존재하는 곳으로 보내주지.");
+    }
 }
