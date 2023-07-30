@@ -10,7 +10,12 @@ void AttackComponent::Attack()
 	if (!Die) {
 		AttackTimeLeft = AttackDuration + NextAttackInputTime;
 		During_Attack = true;
-		if (dynamic_cast<MagePlayer*>(gameObject))	// Mage Player
+		AttackAnimate();
+		if (dynamic_cast<Monster*>(gameObject))
+		{
+			return;
+		}
+		if (dynamic_cast<Player*>(gameObject)->Magical)	// Mage Player
 		{
 			dynamic_cast<MagePlayer*>(gameObject)->fireball->SetPosition(gameObject->GetPosition().x, gameObject->GetPosition().y + 0.5, gameObject->GetPosition().z);
 			dynamic_cast<MagePlayer*>(gameObject)->fireball->Direction = dynamic_cast<Player*>(gameObject)->GetCamera()->GetLookVector();
@@ -26,7 +31,7 @@ void AttackComponent::Attack()
 				PacketQueue::AddSendPacket(&send_packet);
 			}
 		}
-		else if (dynamic_cast<Player*>(gameObject))	// Player
+		else if (!dynamic_cast<Player*>(gameObject)->Magical)	// Player
 		{
 			if (AttackRange) {
 				for (auto& monster : GameScene::MainScene->MonsterObjects)
@@ -58,7 +63,7 @@ void AttackComponent::Attack()
 			}
 		}
 	}
-	AttackAnimate();
+
 }
 
 void AttackComponent::ProjectileAttack(XMFLOAT3 dir)

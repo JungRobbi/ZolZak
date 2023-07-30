@@ -740,13 +740,6 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 					}
 				}
 				break;
-			case 'G':
-			case 'g':
-				delete m_pPlayer;
-				m_pPlayer = new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
-				m_pCamera = m_pPlayer->GetCamera();
-				GameScene::MainScene->m_pPlayer = m_pPlayer;
-				break;
 
 			case '1':
 				if (NetworkMGR::b_isNet) {
@@ -913,12 +906,9 @@ void GameFramework::ChangeScene(unsigned char num)
 	if (m_pPlayer)
 		m_pPlayer->Release();
 
-	if (NetworkMGR::is_mage) {
-		m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
-	}
-	else {
-		m_pPlayer = new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain());
-	}
+
+	m_pPlayer = new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain(),NetworkMGR::is_mage);
+	
 	switch (num)
 	{
 	case LOGIN_SCENE:
@@ -975,14 +965,14 @@ void GameFramework::ChangeScene(unsigned char num)
 		m_OtherPlayersPool.clear();
 		m_OtherPlayersPool.clear();
 		for (int i{}; i < 3; ++i) {
-			m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
+			m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain(),true));
 			dynamic_cast<Player*>(m_OtherPlayersPool.back())->SetCamera(dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f));
 			m_OtherPlayersPool.back()->SetUsed(true);
 		}
 		for (int i{}; i < 3; ++i) {
-			m_OtherPlayersPool.emplace_back(new WarriorPlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain()));
+			m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain(),false));
 			dynamic_cast<Player*>(m_OtherPlayersPool.back())->SetCamera(dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f));
-			m_OtherPlayersPool.back()->SetUsed(true);
+			m_OtherPlayersPool.back()->SetUsed(true);;
 		}
 	}
 
