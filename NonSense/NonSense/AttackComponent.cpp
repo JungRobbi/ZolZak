@@ -10,6 +10,11 @@ void AttackComponent::Attack()
 	if (!Die) {
 		AttackTimeLeft = AttackDuration + NextAttackInputTime;
 		During_Attack = true;
+		AttackAnimate();
+		if (dynamic_cast<Monster*>(gameObject))
+		{
+			return;
+		}
 		if (dynamic_cast<Player*>(gameObject)->Magical)	// Mage Player
 		{
 			dynamic_cast<MagePlayer*>(gameObject)->fireball->SetPosition(gameObject->GetPosition().x, gameObject->GetPosition().y + 0.5, gameObject->GetPosition().z);
@@ -58,7 +63,7 @@ void AttackComponent::Attack()
 			}
 		}
 	}
-	AttackAnimate();
+
 }
 
 void AttackComponent::ProjectileAttack(XMFLOAT3 dir)
