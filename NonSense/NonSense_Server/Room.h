@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <concurrent_unordered_map.h>
+#include <concurrent_vector.h>
 #include <unordered_map>
 
 #include "remoteClients/RemoteClient.h"
@@ -14,11 +15,10 @@ class Room
 {
 	std::shared_ptr<Scene> scene;
 public:
-	std::unordered_map<int, std::shared_ptr<RemoteClient>> Clients;
+	concurrency::concurrent_unordered_map<int, std::shared_ptr<RemoteClient>> Clients;
 	static std::unordered_map<int, shared_ptr<Room>> roomlist;
 	static int g_roomNum;
 	std::atomic<int> m_roomNum = 0;
-	std::list<std::shared_ptr<RemoteClient>> m_ReadyPlayer{};
 	int Ready_cnt = 0;
 	bool b_Accessible = true;
 

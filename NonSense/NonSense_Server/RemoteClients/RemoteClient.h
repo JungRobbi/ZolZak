@@ -36,6 +36,8 @@ public:
 	int m_playScene = 0;
 	int m_roomNum = -1;
 
+	bool b_IsReady = false;
+
 	RemoteClient() : thread(), tcpConnection(SocketType::Tcp), m_KeyInput(), m_pPlayer(), b_Enable(true) {}
 	RemoteClient(SocketType socketType) :tcpConnection(socketType), m_KeyInput(), m_pPlayer(), b_Enable(true) {}
 };

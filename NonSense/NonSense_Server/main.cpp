@@ -705,7 +705,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		CS_ROOM_READY_PACKET* recv_packet = reinterpret_cast<CS_ROOM_READY_PACKET*>(p_Packet);
 		
 		p_Client->m_pPlayer->type = recv_packet->playerType;
-		Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.emplace_back(p_Client);
+		Room::roomlist[p_Client->m_roomNum]->Clients[p_Client->m_id]->b_IsReady = true;
 		
 		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients)
 		{
@@ -717,23 +717,29 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			strcpy_s(send_packet.name, p_Client->name);
 			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
-
-		if (Room::roomlist[p_Client->m_roomNum]->Clients.size() == Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.size()) {
+		auto cnt = count_if(Room::roomlist[p_Client->m_roomNum]->Clients.begin(),
+			Room::roomlist[p_Client->m_roomNum]->Clients.end(),
+			[](const auto& p) {
+				return p.second->b_IsReady;
+			});
+		if (Room::roomlist[p_Client->m_roomNum]->Clients.size() == cnt) {
 			Room::roomlist[p_Client->m_roomNum]->b_Accessible = false;
-			for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
+			for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+				if (rc.second->b_IsReady == false)
+					continue;
 				SC_JOIN_GAME_PACKET send_packet;
 				send_packet.size = sizeof(SC_JOIN_GAME_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_SC_JOIN_GAME_PACKET;
-				send_packet.id = rc->m_id;
-				memcpy(send_packet.name, rc->name, sizeof(rc->name));
-				send_packet.maxHp = rc->m_pPlayer->GetHealth();
-				send_packet.remainHp = rc->m_pPlayer->GetRemainHP();
-				send_packet.x = rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
-				send_packet.y = rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
-				send_packet.z = rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
-				send_packet.clearStage = rc->m_clear_stage;
-				send_packet.playerType = rc->m_pPlayer->type;
-				rc->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				send_packet.id = rc.second->m_id;
+				memcpy(send_packet.name, rc.second->name, sizeof(rc.second->name));
+				send_packet.maxHp = rc.second->m_pPlayer->GetHealth();
+				send_packet.remainHp = rc.second->m_pPlayer->GetRemainHP();
+				send_packet.x = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
+				send_packet.y = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
+				send_packet.z = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
+				send_packet.clearStage = rc.second->m_clear_stage;
+				send_packet.playerType = rc.second->m_pPlayer->type;
+				rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
 		}
 
@@ -741,13 +747,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	}
 	case E_PACKET_CS_ROOM_UNREADY_PACKET: {
 		CS_ROOM_UNREADY_PACKET* recv_packet = reinterpret_cast<CS_ROOM_UNREADY_PACKET*>(p_Packet);
-		Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.erase(
-			find_if(Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.begin(),
-				Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.end(),
-				[p_Client](const shared_ptr<RemoteClient>& lhs) {
-					return lhs->m_id == p_Client->m_id;
-				}));
-
+		Room::roomlist[p_Client->m_roomNum]->Clients[p_Client->m_id]->b_IsReady = false;
 		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients)
 		{
 			SC_ROOM_UNREADY_PACKET send_packet;
@@ -794,20 +794,22 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		CS_ROOM_START_PACKET* recv_packet = reinterpret_cast<CS_ROOM_START_PACKET*>(p_Packet);
 
 		Room::roomlist[p_Client->m_roomNum]->b_Accessible = false;
-		for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+			if (rc.second->b_IsReady == false)
+				continue;
 			SC_JOIN_GAME_PACKET send_packet;
 			send_packet.size = sizeof(SC_JOIN_GAME_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_JOIN_GAME_PACKET;
-			send_packet.id = rc->m_id;
-			memcpy(send_packet.name, rc->name, sizeof(rc->name));
-			send_packet.maxHp = rc->m_pPlayer->GetHealth();
-			send_packet.remainHp = rc->m_pPlayer->GetRemainHP();
-			send_packet.x = rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
-			send_packet.y = rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
-			send_packet.z = rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
-			send_packet.clearStage = rc->m_clear_stage;
-			send_packet.playerType = rc->m_pPlayer->type;
-			rc->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			send_packet.id = rc.second->m_id;
+			memcpy(send_packet.name, rc.second->name, sizeof(rc.second->name));
+			send_packet.maxHp = rc.second->m_pPlayer->GetHealth();
+			send_packet.remainHp = rc.second->m_pPlayer->GetRemainHP();
+			send_packet.x = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().x;
+			send_packet.y = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().y;
+			send_packet.z = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition().z;
+			send_packet.clearStage = rc.second->m_clear_stage;
+			send_packet.playerType = rc.second->m_pPlayer->type;
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 		break;
 	}
@@ -815,12 +817,19 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		CS_JOIN_COMPLETE_PACKET* recv_packet = reinterpret_cast<CS_JOIN_COMPLETE_PACKET*>(p_Packet);
 
 		++Room::roomlist[p_Client->m_roomNum]->Ready_cnt;
-		if (Room::roomlist[p_Client->m_roomNum]->Ready_cnt == Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.size()) {
-			for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
+		auto cnt = count_if(Room::roomlist[p_Client->m_roomNum]->Clients.begin(),
+			Room::roomlist[p_Client->m_roomNum]->Clients.end(),
+			[](const auto& p) {
+				return p.second->b_IsReady;
+			});
+		if (Room::roomlist[p_Client->m_roomNum]->Ready_cnt == cnt) {
+			for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+				if (rc.second->b_IsReady == false)
+					continue;
 				SC_EVERYONE_JOIN_PACKET send_packet;
 				send_packet.size = sizeof(SC_EVERYONE_JOIN_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_SC_EVERYONE_JOIN_PACKET;
-				rc->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+				rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
 		}
 		break;
@@ -828,8 +837,10 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	case E_PACKET_CS_CAMERA_LOOK_PACKET: {
 		CS_CAMERA_LOOK_PACKET* recv_packet = reinterpret_cast<CS_CAMERA_LOOK_PACKET*>(p_Packet);
 
-		for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
-			if (rc->m_id == p_Client->m_id)
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+			if (rc.second->b_IsReady == false)
+				continue;
+			if (rc.second->m_id == p_Client->m_id)
 				continue;
 			SC_PROJECTILE_ATTACK_PACKET send_packet;
 			send_packet.size = sizeof(SC_PROJECTILE_ATTACK_PACKET);
@@ -838,7 +849,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			send_packet.x = recv_packet->x;
 			send_packet.y = recv_packet->y;
 			send_packet.z = recv_packet->z;
-			rc->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 
 		break;
@@ -848,12 +859,14 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		
 		p_Client->m_pPlayer->alive = false;
 
-		for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+			if (rc.second->b_IsReady == false)
+				continue;
 			SC_PLAYER_DIE_PACKET send_packet;
 			send_packet.size = sizeof(SC_PLAYER_DIE_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_PLAYER_DIE_PACKET;
 			send_packet.player_id = p_Client->m_id;
-			rc->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 
 		break;
@@ -865,31 +878,36 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		switch (recv_packet->ClearScene)
 		{
 		case 3: // SIGHT -> HEARING
-			for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
-				rc->m_pPlayer->SetPosition(XMFLOAT3(125.31, Scene::terrain->GetHeight(125.31, 18.39) + 15, 18.39));
-				rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(125.31, Scene::terrain->GetHeight(125.31, 18.39) + 15, 18.39));
+			for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+				if (rc.second->b_IsReady == false)
+					continue;
+				rc.second->m_pPlayer->SetPosition(XMFLOAT3(125.31, Scene::terrain->GetHeight(125.31, 18.39) + 15, 18.39));
+				rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(125.31, Scene::terrain->GetHeight(125.31, 18.39) + 15, 18.39));
 			}
 			Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.clear();
 			Room::roomlist[p_Client->m_roomNum]->CreateHearing();
 			break;		
 		case 4: // HEARING -> TOUCH
-			for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
-				rc->m_pPlayer->SetPosition(XMFLOAT3(226.04f, Scene::terrain->GetHeight(226.04f, 46.f) + 15, 46.f));
-				rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(226.04f, Scene::terrain->GetHeight(226.04f, 46.f) + 15, 46.f));
+			for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+				if (rc.second->b_IsReady == false)
+					continue;
+				rc.second->m_pPlayer->SetPosition(XMFLOAT3(226.04f, Scene::terrain->GetHeight(226.04f, 46.f) + 15, 46.f));
+				rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(226.04f, Scene::terrain->GetHeight(226.04f, 46.f) + 15, 46.f));
 			}
 			Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.clear();
 			Room::roomlist[p_Client->m_roomNum]->CreateTouch();
 			break;		
 		case 5: // TOUCH -> BOSS
-			for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
-				rc->m_pPlayer->SetPosition(XMFLOAT3(-145.1f, Scene::terrain->GetHeight(-145.1f, 174.98f) + 15, 174.98f));
-				rc->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(-145.1f, Scene::terrain->GetHeight(-145.1f, 174.98f) + 15, 174.98f));
+			for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+				if (rc.second->b_IsReady == false)
+					continue;
+				rc.second->m_pPlayer->SetPosition(XMFLOAT3(-145.1f, Scene::terrain->GetHeight(-145.1f, 174.98f) + 15, 174.98f));
+				rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->SetPosition(XMFLOAT3(-145.1f, Scene::terrain->GetHeight(-145.1f, 174.98f) + 15, 174.98f));
 			}
 			Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.clear();
 			Room::roomlist[p_Client->m_roomNum]->CreateBoss();
 			break;		
 		case 6: // BOSS , all clear
-		//	Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer.clear();
 		//	Room::roomlist[p_Client->m_roomNum]->Clients.clear();
 			Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.clear();
 			break;
@@ -898,12 +916,14 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		}
 
 
-		for (auto rc : Room::roomlist[p_Client->m_roomNum]->m_ReadyPlayer) {
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+			if (rc.second->b_IsReady == false)
+				continue;
 			SC_CLEAR_PACKET send_packet;
 			send_packet.size = sizeof(SC_CLEAR_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_CLEAR_PACKET;
 			send_packet.ClearScene = recv_packet->ClearScene;
-			rc->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 		break;
 	}
