@@ -385,9 +385,9 @@ void Player::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 }
 
 
-MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
+MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext, bool is_mage)
 {
-	Magical = true;
+	Magical = is_mage;
 	HeightMapTerrain* pTerrain = (HeightMapTerrain*)pContext;
 	SetPlayerUpdatedContext(pTerrain);
 	SetCameraUpdatedContext(pTerrain);
@@ -433,8 +433,18 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 			pos = XMFLOAT3(0, 0, 0);
 		}
 		SetPosition(pos);
-		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
-		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);
+		LoadedModelInfo* pModel = NULL;
+		LoadedModelInfo* pWeaponModel = NULL;
+		if (Magical)
+		{
+			pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/F05.bin", NULL);
+			pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Wand.bin", NULL);
+		}
+		else
+		{
+			pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/M05.bin", NULL);
+			pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Sword_M05.bin", NULL);
+		}
 
 		if (pModel)
 			SetChild(pModel->m_pRoot, true);
@@ -589,11 +599,20 @@ void MagePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCam
 		if (nCameraMode == FIRST_PERSON_CAMERA)
 		{
 			m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
-
-			FindFrame("Wand")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-			FindFrame("Body_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-			FindFrame("Arm_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-			FindFrame("Leg_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			if (Magical)
+			{
+				FindFrame("Wand")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+				FindFrame("Body_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+				FindFrame("Arm_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+				FindFrame("Leg_F05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			}
+			else
+			{
+				FindFrame("Sword_M05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+				FindFrame("Body_m05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+				FindFrame("Arm_m05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+				FindFrame("Leg_M05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+			}
 		}
 		else
 		{
