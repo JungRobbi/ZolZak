@@ -722,7 +722,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		auto cnt = count_if(Room::roomlist[p_Client->m_roomNum]->Clients.begin(),
 			Room::roomlist[p_Client->m_roomNum]->Clients.end(),
 			[](const auto& p) {
-				return p.second->b_IsReady;
+				return p.second->b_IsReady.load();
 			});
 		if (Room::roomlist[p_Client->m_roomNum]->Clients.size() == cnt) {
 			Room::roomlist[p_Client->m_roomNum]->b_Accessible = false;
@@ -822,7 +822,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		auto cnt = count_if(Room::roomlist[p_Client->m_roomNum]->Clients.begin(),
 			Room::roomlist[p_Client->m_roomNum]->Clients.end(),
 			[](const auto& p) {
-				return p.second->b_IsReady;
+				return p.second->b_IsReady.load();
 			});
 		if (Room::roomlist[p_Client->m_roomNum]->Ready_cnt == cnt) {
 			for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
@@ -931,9 +931,10 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			bool expected = Room::roomlist[p_Client->m_roomNum]->clear.load();
 			Room::roomlist[p_Client->m_roomNum]->clear.compare_exchange_strong(expected, true);
 			for (auto p : Room::roomlist[p_Client->m_roomNum]->Clients) {
-				bool Enable_expected = true;
-				p.second->b_Enable.compare_exchange_strong(Enable_expected, false);
+				bool b_IsReady_expected = true;
+				p.second->b_IsReady.compare_exchange_strong(b_IsReady_expected, false);
 			}
+			p_Client->m_pPlayer->SetPosition(XMFLOAT3(-16.0f, Scene::terrain->GetHeight(-16.0f, 103.0f), 103.0f));
 		}
 		break;
 	}

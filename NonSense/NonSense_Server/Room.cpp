@@ -175,7 +175,7 @@ void Room::update()
 		//}
 
 	for (auto& rc : Clients) {
-		if (!rc.second->b_Enable)
+		if (!rc.second->b_Enable || !rc.second->b_IsReady)
 			continue;
 
 		// Animation Packet
@@ -198,7 +198,7 @@ void Room::update()
 
 			if (rc.second->m_pPlayer->OldAniType != rc.second->m_pPlayer->PresentAniType) {
 				for (auto& rc_to : Clients) {
-					if (!rc_to.second->b_Enable)
+					if (!rc_to.second->b_Enable || !rc_to.second->b_IsReady)
 						continue;
 					SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
 					send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
@@ -223,7 +223,7 @@ void Room::update()
 
 			auto rc_pos = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetPosition();
 			for (auto& rc_to : Clients) {
-				if (!rc_to.second->b_Enable)
+				if (!rc_to.second->b_Enable || !rc_to.second->b_IsReady)
 					continue;
 				SC_MOVE_PLAYER_PACKET send_packet;
 				send_packet.size = sizeof(SC_MOVE_PLAYER_PACKET);
@@ -240,7 +240,7 @@ void Room::update()
 		if (rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->is_Rotate) {
 			XMFLOAT3 xmf3FinalLook = rc.second->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetLookVector();
 			for (auto& rc_to : Clients) {
-				if (!rc_to.second->b_Enable)
+				if (!rc_to.second->b_Enable || !rc_to.second->b_IsReady)
 					continue;
 				SC_LOOK_PLAYER_PACKET send_packet;
 				send_packet.size = sizeof(SC_LOOK_PLAYER_PACKET);
@@ -264,7 +264,7 @@ void Room::update()
 		if (((Character*)monster)->GetRemainHP() > 0.f) {
 			//Monster Pos
 			for (auto& rc_to : Clients) {
-				if (!rc_to.second->b_Enable)
+				if (!rc_to.second->b_Enable || !rc_to.second->b_IsReady)
 					continue;
 				SC_MOVE_MONSTER_PACKET send_packet;
 				send_packet.size = sizeof(SC_MOVE_MONSTER_PACKET);
@@ -278,7 +278,7 @@ void Room::update()
 
 			//WanderPosition
 			for (auto& rc_to : Clients) {
-				if (!rc_to.second->b_Enable)
+				if (!rc_to.second->b_Enable || !rc_to.second->b_IsReady)
 					continue;
 				SC_LOOK_MONSTER_PACKET send_packet;
 				send_packet.size = sizeof(SC_LOOK_MONSTER_PACKET);
@@ -315,7 +315,7 @@ void Room::update()
 			//Monster Animation
 			if (((Character*)monster)->OldAniType != ((Character*)monster)->PresentAniType) {
 				for (auto& rc_to : Clients) {
-					if (!rc_to.second->b_Enable)
+					if (!rc_to.second->b_Enable || !rc_to.second->b_IsReady)
 						continue;
 					SC_MONSTER_ANIMATION_TYPE_PACKET send_packet;
 					send_packet.size = sizeof(SC_MONSTER_ANIMATION_TYPE_PACKET);
@@ -338,7 +338,7 @@ void Room::update()
 				if (!monster->GetComponent<CloseTypeFSMComponent>()->GetTargetPlayer())
 					break;
 				for (auto& rc_to : Clients) {
-					if (!rc_to.second->b_Enable)
+					if (!rc_to.second->b_Enable || !rc_to.second->b_IsReady)
 						continue;
 					SC_AGGRO_PLAYER_PACKET send_packet;
 					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
@@ -353,7 +353,7 @@ void Room::update()
 				if (!monster->GetComponent<FarTypeFSMComponent>()->GetTargetPlayer())
 					break;
 				for (auto& rc_to : Clients) {
-					if (!rc_to.second->b_Enable)
+					if (!rc_to.second->b_Enable || !rc_to.second->b_IsReady)
 						continue;
 					SC_AGGRO_PLAYER_PACKET send_packet;
 					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
@@ -368,7 +368,7 @@ void Room::update()
 				if (!monster->GetComponent<RushTypeFSMComponent>()->GetTargetPlayer())
 					break;
 				for (auto& rc_to : Clients) {
-					if (!rc_to.second->b_Enable)
+					if (!rc_to.second->b_Enable || !rc_to.second->b_IsReady)
 						continue;
 					SC_AGGRO_PLAYER_PACKET send_packet;
 					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
@@ -383,7 +383,7 @@ void Room::update()
 				if (!monster->GetComponent<BossFSMComponent>()->GetTargetPlayer())
 					break;
 				for (auto& rc_to : Clients) {
-					if (!rc_to.second->b_Enable)
+					if (!rc_to.second->b_Enable || !rc_to.second->b_IsReady)
 						continue;
 					SC_AGGRO_PLAYER_PACKET send_packet;
 					send_packet.size = sizeof(SC_AGGRO_PLAYER_PACKET);
