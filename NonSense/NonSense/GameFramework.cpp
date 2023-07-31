@@ -912,7 +912,10 @@ void GameFramework::ChangeScene(unsigned char num)
 	if (num > ROOM_SCENE)
 	{
 		GameScene::MainScene = m_GameScenes.at(3);
-		delete MainBGM;
+		if (MainBGM) {
+			delete MainBGM;
+			MainBGM = nullptr;
+		}
 	}
 	else
 	{

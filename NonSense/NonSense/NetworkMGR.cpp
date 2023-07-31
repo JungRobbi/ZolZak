@@ -711,6 +711,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			GameFramework::MainGameFramework->GameSceneState = LOBBY_SCENE;
 			GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
 			GameFramework::MainGameFramework->GetVivoxSystem()->LeaveChannel();
+			GameFramework::MainGameFramework->MainBGM = new Sound("Sound/LobbyBGM.mp3", true);
 		}
 		else {
 			GameFramework::MainGameFramework->GameSceneState = recv_packet->ClearScene;
