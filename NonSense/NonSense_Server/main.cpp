@@ -272,6 +272,8 @@ int main(int argc, char* argv[])
 	while (true) {
 		Timer::Tick(0.0f);
 		for (auto& room : Room::roomlist) {
+			if (room.second->clear.load()) 
+				continue;
 			room.second->update();
 		}
 	}
@@ -908,8 +910,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			Room::roomlist[p_Client->m_roomNum]->CreateBoss();
 			break;		
 		case 6: // BOSS , all clear
-		//	Room::roomlist[p_Client->m_roomNum]->Clients.clear();
-			Room::roomlist[p_Client->m_roomNum]->GetScene()->MonsterObjects.clear();
+
 			break;
 		default:
 			break;
@@ -924,6 +925,15 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			send_packet.type = E_PACKET::E_PACKET_SC_CLEAR_PACKET;
 			send_packet.ClearScene = recv_packet->ClearScene;
 			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+
+		if (recv_packet->ClearScene == 6) {
+			bool expected = Room::roomlist[p_Client->m_roomNum]->clear.load();
+			Room::roomlist[p_Client->m_roomNum]->clear.compare_exchange_strong(expected, true);
+			for (auto p : Room::roomlist[p_Client->m_roomNum]->Clients) {
+				bool Enable_expected = true;
+				p.second->b_Enable.compare_exchange_strong(Enable_expected, false);
+			}
 		}
 		break;
 	}

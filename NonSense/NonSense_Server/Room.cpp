@@ -10,7 +10,7 @@
 #include "Components/BoxCollideComponent.h"
 #include "Components/BossFSMComponent.h"
 
-std::unordered_map<int, shared_ptr<Room>> Room::roomlist{};
+concurrency::concurrent_unordered_map<int, shared_ptr<Room>> Room::roomlist{};
 int Room::g_roomNum = 0;
 
 Room::Room()
@@ -399,6 +399,12 @@ void Room::update()
 			}
 			
 		}
+	}
+
+
+	if(clear.load()) {
+		Clients.clear();
+		DeleteScene();
 	}
 }
 
