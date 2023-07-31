@@ -58,6 +58,7 @@ public:
 
     ID2D1SolidColorBrush* CreateBrush(D2D1::ColorF d2dColor);
     IDWriteTextFormat* CreateTextFormat(WCHAR* pszFontName, float fFontSize);
+    IDWriteTextFormat* CreateTextFormatInGame(WCHAR* pszFontName, float fFontSize);
 
 public:
     void InitializeDevice(ID3D12Device* pd3dDevice, ID3D12CommandQueue* pd3dCommandQueue, ID3D12Resource** ppd3dRenderTargets);

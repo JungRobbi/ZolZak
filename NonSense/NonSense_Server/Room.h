@@ -16,11 +16,12 @@ class Room
 	std::shared_ptr<Scene> scene;
 public:
 	concurrency::concurrent_unordered_map<int, std::shared_ptr<RemoteClient>> Clients;
-	static std::unordered_map<int, shared_ptr<Room>> roomlist;
+	static concurrency::concurrent_unordered_map<int, shared_ptr<Room>> roomlist;
 	static int g_roomNum;
 	std::atomic<int> m_roomNum = 0;
 	int Ready_cnt = 0;
 	bool b_Accessible = true;
+	std::atomic<bool> clear = false;
 
 	std::string roomName{""};
 	std::string hostName{""};
@@ -38,4 +39,9 @@ public:
 	void CreateHearing();
 	void CreateTouch();
 	void CreateBoss();
+
+	void DeleteScene()
+	{
+		scene.reset();
+	}
 };

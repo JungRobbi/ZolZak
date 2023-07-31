@@ -993,7 +993,6 @@ void GameFramework::ChangeScene(unsigned char num)
 	if (num == SIGHT_SCENE) {
 		m_OtherPlayers.clear();
 		m_OtherPlayersPool.clear();
-		m_OtherPlayersPool.clear();
 		for (int i{}; i < 3; ++i) {
 			m_OtherPlayersPool.emplace_back(new MagePlayer(m_pDevice, m_pCommandList, GameScene::MainScene->GetGraphicsRootSignature(), GameScene::MainScene->GetTerrain(),true));
 			dynamic_cast<Player*>(m_OtherPlayersPool.back())->SetCamera(dynamic_cast<Player*>(m_OtherPlayersPool.back())->ChangeCamera(THIRD_PERSON_CAMERA, 0.0f));
@@ -1081,6 +1080,7 @@ void GameFramework::ChangeStage(unsigned char num)
 	default:
 		break;
 	}
+	ChatMGR::SetInGame(m_nWndClientWidth, m_nWndClientHeight);
 }
 
 VivoxSystem* GameFramework::GetVivoxSystem()
