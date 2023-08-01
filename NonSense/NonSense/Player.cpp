@@ -43,6 +43,7 @@ void Player::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	Object::CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	if (m_pCamera) m_pCamera->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
+
 void Player::ReleaseShaderVariables()
 {
 	Object::ReleaseShaderVariables();
@@ -81,6 +82,7 @@ void Player::Move(ULONG dwDirection, float fDistance, bool bUpdateVelocity)
 		}
 	}
 }
+
 void Player::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 {
 	if (bUpdateVelocity)
@@ -93,13 +95,16 @@ void Player::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 		if (m_pCamera) m_pCamera->Move(xmf3Shift);
 	}
 }
+
 void Player::Sight_DeBuff(float sec)
 {
 	last_DeBuff = Timer::GetTotalTime() + sec;
 }
+
 void Player::Rotate(float x, float y, float z)
 {
-	if (NetworkMGR::b_isNet) {
+	if (NetworkMGR::b_isNet)
+	{
 		CS_ROTATE_PACKET send_packet;
 		send_packet.size = sizeof(CS_ROTATE_PACKET);
 		send_packet.type = E_PACKET::E_PACKET_CS_ROTATE;
@@ -127,7 +132,9 @@ void Player::Rotate(float x, float y, float z)
 			if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
 		}
 	}
-	else {
+
+	else
+	{
 		DWORD nCameraMode = m_pCamera->GetMode();
 		if ((nCameraMode == FIRST_PERSON_CAMERA) || (nCameraMode == THIRD_PERSON_CAMERA))
 		{
@@ -137,18 +144,21 @@ void Player::Rotate(float x, float y, float z)
 				if (m_fPitch > +89.0f) { x -= (m_fPitch - 89.0f); m_fPitch = +89.0f; }
 				if (m_fPitch < -89.0f) { x -= (m_fPitch + 89.0f); m_fPitch = -89.0f; }
 			}
+
 			if (y != 0.0f)
 			{
 				m_fYaw += y;
 				if (m_fYaw > 360.0f) m_fYaw -= 360.0f;
 				if (m_fYaw < 0.0f) m_fYaw += 360.0f;
 			}
+
 			if (z != 0.0f)
 			{
 				m_fRoll += z;
-				if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }
+				if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }       
 				if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
 			}
+
 			m_pCamera->Rotate(x, y, z);
 
 			if (y != 0.0f)
@@ -189,6 +199,7 @@ void Player::Rotate(float x, float y, float z)
 		m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
 	}
 }
+
 void Player::Update(float fTimeElapsed)
 {
 	if (GameFramework::MainGameFramework->GameSceneState <= ROOM_SCENE)
@@ -216,7 +227,7 @@ void Player::Update(float fTimeElapsed)
 		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 
 		Move(xmf3Velocity, false);
-		
+
 		fLength = Vector3::Length(m_xmf3Velocity);
 		float fDeceleration = (m_fFriction * fTimeElapsed);
 		if (fDeceleration > fLength) fDeceleration = fLength;
@@ -225,12 +236,11 @@ void Player::Update(float fTimeElapsed)
 	}
 
 	DWORD nCameraMode = m_pCamera->GetMode();
-	//if (nCameraMode == THIRD_PERSON_CAMERA) 
 	m_pCamera->Update(m_xmf3Position, fTimeElapsed);
 	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
 	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
 	m_pCamera->RegenerateViewMatrix();
-
+	
 	Animate(fTimeElapsed);
 	Object::update();
 }
@@ -290,7 +300,7 @@ void Player::GetHit(float damage)
 }
 Camera* Player::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
-	//���ο� ī�޶��� ��忡 ���� ī�޶� ���� �����Ѵ�.
+
 	Camera* pNewCamera = NULL;
 	switch (nNewCameraMode)
 	{

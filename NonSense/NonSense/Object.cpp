@@ -2603,12 +2603,12 @@ void Item::ItemEffect()
 {
 	if (ItemID == 0) // ATK
 	{
-		
+		GameFramework::MainGameFramework->m_pPlayer->m_Attack += 20;
 	}
 
 	else if (ItemID == 1) // DEF
 	{
-		
+		GameFramework::MainGameFramework->m_pPlayer->m_Defense += 10;
 	}
 
 	else if (ItemID == 2) // HP
