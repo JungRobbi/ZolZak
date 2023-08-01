@@ -2592,7 +2592,7 @@ void Item::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	XMFLOAT3 dir;
 	Object::UpdateShaderVariables(pd3dCommandList);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 3, &dir, 0);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 1, &time, 3);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(22, 1, &time, 0);
 }
 
 void Item::ItemEffect()
