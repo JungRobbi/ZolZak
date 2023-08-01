@@ -32,11 +32,11 @@ protected:
 
 	XMFLOAT3 m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
+public:
 	float m_Health = 1000;
 	float m_Defense = 100;
 	float m_Attack = 200;
 	float m_RemainHP = 1000;
-public:
 
 	bool Magical = false;
 	unsigned int id = 0;
@@ -44,6 +44,9 @@ public:
 	Player_State_UI* m_pUI = NULL;
 	Player_HP_UI* m_pHP_UI = NULL;
 	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;
+	Player_Over_HP_UI* m_pOverHP_UI = NULL;
+	Player_Over_DEC_HP_UI* m_pOverHP_Dec_UI = NULL;
+
 	float last_DeBuff = 0;
 	bool dark = false;
 	bool m_die = false;
@@ -127,37 +130,6 @@ public:
 	{
 		if (pWeaponObject)
 			pWeaponObject->Release();
-		if (m_pBoundMesh)
-			m_pBoundMesh->Release();
-		if (m_pSphereMesh)
-			m_pSphereMesh->Release();
-	}
-
-	virtual Camera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
-
-	virtual void Update(float fTimeElapsed);
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
-	void FootStepR();
-	void FootStepL();
-};
-
-class WarriorPlayer : public Player
-{
-public:
-	FireBall* fireball;
-	Object* pWeaponObject;
-	Shader* m_pBoundingShader = NULL;
-	CubeMesh* m_pBoundMesh = NULL;
-	SphereMesh* m_pSphereMesh = NULL;
-
-	WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext);
-	virtual ~WarriorPlayer() {
-		if (fireball)
-			fireball->Release();
-		if (pWeaponObject)
-			pWeaponObject->Release();
-		if (m_pBoundingShader)
-			m_pBoundingShader->Release();
 		if (m_pBoundMesh)
 			m_pBoundMesh->Release();
 		if (m_pSphereMesh)

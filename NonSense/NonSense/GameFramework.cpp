@@ -1515,6 +1515,10 @@ void GameFramework::RenderHP()
 		m_pPlayer->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
 		m_pPlayer->m_pHP_UI->UpdateTransform(NULL);
 		m_pPlayer->m_pHP_UI->Render(m_pCommandList, m_pCamera);
+		m_pPlayer->m_pOverHP_Dec_UI->UpdateTransform(NULL);
+		m_pPlayer->m_pOverHP_Dec_UI->Render(m_pCommandList, m_pCamera);
+		m_pPlayer->m_pOverHP_UI->UpdateTransform(NULL);
+		m_pPlayer->m_pOverHP_UI->Render(m_pCommandList, m_pCamera);
 		m_pPlayer->m_pUI->UpdateTransform(NULL);
 		m_pPlayer->m_pUI->Render(m_pCommandList, m_pCamera);
 	}
