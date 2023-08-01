@@ -600,6 +600,7 @@ void MagePlayer::Update(float fTimeElapsed)
 		m_pOverHP_Dec_UI->Dec_HP = 0;
 		m_pOverHP_UI->SetMyPos(0.17, 0.04, 0, 0.32);
 	}
+
 	m_pHP_Dec_UI->Dec_HP = GetRemainHP() / 1000;
 	m_pHP_UI->SetMyPos(0.17, 0.04, 0.82 * GetRemainHP() / 1000, 0.32);
 	if (GetRemainHP() >= 1000)

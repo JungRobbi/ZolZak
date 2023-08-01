@@ -2568,6 +2568,10 @@ void Item::OnPrepareRender()
 		else {
 			ItemEffect();
 		}
+		if (!erase) {
+			GameScene::MainScene->deletionBlendQueue.push_back(this);
+			erase = true;
+		}
 	}
 }
 
@@ -2613,10 +2617,19 @@ void Item::ItemEffect()
 		{
 			GameFramework::MainGameFramework->m_pPlayer->m_Health += 100;
 			GameFramework::MainGameFramework->m_pPlayer->m_RemainHP += 100;
-			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP;
-			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP;
-			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP;
-			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP;
+			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP) / 1000;
+			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP - 1000) / 1000;
+			if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP <= 1000)
+			{
+				GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = 0;
+			}
+
+			if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP >= 1000)
+			{
+				GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = 1;
+			}
+			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP;
+			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP;
 		}
 	}
 }
