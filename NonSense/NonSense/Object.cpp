@@ -2609,8 +2609,15 @@ void Item::ItemEffect()
 
 	else if (ItemID == 2) // HP
 	{
-		if(GameFramework::MainGameFramework->m_pPlayer->m_Health<2000)
+		if (GameFramework::MainGameFramework->m_pPlayer->m_Health < 2000)
+		{
 			GameFramework::MainGameFramework->m_pPlayer->m_Health += 100;
+			GameFramework::MainGameFramework->m_pPlayer->m_RemainHP += 100;
+			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP;
+			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP;
+			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP;
+			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP;
+		}
 	}
 }
 

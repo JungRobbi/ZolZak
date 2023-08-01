@@ -97,8 +97,8 @@ public:
 	Player_Over_DEC_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~Player_Over_DEC_HP_UI() {};
 	virtual void update();
-	float HP = 1.0;
-	float Dec_HP = 1.0;
+	float HP = 0.0;
+	float Dec_HP = 0.0;
 };
 
 class Option_UI : public UI

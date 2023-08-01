@@ -140,6 +140,10 @@ void Player_HP_DEC_UI::update() {
 		HP -= (HP - Dec_HP) / 65;
 		if (HP < Dec_HP) HP = Dec_HP;
 	}
+	if (Dec_HP >= 1000)
+	{
+		HP = 1;
+	}
 	SetMyPos(0.17, 0.04, 0.82 * HP, 0.32);
 }
 
@@ -184,6 +188,10 @@ void Player_Over_DEC_HP_UI::update() {
 	if (Dec_HP < HP) {
 		HP -= (HP - Dec_HP) / 65;
 		if (HP < Dec_HP) HP = Dec_HP;
+	}
+	if (Dec_HP >= 1000)
+	{
+		HP = 1;
 	}
 	SetMyPos(0.17, 0.04, 0.82 * HP, 0.32);
 }

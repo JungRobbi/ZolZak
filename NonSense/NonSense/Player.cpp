@@ -285,7 +285,6 @@ void Player::GetHit(float damage)
 				send_packet.type = E_PACKET::E_PACKET_CS_DIE_PACKET;
 				PacketQueue::AddSendPacket(&send_packet);
 			}
-		//	GameFramework::MainGameFramework->ChangeToSpaceShipCamera();
 		}
 	}
 }
@@ -594,11 +593,20 @@ void MagePlayer::Update(float fTimeElapsed)
 	DWORD nCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
 	UpdateTransform(NULL);
 
-	m_pOverHP_Dec_UI->Dec_HP = (GetHealth()-1000) / 1000;
-	m_pOverHP_UI->SetMyPos(0.17, 0.04, 0.82 * (GetHealth() - 1000) / 1000, 0.32);
-
+	m_pOverHP_Dec_UI->Dec_HP = (GetRemainHP() - 1000) / 1000;
+	m_pOverHP_UI->SetMyPos(0.17, 0.04, 0.82 * (GetRemainHP() - 1000) / 1000, 0.32);
+	if (GetRemainHP() <= 1000)
+	{
+		m_pOverHP_Dec_UI->Dec_HP = 0;
+		m_pOverHP_UI->SetMyPos(0.17, 0.04, 0, 0.32);
+	}
 	m_pHP_Dec_UI->Dec_HP = GetRemainHP() / 1000;
 	m_pHP_UI->SetMyPos(0.17, 0.04, 0.82 * GetRemainHP() / 1000, 0.32);
+	if (GetRemainHP() >= 1000)
+	{
+		m_pHP_Dec_UI->Dec_HP = 1;
+		m_pHP_UI->SetMyPos(0.17, 0.04, 0.82, 0.32);
+	}
 
 	if (nCameraMode == FIRST_PERSON_CAMERA && FindFrame("Face"))
 	{
