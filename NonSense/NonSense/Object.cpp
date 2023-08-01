@@ -900,9 +900,9 @@ bool Object::IsVisible(Camera* pCamera)
 	{
 		xmBoundingBox = pMesh->GetBoundingBox();
 		xmBoundingBox.Transform(xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
-		//xmBoundingBox.Center.x += pCamera->GetLookVector().x*40;
-		//xmBoundingBox.Center.y += pCamera->GetLookVector().y*40;
-		//xmBoundingBox.Center.z += pCamera->GetLookVector().z*40;
+		xmBoundingBox.Center.x += pCamera->GetLookVector().x*40;
+		xmBoundingBox.Center.y += pCamera->GetLookVector().y*40;
+		xmBoundingBox.Center.z += pCamera->GetLookVector().z*40;
 		if (pCamera) bIsVisible = pCamera->IsInFrustum(xmBoundingBox);
 		return(bIsVisible);
 	}
@@ -1607,7 +1607,7 @@ void Object::OnPrepareRender()
 }
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	if (Do_Render)
+	if (Do_Render && IsVisible(pCamera))
 	{
 		OnPrepareRender();
 		if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
@@ -2293,7 +2293,7 @@ bool BoundSphere::Intersects(BoundSphere& sh)
 
 FireBall::FireBall(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(FORWARD_OBJECT)
 {
-	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 200);
+	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 1);
 	SetMesh(pMesh);
 
 	CTexture* pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
@@ -2416,7 +2416,7 @@ void FireBall::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 
 Explosion::Explosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : Object(FORWARD_OBJECT)
 {
-	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 500);
+	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 200);
 	SetMesh(pMesh);
 
 	CTexture* pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
@@ -2517,6 +2517,103 @@ void Explosion::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 3, &dir, 0);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 1, &time, 3);
 }
+
+/////////////////////////////////////////////////////////////////////////
+
+Item::Item(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int itemnum) : Object(BLEND_OBJECT)
+{
+	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 1);
+	SetMesh(pMesh);
+
+	CTexture* pParticleTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	ItemID = itemnum;
+	if(ItemID == 0) // ATK
+		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/ATK.dds", RESOURCE_TEXTURE2D, 0);
+	else if (ItemID == 1) // DEF
+		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/DEF.dds", RESOURCE_TEXTURE2D, 0);
+	else if (ItemID == 2) // HP
+		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/HPPlus.dds", RESOURCE_TEXTURE2D, 0);
+
+	IconShader* pShader = new IconShader();
+	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pParticleTexture, 20, false);
+
+	Material* pMaterial = new Material();
+	pMaterial->SetTexture(pParticleTexture);
+	pMaterial->SetShader(pShader);
+
+	SetMaterial(pMaterial);
+
+	m_pBoundingShader = new BoundingShader();
+	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
+	BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
+	bs->SetNum(1);
+	AddComponent<SphereCollideComponent>();
+	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
+	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, 0.0), 0.5);
+	GetComponent<SphereCollideComponent>()->GetBoundingObject()->SetNum(6);
+
+	SetNum(2);
+}
+
+void Item::OnPrepareRender()
+{
+	if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
+	{
+		if (NetworkMGR::b_isNet) {
+			
+		}
+		else {
+			ItemEffect();
+		}
+	}
+}
+
+void Item::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	OnPrepareRender();
+
+	UpdateShaderVariables(pd3dCommandList);
+
+	if (m_pMaterial->m_pShader) m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+	if (m_pMaterial->m_pTexture)m_pMaterial->m_pTexture->UpdateShaderVariable(pd3dCommandList, 0);
+
+	if (m_pMesh)
+	{
+		m_pMesh->Render(pd3dCommandList, 0);
+	}
+}
+
+void Item::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	float time = Timer::GetTotalTime();
+	XMFLOAT3 dir;
+	Object::UpdateShaderVariables(pd3dCommandList);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 3, &dir, 0);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 1, &time, 3);
+}
+
+void Item::ItemEffect()
+{
+	if (ItemID == 0) // ATK
+	{
+		
+	}
+	else if (ItemID == 1) // DEF
+	{
+		
+	}
+
+	else if (ItemID == 2) // HP
+	{
+	
+	}
+}
+
+/// /////////////////////////////////////////////////////////////////////////////
+
 
 Water::Water(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float h, float w) : Object(FORWARD_OBJECT)
 {

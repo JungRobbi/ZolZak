@@ -906,6 +906,10 @@ D3D12_SHADER_BYTECODE TerrainShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlo
 	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSTerrain", "ps_5_1", ppd3dShaderBlob));
 }
 
+/// <summary>
+/// /////////////////////////////////////////////////////////////
+/// </summary>
+
 ParticleShader::ParticleShader()
 {
 }
@@ -1015,6 +1019,16 @@ D3D12_SHADER_BYTECODE ParticleShader::CreateGeometryShader(ID3DBlob** ppd3dShade
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+IconShader::IconShader() : ParticleShader()
+{
+}
+
+D3D12_SHADER_BYTECODE IconShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSIcon", "ps_5_1", ppd3dShaderBlob));
+}
+/// ////////////////////////////////////////////////////////
 
 
 D3D12_INPUT_LAYOUT_DESC WaterShader::CreateInputLayout()
