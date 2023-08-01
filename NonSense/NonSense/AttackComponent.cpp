@@ -11,6 +11,9 @@ void AttackComponent::Attack()
 		AttackTimeLeft = AttackDuration + NextAttackInputTime;
 		During_Attack = true;
 		AttackAnimate();
+		if (dynamic_cast<Player*>(gameObject) != GameFramework::MainGameFramework->m_pPlayer)
+			return;
+
 		if (dynamic_cast<Monster*>(gameObject))
 		{
 			return;
