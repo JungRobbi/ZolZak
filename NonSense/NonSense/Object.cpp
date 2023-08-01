@@ -2530,7 +2530,7 @@ Item::Item(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	if(ItemID == 0) // ATK
 		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/ATK.dds", RESOURCE_TEXTURE2D, 0);
 	else if (ItemID == 1) // DEF
-		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/DEF.dds", RESOURCE_TEXTURE2D, 0);
+		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/DEFend.dds", RESOURCE_TEXTURE2D, 0);
 	else if (ItemID == 2) // HP
 		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/HPPlus.dds", RESOURCE_TEXTURE2D, 0);
 
@@ -2552,7 +2552,7 @@ Item::Item(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	bs->SetNum(1);
 	AddComponent<SphereCollideComponent>();
 	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
-	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, 0.0), 0.5);
+	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.0, 0.0), 0.4);
 	GetComponent<SphereCollideComponent>()->GetBoundingObject()->SetNum(6);
 
 	SetNum(2);
