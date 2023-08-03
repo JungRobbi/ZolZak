@@ -83,6 +83,23 @@ public:
 	float Dec_HP = 1.0;
 };
 
+class Player_Over_HP_UI : public UI
+{
+public:
+	Player_Over_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Player_Over_HP_UI() {};
+	float HP = 1.0;
+};
+
+class Player_Over_DEC_HP_UI : public UI
+{
+public:
+	Player_Over_DEC_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Player_Over_DEC_HP_UI() {};
+	virtual void update();
+	float HP = 0.0;
+	float Dec_HP = 0.0;
+};
 
 class Option_UI : public UI
 {
@@ -356,4 +373,25 @@ public:
 	GameOver_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	virtual ~GameOver_UI() {};
+};
+
+class Stat_UI : public UI
+{
+public:
+	Stat_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~Stat_UI() {};
+};
+
+class ATK_UI : public UI
+{
+public:
+	ATK_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~ATK_UI() {};
+};
+
+class DEF_UI : public UI
+{
+public:
+	DEF_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~DEF_UI() {};
 };

@@ -2515,7 +2515,7 @@ void Explosion::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 	XMFLOAT3 dir;
 	Object::UpdateShaderVariables(pd3dCommandList);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 3, &dir, 0);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 1, &time, 3);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(22, 1, &time, 0);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -2560,13 +2560,17 @@ Item::Item(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 
 void Item::OnPrepareRender()
 {
-	if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
+	if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject())&& !erase)
 	{
 		if (NetworkMGR::b_isNet) {
 			
 		}
 		else {
 			ItemEffect();
+		}
+		if (!erase) {
+			GameScene::MainScene->deletionBlendQueue.push_back(this);
+			erase = true;
 		}
 	}
 }
@@ -2599,16 +2603,34 @@ void Item::ItemEffect()
 {
 	if (ItemID == 0) // ATK
 	{
-		
+		GameFramework::MainGameFramework->m_pPlayer->m_Attack += 20;
 	}
+
 	else if (ItemID == 1) // DEF
 	{
-		
+		GameFramework::MainGameFramework->m_pPlayer->m_Defense += 10;
 	}
 
 	else if (ItemID == 2) // HP
 	{
-	
+		if (GameFramework::MainGameFramework->m_pPlayer->m_Health < 2000)
+		{
+			GameFramework::MainGameFramework->m_pPlayer->m_Health += 100;
+			GameFramework::MainGameFramework->m_pPlayer->m_RemainHP += 100;
+			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP) / 1000;
+			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP - 1000) / 1000;
+			if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP <= 1000)
+			{
+				GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = 0;
+			}
+
+			if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP >= 1000)
+			{
+				GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = 1;
+			}
+			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP;
+			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP;
+		}
 	}
 }
 

@@ -565,6 +565,7 @@ public:
 	virtual void ItemEffect();
 
 	int ItemID = 0;
+	bool erase = false;
 	Shader* m_pBoundingShader = NULL;
 };
 
