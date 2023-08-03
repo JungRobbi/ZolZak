@@ -177,8 +177,11 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	Item* m_HP = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 2);
 	m_HP->SetPosition(-17.0f, 0.5, 103.0f);
 
-	MainBGM = new Sound("Sound/TestMusic.mp3", true);
+	XMFLOAT3 p = { 0,0,0 };
+	MainBGM = new Sound("Sound/TestMusic.mp3", FMOD_2D | FMOD_LOOP_NORMAL, &p);
+	MainBGM->SetVolume(0.35);
 	AddSound(MainBGM);
+
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dCommandList = pd3dCommandList;
 }

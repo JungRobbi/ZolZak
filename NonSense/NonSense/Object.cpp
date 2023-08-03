@@ -2338,7 +2338,7 @@ void FireBall::OnPrepareRender()
 		{
 			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
 			{
-				Sound* s = new Sound("Sound/Mage_Blast.mp3", false);
+				Sound* s = new Sound("Sound/Mage_Blast.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 				GameScene::MainScene->AddSound(s);
 				explode->Active = true;
 				explode->SetPosition(GetPosition());
@@ -2355,7 +2355,7 @@ void FireBall::OnPrepareRender()
 		{
 			if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
-				Sound* s = new Sound("Sound/Mage_Blast.mp3", false);
+				Sound* s = new Sound("Sound/Mage_Blast.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 				GameScene::MainScene->AddSound(s);
 				explode->Active = true;
 				explode->SetPosition(GetPosition());
@@ -2589,7 +2589,7 @@ void Item::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 void Item::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	float time = Timer::GetTotalTime();
-	XMFLOAT3 dir;
+	XMFLOAT3 dir = {0,0,0};
 	Object::UpdateShaderVariables(pd3dCommandList);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(21, 3, &dir, 0);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(22, 1, &time, 0);

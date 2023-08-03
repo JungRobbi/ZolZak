@@ -453,7 +453,9 @@ void GameFramework::BuildObjects()
 		p->ReleaseUploadBuffers();
 	m_pPlayer->GetComponent<PlayerMovementComponent>()->CursorExpose = true;
 	Timer::Reset();
-	MainBGM = new Sound("Sound/LobbyBGM.mp3", true);
+	XMFLOAT3 p = { 0,0,0 };
+	MainBGM = new Sound("Sound/LobbyBGM.mp3", FMOD_2D | FMOD_LOOP_NORMAL, &p);
+	MainBGM->SetVolume(0.3);
 }
 
 void GameFramework::ReleaseObjects()
@@ -926,7 +928,9 @@ void GameFramework::ChangeScene(unsigned char num)
 	{
 		if (GameSceneState > ROOM_SCENE)
 		{
-			MainBGM = new Sound("Sound/LobbyBGM.mp3",true);
+			XMFLOAT3 p = { 0,0,0 };
+			MainBGM = new Sound("Sound/LobbyBGM.mp3", FMOD_2D | FMOD_LOOP_NORMAL, &p);
+			MainBGM->SetVolume(0.3);
 		}
 	}
 
@@ -1044,7 +1048,9 @@ void GameFramework::ChangeStage(unsigned char num)
 	{
 		auto iter = std::find(GameScene::MainScene->Sounds.begin(), GameScene::MainScene->Sounds.end(), GameScene::MainScene->MainBGM);
 		GameScene::MainScene->Sounds.erase(iter);
-		Sound* s = new Sound("Sound/TestMusic.mp3", true);
+		XMFLOAT3 p = { 0,0,0 };
+		Sound* s = new Sound("Sound/TestMusic.mp3", FMOD_2D | FMOD_LOOP_NORMAL, &p);
+		s->SetVolume(0.35);
 		GameScene::MainScene->MainBGM = s;
 		GameScene::MainScene->AddSound(s);
 	}
@@ -1075,7 +1081,9 @@ void GameFramework::ChangeStage(unsigned char num)
 			auto iter = std::find(GameScene::MainScene->Sounds.begin(), GameScene::MainScene->Sounds.end(), GameScene::MainScene->MainBGM);
 			GameScene::MainScene->Sounds.erase(iter);
 			delete GameScene::MainScene->MainBGM;
-			Sound* s = new Sound("Sound/BossStageBGM.mp3", true);
+			XMFLOAT3 p = { 0,0,0 };
+			Sound* s = new Sound("Sound/BossStageBGM.mp3", FMOD_2D | FMOD_LOOP_NORMAL, &p);
+			s->SetVolume(0.3);
 			GameScene::MainScene->MainBGM = s;
 			GameScene::MainScene->AddSound(s);
 		}
@@ -1284,7 +1292,7 @@ void GameFramework::FrameAdvance()
 
 	m_pVivoxSystem->Listen();
 
-	Sound::SystemUpdate(); //FMOD System Update
+	Sound::SystemUpdate(&m_pPlayer->GetPosition(), &m_pPlayer->GetLookVector(), &m_pPlayer->GetUpVector()); //FMOD System Update
 
 
 	if (NetworkMGR::b_isNet)

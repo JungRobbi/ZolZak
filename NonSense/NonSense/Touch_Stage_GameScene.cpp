@@ -154,9 +154,6 @@ void Touch_Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graphic
 	m_pSkyBox->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	Sound* s;
-	s = new Sound("Sound/TestMusic.mp3", true);
-	AddSound(s);
 
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dCommandList = pd3dCommandList;
