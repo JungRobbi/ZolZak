@@ -32,6 +32,16 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	Loading_UI* m_Loading_UI = new Loading_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Stat_UI* m_Stat_UI = new Stat_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
+	ATKs = new ATK_UI * [21];
+	DEFs = new DEF_UI * [21];
+	for (int i = 0; i < 21; ++i)
+	{
+		ATKs[i] = new ATK_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+		DEFs[i] = new DEF_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+		ATKs[i]->SetMyPos(0.1 + 0.02 * (i % 7), 0.95 - 0.03*(i / 7), 0.02, 0.03);
+		DEFs[i]->SetMyPos(0.1 + 0.02 * (i % 7), 0.8 - 0.03*(i / 7), 0.02, 0.03);
+	}
+
 	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, 37, 37, xmf3Scale, xmf4Color);
 	terrain->SetPosition(-400, 0, -400);
 	m_pTerrain = terrain;
@@ -177,6 +187,8 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_Atk->SetPosition(-16.5f, 0.5, 103.0f);
 	Item* m_HP = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 2);
 	m_HP->SetPosition(-17.0f, 0.5, 103.0f);
+
+
 
 	MainBGM = new Sound("Sound/TestMusic.mp3", true);
 	AddSound(MainBGM);
@@ -1001,6 +1013,43 @@ void Stage_GameScene::update()
 			else {
 				GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
 			}
+		}
+	}
+}
+
+void Stage_GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	OnPrepareRender(pd3dCommandList, pCamera);
+	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+
+	if (m_pMappedScreenOptions->darkness <= 0.5) {
+		for (auto& object : MonsterObjects)
+		{
+			object->m_pHP->UpdateTransform(NULL);
+			object->m_pHP->Render(pd3dCommandList, pCamera);;
+		}
+	}
+	for (auto& object : UIGameObjects)
+	{
+		object->UpdateTransform(NULL);
+		object->Render(pd3dCommandList, pCamera);
+	}
+	if (ScriptMode)
+	{
+		ScriptUI->UpdateTransform(NULL);
+		ScriptUI->Render(pd3dCommandList, pCamera);
+	}
+	for (int i = 0; i < 21; ++i)
+	{
+		if (m_pPlayer->m_Attack >= 200 + 20 * i)
+		{
+			ATKs[i]->UpdateTransform(NULL);
+			ATKs[i]->Render(pd3dCommandList, pCamera);
+		}
+		if (m_pPlayer->m_Defense >= 100 + 10 * i)
+		{
+			DEFs[i]->UpdateTransform(NULL);
+			DEFs[i]->Render(pd3dCommandList, pCamera);
 		}
 	}
 }

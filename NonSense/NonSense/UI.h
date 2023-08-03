@@ -381,3 +381,17 @@ public:
 	Stat_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~Stat_UI() {};
 };
+
+class ATK_UI : public UI
+{
+public:
+	ATK_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~ATK_UI() {};
+};
+
+class DEF_UI : public UI
+{
+public:
+	DEF_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~DEF_UI() {};
+};

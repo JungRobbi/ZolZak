@@ -14,13 +14,14 @@ public:
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	ID3D12Device* m_pd3dDevice = NULL;
 	ID3D12GraphicsCommandList* m_pd3dCommandList = NULL;
-
+	ATK_UI** ATKs = {};
+	DEF_UI** DEFs = {};
 
 	void TouchStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void HearingStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void SightStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void BossStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-
+	void RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	void ClearMonster();
 
 	void LoadAllModels(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
