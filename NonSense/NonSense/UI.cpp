@@ -393,7 +393,7 @@ Aim::Aim(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, I
 	SetMaterial(pUIMaterial);
 	CanClick = false;
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	SetMyPos(0.485, 0.47, 0.035, 0.05);
+	SetMyPos(0.487, 0.48, 0.026, 0.04);
 }
 
 NPCScript::NPCScript(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)

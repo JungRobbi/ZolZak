@@ -32,14 +32,14 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	Loading_UI* m_Loading_UI = new Loading_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	Stat_UI* m_Stat_UI = new Stat_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
-	ATKs = new ATK_UI * [21];
-	DEFs = new DEF_UI * [21];
-	for (int i = 0; i < 21; ++i)
+	ATKs = new ATK_UI * [14];
+	DEFs = new DEF_UI * [14];
+	for (int i = 0; i < 14; ++i)
 	{
 		ATKs[i] = new ATK_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 		DEFs[i] = new DEF_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-		ATKs[i]->SetMyPos(0.1 + 0.02 * (i % 7), 0.95 - 0.03*(i / 7), 0.02, 0.03);
-		DEFs[i]->SetMyPos(0.1 + 0.02 * (i % 7), 0.8 - 0.03*(i / 7), 0.02, 0.03);
+		ATKs[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.93 - 0.05*(i / 7), 0.035, 0.05);
+		DEFs[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.78 - 0.05*(i / 7), 0.035, 0.05);
 	}
 
 	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, 37, 37, xmf3Scale, xmf4Color);
@@ -1039,7 +1039,7 @@ void Stage_GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camer
 		ScriptUI->UpdateTransform(NULL);
 		ScriptUI->Render(pd3dCommandList, pCamera);
 	}
-	for (int i = 0; i < 21; ++i)
+	for (int i = 0; i < 14; ++i)
 	{
 		if (m_pPlayer->m_Attack >= 200 + 20 * i)
 		{
