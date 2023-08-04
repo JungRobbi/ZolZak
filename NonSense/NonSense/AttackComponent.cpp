@@ -104,17 +104,20 @@ void AttackComponent::Skill()
 			//////////////////////////// 팀원 힐
 			for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
 			{
-				p->m_RemainHP += 100;
-				if (p->m_RemainHP > p->m_Health)
+				// 사용 플레이어와 거리가 2아래 라면
+				if (sqrt(pow((dynamic_cast<Player*>(gameObject)->GetPosition().x - p->GetPosition().x), 2) + pow((dynamic_cast<Player*>(gameObject)->GetPosition().z - p->GetPosition().z), 2)) < 2)
 				{
-					p->m_RemainHP = p->m_Health;
+					p->m_RemainHP += 200;
+					if (p->m_RemainHP > p->m_Health)
+					{
+						p->m_RemainHP = p->m_Health;
+					}
 				}
 			}
 			////////////////////////////
 		}
 		else if (!dynamic_cast<Player*>(gameObject)->Magical)	// Warrior
 		{
-			cout << "Warrior Skill" << endl;
 		}
 	}
 
@@ -135,7 +138,6 @@ void AttackComponent::ProjectileAttack(XMFLOAT3 dir)
 
 void AttackComponent::CheckMonsterAttackRange()
 {
-	std::cout << "Attack" << std::endl;
 	if (AttackRange) {
 			if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
@@ -232,7 +234,7 @@ void AttackComponent::update()
 					b_Attack = false;
 				}
 			}
-			if ((Input::InputKeyBuffer[VK_LSHIFT] & 0xF0) && !NetworkMGR::b_isNet)
+			if ((Input::InputKeyBuffer['E'] & 0xF0) && !NetworkMGR::b_isNet)
 			{
 				if (!During_Attack && !ScriptMode && !OptionMode)
 				{

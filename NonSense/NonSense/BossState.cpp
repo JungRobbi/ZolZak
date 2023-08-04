@@ -149,7 +149,7 @@ SkillState_Boss* SkillState_Boss::GetInstance()
 void SkillState_Boss::Enter(BossFSMComponent* pOwner)
 {
 	pOwner->Stop();
-	std::cout << "Boss Skill" << std::endl;
+	//std::cout << "Boss Skill" << std::endl;
 }
 
 void SkillState_Boss::Execute(BossFSMComponent* pOwner)
@@ -167,7 +167,7 @@ void SkillState_Boss::Execute(BossFSMComponent* pOwner)
 	if (!pOwner->gameObject->GetComponent<BossAttackComponent>()->During_Skill)
 	{
 		int Skill = RandomSkill(rd);
-		std::cout << "SKill : " << Skill << std::endl;
+		//std::cout << "SKill : " << Skill << std::endl;
 		switch (Skill)
 		{
 		case 0:
@@ -201,6 +201,6 @@ void SkillState_Boss::Exit(BossFSMComponent* pOwner)
 	pOwner->SetSkillCoolTime(RandomSkillCoolTime(rd));
 	pOwner->gameObject->GetComponent<BossAttackComponent>()->End_Skill = false;
 	pOwner->gameObject->GetComponent<BossAttackComponent>()->During_Skill = false;
-	std::cout << "Boss Skill End" << std::endl;
+	//std::cout << "Boss Skill End" << std::endl;
 
 }

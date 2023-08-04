@@ -4,7 +4,7 @@ void Lobby_GameScene::update()
 {
 	while (!roomCreateList.empty() && m_ppRooms) {
 		auto p = roomCreateList.front();
-		std::cout << p.num << " " << p.name << " " << p.owner << std::endl;
+		//std::cout << p.num << " " << p.name << " " << p.owner << std::endl;
 		m_ppRooms[p.num]->RoomNum = p.num;
 		m_ppRooms[p.num]->RoomName = p.name;
 		m_ppRooms[p.num]->RoomOwner = p.owner;
