@@ -3,6 +3,7 @@
 #include "Input.h"
 #include "Player.h"
 #include "NetworkMGR.h"
+#include "GameFramework.h"
 
 #include "../AnimationType.h"
 

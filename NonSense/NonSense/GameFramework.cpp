@@ -930,7 +930,7 @@ void GameFramework::ChangeScene(unsigned char num)
 		}
 	}
 
-	GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
+    GameScene::MainScene->BuildObjects(m_pDevice, m_pCommandList);
 
 	if (num != LOGIN_SCENE) {
 		m_ShadowMap->ReBuildDescriptors();
