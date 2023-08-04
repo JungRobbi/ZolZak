@@ -417,11 +417,15 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		GetComponent<AttackComponent>()->SetBoundingObject(bb);
 		GetComponent<AttackComponent>()->Type_ComboAttack = true;
 		GetComponent<AttackComponent>()->SetAttackDuration(1.2);
+		m_Health = 1200;
+		m_RemainHP = 1200;
 	}
 	else
 	{
 		GetComponent<AttackComponent>()->Type_ComboAttack = false;
 		GetComponent<AttackComponent>()->SetAttackDuration(1.5);
+		m_Health = 1000;
+		m_RemainHP = 1000;
 	}
 	
 	{

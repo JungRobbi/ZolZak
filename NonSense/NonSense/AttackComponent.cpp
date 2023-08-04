@@ -66,6 +66,60 @@ void AttackComponent::Attack()
 
 }
 
+void AttackComponent::Skill()
+{
+	if (!Die) {
+		AttackTimeLeft = AttackDuration + NextAttackInputTime;
+		During_Attack = true;
+		AttackAnimate();
+		if (dynamic_cast<Monster*>(gameObject))
+		{
+			return;
+		}
+		if (dynamic_cast<Player*>(gameObject)->Magical)	// Mage Player
+		{
+			//////////////////////////// 자기 자신 힐
+			dynamic_cast<Player*>(gameObject)->m_RemainHP += 100;
+			if (dynamic_cast<Player*>(gameObject)->m_RemainHP > dynamic_cast<Player*>(gameObject)->m_Health)
+			{
+				dynamic_cast<Player*>(gameObject)->m_RemainHP = dynamic_cast<Player*>(gameObject)->m_Health;
+			}
+
+			dynamic_cast<Player*>(gameObject)->m_pHP_Dec_UI->Dec_HP = dynamic_cast<Player*>(gameObject)->m_RemainHP / 1000;
+			dynamic_cast<Player*>(gameObject)->m_pOverHP_Dec_UI->Dec_HP = (dynamic_cast<Player*>(gameObject)->m_RemainHP - 1000) / 1000;
+			dynamic_cast<Player*>(gameObject)->m_pHP_Dec_UI->HP = dynamic_cast<Player*>(gameObject)->m_pHP_Dec_UI->Dec_HP;
+			dynamic_cast<Player*>(gameObject)->m_pOverHP_Dec_UI->HP = dynamic_cast<Player*>(gameObject)->m_pOverHP_Dec_UI->Dec_HP;
+			if (dynamic_cast<Player*>(gameObject)->m_RemainHP <= 1000)
+			{
+				dynamic_cast<Player*>(gameObject)->m_pOverHP_Dec_UI->Dec_HP = 0;
+				dynamic_cast<Player*>(gameObject)->m_pOverHP_Dec_UI->HP = 0;
+			}
+
+			if (dynamic_cast<Player*>(gameObject)->m_RemainHP >= 1000)
+			{
+				dynamic_cast<Player*>(gameObject)->m_pHP_Dec_UI->Dec_HP = 1;
+				dynamic_cast<Player*>(gameObject)->m_pHP_Dec_UI->HP = 1;
+			}
+
+			//////////////////////////// 팀원 힐
+			for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
+			{
+				p->m_RemainHP += 100;
+				if (p->m_RemainHP > p->m_Health)
+				{
+					p->m_RemainHP = p->m_Health;
+				}
+			}
+			////////////////////////////
+		}
+		else if (!dynamic_cast<Player*>(gameObject)->Magical)	// Warrior
+		{
+			cout << "Warrior Skill" << endl;
+		}
+	}
+
+}
+
 void AttackComponent::ProjectileAttack(XMFLOAT3 dir)
 {
 	AttackTimeLeft = AttackDuration + NextAttackInputTime;
@@ -178,8 +232,24 @@ void AttackComponent::update()
 					b_Attack = false;
 				}
 			}
+			if ((Input::InputKeyBuffer[VK_LSHIFT] & 0xF0) && !NetworkMGR::b_isNet)
+			{
+				if (!During_Attack && !ScriptMode && !OptionMode)
+				{
+					Skill();
+				}
+			}
+			else {
+				if (!During_Attack && b_Attack && !ScriptMode && !OptionMode)
+				{
+					Skill();
+					b_Attack = false;
+				}
+			}
 		}
 	}
+
+
 	if (AttackTimeLeft > 0.0f)
 	{
 		if (AttackTimeLeft > 0.0)
