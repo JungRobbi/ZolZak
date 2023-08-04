@@ -1,17 +1,12 @@
 #include "Sound.h"
+#include "GameFramework.h"
 
 FMOD_SYSTEM* Sound::FMODSystem;
-Sound::Sound(char* SoundFilePath, bool IsLoop)
-{
-	if (IsLoop)
-	{
-		FMOD_System_CreateSound(FMODSystem, SoundFilePath, FMOD_LOOP_NORMAL, 0, &m_Sound);
-	}
-	else
-	{
-		FMOD_System_CreateSound(FMODSystem, SoundFilePath, FMOD_DEFAULT, 0, &m_Sound);
-	}
+XMFLOAT3* Sound::PlayerPosition;
 
+Sound::Sound(char* SoundFilePath, FMOD_MODE Mode, XMFLOAT3* SoundPos)
+{
+	FMOD_System_CreateSound(FMODSystem, SoundFilePath, Mode, 0, &m_Sound);
 	FMOD_System_CreateDSPByType(FMODSystem, FMOD_DSP_TYPE_LOWPASS, &Lowpass);
 	FMOD_DSP_SetParameterFloat(Lowpass, FMOD_DSP_LOWPASS_CUTOFF, 550.0f);
 	FMOD_System_CreateDSPByType(FMODSystem, FMOD_DSP_TYPE_HIGHPASS, &Highpass);
@@ -20,6 +15,50 @@ Sound::Sound(char* SoundFilePath, bool IsLoop)
 	FMOD_DSP_SetParameterFloat(Tremolo, 0, 1.0f);
 
 	Play();
+	if (Mode & FMOD_3D_WORLDRELATIVE)
+	{
+		XMFLOAT3 RelativePos = Vector3::Subtract(*SoundPos, GameFramework::MainGameFramework->m_pPlayer->GetPosition());
+		FMOD_VECTOR vec = { SoundPos->x,SoundPos->y ,SoundPos->z };
+		FMOD_VECTOR vel = { 0,0,0 };
+		FMOD_Channel_Set3DAttributes(m_Channel, &vec, &vel);
+		FMOD_Channel_Set3DMinMaxDistance(m_Channel, 1.0f, 100.0f);
+		FMOD_Channel_Set3DLevel(m_Channel, 0.8f);
+
+		float len = Vector3::Length(RelativePos);
+		if (len > 50.f)
+		{
+			FMOD_Channel_SetVolume(m_Channel, 0.0f);
+			std::cout << "out of range" << std::endl;
+			std::cout << AttVolume << std::endl;
+		}
+		else
+		{
+			AttVolume = 10.0f / (10.0f + len);
+			FMOD_Channel_SetVolume(m_Channel, Volume * AttVolume);
+		}
+	}
+	if (Mode & FMOD_3D_HEADRELATIVE)
+	{
+		XMFLOAT3 RelativePos = Vector3::Subtract(*SoundPos, GameFramework::MainGameFramework->m_pPlayer->GetPosition());
+		FMOD_VECTOR RelativeVec = { RelativePos.x,RelativePos.y,RelativePos.z };
+		FMOD_VECTOR vel = { 0,0,0 };
+		FMOD_Channel_Set3DAttributes(m_Channel, &RelativeVec, &vel);
+		FMOD_Channel_Set3DMinMaxDistance(m_Channel, 1.0f, 100.0f);
+		FMOD_Channel_Set3DLevel(m_Channel, 0.8f);
+
+		float len = Vector3::Length(RelativePos);
+		if (len > 50.f)
+		{
+			FMOD_Channel_SetVolume(m_Channel, 0.0f);
+			std::cout << "out of range" << std::endl;
+		}
+		else
+		{
+			AttVolume = 50.0f / (50.0f + len);
+			FMOD_Channel_SetVolume(m_Channel, Volume * AttVolume);
+			std::cout << AttVolume << std::endl;
+		}
+	}
 }
 Sound::~Sound()
 {
@@ -31,6 +70,7 @@ void Sound::InitFmodSystem()
 {
 	FMOD_System_Create(&FMODSystem, FMOD_VERSION);
 	FMOD_System_Init(FMODSystem, 32, FMOD_INIT_NORMAL, NULL);
+	//FMOD_System_Set3DSettings(FMODSystem, 1.0f, 1.0f, FMOD_3D_LINEARSQUAREROLLOFF);
 }
 
 void Sound::ReleaseFmodSystem()
@@ -39,15 +79,21 @@ void Sound::ReleaseFmodSystem()
 	FMOD_System_Release(FMODSystem);
 }
 
-void Sound::SystemUpdate()
+void Sound::SystemUpdate(XMFLOAT3* PlayerPos, XMFLOAT3* PlayerForward, XMFLOAT3* PlayerUp)
 {
+	PlayerPosition = PlayerPos;
+	FMOD_VECTOR pos = { PlayerPos->x,PlayerPos->y,PlayerPos->z };
+	FMOD_VECTOR Forward = { PlayerForward->x,PlayerForward->y,PlayerForward->z };
+	FMOD_VECTOR Up = { PlayerUp->x,PlayerUp->y,PlayerUp->z };
+	FMOD_VECTOR vel = { 0,0,0 };
+	FMOD_System_Set3DListenerAttributes(FMODSystem, 0, &pos, &vel, &Forward, &Up);
 	FMOD_System_Update(FMODSystem);
 }
 
 void Sound::Play()
 {
 	FMOD_System_PlaySound(FMODSystem, m_Sound, NULL, false, &m_Channel);
-	FMOD_Channel_SetVolume(m_Channel, Volume);
+	FMOD_Channel_SetVolume(m_Channel, Volume * AttVolume);
 }
 
 void Sound::Stop()
@@ -82,7 +128,7 @@ void Sound::VolumeUp()
 	{
 		Volume += 0.1f;
 	}
-	FMOD_Channel_SetVolume(m_Channel, Volume);
+	FMOD_Channel_SetVolume(m_Channel, Volume * AttVolume);
 }
 
 void Sound::VolumeDown()
@@ -91,7 +137,13 @@ void Sound::VolumeDown()
 	{
 		Volume -= 0.1f;
 	}
-	FMOD_Channel_SetVolume(m_Channel, Volume);
+	FMOD_Channel_SetVolume(m_Channel, Volume * AttVolume);
+}
+
+void Sound::SetVolume(float v)
+{
+	Volume = v;
+	FMOD_Channel_SetVolume(m_Channel, Volume * AttVolume);
 }
 
 FMOD_BOOL Sound::CheckEndSound()

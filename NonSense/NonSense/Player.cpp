@@ -502,15 +502,15 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		m_pSkinnedAnimationController->AddAnimationEvent("FootStepLEvent", E_RUN, 0.33, FootStepLEvent);
 
 		std::function<void()> SwingSound1 = [this]() {
-			Sound* s = new Sound("Sound/Warrior_Swip_1.mp3", false);
+			Sound* s = new Sound("Sound/Warrior_Swip_1.mp3", FMOD_3D_HEADRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 			GameScene::MainScene->AddSound(s);
 		};
 		std::function<void()> SwingSound2 = [this]() {
-			Sound* s = new Sound("Sound/Warrior_Swip_2.mp3", false);
+			Sound* s = new Sound("Sound/Warrior_Swip_2.mp3", FMOD_3D_HEADRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 			GameScene::MainScene->AddSound(s);
 		};
 		std::function<void()> SwingSound3 = [this]() {
-			Sound* s = new Sound("Sound/Warrior_Swip_3.mp3", false);
+			Sound* s = new Sound("Sound/Warrior_Swip_3.mp3", FMOD_3D_HEADRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 			GameScene::MainScene->AddSound(s);
 		};
 
@@ -526,7 +526,7 @@ void MagePlayer::FootStepR()
 {
 	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
 	{
-		Sound* s = new Sound("Sound/GrassFootstep_R.mp3", false);
+		Sound* s = new Sound("Sound/GrassFootstep_R.mp3", FMOD_3D_HEADRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 		GameScene::MainScene->AddSound(s);
 	}
 }
@@ -535,7 +535,7 @@ void MagePlayer::FootStepL()
 {
 	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
 	{
-		Sound* s = new Sound("Sound/GrassFootstep_L.mp3", false);
+		Sound* s = new Sound("Sound/GrassFootstep_L.mp3", FMOD_3D_HEADRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 		GameScene::MainScene->AddSound(s);
 	}
 }

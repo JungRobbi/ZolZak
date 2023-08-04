@@ -234,13 +234,13 @@ void Goblin::CloseAttackEvent()
 
 void Goblin::HitSound()
 {
-	Sound* s = new Sound("Sound/GoblinHit.mp3", false);
+	Sound* s = new Sound("Sound/GoblinHit.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 	GameScene::MainScene->AddSound(s);
 }
 
 void Goblin::DeadSound()
 {
-	Sound* s = new Sound("Sound/GoblinDeath.mp3", false);
+	Sound* s = new Sound("Sound/GoblinDeath.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 	GameScene::MainScene->AddSound(s);
 }
 
@@ -367,12 +367,12 @@ void Orc::CloseAttackEvent()
 }
 void Orc::HitSound()
 {
-	Sound* s = new Sound("Sound/OrcHit.mp3", false);
+	Sound* s = new Sound("Sound/OrcHit.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 	GameScene::MainScene->AddSound(s);
 }
 void Orc::DeadSound()
 {
-	Sound* s = new Sound("Sound/OrcDeath.mp3", false);
+	Sound* s = new Sound("Sound/OrcDeath.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 	GameScene::MainScene->AddSound(s);
 }
 Skull::Skull(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) : Monster(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
@@ -498,13 +498,13 @@ void Skull::CloseAttackEvent()
 
 void Skull::HitSound()
 {
-	Sound* s = new Sound("Sound/SkullHit.mp3", false);
+	Sound* s = new Sound("Sound/SkullHit.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 	GameScene::MainScene->AddSound(s);
 }
 
 void Skull::DeadSound()
 {
-	Sound* s = new Sound("Sound/SkullDeath.mp3", false);
+	Sound* s = new Sound("Sound/SkullDeath.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 	GameScene::MainScene->AddSound(s);
 }
 
@@ -713,14 +713,14 @@ void Shield::BossAttackEvent()
 void Shield::BossStealSenseEvent()
 {
 	GetComponent<BossAttackComponent>()->StealSense();
-	Sound* s = new Sound("Sound/BossRoar.mp3", false);
+	Sound* s = new Sound("Sound/BossRoar.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 	GameScene::MainScene->AddSound(s);
 }
 
 void Shield::BossSummonEvent(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	GetComponent<BossAttackComponent>()->Summon(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,GetPosition());
-	Sound* s = new Sound("Sound/MobSpawn.mp3", false);
+	Sound* s = new Sound("Sound/MobSpawn.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 	GameScene::MainScene->AddSound(s);
 }
 
@@ -741,19 +741,19 @@ void Shield::BossTorandoEvent()
 
 void Shield::BossRoarSoundEvent()
 {
-	Sound* s = new Sound("Sound/BossRoar.mp3", false);
+	Sound* s = new Sound("Sound/BossRoar.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 	GameScene::MainScene->AddSound(s);
 }
 
 void Shield::BossSummonSoundEvent()
 {
-	Sound* s = new Sound("Sound/BossSpawn.mp3", false);
+	Sound* s = new Sound("Sound/BossSpawn.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 	GameScene::MainScene->AddSound(s);
 }
 
 void Shield::BossJumpAttackSoundEvent()
 {
-	Sound* s = new Sound("Sound/JumpAttack.mp3", false);
+	Sound* s = new Sound("Sound/JumpAttack.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 	GameScene::MainScene->AddSound(s);
 }
 

@@ -464,6 +464,7 @@ void ScreenShader::CreateResourcesAndViews(ID3D12Device* pd3dDevice, UINT nResou
 	CreateShaderResourceViews(pd3dDevice, m_pTexture, 0, 6);
 
 	D3D12_RENDER_TARGET_VIEW_DESC d3dRenderTargetViewDesc;
+	d3dRenderTargetViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	d3dRenderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	d3dRenderTargetViewDesc.Texture2D.MipSlice = 0;
 	d3dRenderTargetViewDesc.Texture2D.PlaneSlice = 0;
