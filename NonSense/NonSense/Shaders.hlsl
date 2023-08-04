@@ -81,6 +81,16 @@ TextureCube gtxtSkyCubeTexture : register(t13);
 
 #include "Light1.hlsl"
 
+///////////////////////////////////////////////////////////////////////////////////////////
+
+struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
+{
+    float4 Scene : SV_TARGET0;
+    float4 Position : SV_TARGET1;
+    float4 Normal : SV_TARGET2;
+    float4 Texture : SV_TARGET3;
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -119,20 +129,7 @@ VS_ShadowMap_Out VSShadowMap(VS_ShadowMap_In vin)
 // texture can use a NULL pixel shader for depth pass.
 void PSShadowMap(VS_ShadowMap_Out pin)
 {
-	//	// Fetch the material data.
-	//	MaterialData matData = gMaterialData[gMaterialIndex];
-	//	float4 diffuseAlbedo = matData.DiffuseAlbedo;
-	//	uint diffuseMapIndex = matData.DiffuseMapIndex;
-	//
-	//	// Dynamically look up the texture in the array.
-	//	diffuseAlbedo *= gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
-	//
-	//#ifdef ALPHA_TEST
-	//	// Discard pixel if texture alpha < 0.1.  We do this test as soon 
-	//	// as possible in the shader so that we can potentially exit the
-	//	// shader early, thereby skipping the rest of the shader code.
-	//	clip(diffuseAlbedo.a - 0.1f);
-	//#endif
+
 }
 
 
@@ -176,20 +173,31 @@ VS_PARTICLE_OUTPUT VSParticle(VS_PARTICLE_INPUT input)
 
 		output.position = newPosition;
 		output.size = 0.02 - newT / 200;
-		output.color = input.color;
-	}
+        output.color = float4(0, 0, 0, 1);
+    }
 
 	else if (objectID == 1) {
-		float newT = input.lifetime * frac(t / input.lifetime);
+        float newT = (input.lifetime) * frac(t / (input.lifetime));
 
-		newPosition.x = input.position.x + newT * (input.velocity.x)*5;
-		newPosition.y = input.position.x + newT * (input.velocity.y)*5;
-		newPosition.z = input.position.x + newT * (input.velocity.z)*5;
+		newPosition.x = input.position.x + newT * (input.velocity.x)*15;
+		newPosition.y = input.position.y + newT * (input.velocity.y)*15;
+		newPosition.z = input.position.z + newT * (input.velocity.z)*15;
 
 		output.position = newPosition;
 		output.size = 0.1;
-		output.color = input.color/2;
-	}
+        output.color = float4(0, 0, 0, 1);
+    }
+    else if (objectID == 2)
+    {
+
+        newPosition.x = input.position.x;
+        newPosition.y = input.position.y + sin(t*2+input.lifetime)/10;
+        newPosition.z = input.position.z;
+
+        output.position = newPosition;
+        output.size = 0.2;
+        output.color = float4(0, 0, 0, 1);
+    }
 
 	return(output);
 }
@@ -215,19 +223,24 @@ void GSParticle(point VS_PARTICLE_OUTPUT input[1], inout TriangleStream<GS_PARTI
 float4 PSParticle(GS_PARTICLE_OUTPUT input) : SV_TARGET
 {
 	float4 cColor = gtxtParticleTexture.Sample(gssWrap, input.uv);
-	//cColor.xyz += input.color.xyz;
+	cColor.xyz += input.color.xyz;
 	return(cColor);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
-
-struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSIcon(GS_PARTICLE_OUTPUT input) : SV_TARGET
 {
-	float4 Scene : SV_TARGET0;
-	float4 Position : SV_TARGET1;
-	float4 Normal : SV_TARGET2;
-	float4 Texture : SV_TARGET3;
-};
+    PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+    output.Scene = float4(0, 1, 0, 1);
+    output.Position = input.position;
+    float4 cColor = gtxtParticleTexture.Sample(gssWrap, input.uv);
+
+    clip(cColor.a - 0.1);
+    
+    output.Texture = (cColor);
+    output.Normal = float4(0, 0, 0, (float) objectID / ((float) objectID + 2));
+    return (output);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 struct VS_BoundingINPUT
@@ -262,7 +275,7 @@ float4 PSBounding(VS_BoundingOUTPUT input) : SV_TARGET
 	if (objectID == 5) // Àû °ø°Ý
 		return(float4(1.2, 1.0, 0.2, 1));
 	if (objectID == 6) // Explosion
-		return(float4(0.3, 0.1, 0.0, 1));
+		return(float4(0.3, 0.15, 0.0, 1));
 	else return(float4(0, 0, 0, 1));
 }
 

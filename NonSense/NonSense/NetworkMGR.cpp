@@ -711,7 +711,9 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			GameFramework::MainGameFramework->GameSceneState = LOBBY_SCENE;
 			GameFramework::MainGameFramework->ChangeScene(LOBBY_SCENE);
 			GameFramework::MainGameFramework->GetVivoxSystem()->LeaveChannel();
-			GameFramework::MainGameFramework->MainBGM = new Sound("Sound/LobbyBGM.mp3", true);
+			XMFLOAT3 p = { 0,0,0 };
+			GameFramework::MainGameFramework->MainBGM = new Sound("Sound/LobbyBGM.mp3", FMOD_2D | FMOD_LOOP_NORMAL, &p);
+			GameFramework::MainGameFramework->MainBGM->SetVolume(0.3);
 		}
 		else {
 			GameFramework::MainGameFramework->GameSceneState = recv_packet->ClearScene;

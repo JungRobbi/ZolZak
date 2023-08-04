@@ -43,6 +43,7 @@ void Player::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	Object::CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	if (m_pCamera) m_pCamera->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
+
 void Player::ReleaseShaderVariables()
 {
 	Object::ReleaseShaderVariables();
@@ -81,6 +82,7 @@ void Player::Move(ULONG dwDirection, float fDistance, bool bUpdateVelocity)
 		}
 	}
 }
+
 void Player::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 {
 	if (bUpdateVelocity)
@@ -93,13 +95,16 @@ void Player::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 		if (m_pCamera) m_pCamera->Move(xmf3Shift);
 	}
 }
+
 void Player::Sight_DeBuff(float sec)
 {
 	last_DeBuff = Timer::GetTotalTime() + sec;
 }
+
 void Player::Rotate(float x, float y, float z)
 {
-	if (NetworkMGR::b_isNet) {
+	if (NetworkMGR::b_isNet)
+	{
 		CS_ROTATE_PACKET send_packet;
 		send_packet.size = sizeof(CS_ROTATE_PACKET);
 		send_packet.type = E_PACKET::E_PACKET_CS_ROTATE;
@@ -127,7 +132,9 @@ void Player::Rotate(float x, float y, float z)
 			if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
 		}
 	}
-	else {
+
+	else
+	{
 		DWORD nCameraMode = m_pCamera->GetMode();
 		if ((nCameraMode == FIRST_PERSON_CAMERA) || (nCameraMode == THIRD_PERSON_CAMERA))
 		{
@@ -137,18 +144,21 @@ void Player::Rotate(float x, float y, float z)
 				if (m_fPitch > +89.0f) { x -= (m_fPitch - 89.0f); m_fPitch = +89.0f; }
 				if (m_fPitch < -89.0f) { x -= (m_fPitch + 89.0f); m_fPitch = -89.0f; }
 			}
+
 			if (y != 0.0f)
 			{
 				m_fYaw += y;
 				if (m_fYaw > 360.0f) m_fYaw -= 360.0f;
 				if (m_fYaw < 0.0f) m_fYaw += 360.0f;
 			}
+
 			if (z != 0.0f)
 			{
 				m_fRoll += z;
-				if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }
+				if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }       
 				if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
 			}
+
 			m_pCamera->Rotate(x, y, z);
 
 			if (y != 0.0f)
@@ -189,6 +199,7 @@ void Player::Rotate(float x, float y, float z)
 		m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
 	}
 }
+
 void Player::Update(float fTimeElapsed)
 {
 	if (GameFramework::MainGameFramework->GameSceneState <= ROOM_SCENE)
@@ -214,28 +225,8 @@ void Player::Update(float fTimeElapsed)
 		fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 		if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-		//GetComponent<SphereCollideComponent>()->Center.x += xmf3Velocity.x;
-		//GetComponent<SphereCollideComponent>()->Center.y += xmf3Velocity.y;
-		//GetComponent<SphereCollideComponent>()->Center.z += xmf3Velocity.z;S
-		//GetComponent<SphereCollideComponent>()->update();
-		//bool bound = false;
 
-		//for (auto& o : GameScene::MainScene->gameObjects)
-		//{
-		//	if (o->GetComponent<BoxCollideComponent>())
-		//	{
-		//		if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*o->GetComponent<BoxCollideComponent>()->GetBoundingObject()))
-		//		{
-		//			bound = true;
-		//			Move(XMFLOAT3(-xmf3Velocity.x, 0, -xmf3Velocity.z), false);
-		//			break;
-		//		}
-		//	}
-		//}
 		Move(xmf3Velocity, false);
-		//GetComponent<SphereCollideComponent>()->Center.x -= xmf3Velocity.x;
-		//GetComponent<SphereCollideComponent>()->Center.y -= xmf3Velocity.y;
-		//GetComponent<SphereCollideComponent>()->Center.z -= xmf3Velocity.z;
 
 		fLength = Vector3::Length(m_xmf3Velocity);
 		float fDeceleration = (m_fFriction * fTimeElapsed);
@@ -245,12 +236,11 @@ void Player::Update(float fTimeElapsed)
 	}
 
 	DWORD nCameraMode = m_pCamera->GetMode();
-	//if (nCameraMode == THIRD_PERSON_CAMERA) 
 	m_pCamera->Update(m_xmf3Position, fTimeElapsed);
 	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
 	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
 	m_pCamera->RegenerateViewMatrix();
-
+	
 	Animate(fTimeElapsed);
 	Object::update();
 }
@@ -305,13 +295,12 @@ void Player::GetHit(float damage)
 				send_packet.type = E_PACKET::E_PACKET_CS_DIE_PACKET;
 				PacketQueue::AddSendPacket(&send_packet);
 			}
-		//	GameFramework::MainGameFramework->ChangeToSpaceShipCamera();
 		}
 	}
 }
 Camera* Player::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
-	//���ο� ī�޶��� ��忡 ���� ī�޶� ���� �����Ѵ�.
+
 	Camera* pNewCamera = NULL;
 	switch (nNewCameraMode)
 	{
@@ -397,11 +386,16 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 
 	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,Magical);
+	m_pOverHP_Dec_UI = new Player_Over_DEC_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pOverHP_UI = new Player_Over_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, Magical);
 	fireball = new FireBall(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	
 	m_pHP_UI->SetParentUI(m_pUI);
 	m_pHP_Dec_UI->SetParentUI(m_pUI);
+	m_pOverHP_UI->SetParentUI(m_pUI);
+	m_pOverHP_Dec_UI->SetParentUI(m_pUI);
 
 	m_pBoundingShader = new BoundingShader();
 	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -413,11 +407,6 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
 	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
 
-	//CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
-	//BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
-	//bb->SetNum(3);
-	//GetComponent<AttackComponent>()->SetBoundingObject(bb);
-
 	AddComponent<PlayerMovementComponent>();
 	AddComponent<AttackComponent>();
 	if (!Magical)
@@ -427,12 +416,14 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		bb->SetNum(3);
 		GetComponent<AttackComponent>()->SetBoundingObject(bb);
 		GetComponent<AttackComponent>()->Type_ComboAttack = true;
+		GetComponent<AttackComponent>()->SetAttackDuration(1.2);
 	}
 	else
 	{
 		GetComponent<AttackComponent>()->Type_ComboAttack = false;
+		GetComponent<AttackComponent>()->SetAttackDuration(1.5);
 	}
-	GetComponent<AttackComponent>()->SetAttackDuration(1.5);
+	
 	{
 		XMFLOAT3 pos;
 		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
@@ -511,15 +502,15 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		m_pSkinnedAnimationController->AddAnimationEvent("FootStepLEvent", E_RUN, 0.33, FootStepLEvent);
 
 		std::function<void()> SwingSound1 = [this]() {
-			Sound* s = new Sound("Sound/Warrior_Swip_1.mp3", false);
+			Sound* s = new Sound("Sound/Warrior_Swip_1.mp3", FMOD_3D_HEADRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 			GameScene::MainScene->AddSound(s);
 		};
 		std::function<void()> SwingSound2 = [this]() {
-			Sound* s = new Sound("Sound/Warrior_Swip_2.mp3", false);
+			Sound* s = new Sound("Sound/Warrior_Swip_2.mp3", FMOD_3D_HEADRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 			GameScene::MainScene->AddSound(s);
 		};
 		std::function<void()> SwingSound3 = [this]() {
-			Sound* s = new Sound("Sound/Warrior_Swip_3.mp3", false);
+			Sound* s = new Sound("Sound/Warrior_Swip_3.mp3", FMOD_3D_HEADRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 			GameScene::MainScene->AddSound(s);
 		};
 
@@ -535,7 +526,7 @@ void MagePlayer::FootStepR()
 {
 	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
 	{
-		Sound* s = new Sound("Sound/GrassFootstep_R.mp3", false);
+		Sound* s = new Sound("Sound/GrassFootstep_R.mp3", FMOD_3D_HEADRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 		GameScene::MainScene->AddSound(s);
 	}
 }
@@ -544,7 +535,7 @@ void MagePlayer::FootStepL()
 {
 	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
 	{
-		Sound* s = new Sound("Sound/GrassFootstep_L.mp3", false);
+		Sound* s = new Sound("Sound/GrassFootstep_L.mp3", FMOD_3D_HEADRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 		GameScene::MainScene->AddSound(s);
 	}
 }
@@ -612,8 +603,21 @@ void MagePlayer::Update(float fTimeElapsed)
 	DWORD nCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
 	UpdateTransform(NULL);
 
-	m_pHP_Dec_UI->Dec_HP = GetRemainHP() / GetHealth();
-	m_pHP_UI->SetMyPos(0.2, 0.04, 0.8 * GetRemainHP() / GetHealth(), 0.32);
+	m_pOverHP_Dec_UI->Dec_HP = (GetRemainHP() - 1000) / 1000;
+	m_pOverHP_UI->SetMyPos(0.17, 0.04, 0.82 * (GetRemainHP() - 1000) / 1000, 0.32);
+	if (GetRemainHP() <= 1000)
+	{
+		m_pOverHP_Dec_UI->Dec_HP = 0;
+		m_pOverHP_UI->SetMyPos(0.17, 0.04, 0, 0.32);
+	}
+
+	m_pHP_Dec_UI->Dec_HP = GetRemainHP() / 1000;
+	m_pHP_UI->SetMyPos(0.17, 0.04, 0.82 * GetRemainHP() / 1000, 0.32);
+	if (GetRemainHP() >= 1000)
+	{
+		m_pHP_Dec_UI->Dec_HP = 1;
+		m_pHP_UI->SetMyPos(0.17, 0.04, 0.82, 0.32);
+	}
 
 	if (nCameraMode == FIRST_PERSON_CAMERA && FindFrame("Face"))
 	{
@@ -647,242 +651,6 @@ void MagePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCam
 				FindFrame("Arm_m05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
 				FindFrame("Leg_M05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
 			}
-		}
-		else
-		{
-			Player::Render(pd3dCommandList, pCamera);
-		}
-	}
-	else
-	{
-		Player::Render(pd3dCommandList, pCamera);
-	}
-}
-
-
-
-WarriorPlayer::WarriorPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
-{
-	Magical = false;
-	HeightMapTerrain* pTerrain = (HeightMapTerrain*)pContext;
-	SetPlayerUpdatedContext(pTerrain);
-	SetCameraUpdatedContext(pTerrain);
-
-	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	fireball = new FireBall(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
-	m_pHP_UI->SetParentUI(m_pUI);
-	m_pHP_Dec_UI->SetParentUI(m_pUI);
-
-	m_pBoundingShader = new BoundingShader();
-	m_pBoundingShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-
-	SphereMesh* SphereMes = new SphereMesh(pd3dDevice, pd3dCommandList, 1.0f, 10, 10);
-	BoundSphere* bs = new BoundSphere(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, SphereMes, m_pBoundingShader);
-	bs->SetNum(1);
-	AddComponent<SphereCollideComponent>();
-	GetComponent<SphereCollideComponent>()->SetBoundingObject(bs);
-	GetComponent<SphereCollideComponent>()->SetCenterRadius(XMFLOAT3(0.0, 0.5, 0.0), 0.3);
-
-	CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 1.0f, 1.0f, 1.0f);
-	BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
-	bb->SetNum(3);
-	AddComponent<PlayerMovementComponent>();
-	AddComponent<AttackComponent>();
-	GetComponent<AttackComponent>()->SetBoundingObject(bb);
-	GetComponent<AttackComponent>()->SetAttackDuration(1);
-
-	{
-		XMFLOAT3 pos;
-		m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
-		CreateShaderVariables(pd3dDevice, pd3dCommandList);
-		if (GameScene::MainScene->GetTerrain())
-		{
-			float h = GameScene::MainScene->GetTerrain()->GetHeight(-16.0f, 103.0f);
-			pos = XMFLOAT3(-16.0f, h, 103.0f);
-		}
-		else
-		{
-			pos = XMFLOAT3(0, 0, 0);
-		}
-		SetPosition(pos);
-		LoadedModelInfo* pModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/M05.bin", NULL);
-		LoadedModelInfo* pWeaponModel = Object::LoadAnimationModel(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Sword_M05.bin", NULL);
-
-		if (pModel)
-			SetChild(pModel->m_pRoot, true);
-		if (pWeaponModel) {
-			Object* Hand = FindFrame("Sword_parentR");
-			if (Hand) {
-				CubeMesh* BoundMesh = new CubeMesh(pd3dDevice, pd3dCommandList, 0.1f, 0.1f, 0.1f);
-				BoundBox* bb = new BoundBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, BoundMesh, m_pBoundingShader);
-				bb->SetNum(3);
-				Hand->SetChild(pWeaponModel->m_pRoot, true);
-				pWeaponObject = new Object(false);
-				pWeaponObject->SetChild(pWeaponModel->m_pRoot, true);
-				pWeaponObject->SetPosition(0, 5, 0);
-				bb->SetPosition(pWeaponObject->FindFirstMesh()->GetBoundingBox().Center.x, pWeaponObject->FindFirstMesh()->GetBoundingBox().Center.y + pWeaponObject->FindFirstMesh()->GetBoundingBox().Extents.y, pWeaponObject->FindFirstMesh()->GetBoundingBox().Extents.z);
-			}
-		}
-
-		SetNum(9);
-		m_pSkinnedAnimationController = new AnimationController(pd3dDevice, pd3dCommandList, 3, pModel);
-		m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-		m_pSkinnedAnimationController->SetTrackAnimationSet(2, 0);
-		m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		m_pSkinnedAnimationController->SetTrackEnable(2, false);
-
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[3]->m_nType = ANIMATION_TYPE_ONCE;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[4]->m_nType = ANIMATION_TYPE_ONCE;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[6]->m_nType = ANIMATION_TYPE_ONCE;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[7]->m_nType = ANIMATION_TYPE_ONCE;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[8]->m_nType = ANIMATION_TYPE_ONCE;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[9]->m_nType = ANIMATION_TYPE_ONCE;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[10]->m_nType = ANIMATION_TYPE_ONCE;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[11]->m_nType = ANIMATION_TYPE_ONCE;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[12]->m_nType = ANIMATION_TYPE_ONCE;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[13]->m_nType = ANIMATION_TYPE_ONCE;
-		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[14]->m_nType = ANIMATION_TYPE_ONCE;
-
-		std::function<void()> FootStepREvent = [this]() {
-			this->FootStepR();
-		};
-		std::function<void()> FootStepLEvent = [this]() {
-			this->FootStepL();
-		};
-		m_pSkinnedAnimationController->AddAnimationEvent("FootStepREvent", E_WALK, 0.2, FootStepREvent);
-		m_pSkinnedAnimationController->AddAnimationEvent("FootStepLEvent", E_WALK, 0.65, FootStepLEvent);
-
-		m_pSkinnedAnimationController->AddAnimationEvent("FootStepREvent", E_RUN, 0.13, FootStepREvent);
-		m_pSkinnedAnimationController->AddAnimationEvent("FootStepLEvent", E_RUN, 0.33, FootStepLEvent);
-
-		std::function<void()> SwingSound1 = [this]() {
-			Sound* s = new Sound("Sound/Warrior_Swip_1.mp3", false);
-			GameScene::MainScene->AddSound(s);
-		};
-		std::function<void()> SwingSound2 = [this]() {
-			Sound* s = new Sound("Sound/Warrior_Swip_2.mp3", false);
-			GameScene::MainScene->AddSound(s);
-		};
-		std::function<void()> SwingSound3 = [this]() {
-			Sound* s = new Sound("Sound/Warrior_Swip_3.mp3", false);
-			GameScene::MainScene->AddSound(s);
-		};
-
-		m_pSkinnedAnimationController->AddAnimationEvent("SwingSound1", 6, 0.15, SwingSound1);
-
-		m_pSkinnedAnimationController->AddAnimationEvent("SwingSound2", 8, 0.15, SwingSound2);
-
-		m_pSkinnedAnimationController->AddAnimationEvent("SwingSound3", 9, 0.15, SwingSound3);
-
-
-	}
-}
-
-void WarriorPlayer::FootStepR()
-{
-	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
-	{
-		Sound* s = new Sound("Sound/GrassFootstep_R.mp3", false);
-		GameScene::MainScene->AddSound(s);
-	}
-}
-
-void WarriorPlayer::FootStepL()
-{
-	if (GameFramework::MainGameFramework->GameSceneState >= SIGHT_SCENE)
-	{
-		Sound* s = new Sound("Sound/GrassFootstep_L.mp3", false);
-		GameScene::MainScene->AddSound(s);
-	}
-}
-Camera* WarriorPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
-{
-	DWORD nCurrentCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
-	if (nCurrentCameraMode == nNewCameraMode) return(m_pCamera);
-	switch (nNewCameraMode)
-	{
-	case FIRST_PERSON_CAMERA:
-		//�÷��̾��� Ư���� 1��Ī ī�޶� ��忡 �°� �����Ѵ�. �߷��� �������� �ʴ´�.
-		SetFriction(30.0f);
-		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
-		SetMaxVelocityXZ(5.0f);
-		SetMaxVelocityY(400.0f);
-		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
-		m_pCamera->SetTimeLag(0.0f);
-		m_pCamera->SetOffset(XMFLOAT3(0, 0.7f, 0.25));
-		m_pCamera->GenerateProjectionMatrix(0.01f, 300.0f, ASPECT_RATIO, 60.0f);
-		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
-		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
-		break;
-	case SPACESHIP_CAMERA:
-		//�÷��̾��� Ư���� �����̽�-�� ī�޶� ��忡 �°� �����Ѵ�. �߷��� �������� �ʴ´�.
-		SetFriction(50.0f);
-		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		SetMaxVelocityXZ(100.0f);
-		SetMaxVelocityY(100.0f);
-		m_pCamera = OnChangeCamera(SPACESHIP_CAMERA, nCurrentCameraMode);
-		m_pCamera->SetTimeLag(0.0f);
-		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		m_pCamera->GenerateProjectionMatrix(0.01f, 300.0f, ASPECT_RATIO, 60.0f);
-		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
-		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
-		break;
-	case THIRD_PERSON_CAMERA:
-		//�÷��̾��� Ư���� 3��Ī ī�޶� ��忡 �°� �����Ѵ�. ���� ȿ���� ī�޶� �������� �����Ѵ�.
-		SetFriction(30.0f);
-		SetGravity(XMFLOAT3(0.0f, -60.0f, 0.0f));
-		SetMaxVelocityXZ(5.0f);
-		SetMaxVelocityY(400.0f);
-		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
-		//3��Ī ī�޶��� ���� ȿ���� �����Ѵ�. ���� 0.25f ��ſ� 0.0f�� 1.0f�� ������ ����� ���ϱ� �ٶ���.
-		m_pCamera->SetTimeLag(0.25f);
-		m_pCamera->SetOffset(XMFLOAT3(0.0f, 1.5f, -3.0f));
-		//m_pCamera->SetOffset(XMFLOAT3(0, 0.8f, 0.2));
-
-		m_pCamera->GenerateProjectionMatrix(0.01f, 300.0f, ASPECT_RATIO, 60.0f);
-		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
-		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
-		break;
-	default:
-		break;
-	}
-	m_pCamera->SetPosition(Vector3::Add(m_xmf3Position, m_pCamera->GetOffset()));
-	//�÷��̾ �ð��� ����� ���� ����(��ġ�� ������ ����: �ӵ�, ������, �߷� ���� ó��)�Ѵ�.
-	Update(fTimeElapsed);
-	return(m_pCamera);
-}
-
-void WarriorPlayer::Update(float fTimeElapsed)
-{
-	Player::Update(fTimeElapsed);
-	DWORD nCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
-	UpdateTransform(NULL);
-	if (nCameraMode == FIRST_PERSON_CAMERA && FindFrame("Face"))
-	{
-
-	}
-}
-
-void WarriorPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
-{
-	if (m_die)
-	{
-		return;
-	}
-	if (GameScene::MainScene->m_pPlayer == this)
-	{
-		DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
-		if (nCameraMode == FIRST_PERSON_CAMERA)
-		{
-			m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
-
-			FindFrame("Sword_M05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-			FindFrame("Body_m05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-			FindFrame("Arm_m05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
-			FindFrame("Leg_M05")->RenderOnlyOneFrame(pd3dCommandList, pCamera);
 		}
 		else
 		{
