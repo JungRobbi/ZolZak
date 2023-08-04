@@ -1518,6 +1518,18 @@ void GameFramework::FrameAdvance()
 
 void GameFramework::RenderHP()
 {
+	float cnt = 0;
+	for (auto& p : m_OtherPlayers)
+	{
+		p->m_pUI->SetMyPos(0.87, 0.92 - cnt, 0.175, 0.07);
+		p->m_pHP_UI->UpdateTransform(NULL);
+		p->m_pHP_UI->Render(m_pCommandList, m_pCamera);
+		p->m_pOverHP_UI->UpdateTransform(NULL);
+		p->m_pOverHP_UI->Render(m_pCommandList, m_pCamera);
+		p->m_pUI->UpdateTransform(NULL);
+		p->m_pUI->Render(m_pCommandList, m_pCamera);
+		cnt += 0.1;
+	}
 	if (scene_type >= SIGHT_SCENE && !Die) {
 		m_pPlayer->m_pHP_Dec_UI->UpdateTransform(NULL);
 		m_pPlayer->m_pHP_Dec_UI->Render(m_pCommandList, m_pCamera);
