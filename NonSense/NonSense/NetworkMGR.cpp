@@ -99,14 +99,14 @@ void NetworkMGR::start()
 	// 연결
 	//
 
-	std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
+	/*std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
 
 	std::cout << std::endl << "접속 할 서버주소를 입력해주세요(ex 197.xxx.xxx.xxx) : " << std::endl;
 	std::string server_s;
 	std::cin >> server_s;
 	SERVERIP = new char[server_s.size() + 1];
 	SERVERIP[server_s.size()] = '\0';
-	strcpy(SERVERIP, server_s.c_str());
+	strcpy(SERVERIP, server_s.c_str());*/
 
 
 
@@ -200,6 +200,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			dynamic_cast<Player*>(player)->SetRemainHP(recv_packet->remainHp);
 
 			GameFramework::MainGameFramework->m_OtherPlayers.push_back(player);
+			auto& other_name = GameFramework::MainGameFramework->m_OtherPlayers.back()->m_name;
 			if (recv_packet->playerType == 0) { // mage
 				GameFramework::MainGameFramework->m_OtherPlayersPool.pop_front();
 			}
@@ -209,6 +210,11 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		else {
 			cout << "OtherPlayer 생성 실패!" << endl;
+		}
+		for (int i{}; i < GameFramework::MainGameFramework->m_OtherPlayers.size(); ++i) {
+			std::wstring wname;
+			wname.assign(GameFramework::MainGameFramework->m_OtherPlayers[i]->m_name.begin(), GameFramework::MainGameFramework->m_OtherPlayers[i]->m_name.end());
+			wcscpy_s(ChatMGR::m_pUILayer->m_pUITextBlocks[PLAYER1_NAME_UI + i].m_pstrText, 256, wname.c_str());
 		}
 		break;
 	}
@@ -318,6 +324,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		else {
 			player->GetComponent<PlayerMovementComponent>()->Animation_type = (E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype;
+			cout << "NET Animation_type - " << player->GetComponent<PlayerMovementComponent>()->Animation_type << endl;
 		}
 		break;
 	}

@@ -511,6 +511,9 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		}
 			break;
 		case VK_RBUTTON: {
+			if (!p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetDashAble())
+				break;
+
 			p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->Dash();
 			for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 				if (!rc.second->b_Enable.load())
@@ -708,6 +711,15 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		
 		p_Client->m_pPlayer->type = recv_packet->playerType;
 		Room::roomlist[p_Client->m_roomNum]->Clients[p_Client->m_id]->b_IsReady = true;
+
+		if (p_Client->m_pPlayer->type == 0) {
+			p_Client->m_pPlayer->SetHealth(1000);
+			p_Client->m_pPlayer->SetRemainHP(1000);
+		}
+		else {
+			p_Client->m_pPlayer->SetHealth(1200);
+			p_Client->m_pPlayer->SetRemainHP(1200);
+		}
 		
 		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients)
 		{
