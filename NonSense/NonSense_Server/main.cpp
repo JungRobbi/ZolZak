@@ -776,7 +776,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	}
 	case E_PACKET_CS_PLAYERS_REQUEST_PACKET: {
 		CS_PLAYERS_REQUEST_PACKET* recv_packet = reinterpret_cast<CS_PLAYERS_REQUEST_PACKET*>(p_Packet);
-
+		p_Client->m_pPlayer->ingame = true;
 		// LOGIN_OK
 	/*	p_Client->m_pPlayer = make_shared<Player>();
 		p_Client->m_pPlayer->start();
@@ -940,6 +940,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		}
 
 		if (recv_packet->ClearScene == 6) {
+			p_Client->m_pPlayer->ingame = false;
 			bool expected = Room::roomlist[p_Client->m_roomNum]->clear.load();
 			Room::roomlist[p_Client->m_roomNum]->clear.compare_exchange_strong(expected, true);
 			for (auto p : Room::roomlist[p_Client->m_roomNum]->Clients) {

@@ -5,6 +5,7 @@
 #include "BossAttackComponent.h"
 #include "../Scene.h"
 #include "../Room.h"
+#include "SphereCollideComponent.h"
 void BossFSMComponent::start()
 {
 	m_pFSM = new FSM<BossFSMComponent>(this);
@@ -106,11 +107,63 @@ void BossFSMComponent::Stop()
 void BossFSMComponent::Move_Walk(float dist)
 {
 	((Monster*)gameObject)->PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_WALK;
+	XMFLOAT3 xmf3Position = gameObject->GetPosition();
+	XMFLOAT3 xmf3Look = gameObject->GetLook();
+	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, dist);
+	for (auto& client : Room::roomlist[gameObject->m_roomNum]->Clients) {
+		auto cc = client.second->m_pPlayer->GetComponent<SphereCollideComponent>();
+		if (dynamic_cast<Monster*>(gameObject)->num > 22000) { // Shield
+			if (2.2f > Vector3::Length(Vector3::Subtract(xmf3Position, cc->GetBoundingObject()->Center))) {
+				return;
+			}
+		}
+		else if (dynamic_cast<Monster*>(gameObject)->num > 11000) { // Goblin
+			if (1.3f > Vector3::Length(Vector3::Subtract(xmf3Position, cc->GetBoundingObject()->Center))) {
+				return;
+			}
+		}
+		else if (dynamic_cast<Monster*>(gameObject)->num > 10200) { // Skull
+			if (1.3f > Vector3::Length(Vector3::Subtract(xmf3Position, cc->GetBoundingObject()->Center))) {
+				return;
+			}
+		}
+		else if (dynamic_cast<Monster*>(gameObject)->num > 10100) { // Orc
+			if (1.3f > Vector3::Length(Vector3::Subtract(xmf3Position, cc->GetBoundingObject()->Center))) {
+				return;
+			}
+		}
+	}
 	gameObject->MoveForward(dist);
 }
 void BossFSMComponent::Move_Run(float dist)
 {
 	((Monster*)gameObject)->PresentAniType = E_BOSS_ANIMATION_TYPE::E_B_RUN;
+	XMFLOAT3 xmf3Position = gameObject->GetPosition();
+	XMFLOAT3 xmf3Look = gameObject->GetLook();
+	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, dist);
+	for (auto& client : Room::roomlist[gameObject->m_roomNum]->Clients) {
+		auto cc = client.second->m_pPlayer->GetComponent<SphereCollideComponent>();
+		if (dynamic_cast<Monster*>(gameObject)->num > 22000) { // Shield
+			if (2.2f > Vector3::Length(Vector3::Subtract(xmf3Position, cc->GetBoundingObject()->Center))) {
+				return;
+			}
+		}
+		else if (dynamic_cast<Monster*>(gameObject)->num > 11000) { // Goblin
+			if (1.3f > Vector3::Length(Vector3::Subtract(xmf3Position, cc->GetBoundingObject()->Center))) {
+				return;
+			}
+		}
+		else if (dynamic_cast<Monster*>(gameObject)->num > 10200) { // Skull
+			if (1.3f > Vector3::Length(Vector3::Subtract(xmf3Position, cc->GetBoundingObject()->Center))) {
+				return;
+			}
+		}
+		else if (dynamic_cast<Monster*>(gameObject)->num > 10100) { // Orc
+			if (1.3f > Vector3::Length(Vector3::Subtract(xmf3Position, cc->GetBoundingObject()->Center))) {
+				return;
+			}
+		}
+	}
 	gameObject->MoveForward(dist);
 }
 void BossFSMComponent::Attack()

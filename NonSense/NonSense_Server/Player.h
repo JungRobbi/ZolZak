@@ -18,6 +18,7 @@ public:
 	std::atomic<int> PresentAniType{ E_PLAYER_ANIMATION_TYPE::E_IDLE };
 	int type = 0;
 	bool alive = true;
+	bool ingame = false;
 public:
 	Player();
 	virtual ~Player();
