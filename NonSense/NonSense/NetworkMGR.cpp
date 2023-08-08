@@ -728,6 +728,79 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		break;
 	}
+	case E_PACKET_SC_EAT_ITEM_PACKET: {
+		SC_EAT_ITEM_PACKET* recv_packet = reinterpret_cast<SC_EAT_ITEM_PACKET*>(p_Packet);
+		auto p = find_if(GameScene::MainScene->blendGameObjects.begin(), GameScene::MainScene->blendGameObjects.end(),
+			[&recv_packet](Object* lhs) { return lhs->GetNum() == recv_packet->itemNum; });
+		if (p == GameScene::MainScene->blendGameObjects.end()) 
+			break;
+
+		Player* player;
+		if (recv_packet->player_id == NetworkMGR::id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->player_id;
+				});
+
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
+
+			player = dynamic_cast<Player*>(*p);
+		}
+
+
+		if (((Item*)(*p))->ItemID == 0) // ATK
+		{
+			player->m_Attack += 20;
+		}
+
+		else if (((Item*)(*p))->ItemID == 1) // DEF
+		{
+			player->m_Defense += 10;
+		}
+
+		else if (((Item*)(*p))->ItemID == 2) // HP
+		{
+			if (GameFramework::MainGameFramework->m_pPlayer->m_Health < 2000)
+			{
+				player->m_Health += 100;
+				player->m_RemainHP += 100;
+				player->m_pHP_Dec_UI->Dec_HP = (player->m_RemainHP) / 1000;
+				player->m_pOverHP_Dec_UI->Dec_HP = (player->m_RemainHP - 1000) / 1000;
+				if (player->m_RemainHP <= 1000)
+				{
+					player->m_pOverHP_Dec_UI->Dec_HP = 0;
+				}
+
+				if (player->m_RemainHP >= 1000)
+				{
+					player->m_pHP_Dec_UI->Dec_HP = 1;
+				}
+				player->m_pHP_Dec_UI->HP = player->m_pHP_Dec_UI->Dec_HP;
+				player->m_pOverHP_Dec_UI->HP = player->m_pOverHP_Dec_UI->Dec_HP;
+			}
+		}
+
+		if (!((Item*)(*p))->erase) {
+			GameScene::MainScene->deletionBlendQueue.push_back(*p);
+			((Item*)(*p))->erase = true;
+		}
+		break;
+	}
+	case E_PACKET_SC_CREATE_ITEM_PACKET: {
+		SC_CREATE_ITEM_PACKET* recv_packet = reinterpret_cast<SC_CREATE_ITEM_PACKET*>(p_Packet);
+		
+		Item* item = new Item(GameFramework::MainGameFramework->GetDevice(), GameFramework::MainGameFramework->m_pCommandList,
+			GameScene::MainScene->m_pGraphicsRootSignature, recv_packet->itemID);
+		item->SetPosition(recv_packet->x, recv_packet->y, recv_packet->z);
+		item->SetNum(recv_packet->itemNum);
+		cout << "item »ý¼º!" << endl;
+		break;
+	}
 	default:
 		break;
 	}

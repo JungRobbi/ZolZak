@@ -2563,7 +2563,12 @@ void Item::OnPrepareRender()
 	if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject())&& !erase)
 	{
 		if (NetworkMGR::b_isNet) {
-			
+			ItemEffect();
+			CS_EAT_ITEM_PACKET send_packet;
+			send_packet.size = sizeof(CS_EAT_ITEM_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_CS_EAT_ITEM_PACKET;
+			send_packet.itemNum = GetNum();
+			PacketQueue::AddSendPacket(&send_packet);
 		}
 		else {
 			ItemEffect();

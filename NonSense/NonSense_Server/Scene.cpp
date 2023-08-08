@@ -25,8 +25,11 @@ void Scene::update()
 		gameObjects.push_back(object);
 	}
 
-	for (auto Object : gameObjects)
+	for (auto Object : gameObjects) {
+		if (false == Object->activate)
+			continue;
 		Object->update();
+	}
 
 	while (deletionQueue.try_pop(object))
 	{

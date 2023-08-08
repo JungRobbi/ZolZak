@@ -951,6 +951,23 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		}
 		break;
 	}
+	case E_PACKET_CS_EAT_ITEM_PACKET: {
+		CS_EAT_ITEM_PACKET* recv_packet = reinterpret_cast<CS_EAT_ITEM_PACKET*>(p_Packet);
+
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+			if (rc.second->b_IsReady == false)
+				continue;
+			if (rc.second->m_id == p_Client->m_id)
+				continue;
+			SC_EAT_ITEM_PACKET send_packet;
+			send_packet.size = sizeof(SC_EAT_ITEM_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_EAT_ITEM_PACKET;
+			send_packet.player_id = p_Client->m_id;
+			send_packet.itemNum = recv_packet->itemNum;
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+		break;
+	}
 	default:
 		break;
 	}
