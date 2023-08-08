@@ -561,9 +561,9 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0, 0.7f, 0.25));
-		m_pCamera->GenerateProjectionMatrix(0.1f, 200.0f, ASPECT_RATIO, 60.0f);
-		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
-		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		m_pCamera->GenerateProjectionMatrix(0.1f, 300.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->SetViewport(0, 0, GameFramework::MainGameFramework->GetWndClientWidth(), GameFramework::MainGameFramework->GetWndClientHeight(), 0.0f, 1.0f);
+		m_pCamera->SetScissorRect(0, 0, GameFramework::MainGameFramework->GetWndClientWidth(), GameFramework::MainGameFramework->GetWndClientHeight());
 		break;
 	case SPACESHIP_CAMERA:
 		//�÷��̾��� Ư���� �����̽�-�� ī�޶� ��忡 �°� �����Ѵ�. �߷��� �������� �ʴ´�.
@@ -574,9 +574,9 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera = OnChangeCamera(SPACESHIP_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		m_pCamera->GenerateProjectionMatrix(0.01f, 200.0f, ASPECT_RATIO, 60.0f);
-		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
-		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		m_pCamera->GenerateProjectionMatrix(0.01f, 300.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->SetViewport(0, 0, GameFramework::MainGameFramework->GetWndClientWidth(), GameFramework::MainGameFramework->GetWndClientHeight(), 0.0f, 1.0f);
+		m_pCamera->SetScissorRect(0, 0, GameFramework::MainGameFramework->GetWndClientWidth(), GameFramework::MainGameFramework->GetWndClientHeight());
 		break;
 	case THIRD_PERSON_CAMERA:
 		//�÷��̾��� Ư���� 3��Ī ī�޶� ��忡 �°� �����Ѵ�. ���� ȿ���� ī�޶� �������� �����Ѵ�.
@@ -590,9 +590,9 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 1.5f, -3.0f));
 		//m_pCamera->SetOffset(XMFLOAT3(0, 0.8f, 0.2));
 
-		m_pCamera->GenerateProjectionMatrix(0.01f, 200.0f, ASPECT_RATIO, 60.0f);
-		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
-		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		m_pCamera->GenerateProjectionMatrix(0.01f, 300.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->SetViewport(0, 0, GameFramework::MainGameFramework->GetWndClientWidth(), GameFramework::MainGameFramework->GetWndClientHeight(), 0.0f, 1.0f);
+		m_pCamera->SetScissorRect(0, 0, GameFramework::MainGameFramework->GetWndClientWidth(), GameFramework::MainGameFramework->GetWndClientHeight());
 		break;
 	default:
 		break;

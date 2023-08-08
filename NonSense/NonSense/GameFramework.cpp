@@ -21,6 +21,53 @@
 #include "Sound.h"
 GameFramework* GameFramework::MainGameFramework;
 
+
+void GetMonitorResolution(int& screenWidth, int& screenHeight)
+{
+	IDXGIFactory4* factory = nullptr;
+	IDXGIAdapter1* adapter = nullptr;
+	IDXGIOutput* adapterOutput = nullptr;
+
+	// DXGI 팩토리 생성
+	CreateDXGIFactory1(__uuidof(IDXGIFactory4), reinterpret_cast<void**>(&factory));
+
+	// 기본 어댑터 가져오기
+	factory->EnumAdapters1(0, &adapter);
+
+	// 첫 번째 모니터의 출력에 대한 정보 가져오기
+	adapter->EnumOutputs(0, &adapterOutput);
+
+	// 지원하는 모니터 해상도 개수 가져오기
+	UINT numModes = 0;
+	adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, nullptr);
+
+	// 지원하는 모든 모니터 해상도 목록 배열 생성
+	std::vector<DXGI_MODE_DESC> displayModeList(numModes);
+	adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList.data());
+
+	// 가장 큰 너비와 높이를 찾아서 현재 해상도로 설정
+	int maxWidth = 0;
+	int maxHeight = 0;
+	for (const auto& mode : displayModeList)
+	{
+		if (mode.Width > maxWidth)
+		{
+			maxWidth = mode.Width;
+			maxHeight = mode.Height;
+		}
+	}
+
+	// 모니터 해상도 정보 반환
+	screenWidth = maxWidth;
+	screenHeight = maxHeight;
+
+	// 메모리 정리
+	adapterOutput->Release();
+	adapter->Release();
+	factory->Release();
+}
+
+
 GameFramework::GameFramework()
 {
 	m_pFactory = NULL;
@@ -38,8 +85,7 @@ GameFramework::GameFramework()
 	m_nSwapChainBufferIndex = 0;
 	m_FenceEventHandle = NULL;
 	m_pFence = NULL;
-	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
-	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
+	GetMonitorResolution(m_nWndClientWidth, m_nWndClientHeight);
 	_tcscpy_s(m_FrameRate, _T("NonSense("));
 	
 	MainGameFramework = this;
@@ -124,8 +170,6 @@ void GameFramework::CreateSwapChain()
 {
 	RECT rcClient;
 	::GetClientRect(m_hWnd, &rcClient);
-	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
-	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
 
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(dxgiSwapChainDesc));
@@ -435,7 +479,7 @@ void GameFramework::BuildObjects()
 	m_pDebug->CreateShader(m_pDevice, GameScene::MainScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 	DXGI_FORMAT pdxgiResourceFormats[MRT - 1] = { DXGI_FORMAT_R32G32B32A32_FLOAT,  DXGI_FORMAT_R32G32B32A32_FLOAT,  DXGI_FORMAT_R8G8B8A8_UNORM };
-	m_pScreen->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, d3dRtvCPUDescriptorHandle, MRT); //SRV to (Render Targets) + (Depth Buffer)
+	m_pScreen->CreateResourcesAndViews(m_pDevice, MRT - 1, pdxgiResourceFormats, m_nWndClientWidth, m_nWndClientHeight, d3dRtvCPUDescriptorHandle, MRT); //SRV to (Render Targets) + (Depth Buffer)
 	DXGI_FORMAT pdxgiDepthSrvFormats[1] = { DXGI_FORMAT_R24_UNORM_X8_TYPELESS };
 	m_pScreen->CreateShaderResourceViews(m_pDevice, 1, &m_pDepthStencilBuffer, pdxgiDepthSrvFormats);
 	m_pCommandList->Close();
@@ -847,9 +891,6 @@ LRESULT CALLBACK GameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMessa
 	{
 	case WM_SIZE:
 	{
-		m_nWndClientWidth = FRAME_BUFFER_WIDTH;
-		m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
-		break;
 	}
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
@@ -1157,8 +1198,8 @@ void GameFramework::ProcessInput()
 				::GetCursorPos(&ptCursorPos);
 				::GetWindowRect(m_hWnd, &rect);
 				if (((scene_type < SIGHT_SCENE) || (scene_type >= SIGHT_SCENE && OptionMode)) && (Timer::GetTotalTime() - LastClick > 0.2)) {
-					float px = (ptCursorPos.x - rect.left - 10) / (float)FRAME_BUFFER_WIDTH;
-					float py = (ptCursorPos.y - rect.top - 30) / (float)FRAME_BUFFER_HEIGHT;
+					float px = (ptCursorPos.x - rect.left - 10) / (float)m_nWndClientWidth;
+					float py = (ptCursorPos.y - rect.top - 30) / (float)m_nWndClientHeight;
 
 					for (auto& ui : GameScene::MainScene->UIGameObjects)
 					{
@@ -1186,8 +1227,8 @@ void GameFramework::ProcessInput()
 				RECT rect;
 				::GetCursorPos(&ptCursorPos);
 				::GetWindowRect(m_hWnd, &rect);
-				float px = (ptCursorPos.x - rect.left - 10) / (float)FRAME_BUFFER_WIDTH;
-				float py = (ptCursorPos.y - rect.top - 30) / (float)FRAME_BUFFER_HEIGHT;
+				float px = (ptCursorPos.x - rect.left - 10) / (float)m_nWndClientWidth;
+				float py = (ptCursorPos.y - rect.top - 30) / (float)m_nWndClientHeight;
 
 				for (auto& ui : GameScene::MainScene->UIGameObjects)
 				{
