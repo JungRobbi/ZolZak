@@ -47,7 +47,7 @@ public:
 	Player_Over_HP_UI* m_pOverHP_UI = NULL;
 	Player_Over_DEC_HP_UI* m_pOverHP_Dec_UI = NULL;
 
-	Heal_UI* m_Heal_UI = NULL;
+	Heal_UI** m_Heal_UI = {};
 
 	float last_DeBuff = 0;
 	bool dark = false;
@@ -142,6 +142,7 @@ public:
 
 	virtual void Update(float fTimeElapsed);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+
 	void FootStepR();
 	void FootStepL();
 };

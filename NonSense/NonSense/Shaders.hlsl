@@ -312,8 +312,8 @@ float4 PSBillboard(VS_BillboardOUTPUT input) : SV_TARGET
     if (darkness < -0.5)
         return (float4((cColor.r + cColor.b + cColor.g) / 3, (cColor.r + cColor.b + cColor.g) / 3, (cColor.r + cColor.b + cColor.g) / 3, 1));
 	cColor = float4(cColor.r * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),7) * darkness), cColor.g * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),7) * darkness), cColor.b * (1.0 - pow((RenderInfor[3][int2(input.positionW.xy)].r),7) * darkness),cColor.a);
+    clip(cColor.a - 0.7);
 	return(cColor);
-
 }
 
 

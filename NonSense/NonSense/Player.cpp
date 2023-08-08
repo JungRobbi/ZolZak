@@ -384,7 +384,11 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	SetPlayerUpdatedContext(pTerrain);
 	SetCameraUpdatedContext(pTerrain);
 
-	m_Heal_UI = new Heal_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_Heal_UI = new Heal_UI * [3];
+	for (int i = 0; i < 3; ++i)
+	{
+		m_Heal_UI[i] = new Heal_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
 
 	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -667,9 +671,5 @@ void MagePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCam
 	{
 		Player::Render(pd3dCommandList, pCamera);
 	}
-	{
-		m_Heal_UI->SetPosition(Vector3::Add(GetPosition(), XMFLOAT3(0, 0, 0)));
-		m_Heal_UI->UpdateTransform(NULL);
-		m_Heal_UI->Render(pd3dCommandList, pCamera);
-	}
 }
+

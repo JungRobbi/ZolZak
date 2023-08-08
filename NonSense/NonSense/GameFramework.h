@@ -124,6 +124,7 @@ public:
 	void AnimateObjects();
 	void FrameAdvance();
 	void RenderHP();
+	void RenderEffect();
 	void WaitForGpuComplete();
 
 	void Touch_Debuff(float time);
