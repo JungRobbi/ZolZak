@@ -47,6 +47,8 @@ public:
 	Player_Over_HP_UI* m_pOverHP_UI = NULL;
 	Player_Over_DEC_HP_UI* m_pOverHP_Dec_UI = NULL;
 
+	Heal_UI* m_Heal_UI = NULL;
+
 	float last_DeBuff = 0;
 	bool dark = false;
 	bool m_die = false;
