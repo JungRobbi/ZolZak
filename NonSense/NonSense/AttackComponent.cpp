@@ -100,7 +100,7 @@ void AttackComponent::Skill()
 				dynamic_cast<Player*>(gameObject)->m_pHP_Dec_UI->Dec_HP = 1;
 				dynamic_cast<Player*>(gameObject)->m_pHP_Dec_UI->HP = 1;
 			}
-
+			dynamic_cast<Player*>(gameObject)->OnHealUI = Timer::GetTotalTime() + 2.5f;
 			//////////////////////////// 팀원 힐
 			for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
 			{

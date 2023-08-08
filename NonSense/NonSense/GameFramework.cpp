@@ -1595,9 +1595,11 @@ void GameFramework::RenderEffect()
 	if (scene_type >= SIGHT_SCENE && !Die) {
 		for (int i = 0; i < 3; ++i)
 		{
-			m_pPlayer->m_Heal_UI[i]->SetPosition(Vector3::Add(m_pPlayer->GetPosition(), XMFLOAT3(cos(Timer::GetTotalTime() * 4 + i*(3.14* 0.6)) / 3, 0.5, sin(Timer::GetTotalTime() * 4 + i * (3.14*0.6)) / 3)));
-			m_pPlayer->m_Heal_UI[i]->UpdateTransform(NULL);
-			m_pPlayer->m_Heal_UI[i]->Render(m_pCommandList, m_pCamera);
+			if (m_pPlayer->OnHealUI > Timer::GetTotalTime()) {
+				m_pPlayer->m_Heal_UI[i]->SetPosition(Vector3::Add(m_pPlayer->GetPosition(), XMFLOAT3(cos(Timer::GetTotalTime() * 4 + i * (3.14 * 0.6)) / 3, 0.5, sin(Timer::GetTotalTime() * 4 + i * (3.14 * 0.6)) / 3)));
+				m_pPlayer->m_Heal_UI[i]->UpdateTransform(NULL);
+				m_pPlayer->m_Heal_UI[i]->Render(m_pCommandList, m_pCamera);
+			}
 		}
 	}
 }

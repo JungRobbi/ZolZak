@@ -52,6 +52,7 @@ public:
 	float last_DeBuff = 0;
 	bool dark = false;
 	bool m_die = false;
+	float OnHealUI = 3.0;
 public:
 
 	LPVOID m_pPlayerUpdatedContext;
