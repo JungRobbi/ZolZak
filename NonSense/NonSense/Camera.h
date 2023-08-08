@@ -1,5 +1,5 @@
 #pragma once
-#define ASPECT_RATIO (float(FRAME_BUFFER_WIDTH) / float(FRAME_BUFFER_HEIGHT))
+#define ASPECT_RATIO (float(GameFramework::MainGameFramework->GetWndClientWidth()) / float(GameFramework::MainGameFramework->GetWndClientWidth()))
 
 #define FIRST_PERSON_CAMERA 0x01
 #define SPACESHIP_CAMERA 0x02
