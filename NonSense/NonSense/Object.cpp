@@ -900,9 +900,9 @@ bool Object::IsVisible(Camera* pCamera)
 	{
 		xmBoundingBox = pMesh->GetBoundingBox();
 		xmBoundingBox.Transform(xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
-		//xmBoundingBox.Center.x += pCamera->GetLookVector().x*10;
-		//xmBoundingBox.Center.y += pCamera->GetLookVector().y*10;
-		//xmBoundingBox.Center.z += pCamera->GetLookVector().z*10;
+		xmBoundingBox.Center.x += pCamera->GetLookVector().x*10;
+		xmBoundingBox.Center.y += pCamera->GetLookVector().y*10;
+		xmBoundingBox.Center.z += pCamera->GetLookVector().z*10;
 		if (pCamera) bIsVisible = pCamera->IsInFrustum(xmBoundingBox);
 		return(bIsVisible);
 	}
@@ -1608,7 +1608,7 @@ void Object::OnPrepareRender()
 
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	if (Do_Render)
+	if (Do_Render&&IsVisible(pCamera))
 	{
 		OnPrepareRender();
 		if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
