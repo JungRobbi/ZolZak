@@ -403,6 +403,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	m_pOverHP_UI = new Player_Over_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	m_pUI = new Player_State_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, Magical);
+	m_Die_UI = new Die_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	fireball = new FireBall(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	
 	m_pHP_UI->SetParentUI(m_pUI);

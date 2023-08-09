@@ -1590,8 +1590,14 @@ void GameFramework::RenderHP()
 			p->m_pOverHP_UI->Render(m_pCommandList, m_pCamera);
 			p->m_pUI->UpdateTransform(NULL);
 			p->m_pUI->Render(m_pCommandList, m_pCamera);
-			cnt += 0.1;
 		}
+		else if (scene_type >= SIGHT_SCENE && p->m_die)
+		{
+			p->m_Die_UI->SetMyPos(0.823, 0.92 - cnt, 0.175, 0.07);
+			p->m_Die_UI->UpdateTransform(NULL);
+			p->m_Die_UI->Render(m_pCommandList, m_pCamera);
+		}
+		cnt += 0.1;
 	}
 	if (scene_type >= SIGHT_SCENE && !Die) {
 		m_pPlayer->m_pHP_Dec_UI->UpdateTransform(NULL);
