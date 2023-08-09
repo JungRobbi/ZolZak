@@ -849,7 +849,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		//////////////////////////// ÆÀ¿ø Èú
 
 		GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP / 1000;
-		GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP - 1000) / 1000;
+		(GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP - 1000) / 1000;
 		GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP;
 		GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP;
 		if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP <= 1000)
