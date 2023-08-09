@@ -126,10 +126,6 @@ void AttackComponent::Skill()
 		else if (!dynamic_cast<Player*>(gameObject)->Magical)	// Warrior
 		{
 			dynamic_cast<Player*>(gameObject)->OnBuffUI = Timer::GetTotalTime() + 10.0f;
-			for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
-			{
-				p->OnBuffUI = Timer::GetTotalTime() + 10.0f;
-			}
 			dynamic_cast<Player*>(gameObject)->m_Attack += 700;
 			dynamic_cast<Player*>(gameObject)->m_Defense += 350;
 			dynamic_cast<Player*>(gameObject)->GetComponent<PlayerMovementComponent>()->speed = 5.0;
