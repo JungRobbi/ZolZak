@@ -44,6 +44,7 @@ public:
 	void ProjectileAttack(XMFLOAT3 dir);
 	void CheckMonsterAttackRange();
 	void AttackAnimate();
+	void SkillAnimate();
 	void SetBoundingObject(BoundBox* bd) { AttackRange = bd; }
 };
 

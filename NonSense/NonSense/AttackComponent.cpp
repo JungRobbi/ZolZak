@@ -75,7 +75,7 @@ void AttackComponent::Skill()
 	if (!Die) {
 		AttackTimeLeft = AttackDuration + NextAttackInputTime;
 		During_Attack = true;
-		AttackAnimate();
+		SkillAnimate();
 		if (dynamic_cast<Monster*>(gameObject))
 		{
 			return;
@@ -212,6 +212,12 @@ void AttackComponent::AttackAnimate()
 		}
 
 	}
+}
+
+void AttackComponent::SkillAnimate()
+{
+	gameObject->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending(E_SKILL);
+	gameObject->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 }
 
 AttackComponent::~AttackComponent()

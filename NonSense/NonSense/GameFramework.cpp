@@ -499,7 +499,7 @@ void GameFramework::BuildObjects()
 	Timer::Reset();
 	XMFLOAT3 p = { 0,0,0 };
 	MainBGM = new Sound("Sound/LobbyBGM.mp3", FMOD_2D | FMOD_LOOP_NORMAL, &p);
-	MainBGM->SetVolume(0.3);
+	MainBGM->SetVolume(0.2);
 }
 
 void GameFramework::ReleaseObjects()
@@ -972,7 +972,7 @@ void GameFramework::ChangeScene(unsigned char num)
 		{
 			XMFLOAT3 p = { 0,0,0 };
 			MainBGM = new Sound("Sound/LobbyBGM.mp3", FMOD_2D | FMOD_LOOP_NORMAL, &p);
-			MainBGM->SetVolume(0.3);
+			MainBGM->SetVolume(0.2);
 		}
 	}
 
@@ -1092,7 +1092,7 @@ void GameFramework::ChangeStage(unsigned char num)
 		GameScene::MainScene->Sounds.erase(iter);
 		XMFLOAT3 p = { 0,0,0 };
 		Sound* s = new Sound("Sound/TestMusic.mp3", FMOD_2D | FMOD_LOOP_NORMAL, &p);
-		s->SetVolume(0.35);
+		s->SetVolume(0.2);
 		GameScene::MainScene->MainBGM = s;
 		GameScene::MainScene->AddSound(s);
 	}
@@ -1125,7 +1125,7 @@ void GameFramework::ChangeStage(unsigned char num)
 			delete GameScene::MainScene->MainBGM;
 			XMFLOAT3 p = { 0,0,0 };
 			Sound* s = new Sound("Sound/BossStageBGM.mp3", FMOD_2D | FMOD_LOOP_NORMAL, &p);
-			s->SetVolume(0.3);
+			s->SetVolume(0.2);
 			GameScene::MainScene->MainBGM = s;
 			GameScene::MainScene->AddSound(s);
 		}

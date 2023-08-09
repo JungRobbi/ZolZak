@@ -16,7 +16,7 @@ private:
 	FMOD_DSP* Lowpass;
 	FMOD_DSP* Highpass;
 	FMOD_DSP* Tremolo;
-	float Volume = 0.7;
+	float Volume = 1.0;
 	float AttVolume = 1.0f;
 
 public:
