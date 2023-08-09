@@ -202,6 +202,7 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	Item* m_Ear = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 4);
 	m_Ear->SetPosition(-18.0f, 0.5, 103.0f);
+	m_Ear->AddSoundEffect();
 
 	Item* m_Hand = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 5);
 	m_Hand->SetPosition(-18.5f, 0.5, 103.0f);

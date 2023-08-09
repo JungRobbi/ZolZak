@@ -2565,6 +2565,17 @@ Item::Item(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	SetNum(2);
 }
 
+Item::~Item()
+{
+	if (EerItemSound)
+	{
+		auto iter = std::find(GameScene::MainScene->Sounds.begin(), GameScene::MainScene->Sounds.end(), EerItemSound);
+		delete (*iter);
+		GameScene::MainScene->Sounds.erase(iter);
+		EerItemSound = NULL;
+	}
+}
+
 void Item::OnPrepareRender()
 {
 	if (GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject())&& !erase)
@@ -2651,6 +2662,12 @@ void Item::ItemEffect()
 	{
 		GameScene::MainScene->HaveHand = true;
 	}
+}
+
+void Item::AddSoundEffect()
+{
+	EerItemSound = new Sound("Sound/EarItem.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_NORMAL, &GetPosition());
+	GameScene::MainScene->AddSound(EerItemSound);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
