@@ -40,12 +40,12 @@ void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED recv_ove
 	char* recv_buf = reinterpret_cast<EXP_OVER*>(recv_over)->_buf;
 	int recv_buf_Length = num_bytes;
 
-	{ // ÆÐÅ¶ Ã³¸®
+	{ // ï¿½ï¿½Å¶ Ã³ï¿½ï¿½
 		int remain_data = recv_buf_Length + NetworkMGR::tcpSocket->m_prev_remain;
 		while (remain_data > 0) {
 			unsigned char packet_size = recv_buf[0];
-			// ³²Àº µ¥ÀÌÅÍ°¡ ÇöÀç Ã³¸®ÇÒ ÆÐÅ¶ Å©±âº¸´Ù ÀûÀ¸¸é Àß¸° °ÍÀÌ´Ù. (È¤Àº µü ¸Â°Ô ¶³¾îÁø °ÍÀÌ´Ù.)
-			// È¤Àº packet_size°¡ 0ÀÏ °æ¿ì ¹öÆÛÀÇ ºó ºÎºÐÀ» Ã£Àº °ÍÀÌ°Å³ª ¿À·ùÀÌ´Ù.
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¶ Å©ï¿½âº¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß¸ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½. (È¤ï¿½ï¿½ ï¿½ï¿½ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½.)
+			// È¤ï¿½ï¿½ packet_sizeï¿½ï¿½ 0ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Îºï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½Ì°Å³ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì´ï¿½.
 			if (packet_size > remain_data)
 				break;
 			else if (packet_size == 0) {
@@ -53,17 +53,17 @@ void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED recv_ove
 				break;
 			}
 
-			//ÆÐÅ¶ Ã³¸®
+			//ï¿½ï¿½Å¶ Ã³ï¿½ï¿½
 			NetworkMGR::Process_Packet(recv_buf);
 
-			//´ÙÀ½ ÆÐÅ¶ ÀÌµ¿, ³²Àº µ¥ÀÌÅÍ °»½Å
+			//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¶ ï¿½Ìµï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			recv_buf += packet_size;
 			remain_data -= packet_size;
 		}
-		//³²Àº µ¥ÀÌÅÍ ÀúÀå
+		//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		NetworkMGR::tcpSocket->m_prev_remain = remain_data;
 
-		//³²Àº µ¥ÀÌÅÍ°¡ 0º¸´Ù Å©¸é recv_bufÀÇ ¸Ç ¾ÕÀ¸·Î º¹»çÇÑ´Ù.
+		//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í°ï¿½ 0ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½ recv_bufï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 		if (remain_data > 0) {
 			memcpy(NetworkMGR::tcpSocket->m_recvOverlapped._buf, recv_buf, remain_data);
 		}
@@ -85,8 +85,8 @@ void NetworkMGR::start()
 	tcpSocket = make_shared<Socket>(SocketType::Tcp);
 	
 	char isnet = 'n';
-	std::cout << "NetworkMGR::start()ÀÇ cinÀ» ÁÖ¼®Ã³¸® ÇÏ¸é ÆíÇÔ)" << endl;
-	std::cout << "³×Æ®¿öÅ© ¿¬°á ¿©ºÎ Å° ÀÔ·Â (y/n - ¿¬°áO/¿¬°áX) :";
+	std::cout << "NetworkMGR::start()ï¿½ï¿½ cinï¿½ï¿½ ï¿½Ö¼ï¿½Ã³ï¿½ï¿½ ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½)" << endl;
+	std::cout << "ï¿½ï¿½Æ®ï¿½ï¿½Å© ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å° ï¿½Ô·ï¿½ (y/n - ï¿½ï¿½ï¿½ï¿½O/ï¿½ï¿½ï¿½ï¿½X) :";
 	std::cin >> isnet;
 
 	if (isnet == 'n') {
@@ -97,12 +97,12 @@ void NetworkMGR::start()
 	
 	system("cls");
 	//
-	// ¿¬°á
+	// ï¿½ï¿½ï¿½ï¿½
 	//
 
 	std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
 
-	std::cout << std::endl << "Á¢¼Ó ÇÒ ¼­¹öÁÖ¼Ò¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä(ex 197.xxx.xxx.xxx) : " << std::endl;
+	std::cout << std::endl << "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö¼Ò¸ï¿½ ï¿½Ô·ï¿½ï¿½ï¿½ï¿½Ö¼ï¿½ï¿½ï¿½(ex 197.xxx.xxx.xxx) : " << std::endl;
 	std::string server_s;
 	std::cin >> server_s;
 	SERVERIP = new char[server_s.size() + 1];
@@ -121,12 +121,12 @@ void NetworkMGR::Tick()
 {
 	SleepEx(0, true);
 
-	// MSGSendQueue¸¦ È®ÀÎÇÏ°í ÀÖÀ¸¸é ¼­¹ö·Î Àü¼Û
+	// MSGSendQueueï¿½ï¿½ È®ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (PacketQueue::SendQueue.empty() || tcpSocket->m_fd == INVALID_SOCKET)
 		return;
 
 	while (!PacketQueue::SendQueue.empty()) {
-		// µ¥ÀÌÅÍ ¼Û½Å
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Û½ï¿½
 		char* send_buf = PacketQueue::SendQueue.front();
 
 		int buf_size{};
@@ -136,7 +136,7 @@ void NetworkMGR::Tick()
 			buf_size += send_buf[buf_size];
 		}
 
-		// EXP_OVER ÇüÅÂ·Î º¹»ç È¤Àº buf ÇüÅÂ·Î º¹»ç ÈÄ send ÇØ¾ßÇÔ
+		// EXP_OVER ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½ï¿½ï¿½ È¤ï¿½ï¿½ buf ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ send ï¿½Ø¾ï¿½ï¿½ï¿½
 		do_send(send_buf, buf_size);
 		PacketQueue::PopSendPacket();
 	}
@@ -162,11 +162,11 @@ void NetworkMGR::do_send(const char* buf, short buf_size) {
 
 void NetworkMGR::Process_Packet(char* p_Packet)
 {
-	switch (p_Packet[1]) // ÆÐÅ¶ Å¸ÀÔ
+	switch (p_Packet[1]) // ï¿½ï¿½Å¶ Å¸ï¿½ï¿½
 	{
 	case E_PACKET::E_PACKET_SC_LOGIN_INFO: {
 		//SC_LOGIN_INFO_PACKET* recv_packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(p_Packet);
-		//cout << "·Î±×ÀÎ Á¤º¸ ¼ö½Å!" << endl;
+		//cout << "ï¿½Î±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½!" << endl;
 
 		//int RoomNum = GameScene::MainScene->SelectNum;
 		//std::string ChannelName = "Channel_";
@@ -210,7 +210,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			}
 		}
 		else {
-			cout << "OtherPlayer »ý¼º ½ÇÆÐ!" << endl;
+			cout << "OtherPlayer ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½!" << endl;
 		}
 		for (int i{}; i < GameFramework::MainGameFramework->m_OtherPlayers.size(); ++i) {
 			std::wstring wname;
@@ -483,7 +483,21 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 
 		player->SetRemainHP(recv_packet->remain_hp);
-		cout << "\n¸ÂÀ½ - " << GameFramework::MainGameFramework->m_pPlayer->m_RemainHP << endl;
+
+		if (player->m_RemainHP <= 0)
+		{
+			player->m_die = true;
+			if (player == GameFramework::MainGameFramework->m_pPlayer)
+				Die = true;
+
+			{
+				CS_DIE_PACKET send_packet;
+				send_packet.size = sizeof(CS_DIE_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_CS_DIE_PACKET;
+				PacketQueue::AddSendPacket(&send_packet);
+			}
+		}
+		cout << "\nï¿½ï¿½ï¿½ï¿½ - " << GameFramework::MainGameFramework->m_pPlayer->m_RemainHP << endl;
 		break;
 	}
 	case E_PACKET_SC_LOOK_MONSTER_PACKET: {
@@ -547,12 +561,12 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	case E_PACKET_SC_LOGIN_FAIL_PACKET: {
 		b_isLoginProg = false;
 		b_isLogin = false;
-		std::cout << "·Î±×ÀÎ ½ÇÆÐ!" << std::endl;
+		std::cout << "ï¿½Î±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½!" << std::endl;
 		break;
 	}
 	case E_PACKET_SC_LOGIN_OK_PACKET: {
-		std::cout << "·Î±×ÀÎ ¼º°ø!" << std::endl;
-		if (b_isLoginProg) { // ·Î±×ÀÎ ÁøÇà ÇÏ´Â µ¿¾È
+		std::cout << "ï¿½Î±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½!" << std::endl;
+		if (b_isLoginProg) { // ï¿½Î±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½
 			b_isLogin = true;
 			GameFramework::MainGameFramework->InitializeVivoxSystem(name);
 			
@@ -595,7 +609,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET_SC_ROOM_READY_PACKET: {
 		SC_ROOM_READY_PACKET* recv_packet = reinterpret_cast<SC_ROOM_READY_PACKET*>(p_Packet);
-		// Room UI °»½Å
+		// Room UI ï¿½ï¿½ï¿½ï¿½
 		if (recv_packet->playerType == 0) { // mage
 			auto wname = ConverCtoWC(recv_packet->name);
 			std::wstring wstr{ wname };
@@ -617,7 +631,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET_SC_ROOM_UNREADY_PACKET: {
 		SC_ROOM_UNREADY_PACKET* recv_packet = reinterpret_cast<SC_ROOM_UNREADY_PACKET*>(p_Packet);
-		// Room UI °»½Å
+		// Room UI ï¿½ï¿½ï¿½ï¿½
 
 		auto wname = ConverCtoWC(recv_packet->name);
 		std::wstring wstr{ wname };
@@ -813,7 +827,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		break;
 	}
 	case E_PACKET_SC_SKILL_HEAL_PACKET: {
-		cout << "Èú ¹ÞÀ½ - " << GameFramework::MainGameFramework->m_pPlayer->m_RemainHP << endl;
+		cout << "ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ - " << GameFramework::MainGameFramework->m_pPlayer->m_RemainHP << endl;
 		SC_SKILL_HEAL_PACKET* recv_packet = reinterpret_cast<SC_SKILL_HEAL_PACKET*>(p_Packet);
 
 		Player* player;
@@ -849,7 +863,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		//{
 		//	GameFramework::MainGameFramework->m_pPlayer->m_RemainHP = GameFramework::MainGameFramework->m_pPlayer->m_Health;
 		//}
-		////////////////////////////// ÆÀ¿ø Èú
+		////////////////////////////// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 
 		//GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP / 1000;
 		//GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP - 1000) / 1000;
