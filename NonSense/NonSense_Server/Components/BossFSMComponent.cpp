@@ -113,7 +113,7 @@ void BossFSMComponent::Move_Walk(float dist)
 	for (auto& client : Room::roomlist[gameObject->m_roomNum]->Clients) {
 		auto cc = client.second->m_pPlayer->GetComponent<SphereCollideComponent>();
 		if (dynamic_cast<Monster*>(gameObject)->num > 22000) { // Shield
-			if (2.2f > Vector3::Length(Vector3::Subtract(xmf3Position, cc->GetBoundingObject()->Center))) {
+			if (1.5f > Vector3::Length(Vector3::Subtract(xmf3Position, cc->GetBoundingObject()->Center))) {
 				return;
 			}
 		}
@@ -144,7 +144,7 @@ void BossFSMComponent::Move_Run(float dist)
 	for (auto& client : Room::roomlist[gameObject->m_roomNum]->Clients) {
 		auto cc = client.second->m_pPlayer->GetComponent<SphereCollideComponent>();
 		if (dynamic_cast<Monster*>(gameObject)->num > 22000) { // Shield
-			if (2.2f > Vector3::Length(Vector3::Subtract(xmf3Position, cc->GetBoundingObject()->Center))) {
+			if (1.5f > Vector3::Length(Vector3::Subtract(xmf3Position, cc->GetBoundingObject()->Center))) {
 				return;
 			}
 		}

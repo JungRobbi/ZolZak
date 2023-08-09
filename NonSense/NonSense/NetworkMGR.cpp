@@ -892,8 +892,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			player = dynamic_cast<Player*>(*p);
 		}
 		player->GetComponent<AttackComponent>()->SkillAnimate();
-
-		GameFramework::MainGameFramework->m_pPlayer->OnBuffUI = Timer::GetTotalTime() + 10.0f;
+		player->OnBuffUI = Timer::GetTotalTime() + 10.0f;
 
 		break;
 	}
