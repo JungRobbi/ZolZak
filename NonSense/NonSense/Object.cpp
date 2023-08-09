@@ -2367,11 +2367,11 @@ void FireBall::OnPrepareRender()
 						send_packet.size = sizeof(CS_TEMP_HIT_MONSTER_PACKET);
 						send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_MONSTER_PACKET;
 						send_packet.monster_id = o->GetNum();
-						send_packet.hit_damage = GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100));
+						send_packet.hit_damage = GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (100/ (o->GetDefense() + 100));
 						PacketQueue::AddSendPacket(&send_packet);
 					}
 					else {
-						o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
+						o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (100 / (o->GetDefense() + 100)));
 						if (dynamic_cast<Shield*>(o))
 						{
 
@@ -2467,11 +2467,11 @@ void Explosion::OnPrepareRender()
 							send_packet.size = sizeof(CS_TEMP_HIT_MONSTER_PACKET);
 							send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_MONSTER_PACKET;
 							send_packet.monster_id = o->GetNum();
-							send_packet.hit_damage = GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100));
+							send_packet.hit_damage = GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (100 / (o->GetDefense() + 100));
 							PacketQueue::AddSendPacket(&send_packet);
 						}
 						else {
-							o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (o->GetDefense() / (o->GetDefense() + 100)));
+							o->GetHit(GameFramework::MainGameFramework->m_pPlayer->GetAttack() * (100 / (o->GetDefense() + 100)));
 						}
 						o->MageDamage = true;
 					}

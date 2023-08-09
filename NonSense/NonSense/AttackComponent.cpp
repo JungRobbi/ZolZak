@@ -44,7 +44,7 @@ void AttackComponent::Attack()
 						continue;
 					if (AttackRange->Intersects(*monster->GetComponent<SphereCollideComponent>()->GetBoundingObject())) {
 						if (!NetworkMGR::b_isNet) {
-							monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100)));
+							monster->GetHit(dynamic_cast<Player*>(gameObject)->GetAttack() * (100 / (monster->GetDefense() + 100)));
 							if (dynamic_cast<Shield*>(monster))
 							{
 
@@ -60,7 +60,7 @@ void AttackComponent::Attack()
 						send_packet.size = sizeof(CS_TEMP_HIT_MONSTER_PACKET);
 						send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_MONSTER_PACKET;
 						send_packet.monster_id = monster->GetNum();
-						send_packet.hit_damage = dynamic_cast<Player*>(gameObject)->GetAttack() * (monster->GetDefense() / (monster->GetDefense() + 100));
+						send_packet.hit_damage = dynamic_cast<Player*>(gameObject)->GetAttack() * (100 / (monster->GetDefense() + 100));
 						PacketQueue::AddSendPacket(&send_packet);
 					}
 				}
@@ -161,14 +161,14 @@ void AttackComponent::CheckMonsterAttackRange()
 			if (AttackRange->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()))
 			{
 				if (!NetworkMGR::b_isNet) {
-					GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Character*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+					GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Character*>(gameObject)->GetAttack() * (100 / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
 				}
 				else {
 					CS_TEMP_HIT_PLAYER_PACKET send_packet;
 					send_packet.size = sizeof(CS_TEMP_HIT_PLAYER_PACKET);
 					send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_PLAYER_PACKET;
 					send_packet.player_id = NetworkMGR::id;
-					send_packet.hit_damage = dynamic_cast<Character*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100));
+					send_packet.hit_damage = dynamic_cast<Character*>(gameObject)->GetAttack() * (100 / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100));
 					PacketQueue::AddSendPacket(&send_packet);
 				}
 				printf("%f -> %f = %f", dynamic_cast<Character*>(gameObject)->GetAttack(), GameFramework::MainGameFramework->m_pPlayer->GetDefense(), GameFramework::MainGameFramework->m_pPlayer->GetRemainHP());

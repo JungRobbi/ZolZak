@@ -59,11 +59,11 @@ void MonsterAttackComponent::update()
 				send_packet.size = sizeof(CS_TEMP_HIT_PLAYER_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_PLAYER_PACKET;
 				send_packet.player_id = NetworkMGR::id;
-				send_packet.hit_damage = dynamic_cast<Character*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100));
+				send_packet.hit_damage = dynamic_cast<Character*>(gameObject)->GetAttack() * (100 / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100));
 				PacketQueue::AddSendPacket(&send_packet);
 			}
 			else {
-				GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Character*>(gameObject)->GetAttack() * (GameFramework::MainGameFramework->m_pPlayer->GetDefense() / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+				GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Character*>(gameObject)->GetAttack() * (100 / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
 			}
 			if (GameFramework::MainGameFramework->GameSceneState == SIGHT_SCENE)
 				GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
