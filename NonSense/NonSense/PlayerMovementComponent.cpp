@@ -91,7 +91,7 @@ void PlayerMovementComponent::update()
 			else
 			{
 				if (!Dashing)
-					((Player*)gameObject)->SetMaxVelocityXZ(3.5f);
+					((Player*)gameObject)->SetMaxVelocityXZ(speed);
 			}
 			if (!NetworkMGR::b_isNet) {
 				if (Input::InputKeyBuffer['W'] & 0xF0)

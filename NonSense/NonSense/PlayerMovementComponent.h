@@ -32,6 +32,7 @@ private:
     void Jump();
     void Dash();
 public:
+    float speed = 3.5;
     ~PlayerMovementComponent() {}
     void SetWindowPos(RECT pos);
 
