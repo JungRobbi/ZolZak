@@ -974,8 +974,6 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 			if (rc.second->b_IsReady == false)
 				continue;
-			if (rc.second->m_id == p_Client->m_id)
-				continue;
 			rc.second->m_pPlayer->SetRemainHP(rc.second->m_pPlayer->GetRemainHP() + 200);
 			if (rc.second->m_pPlayer->GetRemainHP() > rc.second->m_pPlayer->GetHealth())
 			{
