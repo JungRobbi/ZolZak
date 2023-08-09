@@ -270,7 +270,7 @@ void AttackComponent::update()
 				}
 			}
 			else{
-				if ((Input::InputKeyBuffer['E'] & 0xF0) && !During_Attack && !ScriptMode && !OptionMode)
+				if ((Input::InputKeyBuffer['E'] & 0xF0) && !During_Attack && !ScriptMode && !OptionMode && dynamic_cast<Player*>(gameObject) == GameFramework::MainGameFramework->m_pPlayer)
 				{
 					Skill();
 				//	b_Skill = false;

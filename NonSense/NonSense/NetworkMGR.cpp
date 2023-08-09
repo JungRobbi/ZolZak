@@ -860,9 +860,6 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		player->GetComponent<AttackComponent>()->SkillAnimate();
 
-		for (auto& op : GameFramework::MainGameFramework->m_OtherPlayers) {
-			op->OnBuffUI = Timer::GetTotalTime() + 10.0f;
-		}
 		GameFramework::MainGameFramework->m_pPlayer->OnBuffUI = Timer::GetTotalTime() + 10.0f;
 
 		break;
