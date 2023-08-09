@@ -184,10 +184,12 @@ void GameScene::update()
 	{
 		if (!(*iter)->CheckEndSound())
 		{
+			delete (*iter);
 			iter = Sounds.erase(iter);
 		}
 		else
 		{
+			(*iter)->Update();
 			++iter;
 		}
 	}

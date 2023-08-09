@@ -12,7 +12,8 @@ private:
 	static XMFLOAT3* PlayerPosition;
 	FMOD_SOUND* m_Sound;
 	FMOD_CHANNEL* m_Channel;
-
+	XMFLOAT3 SoundPosition;
+	FMOD_MODE SoundMode;
 	FMOD_DSP* Lowpass;
 	FMOD_DSP* Highpass;
 	FMOD_DSP* Tremolo;
@@ -29,6 +30,8 @@ public:
 	void Play();
 	void Stop();
 	void Replay();
+
+	void Update();
 
 	void AddDsp();
 	void RemoveDsp();

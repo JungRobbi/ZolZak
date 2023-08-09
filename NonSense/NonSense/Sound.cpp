@@ -13,7 +13,8 @@ Sound::Sound(char* SoundFilePath, FMOD_MODE Mode, XMFLOAT3* SoundPos)
 	FMOD_DSP_SetParameterFloat(Highpass, FMOD_DSP_HIGHPASS_CUTOFF, 20.0f);
 	FMOD_System_CreateDSPByType(FMODSystem, FMOD_DSP_TYPE_TREMOLO, &Tremolo);
 	FMOD_DSP_SetParameterFloat(Tremolo, 0, 1.0f);
-
+	SoundPosition = *SoundPos;
+	SoundMode = Mode;
 	Play();
 	if (Mode & FMOD_3D_WORLDRELATIVE)
 	{
@@ -28,12 +29,10 @@ Sound::Sound(char* SoundFilePath, FMOD_MODE Mode, XMFLOAT3* SoundPos)
 		if (len > 50.f)
 		{
 			FMOD_Channel_SetVolume(m_Channel, 0.0f);
-			std::cout << "out of range" << std::endl;
-			std::cout << AttVolume << std::endl;
 		}
 		else
 		{
-			AttVolume = 10.0f / (10.0f + len);
+			AttVolume = 50.0f / (50.0f + len);
 			FMOD_Channel_SetVolume(m_Channel, Volume * AttVolume);
 		}
 	}
@@ -56,7 +55,6 @@ Sound::Sound(char* SoundFilePath, FMOD_MODE Mode, XMFLOAT3* SoundPos)
 		{
 			AttVolume = 50.0f / (50.0f + len);
 			FMOD_Channel_SetVolume(m_Channel, Volume * AttVolume);
-			std::cout << AttVolume << std::endl;
 		}
 	}
 }
@@ -86,8 +84,10 @@ void Sound::SystemUpdate(XMFLOAT3* PlayerPos, XMFLOAT3* PlayerForward, XMFLOAT3*
 	FMOD_VECTOR Forward = { PlayerForward->x,PlayerForward->y,PlayerForward->z };
 	FMOD_VECTOR Up = { PlayerUp->x,PlayerUp->y,PlayerUp->z };
 	FMOD_VECTOR vel = { 0,0,0 };
+
 	FMOD_System_Set3DListenerAttributes(FMODSystem, 0, &pos, &vel, &Forward, &Up);
 	FMOD_System_Update(FMODSystem);
+
 }
 
 void Sound::Play()
@@ -120,6 +120,24 @@ void Sound::RemoveDsp()
 	FMOD_Channel_RemoveDSP(m_Channel, Lowpass);
 	//FMOD_Channel_RemoveDSP(m_Channel, Tremolo);
 	FMOD_Channel_RemoveDSP(m_Channel, Highpass);
+}
+
+void Sound::Update()
+{
+	if (SoundMode & FMOD_3D_WORLDRELATIVE)
+	{
+		XMFLOAT3 RelativePos = Vector3::Subtract(SoundPosition, GameFramework::MainGameFramework->m_pPlayer->GetPosition());
+		float len = Vector3::Length(RelativePos);
+		if (len > 50.f)
+		{
+			FMOD_Channel_SetVolume(m_Channel, 0.0f);
+		}
+		else
+		{
+			AttVolume = 50.0f / (50.0f + len);
+			FMOD_Channel_SetVolume(m_Channel, Volume * AttVolume);
+		}
+	}
 }
 
 void Sound::VolumeUp()

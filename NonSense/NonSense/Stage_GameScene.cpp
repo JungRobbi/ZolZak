@@ -38,8 +38,8 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	{
 		ATKs[i] = new ATK_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 		DEFs[i] = new DEF_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-		ATKs[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.93 - 0.05*(i / 7), 0.035, 0.05);
-		DEFs[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.78 - 0.05*(i / 7), 0.035, 0.05);
+		ATKs[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.93 - 0.05 * (i / 7), 0.035, 0.05);
+		DEFs[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.78 - 0.05 * (i / 7), 0.035, 0.05);
 	}
 
 	HeightMapTerrain* terrain = new HeightMapTerrain(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, _T("Terrain/terrain.raw"), 800, 800, 37, 37, xmf3Scale, xmf4Color);
@@ -195,6 +195,7 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	Item* m_Ear = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 4);
 	m_Ear->SetPosition(-18.0f, 0.5, 103.0f);
+	m_Ear->AddSoundEffect();
 
 	Item* m_Hand = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 5);
 	m_Hand->SetPosition(-18.5f, 0.5, 103.0f);

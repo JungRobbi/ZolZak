@@ -10,6 +10,7 @@
 #include "../AnimationType.h"
 #include "Camera.h"
 #include "Component.h"
+#include "Sound.h"
 class Shader;
 class Camera;
 class Object; 
@@ -558,15 +559,18 @@ class Item : public Object
 {
 public:
 	Item(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int Itemnum);
-	virtual ~Item() {};
+	virtual ~Item();
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ItemEffect();
+	
+	void AddSoundEffect();
 
 	int ItemID = 0;
 	bool erase = false;
 	Shader* m_pBoundingShader = NULL;
+	Sound* EerItemSound = NULL;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
