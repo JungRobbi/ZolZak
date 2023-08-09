@@ -503,6 +503,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[12]->m_nType = ANIMATION_TYPE_ONCE;
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[13]->m_nType = ANIMATION_TYPE_ONCE;
 		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[14]->m_nType = ANIMATION_TYPE_ONCE; 
+		m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[17]->m_nType = ANIMATION_TYPE_ONCE;
 
 
 		std::function<void()> FootStepREvent = [this]() {
@@ -535,6 +536,12 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		m_pSkinnedAnimationController->AddAnimationEvent("SwingSound2", 8, 0.15, SwingSound2);
 
 		m_pSkinnedAnimationController->AddAnimationEvent("SwingSound3", 9, 0.15, SwingSound3);
+
+		std::function<void()> SkillSound = [this]() {
+			Sound* s = new Sound("Sound/SkillSound.mp3", FMOD_3D_HEADRELATIVE | FMOD_LOOP_OFF, &GetPosition());
+			GameScene::MainScene->AddSound(s);
+		};
+		m_pSkinnedAnimationController->AddAnimationEvent("SkillSound", E_SKILL, 0.08, SkillSound);
 	}
 }
 
