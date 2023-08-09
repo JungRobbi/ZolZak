@@ -330,7 +330,7 @@ void Stage_GameScene::HearingStage(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 {
 	if (m_pPlayer)
 		m_pPlayer->SetPosition(XMFLOAT3(125.31, m_pTerrain->GetHeight(125.31, 18.39), 18.39));
-	Sound_Debuff(-10);
+	Sound_Debuff(5.0f);
 	StartNPC = new NPC(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, ModelMap["Ent"]);
 	StartNPC->SetPosition(139.85f, m_pTerrain->GetHeight(139.85f, 13.24f), 13.24f);
 	StartNPC->SetNum(102);
@@ -1016,6 +1016,20 @@ void Stage_GameScene::update()
 			}
 		}
 	}
+
+	if (GameFramework::MainGameFramework->scene_type == HEARING_SCENE)
+	{
+		if (HearingDebuffTime <= 0.0f)
+		{
+			Sound_Debuff(5.0f);
+			HearingDebuffTime = 10.0f;
+		}
+		else
+		{
+			HearingDebuffTime -= Timer::GetTimeElapsed();
+		}
+	}
+
 }
 
 void Stage_GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)

@@ -5,7 +5,8 @@
 
 class Stage_GameScene : public GameScene
 {
-
+private:
+	float HearingDebuffTime = 0.0f;
 	
 public:
 	void ReleaseObjects();
