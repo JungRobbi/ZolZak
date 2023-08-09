@@ -483,6 +483,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 
 		player->SetRemainHP(recv_packet->remain_hp);
+		cout << "¸ÂÀ½ - " << GameFramework::MainGameFramework->m_pPlayer->m_RemainHP << endl;
 		break;
 	}
 	case E_PACKET_SC_LOOK_MONSTER_PACKET: {
@@ -812,7 +813,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		break;
 	}
 	case E_PACKET_SC_SKILL_HEAL_PACKET: {
-		cout << GameFramework::MainGameFramework->m_pPlayer->m_RemainHP << endl;
+		cout << "Èú ¹ÞÀ½ - " << GameFramework::MainGameFramework->m_pPlayer->m_RemainHP << endl;
 		SC_SKILL_HEAL_PACKET* recv_packet = reinterpret_cast<SC_SKILL_HEAL_PACKET*>(p_Packet);
 
 		Player* player;
@@ -833,39 +834,39 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		player->GetComponent<AttackComponent>()->SkillAnimate();
 
-		for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
-		{
-			p->m_RemainHP += 200;
-			if (p->m_RemainHP > p->m_Health)
-			{
-				p->m_RemainHP = p->m_Health;
-			}
-			p->OnHealUI = Timer::GetTotalTime() + 2.5f;
-		}
+		//for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
+		//{
+		//	p->m_RemainHP += 200;
+		//	if (p->m_RemainHP > p->m_Health)
+		//	{
+		//		p->m_RemainHP = p->m_Health;
+		//	}
+		//	p->OnHealUI = Timer::GetTotalTime() + 2.5f;
+		//}
 
-		GameFramework::MainGameFramework->m_pPlayer->m_RemainHP += 200;
-		if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP > GameFramework::MainGameFramework->m_pPlayer->m_Health)
-		{
-			GameFramework::MainGameFramework->m_pPlayer->m_RemainHP = GameFramework::MainGameFramework->m_pPlayer->m_Health;
-		}
-		//////////////////////////// ÆÀ¿ø Èú
+		//GameFramework::MainGameFramework->m_pPlayer->m_RemainHP += 200;
+		//if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP > GameFramework::MainGameFramework->m_pPlayer->m_Health)
+		//{
+		//	GameFramework::MainGameFramework->m_pPlayer->m_RemainHP = GameFramework::MainGameFramework->m_pPlayer->m_Health;
+		//}
+		////////////////////////////// ÆÀ¿ø Èú
 
-		GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP / 1000;
-		GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP - 1000) / 1000;
-		GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP;
-		GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP;
+		//GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP / 1000;
+		//GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP - 1000) / 1000;
+		//GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP;
+		//GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP;
 
-		if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP <= 1000)
-		{
-			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = 0;
-			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = 0;
-		}
+		//if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP <= 1000)
+		//{
+		//	GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = 0;
+		//	GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = 0;
+		//}
 
-		if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP >= 1000)
-		{
-			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = 1;
-			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = 1;
-		}
+		//if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP >= 1000)
+		//{
+		//	GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = 1;
+		//	GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = 1;
+		//}
 
 		GameFramework::MainGameFramework->m_pPlayer->OnHealUI = Timer::GetTotalTime() + 2.5f;
 
