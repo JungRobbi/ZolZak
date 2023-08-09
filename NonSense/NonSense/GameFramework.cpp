@@ -1582,7 +1582,7 @@ void GameFramework::RenderHP()
 	float cnt = 0;
 	for (auto& p : m_OtherPlayers)
 	{
-		if (scene_type >= SIGHT_SCENE && p->m_die) {
+		if (scene_type >= SIGHT_SCENE && !p->m_die) {
 			p->m_pUI->SetMyPos(0.823, 0.92 - cnt, 0.175, 0.07);
 			p->m_pHP_UI->UpdateTransform(NULL);
 			p->m_pHP_UI->Render(m_pCommandList, m_pCamera);
