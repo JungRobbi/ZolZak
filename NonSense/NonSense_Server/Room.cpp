@@ -270,7 +270,7 @@ void Room::update()
 				send_packet.size = sizeof(SC_CREATE_ITEM_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_SC_CREATE_ITEM_PACKET;
 				send_packet.x = monster->GetPosition().x;
-				send_packet.y = monster->GetPosition().y;
+				send_packet.y = monster->GetPosition().y + 0.5f;
 				send_packet.z = monster->GetPosition().z;
 				send_packet.itemID = rand() % 3;
 				send_packet.itemNum = g_itemNum++;

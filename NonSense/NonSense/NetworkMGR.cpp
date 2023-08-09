@@ -19,6 +19,7 @@
 #include "UILayer.h"
 #include "Lobby_GameScene.h"
 #include "UI.h"
+#include "Stage_GameScene.h"
 #pragma comment(lib, "WS2_32.LIB")
 
 char* NetworkMGR::SERVERIP = "127.0.0.1";
@@ -731,7 +732,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	case E_PACKET_SC_EAT_ITEM_PACKET: {
 		SC_EAT_ITEM_PACKET* recv_packet = reinterpret_cast<SC_EAT_ITEM_PACKET*>(p_Packet);
 		auto p = find_if(GameScene::MainScene->blendGameObjects.begin(), GameScene::MainScene->blendGameObjects.end(),
-			[&recv_packet](Object* lhs) { return lhs->GetNum() == recv_packet->itemNum; });
+			[&recv_packet](Object* lhs) { return lhs->ObjectID == recv_packet->itemNum; });
 		if (p == GameScene::MainScene->blendGameObjects.end()) 
 			break;
 
@@ -793,12 +794,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET_SC_CREATE_ITEM_PACKET: {
 		SC_CREATE_ITEM_PACKET* recv_packet = reinterpret_cast<SC_CREATE_ITEM_PACKET*>(p_Packet);
-		
-		Item* item = new Item(GameFramework::MainGameFramework->GetDevice(), GameFramework::MainGameFramework->m_pCommandList,
-			GameScene::MainScene->m_pGraphicsRootSignature, recv_packet->itemID);
-		item->SetPosition(recv_packet->x, recv_packet->y, recv_packet->z);
-		item->SetNum(recv_packet->itemNum);
-		cout << "item »ý¼º!" << endl;
+		dynamic_cast<Stage_GameScene*>(GameScene::MainScene)->CreateItemList.emplace_back(recv_packet->itemNum, recv_packet->itemID, recv_packet->x, recv_packet->y, recv_packet->z);
 		break;
 	}
 	default:
