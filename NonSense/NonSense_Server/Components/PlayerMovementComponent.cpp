@@ -162,22 +162,22 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 						continue;
 					monster->num; // Goblin : 11001, Orc : 10101 , Skull : 10201, Shield : 22222
 					if (monster->num > 22000) { // Shield
-						if (3.f > Vector3::Length(Vector3::Subtract(monster->GetPosition(), Vector3::Add(cc->GetBoundingObject()->Center, xmf3Shift)))) {
+						if (1.5f > Vector3::Length(Vector3::Subtract(monster->GetPosition(), Vector3::Add(cc->GetBoundingObject()->Center, xmf3Shift)))) {
 							xmf3Shift = XMFLOAT3(0.0f, 0.0f, 0.0f);
 						}
 					}
 					else if (monster->num > 11000) { // Goblin
-						if (1.f > Vector3::Length(Vector3::Subtract(monster->GetPosition(), Vector3::Add(cc->GetBoundingObject()->Center, xmf3Shift)))) {
+						if (1.3f > Vector3::Length(Vector3::Subtract(monster->GetPosition(), Vector3::Add(cc->GetBoundingObject()->Center, xmf3Shift)))) {
 							xmf3Shift = XMFLOAT3(0.0f, 0.0f, 0.0f);
 						}
 					}
 					else if (monster->num > 10200) { // Skull
-						if (1.f > Vector3::Length(Vector3::Subtract(monster->GetPosition(), Vector3::Add(cc->GetBoundingObject()->Center, xmf3Shift)))) {
+						if (1.3f > Vector3::Length(Vector3::Subtract(monster->GetPosition(), Vector3::Add(cc->GetBoundingObject()->Center, xmf3Shift)))) {
 							xmf3Shift = XMFLOAT3(0.0f, 0.0f, 0.0f);
 						}
 					}
 					else if (monster->num > 10100) { // Orc
-						if (1.f > Vector3::Length(Vector3::Subtract(monster->GetPosition(), Vector3::Add(cc->GetBoundingObject()->Center, xmf3Shift)))) {
+						if (1.3f > Vector3::Length(Vector3::Subtract(monster->GetPosition(), Vector3::Add(cc->GetBoundingObject()->Center, xmf3Shift)))) {
 							xmf3Shift = XMFLOAT3(0.0f, 0.0f, 0.0f);
 						}
 					}
