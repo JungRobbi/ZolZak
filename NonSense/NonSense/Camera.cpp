@@ -1,13 +1,14 @@
 #include "stdafx.h"
 #include "Player.h"
 #include "Camera.h"
-
+#include "GameFramework.h"
+class GameFramework;
 Camera::Camera()
 {
 	m_xmf4x4View = Matrix4x4::Identity();
 	m_xmf4x4Projection = Matrix4x4::Identity();
-	m_d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
-	m_d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
+	m_d3dViewport = { 0, 0, (float)GameFramework::MainGameFramework->GetWndClientWidth() , (float)GameFramework::MainGameFramework->GetWndClientHeight(), 0.0f, 1.0f };
+	m_d3dScissorRect = { 0, 0, GameFramework::MainGameFramework->GetWndClientWidth() , GameFramework::MainGameFramework->GetWndClientHeight() };
 	m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
@@ -34,8 +35,8 @@ Camera::Camera(Camera* pCamera)
 		//카메라가 없으면 기본 정보를 설정한다.
 		m_xmf4x4View = Matrix4x4::Identity();
 		m_xmf4x4Projection = Matrix4x4::Identity();
-		m_d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
-		m_d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
+		m_d3dViewport = { 0, 0, (float)GameFramework::MainGameFramework->GetWndClientWidth() , (float)GameFramework::MainGameFramework->GetWndClientHeight(), 0.0f, 1.0f };
+		m_d3dScissorRect = { 0, 0, GameFramework::MainGameFramework->GetWndClientWidth() , GameFramework::MainGameFramework->GetWndClientHeight() };
 		m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 		m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);

@@ -384,6 +384,12 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 	SetPlayerUpdatedContext(pTerrain);
 	SetCameraUpdatedContext(pTerrain);
 
+	m_Heal_UI = new Heal_UI * [3];
+	for (int i = 0; i < 3; ++i)
+	{
+		m_Heal_UI[i] = new Heal_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+
 	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pOverHP_Dec_UI = new Player_Over_DEC_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -417,11 +423,15 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		GetComponent<AttackComponent>()->SetBoundingObject(bb);
 		GetComponent<AttackComponent>()->Type_ComboAttack = true;
 		GetComponent<AttackComponent>()->SetAttackDuration(1.2);
+		m_Health = 1200;
+		m_RemainHP = 1200;
 	}
 	else
 	{
 		GetComponent<AttackComponent>()->Type_ComboAttack = false;
 		GetComponent<AttackComponent>()->SetAttackDuration(1.5);
+		m_Health = 1000;
+		m_RemainHP = 1000;
 	}
 	
 	{
@@ -431,7 +441,7 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		if (GameScene::MainScene->GetTerrain())
 		{
 			float h = GameScene::MainScene->GetTerrain()->GetHeight(-16.0f, 103.0f);
-			cout << h << endl;
+			//cout << h << endl;
 			pos = XMFLOAT3(-16.0f, h, 103.0f);
 		}
 		else
@@ -556,8 +566,8 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0, 0.7f, 0.25));
 		m_pCamera->GenerateProjectionMatrix(0.1f, 300.0f, ASPECT_RATIO, 60.0f);
-		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
-		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		m_pCamera->SetViewport(0, 0, GameFramework::MainGameFramework->GetWndClientWidth(), GameFramework::MainGameFramework->GetWndClientHeight(), 0.0f, 1.0f);
+		m_pCamera->SetScissorRect(0, 0, GameFramework::MainGameFramework->GetWndClientWidth(), GameFramework::MainGameFramework->GetWndClientHeight());
 		break;
 	case SPACESHIP_CAMERA:
 		//�÷��̾��� Ư���� �����̽�-�� ī�޶� ��忡 �°� �����Ѵ�. �߷��� �������� �ʴ´�.
@@ -569,8 +579,8 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		m_pCamera->GenerateProjectionMatrix(0.01f, 300.0f, ASPECT_RATIO, 60.0f);
-		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
-		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		m_pCamera->SetViewport(0, 0, GameFramework::MainGameFramework->GetWndClientWidth(), GameFramework::MainGameFramework->GetWndClientHeight(), 0.0f, 1.0f);
+		m_pCamera->SetScissorRect(0, 0, GameFramework::MainGameFramework->GetWndClientWidth(), GameFramework::MainGameFramework->GetWndClientHeight());
 		break;
 	case THIRD_PERSON_CAMERA:
 		//�÷��̾��� Ư���� 3��Ī ī�޶� ��忡 �°� �����Ѵ�. ���� ȿ���� ī�޶� �������� �����Ѵ�.
@@ -585,8 +595,8 @@ Camera* MagePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		//m_pCamera->SetOffset(XMFLOAT3(0, 0.8f, 0.2));
 
 		m_pCamera->GenerateProjectionMatrix(0.01f, 300.0f, ASPECT_RATIO, 60.0f);
-		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
-		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		m_pCamera->SetViewport(0, 0, GameFramework::MainGameFramework->GetWndClientWidth(), GameFramework::MainGameFramework->GetWndClientHeight(), 0.0f, 1.0f);
+		m_pCamera->SetScissorRect(0, 0, GameFramework::MainGameFramework->GetWndClientWidth(), GameFramework::MainGameFramework->GetWndClientHeight());
 		break;
 	default:
 		break;
@@ -662,3 +672,4 @@ void MagePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCam
 		Player::Render(pd3dCommandList, pCamera);
 	}
 }
+

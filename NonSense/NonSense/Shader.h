@@ -105,6 +105,13 @@ public:
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat);
 };
 
+class BlendBillboardShader : public BillboardShader
+{
+public:
+	BlendBillboardShader();
+	virtual D3D12_BLEND_DESC CreateBlendState();
+};
+
 class ParticleShader : public Shader
 {
 public:

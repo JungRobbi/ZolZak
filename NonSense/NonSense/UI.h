@@ -57,6 +57,20 @@ private:
 	CB_PLAYER_INFO* m_pcbMappedUI = NULL;
 };
 
+class Heal_UI : public UI
+{
+public:
+	Heal_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void ReleaseShaderVariables();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+	virtual ~Heal_UI() {};
+private:
+	ID3D12Resource* m_pd3dcbUI = NULL;
+	CB_PLAYER_INFO* m_pcbMappedUI = NULL;
+};
+
 class Player_State_UI : public UI
 {
 public:

@@ -37,7 +37,6 @@ private:
 
 	IDXGIFactory4* m_pFactory;
 	IDXGISwapChain3 *m_pSwapChain;
-	ID3D12Device *m_pDevice;
 
 	bool m_bMsaa4xEnable = false;
 	UINT m_nMsaa4xQualityLevels = 0;
@@ -56,7 +55,6 @@ private:
 
 	ID3D12CommandQueue *m_pCommandQueue;
 	ID3D12CommandAllocator* m_pCommandAllocator;
-	ID3D12GraphicsCommandList* m_pCommandList;
 
 	ID3D12PipelineState *m_pPipelineState;
 
@@ -69,6 +67,8 @@ private:
 	
 
 public:
+	ID3D12Device *m_pDevice;
+	ID3D12GraphicsCommandList* m_pCommandList;
 	static GameFramework* MainGameFramework;
 public:
 	std::vector<GameScene*> m_GameScenes;
@@ -124,6 +124,7 @@ public:
 	void AnimateObjects();
 	void FrameAdvance();
 	void RenderHP();
+	void RenderEffect();
 	void WaitForGpuComplete();
 
 	void Touch_Debuff(float time);

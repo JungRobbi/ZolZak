@@ -759,7 +759,7 @@ void Shield::BossJumpAttackSoundEvent()
 
 void Shield::EndSkillEvent()
 {
-	std::cout << "end" << std::endl;
+	//std::cout << "end" << std::endl;
 	GetComponent<BossAttackComponent>()->End_Skill = true;
 }
 
