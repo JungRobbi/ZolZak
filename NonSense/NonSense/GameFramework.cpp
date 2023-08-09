@@ -1447,7 +1447,7 @@ void GameFramework::FrameAdvance()
 	}
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	for (auto& p : m_OtherPlayers) {
-		if (p->GetUsed()) {
+		if (p->GetUsed()&&!p->m_die) {
 			p->UpdateTransform(NULL);
 			p->Render(m_pCommandList, m_pCamera);
 			if (p->Magical)
@@ -1456,10 +1456,12 @@ void GameFramework::FrameAdvance()
 				p->FindFrame("Sword_M05")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
 		}
 	}
-	if (m_pPlayer->Magical)
-		m_pPlayer->FindFrame("Wand")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
-	else
-		m_pPlayer->FindFrame("Sword_M05")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
+	if (!m_pPlayer->m_die) {
+		if (m_pPlayer->Magical)
+			m_pPlayer->FindFrame("Wand")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
+		else
+			m_pPlayer->FindFrame("Sword_M05")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
+	}
 	ResourceTransition(m_pCommandList, m_ShadowMap->Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ);
 
 	///////////////////////////////////////////////////////////
@@ -1476,7 +1478,7 @@ void GameFramework::FrameAdvance()
 	// Player
 	if (m_pPlayer) m_pPlayer->Render(m_pCommandList, m_pCamera);
 	for (auto& p : m_OtherPlayers) {
-		if (p->GetUsed()) {
+		if (p->GetUsed() && !p->m_die) {
 			p->UpdateTransform(NULL);
 			p->Render(m_pCommandList, m_pCamera);
 			if (p->Magical)
@@ -1485,10 +1487,12 @@ void GameFramework::FrameAdvance()
 				p->FindFrame("Sword_M05")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
 		}
 	}
-	if(m_pPlayer->Magical)
-		m_pPlayer->FindFrame("Wand")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
-	else
-		m_pPlayer->FindFrame("Sword_M05")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
+	if (!m_pPlayer->m_die) {
+		if (m_pPlayer->Magical)
+			m_pPlayer->FindFrame("Wand")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
+		else
+			m_pPlayer->FindFrame("Sword_M05")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
+	}
 
 	// Blend Object
 	if (GameSceneState != LOGIN_SCENE) {
