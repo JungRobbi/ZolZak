@@ -17,6 +17,7 @@ public:
 	ID3D12GraphicsCommandList* m_pd3dCommandList = NULL;
 	ATK_UI** ATKs = {};
 	DEF_UI** DEFs = {};
+	DEF_UI** HandDistance = {};
 	EYE_UI* m_Eye = NULL;
 	EAR_UI* m_Ear = NULL;
 	HAND_UI* m_Hand = NULL;
