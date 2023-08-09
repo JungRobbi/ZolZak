@@ -48,11 +48,13 @@ public:
 	Player_Over_DEC_HP_UI* m_pOverHP_Dec_UI = NULL;
 
 	Heal_UI** m_Heal_UI = {};
+	Buff_UI** m_Buff_UI = {};
 
 	float last_DeBuff = 0;
 	bool dark = false;
 	bool m_die = false;
 	float OnHealUI = 3.0;
+	float OnBuffUI = 3.0;
 public:
 
 	LPVOID m_pPlayerUpdatedContext;

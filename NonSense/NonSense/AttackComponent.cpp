@@ -117,6 +117,7 @@ void AttackComponent::Skill()
 		}
 		else if (!dynamic_cast<Player*>(gameObject)->Magical)	// Warrior
 		{
+			dynamic_cast<Player*>(gameObject)->OnBuffUI = Timer::GetTotalTime() + 7.0f;
 		}
 	}
 
