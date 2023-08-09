@@ -483,7 +483,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 
 		player->SetRemainHP(recv_packet->remain_hp);
-		cout << "맞음 - " << GameFramework::MainGameFramework->m_pPlayer->m_RemainHP << endl;
+		cout << "\n맞음 - " << GameFramework::MainGameFramework->m_pPlayer->m_RemainHP << endl;
 		break;
 	}
 	case E_PACKET_SC_LOOK_MONSTER_PACKET: {
