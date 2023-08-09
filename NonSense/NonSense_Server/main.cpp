@@ -968,6 +968,41 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		}
 		break;
 	}
+	case E_PACKET_CS_SKILL_HEAL_PACKET: {
+		CS_SKILL_HEAL_PACKET* recv_packet = reinterpret_cast<CS_SKILL_HEAL_PACKET*>(p_Packet);
+
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+			if (rc.second->b_IsReady == false)
+				continue;
+			if (rc.second->m_id == p_Client->m_id)
+				continue;
+			rc.second->m_pPlayer->SetRemainHP(rc.second->m_pPlayer->GetRemainHP() + 100);
+			if (rc.second->m_pPlayer->GetRemainHP() > rc.second->m_pPlayer->GetHealth())
+			{
+				rc.second->m_pPlayer->SetRemainHP(rc.second->m_pPlayer->GetHealth());
+			}
+			SC_SKILL_HEAL_PACKET send_packet;
+			send_packet.size = sizeof(SC_SKILL_HEAL_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_SKILL_HEAL_PACKET;
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+		break;
+	}
+	case E_PACKET_CS_SKILL_HEALTHUP_PACKET: {
+		CS_SKILL_HEALTHUP_PACKET* recv_packet = reinterpret_cast<CS_SKILL_HEALTHUP_PACKET*>(p_Packet);
+
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+			if (rc.second->b_IsReady == false)
+				continue;
+			if (rc.second->m_id == p_Client->m_id)
+				continue;
+			SC_SKILL_HEALTHUP_PACKET send_packet;
+			send_packet.size = sizeof(SC_SKILL_HEALTHUP_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_SKILL_HEALTHUP_PACKET;
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+		break;
+	}
 	default:
 		break;
 	}

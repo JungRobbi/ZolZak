@@ -23,6 +23,7 @@ public:
 	int AttackCombo3_AnineSetNum = 9;
 
 	bool b_Attack = false;
+	bool b_Skill = false;
 private:
 	float NextAttackInputTime = 0.5;
 	float AttackDuration = 1.06;
