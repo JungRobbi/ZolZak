@@ -190,6 +190,7 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	Item* m_HP = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 2);
 	m_HP->SetPosition(-17.0f, 0.5, 103.0f);
 	m_Def->SetNum(102);
+	// CreateItemList.emplace_back(100, 0, -16.0f, 0.5, 103.0f);
 
 	XMFLOAT3 p = { 0,0,0 };
 	MainBGM = new Sound("Sound/TestMusic.mp3", FMOD_2D | FMOD_LOOP_NORMAL, &p);
@@ -207,6 +208,15 @@ void Stage_GameScene::ReleaseObjects()
 void Stage_GameScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	GameScene::OnPrepareRender(pd3dCommandList, pCamera);
+
+	while (false == CreateItemList.empty()) {
+		auto iteminfo = CreateItemList.front();
+
+		Item* item = new Item(GameFramework::MainGameFramework->GetDevice(), pd3dCommandList, m_pGraphicsRootSignature, iteminfo.ItemID);
+		item->SetPosition(iteminfo.x, iteminfo.y, iteminfo.z);
+		item->SetNum(iteminfo.ItemNum);
+		CreateItemList.pop_front();
+	}
 }
 
 bool Stage_GameScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -996,6 +1006,7 @@ void Stage_GameScene::LoadAllTextures(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 void Stage_GameScene::update()
 {
 	GameScene::update();
+
 	if (BossDead)
 	{
 		if (SceneChangeCount > 0)
