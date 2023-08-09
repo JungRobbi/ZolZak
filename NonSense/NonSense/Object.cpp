@@ -2569,9 +2569,7 @@ Item::~Item()
 {
 	if (EerItemSound)
 	{
-		auto iter = std::find(GameScene::MainScene->Sounds.begin(), GameScene::MainScene->Sounds.end(), EerItemSound);
-		delete (*iter);
-		GameScene::MainScene->Sounds.erase(iter);
+		EerItemSound->Stop();
 		EerItemSound = NULL;
 	}
 }
