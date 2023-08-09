@@ -37,15 +37,15 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	ATKs = new ATK_UI * [14];
 	DEFs = new DEF_UI * [14];
-	HandDistance = new DEF_UI * [14];
+	HandDistance = new Hand_Distance_UI * [14];
 	for (int i = 0; i < 14; ++i)
 	{
 		ATKs[i] = new ATK_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 		DEFs[i] = new DEF_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-		HandDistance[i] = new DEF_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+		HandDistance[i] = new Hand_Distance_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 		ATKs[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.93 - 0.05*(i / 7), 0.035, 0.05);
 		DEFs[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.78 - 0.05*(i / 7), 0.035, 0.05);
-		HandDistance[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.43 - 0.05*(i / 7), 0.035, 0.05);
+		HandDistance[i]->SetMyPos(0.0 + 0.0175 * (i % 7), 0.43 - 0.025*(i / 7), 0.0175, 0.025);
 	}
 	Loading_UI* m_Loading_UI = new Loading_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
