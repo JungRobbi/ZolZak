@@ -840,7 +840,8 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 				p->m_RemainHP = p->m_Health;
 			}
 		}
-		GameFramework::MainGameFramework->m_pPlayer->m_RemainHP += 100;
+
+		GameFramework::MainGameFramework->m_pPlayer->m_RemainHP += 200;
 		if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP > GameFramework::MainGameFramework->m_pPlayer->m_Health)
 		{
 			GameFramework::MainGameFramework->m_pPlayer->m_RemainHP = GameFramework::MainGameFramework->m_pPlayer->m_Health;
