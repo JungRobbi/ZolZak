@@ -162,6 +162,7 @@ void BossAttackComponent::Summon(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	default:
 		break;
 	}
+	// Monster 생성 요청
 }
 
 void BossAttackComponent::DefenceAnimation()

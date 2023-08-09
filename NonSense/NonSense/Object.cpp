@@ -2574,7 +2574,7 @@ void Item::OnPrepareRender()
 			CS_EAT_ITEM_PACKET send_packet;
 			send_packet.size = sizeof(CS_EAT_ITEM_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_CS_EAT_ITEM_PACKET;
-			send_packet.itemNum = GetNum();
+			send_packet.itemNum = ObjectID;
 			PacketQueue::AddSendPacket(&send_packet);
 		}
 		else {

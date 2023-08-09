@@ -362,6 +362,8 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 				Monster->GetComponent<BossFSMComponent>()->Attack();
 			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_ROAR)
 				Monster->GetComponent<BossFSMComponent>()->StealSense();
+			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_SUMMON)
+				Monster->GetComponent<BossFSMComponent>()->Summon();
 			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_DEFENCE)
 				Monster->GetComponent<BossFSMComponent>()->Defence();
 			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_JUMPATTACK)
@@ -784,6 +786,18 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 				player->m_pHP_Dec_UI->HP = player->m_pHP_Dec_UI->Dec_HP;
 				player->m_pOverHP_Dec_UI->HP = player->m_pOverHP_Dec_UI->Dec_HP;
 			}
+		}
+		else if (((Item*)(*p))->ItemID == 3) // Eye
+		{
+			GameScene::MainScene->HaveEye = true;
+		}
+		else if (((Item*)(*p))->ItemID == 4) // Ear
+		{
+			GameScene::MainScene->HaveEar = true;
+		}
+		else if (((Item*)(*p))->ItemID == 5) // Hand
+		{
+			GameScene::MainScene->HaveHand = true;
 		}
 
 		if (!((Item*)(*p))->erase) {
