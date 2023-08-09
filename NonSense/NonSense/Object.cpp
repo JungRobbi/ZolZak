@@ -2534,6 +2534,12 @@ Item::Item(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/DEFend.dds", RESOURCE_TEXTURE2D, 0);
 	else if (ItemID == 2) // HP
 		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/HPPlus.dds", RESOURCE_TEXTURE2D, 0);
+	else if (ItemID == 3) // Eye
+		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Eye.dds", RESOURCE_TEXTURE2D, 0);
+	else if (ItemID == 4) // Ear
+		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Ear.dds", RESOURCE_TEXTURE2D, 0);
+	else if (ItemID == 5) // Hand
+		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Hand.dds", RESOURCE_TEXTURE2D, 0);
 
 	IconShader* pShader = new IconShader();
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -2632,6 +2638,18 @@ void Item::ItemEffect()
 			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP;
 			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP;
 		}
+	}
+	else if (ItemID == 3) // Eye
+	{
+		GameScene::MainScene->HaveEye = true;
+	}
+	else if (ItemID == 4) // Ear
+	{
+		GameScene::MainScene->HaveEar = true;
+	}
+	else if (ItemID == 5) // Hand
+	{
+		GameScene::MainScene->HaveHand = true;
 	}
 }
 

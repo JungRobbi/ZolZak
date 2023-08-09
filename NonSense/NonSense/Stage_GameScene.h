@@ -31,4 +31,5 @@ public:
 	Object* Boss = NULL;
 	bool BossDead = false;
 	float SceneChangeCount = 5.0f;
+
 };
