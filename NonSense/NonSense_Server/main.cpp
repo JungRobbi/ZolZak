@@ -984,6 +984,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			SC_SKILL_HEAL_PACKET send_packet;
 			send_packet.size = sizeof(SC_SKILL_HEAL_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_SKILL_HEAL_PACKET;
+			send_packet.player_id = p_Client->m_id;
 			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 		break;
@@ -999,6 +1000,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			SC_SKILL_HEALTHUP_PACKET send_packet;
 			send_packet.size = sizeof(SC_SKILL_HEALTHUP_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_SKILL_HEALTHUP_PACKET;
+			send_packet.player_id = p_Client->m_id;
 			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 		break;

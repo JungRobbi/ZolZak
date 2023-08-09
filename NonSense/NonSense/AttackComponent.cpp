@@ -116,7 +116,7 @@ void AttackComponent::Skill()
 			dynamic_cast<Player*>(gameObject)->OnHealUI = Timer::GetTotalTime() + 2.5f; // UI활성화
 
 			////////////////////////////
-			{
+			if (NetworkMGR::b_isNet) {
 				CS_SKILL_HEAL_PACKET send_packet;
 				send_packet.size = sizeof(CS_SKILL_HEAL_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_CS_SKILL_HEAL_PACKET;
@@ -134,7 +134,7 @@ void AttackComponent::Skill()
 			dynamic_cast<Player*>(gameObject)->m_Defense += 350;
 			dynamic_cast<Player*>(gameObject)->GetComponent<PlayerMovementComponent>()->speed = 5.0;
 
-			{
+			if (NetworkMGR::b_isNet) {
 				CS_SKILL_HEALTHUP_PACKET send_packet;
 				send_packet.size = sizeof(CS_SKILL_HEALTHUP_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_CS_SKILL_HEALTHUP_PACKET;
@@ -270,10 +270,10 @@ void AttackComponent::update()
 				}
 			}
 			else{
-				if (!During_Attack && b_Skill && !ScriptMode && !OptionMode)
+				if ((Input::InputKeyBuffer['E'] & 0xF0) && !During_Attack && !ScriptMode && !OptionMode)
 				{
 					Skill();
-					b_Skill = false;
+				//	b_Skill = false;
 				}
 			}
 		}

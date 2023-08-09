@@ -172,10 +172,12 @@ public:
 
 class SC_SKILL_HEAL_PACKET : public PACKET_HEAD {
 public:
+	int player_id;
 };
 
 class SC_SKILL_HEALTHUP_PACKET : public PACKET_HEAD {
 public:
+	int player_id;
 };
 
 class SC_CREATE_ITEM_PACKET : public PACKET_HEAD {

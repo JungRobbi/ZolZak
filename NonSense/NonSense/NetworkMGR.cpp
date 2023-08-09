@@ -811,6 +811,62 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		dynamic_cast<Stage_GameScene*>(GameScene::MainScene)->CreateItemList.emplace_back(recv_packet->itemNum, recv_packet->itemID, recv_packet->x, recv_packet->y, recv_packet->z);
 		break;
 	}
+	case E_PACKET_SC_SKILL_HEAL_PACKET: {
+		SC_SKILL_HEAL_PACKET* recv_packet = reinterpret_cast<SC_SKILL_HEAL_PACKET*>(p_Packet);
+
+		Player* player;
+		if (recv_packet->player_id == NetworkMGR::id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->player_id;
+				});
+
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
+
+			player = dynamic_cast<Player*>(*p);
+		}
+		player->GetComponent<AttackComponent>()->SkillAnimate();
+
+		for (auto& op : GameFramework::MainGameFramework->m_OtherPlayers) {
+			op->OnHealUI = Timer::GetTotalTime() + 2.5f;
+		}
+		GameFramework::MainGameFramework->m_pPlayer->OnHealUI = Timer::GetTotalTime() + 2.5f;
+
+		break;
+	}
+	case E_PACKET_SC_SKILL_HEALTHUP_PACKET: {
+		SC_SKILL_HEALTHUP_PACKET* recv_packet = reinterpret_cast<SC_SKILL_HEALTHUP_PACKET*>(p_Packet);
+
+		Player* player;
+		if (recv_packet->player_id == NetworkMGR::id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->player_id;
+				});
+
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
+
+			player = dynamic_cast<Player*>(*p);
+		}
+		player->GetComponent<AttackComponent>()->SkillAnimate();
+
+		for (auto& op : GameFramework::MainGameFramework->m_OtherPlayers) {
+			op->OnBuffUI = Timer::GetTotalTime() + 10.0f;
+		}
+		GameFramework::MainGameFramework->m_pPlayer->OnBuffUI = Timer::GetTotalTime() + 10.0f;
+
+		break;
+	}
 	default:
 		break;
 	}
