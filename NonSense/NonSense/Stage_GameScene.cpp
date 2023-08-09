@@ -192,7 +192,7 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	XMFLOAT3 p = { 0,0,0 };
 	MainBGM = new Sound("Sound/TestMusic.mp3", FMOD_2D | FMOD_LOOP_NORMAL, &p);
-	MainBGM->SetVolume(0.35);
+	MainBGM->SetVolume(0.2);
 	AddSound(MainBGM);
 
 	m_pd3dDevice = pd3dDevice;
