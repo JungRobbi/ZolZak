@@ -988,7 +988,13 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 				send_packet.player_id = p_Client->m_id;
 				rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
+		}
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+			if (rc.second->b_IsReady == false)
+				continue;
 			for (auto rc_to : Room::roomlist[p_Client->m_roomNum]->Clients) {
+				if (rc_to.second->b_IsReady == false)
+					continue;
 				SC_TEMP_HIT_PLAYER_PACKET send_packet;
 				send_packet.size = sizeof(SC_TEMP_HIT_PLAYER_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_SC_TEMP_HIT_PLAYER_PACKET;
