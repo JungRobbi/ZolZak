@@ -257,7 +257,25 @@ void Room::update()
 
 	//Monster test
 	for (auto& monster : scene->MonsterObjects) {
+		if (false == monster->activate) {
+			continue;
+		}
 		if (monster->GetRemainHP() < 0.f) {
+			monster->activate = false;
+			for (auto& rc_to : Clients) {
+				if (!rc_to.second->b_Enable || !rc_to.second->b_IsReady)
+					continue;
+				static int g_itemNum = 10;
+				SC_CREATE_ITEM_PACKET send_packet;
+				send_packet.size = sizeof(SC_CREATE_ITEM_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_SC_CREATE_ITEM_PACKET;
+				send_packet.x = monster->GetPosition().x;
+				send_packet.y = monster->GetPosition().y + 0.5f;
+				send_packet.z = monster->GetPosition().z;
+				send_packet.itemID = rand() % 3;
+				send_packet.itemNum = g_itemNum++;
+				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+			}
 			continue;
 		}
 

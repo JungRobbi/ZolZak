@@ -1,7 +1,18 @@
 #pragma once
+#include <list>
 #include "GameScene.h"
 #include "Sound.h"
 #include "Timer.h"
+
+struct ItemInfo {
+	int ItemNum, ItemID;
+	float x, y, z;
+public:
+	ItemInfo() {}
+	ItemInfo(int n, int i, float input_x, float input_y, float input_z) : ItemNum(n), ItemID(i), x(input_x), y(input_y), z(input_z) {}
+	~ItemInfo() {}
+
+};
 
 class Stage_GameScene : public GameScene
 {
@@ -36,4 +47,5 @@ public:
 	bool BossDead = false;
 	float SceneChangeCount = 5.0f;
 
+	std::list<ItemInfo> CreateItemList{};
 };

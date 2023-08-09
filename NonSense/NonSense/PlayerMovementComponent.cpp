@@ -3,6 +3,7 @@
 #include "Input.h"
 #include "Player.h"
 #include "NetworkMGR.h"
+#include "GameFramework.h"
 
 #include "../AnimationType.h"
 
@@ -79,6 +80,7 @@ void PlayerMovementComponent::update()
 			else if (b_Jump)
 			{
 				Jump();
+			//	((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending((int)E_PLAYER_ANIMATION_TYPE::E_JUMP);
 				b_Jump = false;
 			}
 			if (Input::InputKeyBuffer[VK_LSHIFT] & 0xF0)
@@ -145,6 +147,9 @@ void PlayerMovementComponent::update()
 			}
 
 			((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationUseBlending((int)Animation_type);
+		//	((Player*)gameObject)->m_pSkinnedAnimationController->ChangeAnimationWithoutBlending((int)Animation_type);
+		//	cout << "Animation_type - " << Animation_type << endl;
+			
 
 			if (CursorCoolTime < MaxCursorCoolTime)
 			{

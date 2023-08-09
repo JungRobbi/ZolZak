@@ -12,6 +12,9 @@ void AttackComponent::Attack()
 		AttackTimeLeft = AttackDuration + NextAttackInputTime;
 		During_Attack = true;
 		AttackAnimate();
+		if (dynamic_cast<Player*>(gameObject) != GameFramework::MainGameFramework->m_pPlayer)
+			return;
+
 		if (dynamic_cast<Monster*>(gameObject))
 		{
 			return;
@@ -81,14 +84,12 @@ void AttackComponent::Skill()
 		{
 			for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
 			{
-				if (sqrt(pow((dynamic_cast<Player*>(gameObject)->GetPosition().x - p->GetPosition().x), 2) + pow((dynamic_cast<Player*>(gameObject)->GetPosition().z - p->GetPosition().z), 2)) < 2)
+				p->m_RemainHP += 200;
+				if (p->m_RemainHP > p->m_Health)
 				{
-					p->m_RemainHP += 200;
-					if (p->m_RemainHP > p->m_Health)
-					{
-						p->m_RemainHP = p->m_Health;
-					}
+					p->m_RemainHP = p->m_Health;
 				}
+				p->OnHealUI = Timer::GetTotalTime() + 2.5f;
 			}
 			dynamic_cast<Player*>(gameObject)->m_RemainHP += 100;
 			if (dynamic_cast<Player*>(gameObject)->m_RemainHP > dynamic_cast<Player*>(gameObject)->m_Health)
@@ -115,13 +116,30 @@ void AttackComponent::Skill()
 			dynamic_cast<Player*>(gameObject)->OnHealUI = Timer::GetTotalTime() + 2.5f; // UI활성화
 
 			////////////////////////////
+			if (NetworkMGR::b_isNet) {
+				CS_SKILL_HEAL_PACKET send_packet;
+				send_packet.size = sizeof(CS_SKILL_HEAL_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_CS_SKILL_HEAL_PACKET;
+				PacketQueue::AddSendPacket(&send_packet);
+			}
 		}
 		else if (!dynamic_cast<Player*>(gameObject)->Magical)	// Warrior
 		{
 			dynamic_cast<Player*>(gameObject)->OnBuffUI = Timer::GetTotalTime() + 10.0f;
+			for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
+			{
+				p->OnBuffUI = Timer::GetTotalTime() + 10.0f;
+			}
 			dynamic_cast<Player*>(gameObject)->m_Attack += 700;
 			dynamic_cast<Player*>(gameObject)->m_Defense += 350;
 			dynamic_cast<Player*>(gameObject)->GetComponent<PlayerMovementComponent>()->speed = 5.0;
+
+			if (NetworkMGR::b_isNet) {
+				CS_SKILL_HEALTHUP_PACKET send_packet;
+				send_packet.size = sizeof(CS_SKILL_HEALTHUP_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_CS_SKILL_HEALTHUP_PACKET;
+				PacketQueue::AddSendPacket(&send_packet);
+			}
 		}
 	}
 
@@ -251,11 +269,11 @@ void AttackComponent::update()
 					Skill();
 				}
 			}
-			else {
-				if (!During_Attack && b_Attack && !ScriptMode && !OptionMode)
+			else{
+				if ((Input::InputKeyBuffer['E'] & 0xF0) && !During_Attack && !ScriptMode && !OptionMode)
 				{
 					Skill();
-					b_Attack = false;
+				//	b_Skill = false;
 				}
 			}
 		}

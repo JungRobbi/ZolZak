@@ -19,6 +19,7 @@
 #include "UILayer.h"
 #include "Lobby_GameScene.h"
 #include "UI.h"
+#include "Stage_GameScene.h"
 #pragma comment(lib, "WS2_32.LIB")
 
 char* NetworkMGR::SERVERIP = "127.0.0.1";
@@ -99,14 +100,14 @@ void NetworkMGR::start()
 	// 연결
 	//
 
-	std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
+	/*std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
 
 	std::cout << std::endl << "접속 할 서버주소를 입력해주세요(ex 197.xxx.xxx.xxx) : " << std::endl;
 	std::string server_s;
 	std::cin >> server_s;
 	SERVERIP = new char[server_s.size() + 1];
 	SERVERIP[server_s.size()] = '\0';
-	strcpy(SERVERIP, server_s.c_str());
+	strcpy(SERVERIP, server_s.c_str());*/
 
 
 
@@ -200,6 +201,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			dynamic_cast<Player*>(player)->SetRemainHP(recv_packet->remainHp);
 
 			GameFramework::MainGameFramework->m_OtherPlayers.push_back(player);
+			auto& other_name = GameFramework::MainGameFramework->m_OtherPlayers.back()->m_name;
 			if (recv_packet->playerType == 0) { // mage
 				GameFramework::MainGameFramework->m_OtherPlayersPool.pop_front();
 			}
@@ -209,6 +211,11 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		else {
 			cout << "OtherPlayer 생성 실패!" << endl;
+		}
+		for (int i{}; i < GameFramework::MainGameFramework->m_OtherPlayers.size(); ++i) {
+			std::wstring wname;
+			wname.assign(GameFramework::MainGameFramework->m_OtherPlayers[i]->m_name.begin(), GameFramework::MainGameFramework->m_OtherPlayers[i]->m_name.end());
+			wcscpy_s(ChatMGR::m_pUILayer->m_pUITextBlocks[PLAYER1_NAME_UI + i].m_pstrText, 256, wname.c_str());
 		}
 		break;
 	}
@@ -318,6 +325,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		else {
 			player->GetComponent<PlayerMovementComponent>()->Animation_type = (E_PLAYER_ANIMATION_TYPE)recv_packet->Anitype;
+			cout << "NET Animation_type - " << player->GetComponent<PlayerMovementComponent>()->Animation_type << endl;
 		}
 		break;
 	}
@@ -354,6 +362,8 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 				Monster->GetComponent<BossFSMComponent>()->Attack();
 			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_ROAR)
 				Monster->GetComponent<BossFSMComponent>()->StealSense();
+			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_SUMMON)
+				Monster->GetComponent<BossFSMComponent>()->Summon();
 			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_DEFENCE)
 				Monster->GetComponent<BossFSMComponent>()->Defence();
 			else if ((E_BOSS_ANIMATION_TYPE)recv_packet->Anitype == E_BOSS_ANIMATION_TYPE::E_B_JUMPATTACK)
@@ -719,6 +729,142 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			GameFramework::MainGameFramework->GameSceneState = recv_packet->ClearScene;
 			GameFramework::MainGameFramework->ChangeScene(recv_packet->ClearScene + 1);
 		}
+		break;
+	}
+	case E_PACKET_SC_EAT_ITEM_PACKET: {
+		SC_EAT_ITEM_PACKET* recv_packet = reinterpret_cast<SC_EAT_ITEM_PACKET*>(p_Packet);
+		auto p = find_if(GameScene::MainScene->blendGameObjects.begin(), GameScene::MainScene->blendGameObjects.end(),
+			[&recv_packet](Object* lhs) { return lhs->ObjectID == recv_packet->itemNum; });
+		if (p == GameScene::MainScene->blendGameObjects.end()) 
+			break;
+
+		Player* player;
+		if (recv_packet->player_id == NetworkMGR::id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->player_id;
+				});
+
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
+
+			player = dynamic_cast<Player*>(*p);
+		}
+
+
+		if (((Item*)(*p))->ItemID == 0) // ATK
+		{
+			player->m_Attack += 20;
+		}
+
+		else if (((Item*)(*p))->ItemID == 1) // DEF
+		{
+			player->m_Defense += 10;
+		}
+
+		else if (((Item*)(*p))->ItemID == 2) // HP
+		{
+			if (GameFramework::MainGameFramework->m_pPlayer->m_Health < 2000)
+			{
+				player->m_Health += 100;
+				player->m_RemainHP += 100;
+				player->m_pHP_Dec_UI->Dec_HP = (player->m_RemainHP) / 1000;
+				player->m_pOverHP_Dec_UI->Dec_HP = (player->m_RemainHP - 1000) / 1000;
+				if (player->m_RemainHP <= 1000)
+				{
+					player->m_pOverHP_Dec_UI->Dec_HP = 0;
+				}
+
+				if (player->m_RemainHP >= 1000)
+				{
+					player->m_pHP_Dec_UI->Dec_HP = 1;
+				}
+				player->m_pHP_Dec_UI->HP = player->m_pHP_Dec_UI->Dec_HP;
+				player->m_pOverHP_Dec_UI->HP = player->m_pOverHP_Dec_UI->Dec_HP;
+			}
+		}
+		else if (((Item*)(*p))->ItemID == 3) // Eye
+		{
+			GameScene::MainScene->HaveEye = true;
+		}
+		else if (((Item*)(*p))->ItemID == 4) // Ear
+		{
+			GameScene::MainScene->HaveEar = true;
+		}
+		else if (((Item*)(*p))->ItemID == 5) // Hand
+		{
+			GameScene::MainScene->HaveHand = true;
+		}
+
+		if (!((Item*)(*p))->erase) {
+			GameScene::MainScene->deletionBlendQueue.push_back(*p);
+			((Item*)(*p))->erase = true;
+		}
+		break;
+	}
+	case E_PACKET_SC_CREATE_ITEM_PACKET: {
+		SC_CREATE_ITEM_PACKET* recv_packet = reinterpret_cast<SC_CREATE_ITEM_PACKET*>(p_Packet);
+		dynamic_cast<Stage_GameScene*>(GameScene::MainScene)->CreateItemList.emplace_back(recv_packet->itemNum, recv_packet->itemID, recv_packet->x, recv_packet->y, recv_packet->z);
+		break;
+	}
+	case E_PACKET_SC_SKILL_HEAL_PACKET: {
+		SC_SKILL_HEAL_PACKET* recv_packet = reinterpret_cast<SC_SKILL_HEAL_PACKET*>(p_Packet);
+
+		Player* player;
+		if (recv_packet->player_id == NetworkMGR::id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->player_id;
+				});
+
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
+
+			player = dynamic_cast<Player*>(*p);
+		}
+		player->GetComponent<AttackComponent>()->SkillAnimate();
+
+		for (auto& op : GameFramework::MainGameFramework->m_OtherPlayers) {
+			op->OnHealUI = Timer::GetTotalTime() + 2.5f;
+		}
+		GameFramework::MainGameFramework->m_pPlayer->OnHealUI = Timer::GetTotalTime() + 2.5f;
+
+		break;
+	}
+	case E_PACKET_SC_SKILL_HEALTHUP_PACKET: {
+		SC_SKILL_HEALTHUP_PACKET* recv_packet = reinterpret_cast<SC_SKILL_HEALTHUP_PACKET*>(p_Packet);
+
+		Player* player;
+		if (recv_packet->player_id == NetworkMGR::id) {
+			player = GameFramework::MainGameFramework->m_pPlayer;
+		}
+		else {
+			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+				GameFramework::MainGameFramework->m_OtherPlayers.end(),
+				[&recv_packet](Object* lhs) {
+					return dynamic_cast<Player*>(lhs)->id == recv_packet->player_id;
+				});
+
+			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+				break;
+
+			player = dynamic_cast<Player*>(*p);
+		}
+		player->GetComponent<AttackComponent>()->SkillAnimate();
+
+		for (auto& op : GameFramework::MainGameFramework->m_OtherPlayers) {
+			op->OnBuffUI = Timer::GetTotalTime() + 10.0f;
+		}
+		GameFramework::MainGameFramework->m_pPlayer->OnBuffUI = Timer::GetTotalTime() + 10.0f;
+
 		break;
 	}
 	default:

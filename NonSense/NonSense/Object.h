@@ -465,7 +465,7 @@ public:
 
 	AnimationController* m_pSkinnedAnimationController = NULL;
 	bool Do_Render = true;
-
+	int ObjectID = 0;
 };
 
 

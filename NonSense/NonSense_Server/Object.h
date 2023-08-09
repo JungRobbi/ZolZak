@@ -94,6 +94,7 @@ public:
 	void SetNum(int num) { Num = num; }
 
 	XMFLOAT4X4 m_xmf4x4World;
+	bool activate = true;
 
 public:
 	Mesh* m_pMesh = NULL;

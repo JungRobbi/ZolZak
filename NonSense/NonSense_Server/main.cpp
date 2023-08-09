@@ -511,6 +511,9 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		}
 			break;
 		case VK_RBUTTON: {
+			if (!p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->GetDashAble())
+				break;
+
 			p_Client->m_pPlayer->GetComponent<PlayerMovementComponent>()->Dash();
 			for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 				if (!rc.second->b_Enable.load())
@@ -708,6 +711,15 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		
 		p_Client->m_pPlayer->type = recv_packet->playerType;
 		Room::roomlist[p_Client->m_roomNum]->Clients[p_Client->m_id]->b_IsReady = true;
+
+		if (p_Client->m_pPlayer->type == 0) {
+			p_Client->m_pPlayer->SetHealth(1000);
+			p_Client->m_pPlayer->SetRemainHP(1000);
+		}
+		else {
+			p_Client->m_pPlayer->SetHealth(1200);
+			p_Client->m_pPlayer->SetRemainHP(1200);
+		}
 		
 		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients)
 		{
@@ -764,7 +776,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	}
 	case E_PACKET_CS_PLAYERS_REQUEST_PACKET: {
 		CS_PLAYERS_REQUEST_PACKET* recv_packet = reinterpret_cast<CS_PLAYERS_REQUEST_PACKET*>(p_Packet);
-
+		p_Client->m_pPlayer->ingame = true;
 		// LOGIN_OK
 	/*	p_Client->m_pPlayer = make_shared<Player>();
 		p_Client->m_pPlayer->start();
@@ -928,6 +940,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		}
 
 		if (recv_packet->ClearScene == 6) {
+			p_Client->m_pPlayer->ingame = false;
 			bool expected = Room::roomlist[p_Client->m_roomNum]->clear.load();
 			Room::roomlist[p_Client->m_roomNum]->clear.compare_exchange_strong(expected, true);
 			for (auto p : Room::roomlist[p_Client->m_roomNum]->Clients) {
@@ -935,6 +948,60 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 				p.second->b_IsReady.compare_exchange_strong(b_IsReady_expected, false);
 			}
 			p_Client->m_pPlayer->SetPosition(XMFLOAT3(-16.0f, Scene::terrain->GetHeight(-16.0f, 103.0f), 103.0f));
+		}
+		break;
+	}
+	case E_PACKET_CS_EAT_ITEM_PACKET: {
+		CS_EAT_ITEM_PACKET* recv_packet = reinterpret_cast<CS_EAT_ITEM_PACKET*>(p_Packet);
+
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+			if (rc.second->b_IsReady == false)
+				continue;
+			if (rc.second->m_id == p_Client->m_id)
+				continue;
+			SC_EAT_ITEM_PACKET send_packet;
+			send_packet.size = sizeof(SC_EAT_ITEM_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_EAT_ITEM_PACKET;
+			send_packet.player_id = p_Client->m_id;
+			send_packet.itemNum = recv_packet->itemNum;
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+		break;
+	}
+	case E_PACKET_CS_SKILL_HEAL_PACKET: {
+		CS_SKILL_HEAL_PACKET* recv_packet = reinterpret_cast<CS_SKILL_HEAL_PACKET*>(p_Packet);
+
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+			if (rc.second->b_IsReady == false)
+				continue;
+			if (rc.second->m_id == p_Client->m_id)
+				continue;
+			rc.second->m_pPlayer->SetRemainHP(rc.second->m_pPlayer->GetRemainHP() + 100);
+			if (rc.second->m_pPlayer->GetRemainHP() > rc.second->m_pPlayer->GetHealth())
+			{
+				rc.second->m_pPlayer->SetRemainHP(rc.second->m_pPlayer->GetHealth());
+			}
+			SC_SKILL_HEAL_PACKET send_packet;
+			send_packet.size = sizeof(SC_SKILL_HEAL_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_SKILL_HEAL_PACKET;
+			send_packet.player_id = p_Client->m_id;
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
+		}
+		break;
+	}
+	case E_PACKET_CS_SKILL_HEALTHUP_PACKET: {
+		CS_SKILL_HEALTHUP_PACKET* recv_packet = reinterpret_cast<CS_SKILL_HEALTHUP_PACKET*>(p_Packet);
+
+		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
+			if (rc.second->b_IsReady == false)
+				continue;
+			if (rc.second->m_id == p_Client->m_id)
+				continue;
+			SC_SKILL_HEALTHUP_PACKET send_packet;
+			send_packet.size = sizeof(SC_SKILL_HEALTHUP_PACKET);
+			send_packet.type = E_PACKET::E_PACKET_SC_SKILL_HEALTHUP_PACKET;
+			send_packet.player_id = p_Client->m_id;
+			rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 		}
 		break;
 	}

@@ -143,6 +143,14 @@ void UILayer::Render(UINT nFrame)
         m_pd2dDeviceContext->DrawText(textblock.m_pstrText, (UINT)wcslen(textblock.m_pstrText), textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
     }
     LineDraw();
+    for (int i{}; i < GameFramework::MainGameFramework->m_OtherPlayers.size(); ++i) {
+        auto& textblock = ChatMGR::m_pUILayer->m_pUITextBlocks[E_UI_ID::PLAYER1_NAME_UI + i];
+        if (textblock.m_pstrText[0]) {
+            ChatMGR::m_pUILayer->m_pd2dDeviceContext->DrawText(textblock.m_pstrText,
+                (UINT)wcslen(textblock.m_pstrText),
+                textblock.m_pdwFormat, textblock.m_d2dLayoutRect, textblock.m_pd2dTextBrush);
+        }
+    }
 
     m_pd2dDeviceContext->EndDraw();
 
@@ -626,6 +634,7 @@ ID2D1SolidColorBrush* ChatMGR::pd2dBrush;
 IDWriteTextFormat* ChatMGR::pdwTextFormat;
 ID2D1SolidColorBrush* ChatMGR::pd2dUIBrush;
 IDWriteTextFormat* ChatMGR::pdwUITextFormat;
+IDWriteTextFormat* ChatMGR::pdwUIPlayerNameFormat;
 D2D1_RECT_F ChatMGR::d2dRect;
 int ChatMGR::fontsize = 0;
 
@@ -664,6 +673,9 @@ void ChatMGR::SetTextinfos(int WndClientWidth, int WndClientHeight)
     if (pdwUITextFormat)
         pdwUITextFormat->Release();
     pdwUITextFormat = m_pUILayer->CreateTextFormat(L"Arial", WndClientHeight / 40.0f);
+    if (pdwUIPlayerNameFormat)
+        pdwUIPlayerNameFormat->Release();
+    pdwUIPlayerNameFormat = m_pUILayer->CreateTextFormat(L"Arial", WndClientHeight / 38.0f);
     //d2dRect = D2D1::RectF((float)WndClientWidth / 3.2f, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 좌측 정렬
     d2dRect = D2D1::RectF(0, (float)WndClientHeight / 1.83f, (float)WndClientWidth, (float)WndClientHeight); // 가운데 정렬
 }
@@ -677,6 +689,7 @@ void ChatMGR::SetTextSort(int WndClientWidth, int WndClientHeight, E_CHAT_SORTTY
         pdwTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); // 가운데 정렬
     }
     pdwUITextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
+    pdwUIPlayerNameFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
 }
 
 void ChatMGR::StoreTextSelf()
@@ -735,6 +748,7 @@ void ChatMGR::SetLoginScene(int WndClientWidth, int WndClientHeight)
         (float)WndClientWidth, (float)WndClientHeight);
 
     pdwUITextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
+    pdwUIPlayerNameFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
 
     fontsize = WndClientHeight / 25.0f;
     ChatMGR::m_ChatMode = E_MODE_CHAT::E_MODE_CHAT;
@@ -757,6 +771,7 @@ void ChatMGR::SetLobbyScene(int WndClientWidth, int WndClientHeight)
         (float)WndClientWidth, (float)WndClientHeight);
 
     pdwUITextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
+    pdwUIPlayerNameFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED); // 좌측 정렬
 
     fontsize = WndClientHeight / 25.0f;
 
@@ -788,6 +803,10 @@ void ChatMGR::SetInGame(int WndClientWidth, int WndClientHeight)
     m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
         DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
         WndClientHeight / 40.0f, L"en-us", &pdwUITextFormat);
+
+    m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
+        DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+        WndClientHeight / 38.f, L"en-us", &pdwUIPlayerNameFormat);
 }
 
 void ChatMGR::SetInRoom(int WndClientWidth, int WndClientHeight)
@@ -816,6 +835,10 @@ void ChatMGR::SetInRoom(int WndClientWidth, int WndClientHeight)
     m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
         DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
         WndClientHeight / 40.0f, L"en-us", &pdwUITextFormat);
+
+    m_pUILayer->m_pd2dWriteFactory->CreateTextFormat(L"맑은 고딕", nullptr,
+        DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+        WndClientHeight / 38.f, L"en-us", &pdwUIPlayerNameFormat);
 }
 
 void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
@@ -941,12 +964,44 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
         wcscpy(tb.m_pstrText, L"");
     }
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::PLAYER1_NAME_UI] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::PLAYER1_NAME_UI];
+        tb.m_pdwFormat = pdwUIPlayerNameFormat;
+        tb.m_pd2dTextBrush = pd2dBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(WndClientWidth * 0.88f, WndClientHeight * 0.01f, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"AAAAABBBBB");
+    }
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::PLAYER2_NAME_UI] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::PLAYER2_NAME_UI];
+        tb.m_pdwFormat = pdwUIPlayerNameFormat;
+        tb.m_pd2dTextBrush = pd2dBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(WndClientWidth * 0.88f, WndClientHeight * 0.11f, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"CCCCCDDDDD");
+    }
+    {
+        m_pUILayer->m_pUITextBlocks[E_UI_ID::PLAYER3_NAME_UI] = TextBlock{};
+        auto& tb = m_pUILayer->m_pUITextBlocks[E_UI_ID::PLAYER3_NAME_UI];
+        tb.m_pdwFormat = pdwUIPlayerNameFormat;
+        tb.m_pd2dTextBrush = pd2dBrush;
+        tb.m_d2dLayoutRect =
+            D2D1::RectF(WndClientWidth * 0.88f, WndClientHeight * 0.21f, WndClientWidth, WndClientHeight);
+        ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
+        wcscpy(tb.m_pstrText, L"EEEEEFFFFF");
+    }
 }
 
 
 void ChatMGR::HearingTextUI()
 {
     for (auto p : m_pUILayer->m_pUITextBlocks) {
+        if (p.first >= PLAYER1_NAME_UI || p.first < START_NPC_LINE1_1)
+            continue;
         ZeroMemory(p.second.m_pstrText, sizeof(p.second.m_pstrText));
     }
 
@@ -974,6 +1029,8 @@ void ChatMGR::HearingTextUI()
 void ChatMGR::TouchTextUI()
 {
     for (auto p : m_pUILayer->m_pUITextBlocks) {
+        if (p.first >= PLAYER1_NAME_UI || p.first < START_NPC_LINE1_1)
+            continue;
         ZeroMemory(p.second.m_pstrText, sizeof(p.second.m_pstrText));
     }
 
