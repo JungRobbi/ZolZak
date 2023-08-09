@@ -1609,7 +1609,29 @@ void GameFramework::RenderEffect()
 {
 	for (auto& p : m_OtherPlayers)
 	{
-
+		if (p->OnHealUI > Timer::GetTotalTime()) {
+			for (int i = 0; i < 3; ++i)
+			{
+				p->m_Heal_UI[i]->SetPosition(Vector3::Add(p->GetPosition(), XMFLOAT3(cos(Timer::GetTotalTime() * 4 + i * (3.14 * 0.6)) / 3, 0.5, sin(Timer::GetTotalTime() * 4 + i * (3.14 * 0.6)) / 3)));
+				p->m_Heal_UI[i]->UpdateTransform(NULL);
+				p->m_Heal_UI[i]->Render(m_pCommandList, m_pCamera);
+			}
+		}
+		if (p->OnBuffUI > Timer::GetTotalTime()) {
+			for (int i = 0; i < 3; ++i)
+			{
+				p->m_Buff_UI[i]->SetPosition(Vector3::Add(p->GetPosition(), XMFLOAT3(cos(Timer::GetTotalTime() * 4 + i * (3.14 * 0.6)) / 3, 0.5, sin(Timer::GetTotalTime() * 4 + i * (3.14 * 0.6)) / 3)));
+				p->m_Buff_UI[i]->UpdateTransform(NULL);
+				p->m_Buff_UI[i]->Render(m_pCommandList, m_pCamera);
+			}
+			if (p->OnBuffUI < Timer::GetTotalTime() + 0.5)
+			{
+				p->m_Attack -= 700;
+				p->m_Defense -= 350;
+				p->GetComponent<PlayerMovementComponent>()->speed = 3.5;
+				p->OnBuffUI = 0;
+			}
+		}
 	}
 	if (scene_type >= SIGHT_SCENE && !Die) {
 		if (m_pPlayer->OnHealUI > Timer::GetTotalTime()) {
