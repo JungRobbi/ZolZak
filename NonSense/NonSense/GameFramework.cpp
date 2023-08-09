@@ -1625,6 +1625,13 @@ void GameFramework::RenderEffect()
 				m_pPlayer->m_Buff_UI[i]->UpdateTransform(NULL);
 				m_pPlayer->m_Buff_UI[i]->Render(m_pCommandList, m_pCamera);
 			}
+			if (m_pPlayer->OnBuffUI < Timer::GetTotalTime()+0.5)
+			{
+				m_pPlayer->m_Attack -= 700;
+				m_pPlayer->m_Defense -= 350;
+				m_pPlayer->GetComponent<PlayerMovementComponent>()->speed = 3.5;
+				m_pPlayer->OnBuffUI = 0;
+			}
 		}
 	}
 }
