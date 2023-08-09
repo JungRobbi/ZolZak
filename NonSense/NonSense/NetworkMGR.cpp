@@ -812,6 +812,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		break;
 	}
 	case E_PACKET_SC_SKILL_HEAL_PACKET: {
+		cout << GameFramework::MainGameFramework->m_pPlayer->m_RemainHP << endl;
 		SC_SKILL_HEAL_PACKET* recv_packet = reinterpret_cast<SC_SKILL_HEAL_PACKET*>(p_Packet);
 
 		Player* player;
@@ -839,6 +840,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			{
 				p->m_RemainHP = p->m_Health;
 			}
+			p->OnHealUI = Timer::GetTotalTime() + 2.5f;
 		}
 
 		GameFramework::MainGameFramework->m_pPlayer->m_RemainHP += 200;
@@ -865,9 +867,6 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = 1;
 		}
 
-		for (auto& op : GameFramework::MainGameFramework->m_OtherPlayers) {
-			op->OnHealUI = Timer::GetTotalTime() + 2.5f;
-		}
 		GameFramework::MainGameFramework->m_pPlayer->OnHealUI = Timer::GetTotalTime() + 2.5f;
 
 		break;

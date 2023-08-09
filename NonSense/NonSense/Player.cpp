@@ -285,7 +285,9 @@ void Player::OnCameraUpdateCallback(float fTimeElapsed)
 void Player::GetHit(float damage)
 {
 	if (!Die) {
+
 		m_RemainHP -= damage;
+		cout << m_RemainHP << endl;
 		if (m_RemainHP <= 0)
 		{
 			Die = true;
