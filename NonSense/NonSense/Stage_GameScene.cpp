@@ -1134,7 +1134,7 @@ void Stage_GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camer
 	{
 		for (int i = 0; i < 14; ++i)
 		{
-			if (sqrt(pow((m_pPlayer->GetPosition().x - (61.42f)), 2) + pow((m_pPlayer->GetPosition().z - (156.4f)), 2)) < (14-i))
+			if (sqrt(pow((m_pPlayer->GetPosition().x - (-18.5f)), 2) + pow((m_pPlayer->GetPosition().z - (103.f)), 2)) < (42-(i*3))&&!HaveHand)
 			{
 				HandDistance[i]->UpdateTransform(NULL);
 				HandDistance[i]->Render(pd3dCommandList, pCamera);

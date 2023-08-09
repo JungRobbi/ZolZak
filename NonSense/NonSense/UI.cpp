@@ -98,6 +98,24 @@ Player_State_UI::Player_State_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	SetMyPos(0.02, 0.02, 0.5, 0.2);
 }
 
+Die_UI::Die_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Die_Player_State.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+	CanClick = false;
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.02, 0.02, 0.5, 0.2);
+}
+
 
 Player_HP_UI::Player_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
 {

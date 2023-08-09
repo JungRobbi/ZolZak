@@ -41,6 +41,7 @@ public:
 	bool Magical = false;
 	unsigned int id = 0;
 	std::string m_name;
+	Die_UI* m_Die_UI = NULL;
 	Player_State_UI* m_pUI = NULL;
 	Player_HP_UI* m_pHP_UI = NULL;
 	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;
