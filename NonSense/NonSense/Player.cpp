@@ -390,6 +390,12 @@ MagePlayer::MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 		m_Heal_UI[i] = new Heal_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	}
 
+	m_Buff_UI = new Buff_UI * [3];
+	for (int i = 0; i < 3; ++i)
+	{
+		m_Buff_UI[i] = new Buff_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	}
+
 	m_pHP_Dec_UI = new Player_HP_DEC_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pHP_UI = new Player_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pOverHP_Dec_UI = new Player_Over_DEC_HP_UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);

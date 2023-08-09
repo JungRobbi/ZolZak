@@ -84,6 +84,9 @@ public:
 	UINT ToonShading = 10;
 
 	int SelectNum = 0;
+	bool HaveEye = false;
+	bool HaveEar = false;
+	bool HaveHand = false;
 public:
 	static GameScene* MainScene;
 	Player* m_pPlayer = NULL;
