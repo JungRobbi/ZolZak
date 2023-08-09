@@ -200,18 +200,8 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	CreateItemList.emplace_back(100, 0, -16.0f, 0.5, 103.0f);*/
 
 	Item* m_Eye = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 3);
-	m_Eye->SetPosition(-17.5f, 0.5, 103.0f);
+	m_Eye->SetPosition(-22.52f, m_pTerrain->GetHeight(-22.52, -33.91), -33.91f);
 	m_Eye->ObjectID = 9000;
-
-	Item* m_Ear = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 4);
-	m_Ear->SetPosition(-18.0f, 0.5, 103.0f);
-	m_Ear->AddSoundEffect();
-	m_Ear->ObjectID = 9001;
-
-	Item* m_Hand = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 5);
-	m_Hand->SetPosition(-18.5f, 0.5, 103.0f);
-	m_Hand->ObjectID = 9002;
-
 	Signal_UI* m_SignalR = new Signal_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_SignalR->SetPosition(m_Eye->GetPosition());
 	Signal_UI* m_SignalL = new Signal_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
@@ -364,6 +354,11 @@ void Stage_GameScene::TouchStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	TempObject->SetNum(10212);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_pSkyBox = m_pNightSkyBox;
+
+	Item* m_Hand = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 5);
+	m_Hand->SetPosition(61.42f, m_pTerrain->GetHeight(61.42f, 156.4f), 156.4f);
+	m_Hand->ObjectID = 9002;
+
 }
 
 void Stage_GameScene::HearingStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -450,6 +445,12 @@ void Stage_GameScene::HearingStage(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	TempObject->SetNum(10114);
 	TempObject->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_pSkyBox = m_pSunsetSkyBox;
+
+
+	Item* m_Ear = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 4);
+	m_Ear->SetPosition(171.12f, m_pTerrain->GetHeight(171.12f, -41.96f), -41.96f);
+	m_Ear->AddSoundEffect();
+	m_Ear->ObjectID = 9001;
 }
 
 void Stage_GameScene::SightStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -529,6 +530,17 @@ void Stage_GameScene::SightStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	TempObject->SetNum(10000);
 	TempObject->Rotate(0.f, 30.f, 0.f);
 	m_pSkyBox = m_pDaySkyBox;
+
+	Item* m_Eye = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 3);
+	m_Eye->SetPosition(-22.52f, m_pTerrain->GetHeight(-22.52, -33.91), -33.91f);
+	m_Eye->ObjectID = 9000;
+	Signal_UI* m_SignalR = new Signal_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	m_SignalR->SetPosition(m_Eye->GetPosition());
+	Signal_UI* m_SignalL = new Signal_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+	m_SignalL->SetPosition(m_Eye->GetPosition());
+	m_SignalL->Rotate(0, 90, 0);
+
+
 }
 
 void Stage_GameScene::BossStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -1118,11 +1130,11 @@ void Stage_GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camer
 		m_Hand->UpdateTransform(NULL);
 		m_Hand->Render(pd3dCommandList, pCamera);
 	}
-	//if (GameFramework::MainGameFramework->scene_type == TOUCH_SCENE)
+	if (GameFramework::MainGameFramework->scene_type == TOUCH_SCENE)
 	{
 		for (int i = 0; i < 14; ++i)
 		{
-			if (sqrt(pow((m_pPlayer->GetPosition().x - (-18.5f)), 2) + pow((m_pPlayer->GetPosition().z - (103.f)), 2)) < (14-i))
+			if (sqrt(pow((m_pPlayer->GetPosition().x - (61.42f)), 2) + pow((m_pPlayer->GetPosition().z - (156.4f)), 2)) < (14-i))
 			{
 				HandDistance[i]->UpdateTransform(NULL);
 				HandDistance[i]->Render(pd3dCommandList, pCamera);
