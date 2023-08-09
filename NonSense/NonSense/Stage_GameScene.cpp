@@ -200,9 +200,9 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_Hand->SetPosition(-18.5f, 0.5, 103.0f);
 
 	Signal_UI* m_SignalR = new Signal_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	m_SignalR->SetPosition(-17.5f, 0.5, 103.0f);
+	m_SignalR->SetPosition(m_Eye->GetPosition());
 	Signal_UI* m_SignalL = new Signal_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-	m_SignalL->SetPosition(-17.5f, 0.5, 103.0f);
+	m_SignalL->SetPosition(m_Eye->GetPosition());
 	m_SignalL->Rotate(0, 90, 0);
 
 	XMFLOAT3 p = { 0,0,0 };
