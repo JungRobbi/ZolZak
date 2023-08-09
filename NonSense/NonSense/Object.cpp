@@ -900,9 +900,9 @@ bool Object::IsVisible(Camera* pCamera)
 	{
 		xmBoundingBox = pMesh->GetBoundingBox();
 		xmBoundingBox.Transform(xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
-		xmBoundingBox.Center.x += pCamera->GetLookVector().x*10;
-		xmBoundingBox.Center.y += pCamera->GetLookVector().y*10;
-		xmBoundingBox.Center.z += pCamera->GetLookVector().z*10;
+		xmBoundingBox.Center.x += pCamera->GetLookVector().x*15;
+		xmBoundingBox.Center.y += pCamera->GetLookVector().y*15;
+		xmBoundingBox.Center.z += pCamera->GetLookVector().z*15;
 		if (pCamera) bIsVisible = pCamera->IsInFrustum(xmBoundingBox);
 		return(bIsVisible);
 	}

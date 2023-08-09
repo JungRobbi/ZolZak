@@ -17,6 +17,9 @@ public:
 	ID3D12GraphicsCommandList* m_pd3dCommandList = NULL;
 	ATK_UI** ATKs = {};
 	DEF_UI** DEFs = {};
+	EYE_UI* m_Eye = NULL;
+	EAR_UI* m_Ear = NULL;
+	HAND_UI* m_Hand = NULL;
 
 	void TouchStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void HearingStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
