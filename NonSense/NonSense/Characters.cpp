@@ -244,6 +244,24 @@ void Goblin::DeadSound()
 	GameScene::MainScene->AddSound(s);
 }
 
+void Goblin::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	Character::Render(pd3dCommandList, pCamera);
+	Object* wp = NULL;
+	wp = FindFrame("Goblin_Far_Weapon_R");
+	if(wp)
+		wp->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+	wp = FindFrame("Goblin_Far_Weapon_L");
+	if (wp)
+		wp->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+	wp = FindFrame("Goblin_Close_Weapon_R");
+	if (wp)
+		wp->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+	wp = FindFrame("Goblin_Close_Weapon_L");
+	if (wp)
+		wp->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+}
+
 Orc::Orc(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) : Monster(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
 	Object* Hand = NULL;
@@ -374,6 +392,17 @@ void Orc::DeadSound()
 {
 	Sound* s = new Sound("Sound/OrcDeath.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 	GameScene::MainScene->AddSound(s);
+}
+void Orc::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	Character::Render(pd3dCommandList, pCamera);
+	Object* wp = NULL;
+	wp = FindFrame("Orc_Far_Weapon");
+	if (wp)
+		wp->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+	wp = FindFrame("Orc_Close_Weapon");
+	if (wp)
+		wp->RenderOnlyOneFrame(pd3dCommandList, pCamera);
 }
 Skull::Skull(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LoadedModelInfo* pModel, LoadedModelInfo* pWeaponL, LoadedModelInfo* pWeaponR, MonsterType type) : Monster(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel)
 {
@@ -506,6 +535,18 @@ void Skull::DeadSound()
 {
 	Sound* s = new Sound("Sound/SkullDeath.mp3", FMOD_3D_WORLDRELATIVE | FMOD_LOOP_OFF, &GetPosition());
 	GameScene::MainScene->AddSound(s);
+}
+
+void Skull::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+{
+	Character::Render(pd3dCommandList, pCamera);
+	Object* wp = NULL;
+	wp = FindFrame("Skull_Far_Weapon");
+	if (wp)
+		wp->RenderOnlyOneFrame(pd3dCommandList, pCamera);
+	wp = FindFrame("Skull_Close_Weapon");
+	if (wp)
+		wp->RenderOnlyOneFrame(pd3dCommandList, pCamera);
 }
 
 
