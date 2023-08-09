@@ -81,6 +81,7 @@ public:
 	void CloseAttackEvent();
 	virtual void HitSound();
 	virtual void DeadSound();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 };
 
 class Orc : public Monster
@@ -92,6 +93,7 @@ public:
 	void CloseAttackEvent();
 	virtual void HitSound();
 	virtual void DeadSound();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 };
 
 class Skull : public Monster
@@ -102,7 +104,8 @@ public:
 
 	void CloseAttackEvent();
 	virtual void HitSound();
-	virtual void DeadSound();
+	virtual void DeadSound(); 
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 };
 
 class Shield : public Monster
