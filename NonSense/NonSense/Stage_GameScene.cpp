@@ -181,10 +181,12 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	m_pSkyBox = m_pDaySkyBox;
 
-	Item* m_Def = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 0);
-	m_Def->SetPosition(-16.0f, 0.5, 103.0f);
-	Item* m_Atk = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 1);
+	Item* m_Atk = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 0);
 	m_Atk->SetPosition(-16.5f, 0.5, 103.0f);
+
+	Item* m_Def = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 1);
+	m_Def->SetPosition(-16.0f, 0.5, 103.0f);
+
 	Item* m_HP = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 2);
 	m_HP->SetPosition(-17.0f, 0.5, 103.0f);
 
@@ -196,6 +198,7 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dCommandList = pd3dCommandList;
 }
+
 void Stage_GameScene::ReleaseObjects()
 {
 	GameScene::ReleaseObjects();

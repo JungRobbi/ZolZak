@@ -199,7 +199,7 @@ void Player_Over_DEC_HP_UI::update() {
 
 Monster_HP_UI::Monster_HP_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) :UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
 {
-	PlaneMesh* Plane = new PlaneMesh(pd3dDevice, pd3dCommandList, 0.5,0.05);
+	PlaneMesh* Plane = new PlaneMesh(pd3dDevice, pd3dCommandList, 0.5, 0.05);
 
 	SetMesh(Plane);
 	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);

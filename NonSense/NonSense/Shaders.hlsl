@@ -227,18 +227,19 @@ float4 PSParticle(GS_PARTICLE_OUTPUT input) : SV_TARGET
 	return(cColor);
 }
 
-PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSIcon(GS_PARTICLE_OUTPUT input) : SV_TARGET
+float4 PSIcon(GS_PARTICLE_OUTPUT input) : SV_TARGET
 {
-    PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
-    output.Scene = float4(0, 1, 0, 1);
-    output.Position = input.position;
+    //PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+    //output.Scene = float4(0, 1, 0, 1);
+    //output.Position = input.position;
     float4 cColor = gtxtParticleTexture.Sample(gssWrap, input.uv);
+    //float4 cColor = float4(1, 0, 0, 1);
 
     clip(cColor.a - 0.1);
     
-    output.Texture = (cColor);
-    output.Normal = float4(0, 0, 0, (float) objectID / ((float) objectID + 2));
-    return (output);
+    //output.Texture = (cColor);
+    //output.Normal = float4(0, 0, 0, (float) objectID / ((float) objectID + 2));
+    return (cColor);
 }
 
 
