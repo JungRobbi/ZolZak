@@ -501,6 +501,8 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 				if (!rc.second->b_Enable.load())
 					continue;
+				if (rc.second->b_IsReady == false)
+					continue;
 				SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
 				send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
@@ -518,6 +520,8 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 			for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 				if (!rc.second->b_Enable.load())
 					continue;
+				if (rc.second->b_IsReady == false)
+					continue;
 				SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
 				send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_SC_ANIMATION_TYPE_PLAYER;
@@ -530,6 +534,8 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		case VK_LBUTTON: {
 			for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 				if (!rc.second->b_Enable.load())
+					continue;
+				if (rc.second->b_IsReady == false)
 					continue;
 				SC_PLAYER_ANIMATION_TYPE_PACKET send_packet;
 				send_packet.size = sizeof(SC_PLAYER_ANIMATION_TYPE_PACKET);
@@ -601,6 +607,8 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 			if (!rc.second->b_Enable.load())
 				continue;
+			if (rc.second->b_IsReady == false)
+				continue;
 			SC_TEMP_HIT_MONSTER_PACKET send_packet;
 			send_packet.size = sizeof(SC_TEMP_HIT_MONSTER_PACKET);
 			send_packet.type = E_PACKET::E_PACKET_SC_TEMP_HIT_MONSTER_PACKET;
@@ -615,6 +623,8 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 		shared_ptr<Player> player;
 		for (auto& rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 			if (!rc.second->b_Enable.load())
+				continue;
+			if (rc.second->b_IsReady == false)
 				continue;
 			if (rc.second->m_id == recv_packet->player_id)
 				player = rc.second->m_pPlayer;
