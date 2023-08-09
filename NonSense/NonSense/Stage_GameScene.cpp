@@ -37,12 +37,15 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	ATKs = new ATK_UI * [14];
 	DEFs = new DEF_UI * [14];
+	HandDistance = new DEF_UI * [14];
 	for (int i = 0; i < 14; ++i)
 	{
 		ATKs[i] = new ATK_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 		DEFs[i] = new DEF_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
-		ATKs[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.93 - 0.05 * (i / 7), 0.035, 0.05);
-		DEFs[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.78 - 0.05 * (i / 7), 0.035, 0.05);
+		HandDistance[i] = new DEF_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
+		ATKs[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.93 - 0.05*(i / 7), 0.035, 0.05);
+		DEFs[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.78 - 0.05*(i / 7), 0.035, 0.05);
+		HandDistance[i]->SetMyPos(0.1 + 0.035 * (i % 7), 0.43 - 0.05*(i / 7), 0.035, 0.05);
 	}
 	Loading_UI* m_Loading_UI = new Loading_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 
@@ -1111,6 +1114,17 @@ void Stage_GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camer
 	{
 		m_Hand->UpdateTransform(NULL);
 		m_Hand->Render(pd3dCommandList, pCamera);
+	}
+	//if (GameFramework::MainGameFramework->scene_type == TOUCH_SCENE)
+	{
+		for (int i = 0; i < 14; ++i)
+		{
+			if (sqrt(pow((m_pPlayer->GetPosition().x - (-18.5f)), 2) + pow((m_pPlayer->GetPosition().z - (103.f)), 2)) < (14-i))
+			{
+				HandDistance[i]->UpdateTransform(NULL);
+				HandDistance[i]->Render(pd3dCommandList, pCamera);
+			}
+		}
 	}
 	for (auto& object : UIGameObjects)
 	{
