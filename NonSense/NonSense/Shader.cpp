@@ -413,6 +413,16 @@ D3D12_BLEND_DESC BlendBillboardShader::CreateBlendState()
 
 	return(d3dBlendDesc);
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+OriginBlendBillboardShader::OriginBlendBillboardShader() :BlendBillboardShader()
+{
+}
+D3D12_SHADER_BYTECODE OriginBlendBillboardShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSOrigin", "vs_5_1", ppd3dShaderBlob));
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ScreenShader::ScreenShader()

@@ -764,53 +764,54 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 							}
 						}
 					}
-
-					if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameScene::MainScene->EndNPC->GetComponent<SphereCollideComponent>()->GetBoundingObject()))		// End NPC
-					{
-						if (!ScriptMode)	// 대화 시작
+					if ((scene_type == SIGHT_SCENE && GameScene::MainScene->HaveEye) || (scene_type == HEARING_SCENE && GameScene::MainScene->HaveEar) || (scene_type == SIGHT_SCENE && GameScene::MainScene->HaveHand)) {
+						if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameScene::MainScene->EndNPC->GetComponent<SphereCollideComponent>()->GetBoundingObject()))		// End NPC
 						{
-							m_pCamera = m_pPlayer->ChangeCamera(THIRD_PERSON_CAMERA, Timer::GetTimeElapsed());
-							ScriptMode = true;
-							TalkingNPC = 2;
-						//	cout << GameScene::MainScene->EndNPC->script[0] << endl;
-						}
-						else
-						{
-							ScriptNum++;
-							int LineNum;
-							switch (scene_type)
+							if (!ScriptMode)	// 대화 시작
 							{
-							case SIGHT_SCENE:
-								LineNum = 2;
-								break;
-							case HEARING_SCENE:
-								LineNum = 2;
-								break;
-							case TOUCH_SCENE:
-								LineNum = 3;
-								break;
-							default:
-								break;
+								m_pCamera = m_pPlayer->ChangeCamera(THIRD_PERSON_CAMERA, Timer::GetTimeElapsed());
+								ScriptMode = true;
+								TalkingNPC = 2;
+								//	cout << GameScene::MainScene->EndNPC->script[0] << endl;
 							}
-							if (ScriptNum >= LineNum)
+							else
 							{
-								::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
-								m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
-								ScriptMode = false;
-								ScriptNum = 0;
-								TalkingNPC = 0;
-								//Clear Packet
-								if (NetworkMGR::b_isNet) {
-									CS_CLEAR_PACKET send_packet;
-									send_packet.size = sizeof(CS_CLEAR_PACKET);
-									send_packet.type = E_PACKET::E_PACKET_CS_CLEAR_PACKET;
-									send_packet.ClearScene = (int)GameSceneState;
-									PacketQueue::AddSendPacket(&send_packet);
+								ScriptNum++;
+								int LineNum;
+								switch (scene_type)
+								{
+								case SIGHT_SCENE:
+									LineNum = 2;
+									break;
+								case HEARING_SCENE:
+									LineNum = 2;
+									break;
+								case TOUCH_SCENE:
+									LineNum = 3;
+									break;
+								default:
+									break;
 								}
-								else {
-									ChangeScene(GameSceneState + 1);
+								if (ScriptNum >= LineNum)
+								{
+									::SetCursorPos(CenterOfWindow.x, CenterOfWindow.y);
+									m_pCamera = m_pPlayer->ChangeCamera(FIRST_PERSON_CAMERA, Timer::GetTimeElapsed());
+									ScriptMode = false;
+									ScriptNum = 0;
+									TalkingNPC = 0;
+									//Clear Packet
+									if (NetworkMGR::b_isNet) {
+										CS_CLEAR_PACKET send_packet;
+										send_packet.size = sizeof(CS_CLEAR_PACKET);
+										send_packet.type = E_PACKET::E_PACKET_CS_CLEAR_PACKET;
+										send_packet.ClearScene = (int)GameSceneState;
+										PacketQueue::AddSendPacket(&send_packet);
+									}
+									else {
+										ChangeScene(GameSceneState + 1);
+									}
+									break;
 								}
-								break;
 							}
 						}
 					}
@@ -1447,9 +1448,16 @@ void GameFramework::FrameAdvance()
 		if (p->GetUsed()) {
 			p->UpdateTransform(NULL);
 			p->Render(m_pCommandList, m_pCamera);
+			if (p->Magical)
+				p->FindFrame("Wand")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
+			else
+				p->FindFrame("Sword_M05")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
 		}
 	}
-
+	if (m_pPlayer->Magical)
+		m_pPlayer->FindFrame("Wand")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
+	else
+		m_pPlayer->FindFrame("Sword_M05")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
 	ResourceTransition(m_pCommandList, m_ShadowMap->Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ);
 
 	///////////////////////////////////////////////////////////
@@ -1469,8 +1477,17 @@ void GameFramework::FrameAdvance()
 		if (p->GetUsed()) {
 			p->UpdateTransform(NULL);
 			p->Render(m_pCommandList, m_pCamera);
+			if (p->Magical)
+				p->FindFrame("Wand")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
+			else
+				p->FindFrame("Sword_M05")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
 		}
 	}
+	if(m_pPlayer->Magical)
+		m_pPlayer->FindFrame("Wand")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
+	else
+		m_pPlayer->FindFrame("Sword_M05")->RenderOnlyOneFrame(m_pCommandList, m_pCamera);
+
 	// Blend Object
 	if (GameSceneState != LOGIN_SCENE) {
 		GameScene::MainScene->RenderBlend(m_pCommandList, m_pCamera);

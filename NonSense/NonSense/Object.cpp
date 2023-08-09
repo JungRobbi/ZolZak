@@ -900,9 +900,9 @@ bool Object::IsVisible(Camera* pCamera)
 	{
 		xmBoundingBox = pMesh->GetBoundingBox();
 		xmBoundingBox.Transform(xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
-		//xmBoundingBox.Center.x += pCamera->GetLookVector().x*10;
-		//xmBoundingBox.Center.y += pCamera->GetLookVector().y*10;
-		//xmBoundingBox.Center.z += pCamera->GetLookVector().z*10;
+		xmBoundingBox.Center.x += pCamera->GetLookVector().x*10;
+		xmBoundingBox.Center.y += pCamera->GetLookVector().y*10;
+		xmBoundingBox.Center.z += pCamera->GetLookVector().z*10;
 		if (pCamera) bIsVisible = pCamera->IsInFrustum(xmBoundingBox);
 		return(bIsVisible);
 	}
@@ -1605,9 +1605,10 @@ void Object::Animate(float fTimeElapsed)
 void Object::OnPrepareRender()
 {
 }
+
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	if (Do_Render)
+	if (Do_Render&&IsVisible(pCamera))
 	{
 		OnPrepareRender();
 		if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
@@ -1621,7 +1622,6 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 				{
 					if (m_ppMaterials[i])
 					{
-
 						if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
 						m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 					}
@@ -1635,6 +1635,7 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 		if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
 	}
 }
+
 void Object::RenderOnlyOneFrame(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 
@@ -2520,7 +2521,7 @@ void Explosion::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 
 /////////////////////////////////////////////////////////////////////////
 
-Item::Item(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int itemnum) : Object(BLEND_OBJECT)
+Item::Item(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int itemnum) : Object(FORWARD_OBJECT)
 {
 	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 1);
 	SetMesh(pMesh);
@@ -2533,6 +2534,12 @@ Item::Item(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/DEFend.dds", RESOURCE_TEXTURE2D, 0);
 	else if (ItemID == 2) // HP
 		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/HPPlus.dds", RESOURCE_TEXTURE2D, 0);
+	else if (ItemID == 3) // Eye
+		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Eye.dds", RESOURCE_TEXTURE2D, 0);
+	else if (ItemID == 4) // Ear
+		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Ear.dds", RESOURCE_TEXTURE2D, 0);
+	else if (ItemID == 5) // Hand
+		pParticleTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/Hand.dds", RESOURCE_TEXTURE2D, 0);
 
 	IconShader* pShader = new IconShader();
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
@@ -2574,7 +2581,7 @@ void Item::OnPrepareRender()
 			ItemEffect();
 		}
 		if (!erase) {
-			GameScene::MainScene->deletionBlendQueue.push_back(this);
+			GameScene::MainScene->deletionForwardQueue.push_back(this);
 			erase = true;
 		}
 	}
@@ -2637,11 +2644,21 @@ void Item::ItemEffect()
 			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP;
 		}
 	}
+	else if (ItemID == 3) // Eye
+	{
+		GameScene::MainScene->HaveEye = true;
+	}
+	else if (ItemID == 4) // Ear
+	{
+		GameScene::MainScene->HaveEar = true;
+	}
+	else if (ItemID == 5) // Hand
+	{
+		GameScene::MainScene->HaveHand = true;
+	}
 }
 
-/// /////////////////////////////////////////////////////////////////////////////
-
-
+/////////////////////////////////////////////////////////////////////////////////
 Water::Water(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float h, float w) : Object(FORWARD_OBJECT)
 {
 	RectMesh* pWaterMesh = new RectMesh(pd3dDevice, pd3dCommandList, h, w);
@@ -2655,9 +2672,6 @@ Water::Water(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 	pWaterShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	GameScene::CreateShaderResourceViews(pd3dDevice, pWaterTexture, 19, false);
 
-	//m_nMaterials = 1;
-	//m_ppMaterials = new Material * [1];
-	//m_ppMaterials[0] = NULL;
 	Material* pWaterMaterial = new Material(1);
 	pWaterMaterial->SetTexture(pWaterTexture);
 	pWaterMaterial->SetShader(pWaterShader);

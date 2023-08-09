@@ -81,12 +81,23 @@ void AttackComponent::Skill()
 		}
 		if (dynamic_cast<Player*>(gameObject)->Magical)	// Mage Player
 		{
-			//////////////////////////// 자기 자신 힐
+			for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
+			{
+				if (sqrt(pow((dynamic_cast<Player*>(gameObject)->GetPosition().x - p->GetPosition().x), 2) + pow((dynamic_cast<Player*>(gameObject)->GetPosition().z - p->GetPosition().z), 2)) < 2)
+				{
+					p->m_RemainHP += 200;
+					if (p->m_RemainHP > p->m_Health)
+					{
+						p->m_RemainHP = p->m_Health;
+					}
+				}
+			}
 			dynamic_cast<Player*>(gameObject)->m_RemainHP += 100;
 			if (dynamic_cast<Player*>(gameObject)->m_RemainHP > dynamic_cast<Player*>(gameObject)->m_Health)
 			{
 				dynamic_cast<Player*>(gameObject)->m_RemainHP = dynamic_cast<Player*>(gameObject)->m_Health;
 			}
+			//////////////////////////// 팀원 힐
 
 			dynamic_cast<Player*>(gameObject)->m_pHP_Dec_UI->Dec_HP = dynamic_cast<Player*>(gameObject)->m_RemainHP / 1000;
 			dynamic_cast<Player*>(gameObject)->m_pOverHP_Dec_UI->Dec_HP = (dynamic_cast<Player*>(gameObject)->m_RemainHP - 1000) / 1000;
@@ -104,19 +115,7 @@ void AttackComponent::Skill()
 				dynamic_cast<Player*>(gameObject)->m_pHP_Dec_UI->HP = 1;
 			}
 			dynamic_cast<Player*>(gameObject)->OnHealUI = Timer::GetTotalTime() + 2.5f; // UI활성화
-			//////////////////////////// 팀원 힐
-			for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
-			{
-				// 사용 플레이어와 거리가 2아래 라면
-				if (sqrt(pow((dynamic_cast<Player*>(gameObject)->GetPosition().x - p->GetPosition().x), 2) + pow((dynamic_cast<Player*>(gameObject)->GetPosition().z - p->GetPosition().z), 2)) < 2)
-				{
-					p->m_RemainHP += 200;
-					if (p->m_RemainHP > p->m_Health)
-					{
-						p->m_RemainHP = p->m_Health;
-					}
-				}
-			}
+
 			////////////////////////////
 		}
 		else if (!dynamic_cast<Player*>(gameObject)->Magical)	// Warrior
