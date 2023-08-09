@@ -900,9 +900,9 @@ bool Object::IsVisible(Camera* pCamera)
 	{
 		xmBoundingBox = pMesh->GetBoundingBox();
 		xmBoundingBox.Transform(xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
-		//xmBoundingBox.Center.x += pCamera->GetLookVector().x*10;
-		//xmBoundingBox.Center.y += pCamera->GetLookVector().y*10;
-		//xmBoundingBox.Center.z += pCamera->GetLookVector().z*10;
+		xmBoundingBox.Center.x += pCamera->GetLookVector().x*10;
+		xmBoundingBox.Center.y += pCamera->GetLookVector().y*10;
+		xmBoundingBox.Center.z += pCamera->GetLookVector().z*10;
 		if (pCamera) bIsVisible = pCamera->IsInFrustum(xmBoundingBox);
 		return(bIsVisible);
 	}
@@ -1605,9 +1605,10 @@ void Object::Animate(float fTimeElapsed)
 void Object::OnPrepareRender()
 {
 }
+
 void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
-	if (Do_Render)
+	if (Do_Render&&IsVisible(pCamera))
 	{
 		OnPrepareRender();
 		if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
@@ -1621,7 +1622,6 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 				{
 					if (m_ppMaterials[i])
 					{
-
 						if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
 						m_ppMaterials[i]->UpdateShaderVariables(pd3dCommandList);
 					}
@@ -1635,6 +1635,7 @@ void Object::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 		if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
 	}
 }
+
 void Object::RenderOnlyOneFrame(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 
@@ -2520,7 +2521,7 @@ void Explosion::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 
 /////////////////////////////////////////////////////////////////////////
 
-Item::Item(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int itemnum) : Object(BLEND_OBJECT)
+Item::Item(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int itemnum) : Object(FORWARD_OBJECT)
 {
 	ParticleMesh* pMesh = new ParticleMesh(pd3dDevice, pd3dCommandList, 1);
 	SetMesh(pMesh);
@@ -2569,7 +2570,7 @@ void Item::OnPrepareRender()
 			ItemEffect();
 		}
 		if (!erase) {
-			GameScene::MainScene->deletionBlendQueue.push_back(this);
+			GameScene::MainScene->deletionForwardQueue.push_back(this);
 			erase = true;
 		}
 	}
