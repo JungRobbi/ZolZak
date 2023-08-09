@@ -832,6 +832,37 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		player->GetComponent<AttackComponent>()->SkillAnimate();
 
+		for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
+		{
+			p->m_RemainHP += 200;
+			if (p->m_RemainHP > p->m_Health)
+			{
+				p->m_RemainHP = p->m_Health;
+			}
+		}
+		GameFramework::MainGameFramework->m_pPlayer->m_RemainHP += 100;
+		if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP > GameFramework::MainGameFramework->m_pPlayer->m_Health)
+		{
+			GameFramework::MainGameFramework->m_pPlayer->m_RemainHP = GameFramework::MainGameFramework->m_pPlayer->m_Health;
+		}
+		//////////////////////////// ÆÀ¿ø Èú
+
+		GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP / 1000;
+		GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP - 1000) / 1000;
+		GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP;
+		GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP;
+		if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP <= 1000)
+		{
+			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = 0;
+			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = 0;
+		}
+
+		if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP >= 1000)
+		{
+			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = 1;
+			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = 1;
+		}
+
 		for (auto& op : GameFramework::MainGameFramework->m_OtherPlayers) {
 			op->OnHealUI = Timer::GetTotalTime() + 2.5f;
 		}
