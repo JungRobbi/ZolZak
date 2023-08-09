@@ -1745,6 +1745,26 @@ DEF_UI::DEF_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	SetMyPos(0.0, 0.7, 0.1, 0.3);
 }
 
+
+Hand_Distance_UI::Hand_Distance_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
+{
+	CTexture* pUITexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pUITexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"UI/HandDistance.dds", RESOURCE_TEXTURE2D, 0);
+
+	UIShader* pUIShader = new UIShader();
+	pUIShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	GameScene::CreateShaderResourceViews(pd3dDevice, pUITexture, 19, false);
+	CanClick = false;
+	Material* pUIMaterial = new Material();
+	pUIMaterial->SetTexture(pUITexture);
+	pUIMaterial->SetShader(pUIShader);
+	SetMaterial(pUIMaterial);
+
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	SetMyPos(0.0, 0.7, 0.1, 0.3);
+}
+
 //////////////////////////////////////////////////////
 
 EYE_UI::EYE_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : UI(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature)
