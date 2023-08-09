@@ -2635,9 +2635,7 @@ void Item::ItemEffect()
 	}
 }
 
-/// /////////////////////////////////////////////////////////////////////////////
-
-
+/////////////////////////////////////////////////////////////////////////////////
 Water::Water(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float h, float w) : Object(FORWARD_OBJECT)
 {
 	RectMesh* pWaterMesh = new RectMesh(pd3dDevice, pd3dCommandList, h, w);
@@ -2651,9 +2649,6 @@ Water::Water(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 	pWaterShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	GameScene::CreateShaderResourceViews(pd3dDevice, pWaterTexture, 19, false);
 
-	//m_nMaterials = 1;
-	//m_ppMaterials = new Material * [1];
-	//m_ppMaterials[0] = NULL;
 	Material* pWaterMaterial = new Material(1);
 	pWaterMaterial->SetTexture(pWaterTexture);
 	pWaterMaterial->SetShader(pWaterShader);

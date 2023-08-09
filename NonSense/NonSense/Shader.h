@@ -112,6 +112,13 @@ public:
 	virtual D3D12_BLEND_DESC CreateBlendState();
 };
 
+class OriginBlendBillboardShader : public BlendBillboardShader
+{
+public:
+	OriginBlendBillboardShader();
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+};
+
 class ParticleShader : public Shader
 {
 public:
