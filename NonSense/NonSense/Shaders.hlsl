@@ -317,7 +317,37 @@ float4 PSBillboard(VS_BillboardOUTPUT input) : SV_TARGET
 	return(cColor);
 }
 
+VS_BillboardOUTPUT VSOrigin(VS_BillboardINPUT input, uint nVertexID : SV_VertexID)
+{
+    VS_BillboardOUTPUT output;
+    if (nVertexID == 0)
+    {
+        output.uv = float2(1, 0.0f);
+    }
+    else if (nVertexID == 1)
+    {
+        output.uv = float2(-(1 / value - 1), 0.0f);
+    }
+    else if (nVertexID == 2)
+    {
+        output.uv = float2(1, 1.0f);
+    }
+    else if (nVertexID == 3)
+    {
+        output.uv = float2(1, 1.0f);
+    }
+    else if (nVertexID == 4)
+    {
+        output.uv = float2(-(1 / value - 1), 0.0f);
+    }
+    else if (nVertexID == 5)
+    {
+        output.uv = float2(-(1 / value - 1), 1.0f);
+    }
 
+    output.positionW = (mul(mul(mul(float4(input.position, 1.0f), gmtxWorld), gmtxView), gmtxProjection));
+    return (output);
+}
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
