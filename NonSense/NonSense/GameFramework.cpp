@@ -917,7 +917,9 @@ void GameFramework::ChangeScene(unsigned char num)
 {
 	TouchDebuffLeftTime = -1;
 	IsTouchDebuff = false;
-
+	GameScene::MainScene->HaveEar = false;
+	GameScene::MainScene->HaveEye = false;
+	GameScene::MainScene->HaveHand = false;
 	m_pCommandList->Reset(m_pCommandAllocator, NULL);
 
 

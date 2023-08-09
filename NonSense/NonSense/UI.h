@@ -436,3 +436,24 @@ public:
 	DEF_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~DEF_UI() {};
 };
+
+class EYE_UI : public UI
+{
+public:
+	EYE_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~EYE_UI() {};
+};
+
+class EAR_UI : public UI
+{
+public:
+	EAR_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~EAR_UI() {};
+};
+
+class HAND_UI : public UI
+{
+public:
+	HAND_UI(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~HAND_UI() {};
+};
