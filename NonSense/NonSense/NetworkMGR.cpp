@@ -483,6 +483,20 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 
 		player->SetRemainHP(recv_packet->remain_hp);
+
+		if (player->m_RemainHP <= 0)
+		{
+			player->m_die = true;
+			if (player == GameFramework::MainGameFramework->m_pPlayer)
+				Die = true;
+
+			{
+				CS_DIE_PACKET send_packet;
+				send_packet.size = sizeof(CS_DIE_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_CS_DIE_PACKET;
+				PacketQueue::AddSendPacket(&send_packet);
+			}
+		}
 		break;
 	}
 	case E_PACKET_SC_LOOK_MONSTER_PACKET: {
