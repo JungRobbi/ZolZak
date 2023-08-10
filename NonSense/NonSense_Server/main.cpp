@@ -1017,6 +1017,7 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 				send_packet.type = E_PACKET::E_PACKET_SC_TEMP_HIT_PLAYER_PACKET;
 				send_packet.player_id = rc_to.second->m_id;
 				send_packet.remain_hp = rc_to.second->m_pPlayer->GetRemainHP();
+				send_packet.b_heal = true;
 				rc.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}
 		}

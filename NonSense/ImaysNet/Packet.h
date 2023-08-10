@@ -230,6 +230,7 @@ class SC_TEMP_HIT_PLAYER_PACKET : public PACKET_HEAD {
 public:
 	unsigned int	player_id;
 	int				remain_hp;
+	bool b_heal = false;
 };
 
 class SC_CHAT_PACKET : public PACKET_HEAD {
