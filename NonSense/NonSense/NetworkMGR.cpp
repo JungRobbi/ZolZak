@@ -484,13 +484,39 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 
 		player->SetRemainHP(recv_packet->remain_hp);
 
+		for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
+		{
+			if (p->m_RemainHP > p->m_Health)
+			{
+				p->m_RemainHP = p->m_Health;
+			}
+		}
+		if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP > GameFramework::MainGameFramework->m_pPlayer->m_Health)
+		{
+			GameFramework::MainGameFramework->m_pPlayer->m_RemainHP = GameFramework::MainGameFramework->m_pPlayer->m_Health;
+		}
+
+		GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = GameFramework::MainGameFramework->m_pPlayer->m_RemainHP / 1000;
+		GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP - 1000) / 1000;
+		GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP;
+		GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP;
+
+		if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP <= 1000)
+		{
+			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->Dec_HP = 0;
+			GameFramework::MainGameFramework->m_pPlayer->m_pOverHP_Dec_UI->HP = 0;
+		}
+
+		if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP >= 1000)
+		{
+			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = 1;
+			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = 1;
+		}
+
 		if (player->m_RemainHP <= 0)
 		{
 			player->m_die = true;
-			if (player == GameFramework::MainGameFramework->m_pPlayer)
-				Die = true;
-
-			{
+			if (recv_packet->player_id == NetworkMGR::id) {
 				CS_DIE_PACKET send_packet;
 				send_packet.size = sizeof(CS_DIE_PACKET);
 				send_packet.type = E_PACKET::E_PACKET_CS_DIE_PACKET;

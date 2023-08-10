@@ -21,7 +21,18 @@ void FarTypeFSMComponent::update()
 	if (((Monster*)gameObject)->WeaponFrame) {
 		if (((Monster*)gameObject)->WeaponFrame->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()) && ((Monster*)gameObject)->WeaponFrame->GetComponent<MoveForwardComponent>()->MoveTimeLeft > 0)
 		{
-			GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Character*>(gameObject)->GetAttack() * (100 / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+			if (NetworkMGR::b_isNet) {
+				CS_TEMP_HIT_MONSTER_PACKET send_packet;
+				send_packet.size = sizeof(CS_TEMP_HIT_MONSTER_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_MONSTER_PACKET;
+				send_packet.monster_id = ((Monster*)gameObject)->GetNum();
+				send_packet.hit_damage = dynamic_cast<Player*>(gameObject)->GetAttack() * (100 / (monster->GetDefense() + 100));
+				PacketQueue::AddSendPacket(&send_packet);
+			}
+			else {
+				GameFramework::MainGameFramework->m_pPlayer->GetHit(dynamic_cast<Character*>(gameObject)->GetAttack() * (100 / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100)));
+			}
+			
 			if (GameFramework::MainGameFramework->GameSceneState == SIGHT_SCENE)
 				GameFramework::MainGameFramework->m_pPlayer->Sight_DeBuff(5);
 			printf("%f -> %f = %f\n", dynamic_cast<Character*>(gameObject)->GetAttack(), GameFramework::MainGameFramework->m_pPlayer->GetDefense(), GameFramework::MainGameFramework->m_pPlayer->GetRemainHP());
