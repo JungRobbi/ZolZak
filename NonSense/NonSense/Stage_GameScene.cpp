@@ -356,7 +356,7 @@ void Stage_GameScene::TouchStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	m_pSkyBox = m_pNightSkyBox;
 
 	Item* m_Hand = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 5);
-	m_Hand->SetPosition(124.161f, 5.39f, 153.3f);
+	m_Hand->SetPosition(206.56f, 4.5f, 76.47f);
 	m_Hand->ObjectID = 9002;
 
 }
@@ -1134,7 +1134,7 @@ void Stage_GameScene::RenderUI(ID3D12GraphicsCommandList* pd3dCommandList, Camer
 	{
 		for (int i = 0; i < 14; ++i)
 		{
-			if (sqrt(pow((m_pPlayer->GetPosition().x - (124.161f)), 2) + pow((m_pPlayer->GetPosition().z - (153.3f)), 2)) < (42-(i*3))&&!HaveHand)
+			if (sqrt(pow((m_pPlayer->GetPosition().x - (206.56f)), 2) + pow((m_pPlayer->GetPosition().z - (76.47f)), 2)) < (42-(i*3))&&!HaveHand)
 			{
 				HandDistance[i]->UpdateTransform(NULL);
 				HandDistance[i]->Render(pd3dCommandList, pCamera);
