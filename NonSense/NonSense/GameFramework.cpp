@@ -764,7 +764,7 @@ void GameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPAR
 							}
 						}
 					}
-					if ((scene_type == SIGHT_SCENE && GameScene::MainScene->HaveEye) || (scene_type == HEARING_SCENE && GameScene::MainScene->HaveEar) || (scene_type == SIGHT_SCENE && GameScene::MainScene->HaveHand)) {
+					if ((scene_type == SIGHT_SCENE && GameScene::MainScene->HaveEye) || (scene_type == HEARING_SCENE && GameScene::MainScene->HaveEar) || (scene_type == TOUCH_SCENE && GameScene::MainScene->HaveHand)) {
 						if (m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameScene::MainScene->EndNPC->GetComponent<SphereCollideComponent>()->GetBoundingObject()))		// End NPC
 						{
 							if (!ScriptMode)	// 대화 시작
