@@ -484,7 +484,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 
 		player->SetRemainHP(recv_packet->remain_hp);
 
-		for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
+		/*for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
 		{
 			if (p->m_RemainHP > p->m_Health)
 			{
@@ -511,7 +511,7 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		{
 			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->Dec_HP = 1;
 			GameFramework::MainGameFramework->m_pPlayer->m_pHP_Dec_UI->HP = 1;
-		}
+		}*/
 
 		if (player->m_RemainHP <= 0)
 		{
