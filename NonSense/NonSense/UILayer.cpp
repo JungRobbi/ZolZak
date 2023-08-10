@@ -871,7 +871,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.78f, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.81f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
     }
     {
@@ -880,7 +880,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.81f, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.87f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
     }
     {
@@ -899,7 +899,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.78f, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.81f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
         wcscpy(tb.m_pstrText, L"이 곳에 도전하는 것이라면 큰코 다칠것이네");
     }
@@ -919,7 +919,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.78f, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.81f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
         wcscpy(tb.m_pstrText, L"조심히 돌아다니는것이 좋을걸세");
     }
