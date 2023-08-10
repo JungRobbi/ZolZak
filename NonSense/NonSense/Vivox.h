@@ -9,6 +9,7 @@ class VivoxSystem
 private:
 	char* key = "zing795";
 	long long SerialNum = 0;
+	const char* Issuer = "jeawoo0732-no23-dev";
 	vx_sdk_config_t defaultConfig;
 	vx_message_base_t* VX_Message = NULL;
 

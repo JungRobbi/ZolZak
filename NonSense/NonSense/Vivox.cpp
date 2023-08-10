@@ -157,8 +157,8 @@ void VivoxSystem::Connect()
 	req->connector_handle = m_ConnectorHandle;
 	req->acct_name = vx_strdup(AcctName);
 	req->displayname = vx_strdup(UserName);
-	//req->account_handle = vx_strdup("sip:.jeawoo0732-no23-dev.Korus.@mt1s.vivox.com");
-	req->access_token = vx_debug_generate_token("jeawoo0732-no23-dev",(vx_time_t)-1,"login", SerialNum++,NULL,
+
+	req->access_token = vx_debug_generate_token(Issuer, (vx_time_t)+900,"login", SerialNum++,NULL,
 												UserURI,nullptr, (const unsigned char*)key, strlen(key));
 	int vx_issue_request3_response = RequestIssue(&req->base);
 }
@@ -174,9 +174,8 @@ void VivoxSystem::Disconnect()
 
 void VivoxSystem::JoinChannel(const char* Channel)
 {
-	char* uri = vx_get_general_channel_uri(Channel, "mt1s.vivox.com", "jeawoo0732-no23-dev");
+	char* uri = vx_get_general_channel_uri(Channel, "mt1s.vivox.com", Issuer);
 	std::cout << uri << std::endl;
-	//uri = vx_get_random_channel_uri_ex("confctl-e-", "mt1s.vivox.com", "jeawoo0732-no23-dev");
 	vx_req_sessiongroup_add_session* req;
 	vx_req_sessiongroup_add_session_create(&req);
 	req->sessiongroup_handle = vx_strdup("sg1");
@@ -185,7 +184,7 @@ void VivoxSystem::JoinChannel(const char* Channel)
 	req->account_handle = m_AccountHandle;
 	req->connect_audio = 1;
 	req->connect_text = 1;
-	req->access_token = vx_debug_generate_token("jeawoo0732-no23-dev", (vx_time_t)-1, "join", SerialNum++, NULL, UserURI, 
+	req->access_token = vx_debug_generate_token(Issuer, (vx_time_t)-1, "join", SerialNum++, NULL, UserURI,
 												uri, (const unsigned char*)key, strlen(key));
 	int vx_issue_request3_response = RequestIssue(&req->base);
 
@@ -212,7 +211,8 @@ void VivoxSystem::MakeUserURI(char* UserName)
 {
 	std::string URI;
 
-	URI.append("sip:");
+	URI.append("sip:.");
+	URI.append(Issuer);
 	URI.append(AcctName);
 	URI.append("@mt1s.vivox.com");
 	UserURI = new char[URI.length()+1];
