@@ -162,7 +162,7 @@ void PlayerMovementComponent::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 						continue;
 					monster->num; // Goblin : 11001, Orc : 10101 , Skull : 10201, Shield : 22222
 					if (monster->num > 22000) { // Shield
-						if (1.5f > Vector3::Length(Vector3::Subtract(monster->GetPosition(), Vector3::Add(cc->GetBoundingObject()->Center, xmf3Shift)))) {
+						if (1.0f > Vector3::Length(Vector3::Subtract(monster->GetPosition(), Vector3::Add(cc->GetBoundingObject()->Center, xmf3Shift)))) {
 							xmf3Shift = XMFLOAT3(0.0f, 0.0f, 0.0f);
 						}
 					}

@@ -851,7 +851,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwTextFormat;
         tb.m_pd2dTextBrush = pd2dBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(100, 227 + 75.5f * i, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.08f, WndClientHeight * 0.31f + WndClientHeight * 0.105f * i, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
         //  wcscpy(tb.m_pstrText, L"ROOOOOOOOOOOOOOOOM");
     }
@@ -861,7 +861,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.75f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
         wcscpy(tb.m_pstrText, L"너는 너의 감각을 믿고있는가?");
     }
@@ -871,7 +871,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(200, 570, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.81f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
     }
     {
@@ -880,7 +880,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(200, 610, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.87f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
     }
     {
@@ -889,7 +889,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.75f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
         wcscpy(tb.m_pstrText, L"그저 도전 정신으로");
     }
@@ -899,7 +899,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(200, 570, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.81f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
         wcscpy(tb.m_pstrText, L"이 곳에 도전하는 것이라면 큰코 다칠것이네");
     }
@@ -909,7 +909,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.75f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
         wcscpy(tb.m_pstrText, L"이곳은 시각을 빼앗는 고블린들이 돌아다니니");
     }
@@ -919,7 +919,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(200, 570, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.81f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
         wcscpy(tb.m_pstrText, L"조심히 돌아다니는것이 좋을걸세");
     }
@@ -929,7 +929,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.75f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
         wcscpy(tb.m_pstrText, L"행운을 비네");
     }
@@ -940,7 +940,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.75f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
         wcscpy(tb.m_pstrText, L"여기까지 무사히 오다니 그저 호기심에 온것은 아닌가보군");
     }
@@ -950,7 +950,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.75f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
         wcscpy(tb.m_pstrText, L"다음 장소로 보내주지");
     }
@@ -960,7 +960,7 @@ void ChatMGR::CreateTextUI(int WndClientWidth, int WndClientHeight)
         tb.m_pdwFormat = pdwUITextFormat;
         tb.m_pd2dTextBrush = pd2dUIBrush;
         tb.m_d2dLayoutRect =
-            D2D1::RectF(200, 530, WndClientWidth, WndClientHeight);
+            D2D1::RectF(WndClientWidth * 0.14f, WndClientHeight * 0.75f, WndClientWidth, WndClientHeight);
         ZeroMemory(tb.m_pstrText, sizeof(tb.m_pstrText));
         wcscpy(tb.m_pstrText, L"");
     }
