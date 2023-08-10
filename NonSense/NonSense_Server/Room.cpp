@@ -14,9 +14,9 @@
 concurrency::concurrent_unordered_map<int, shared_ptr<Room>> Room::roomlist{};
 int Room::g_roomNum = 0;
 
-std::random_device rd;
-std::default_random_engine dre(rd());
-std::uniform_int_distribution<int> uid(0, 2);
+std::random_device itemrd;
+std::default_random_engine itemdre(itemrd());
+std::uniform_int_distribution<int> itemuid(0, 2);
 
 Room::Room()
 {
@@ -277,7 +277,7 @@ void Room::update()
 				send_packet.x = monster->GetPosition().x;
 				send_packet.y = monster->GetPosition().y + 0.5f;
 				send_packet.z = monster->GetPosition().z;
-				send_packet.itemID = rand() % 3;
+				send_packet.itemID = itemuid(itemdre);
 				send_packet.itemNum = g_itemNum++;
 				rc_to.second->tcpConnection.SendOverlapped(reinterpret_cast<char*>(&send_packet));
 			}

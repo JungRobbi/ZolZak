@@ -22,11 +22,11 @@ void FarTypeFSMComponent::update()
 		if (((Monster*)gameObject)->WeaponFrame->GetComponent<SphereCollideComponent>()->GetBoundingObject()->Intersects(*GameFramework::MainGameFramework->m_pPlayer->GetComponent<SphereCollideComponent>()->GetBoundingObject()) && ((Monster*)gameObject)->WeaponFrame->GetComponent<MoveForwardComponent>()->MoveTimeLeft > 0)
 		{
 			if (NetworkMGR::b_isNet) {
-				CS_TEMP_HIT_MONSTER_PACKET send_packet;
-				send_packet.size = sizeof(CS_TEMP_HIT_MONSTER_PACKET);
-				send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_MONSTER_PACKET;
-				send_packet.monster_id = ((Monster*)gameObject)->GetNum();
-				send_packet.hit_damage = dynamic_cast<Player*>(gameObject)->GetAttack() * (100 / (monster->GetDefense() + 100));
+				CS_TEMP_HIT_PLAYER_PACKET send_packet;
+				send_packet.size = sizeof(CS_TEMP_HIT_PLAYER_PACKET);
+				send_packet.type = E_PACKET::E_PACKET_CS_TEMP_HIT_PLAYER_PACKET;
+				send_packet.player_id = NetworkMGR::id;
+				send_packet.hit_damage = dynamic_cast<Character*>(gameObject)->GetAttack() * (100 / (GameFramework::MainGameFramework->m_pPlayer->GetDefense() + 100));
 				PacketQueue::AddSendPacket(&send_packet);
 			}
 			else {
