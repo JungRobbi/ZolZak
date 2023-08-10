@@ -775,79 +775,79 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		break;
 	}
 	case E_PACKET_SC_EAT_ITEM_PACKET: {
-		SC_EAT_ITEM_PACKET* recv_packet = reinterpret_cast<SC_EAT_ITEM_PACKET*>(p_Packet);
-		auto p = find_if(GameScene::MainScene->ForwardObjects.begin(), GameScene::MainScene->ForwardObjects.end(),
-			[&recv_packet](Object* lhs) { return lhs->ObjectID == recv_packet->itemNum; });
-		if (p == GameScene::MainScene->ForwardObjects.end()) {
-			cout << "알 수 없는 ObjectID (Item)" << endl;
-			break;
-		}
-		Player* player;
-		if (recv_packet->player_id == NetworkMGR::id) {
-			player = GameFramework::MainGameFramework->m_pPlayer;
-		}
-		else {
-			auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
-				GameFramework::MainGameFramework->m_OtherPlayers.end(),
-				[&recv_packet](Object* lhs) {
-					return dynamic_cast<Player*>(lhs)->id == recv_packet->player_id;
-				});
+		//SC_EAT_ITEM_PACKET* recv_packet = reinterpret_cast<SC_EAT_ITEM_PACKET*>(p_Packet);
+		//auto p = find_if(GameScene::MainScene->ForwardObjects.begin(), GameScene::MainScene->ForwardObjects.end(),
+		//	[&recv_packet](Object* lhs) { return lhs->ObjectID == recv_packet->itemNum; });
+		//if (p == GameScene::MainScene->ForwardObjects.end()) {
+		//	cout << "알 수 없는 ObjectID (Item)" << endl;
+		//	break;
+		//}
+		//Player* player;
+		//if (recv_packet->player_id == NetworkMGR::id) {
+		//	player = GameFramework::MainGameFramework->m_pPlayer;
+		//}
+		//else {
+		//	auto p = find_if(GameFramework::MainGameFramework->m_OtherPlayers.begin(),
+		//		GameFramework::MainGameFramework->m_OtherPlayers.end(),
+		//		[&recv_packet](Object* lhs) {
+		//			return dynamic_cast<Player*>(lhs)->id == recv_packet->player_id;
+		//		});
 
-			if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
-				break;
+		//	if (p == GameFramework::MainGameFramework->m_OtherPlayers.end())
+		//		break;
 
-			player = dynamic_cast<Player*>(*p);
-		}
+		//	player = dynamic_cast<Player*>(*p);
+		//}
 
 
-		if (((Item*)(*p))->ItemID == 0) // ATK
-		{
-			player->m_Attack += 20;
-		}
+		//if (((Item*)(*p))->ItemID == 0) // ATK
+		//{
+		//	player->m_Attack += 20;
+		//}
 
-		else if (((Item*)(*p))->ItemID == 1) // DEF
-		{
-			player->m_Defense += 10;
-		}
+		//else if (((Item*)(*p))->ItemID == 1) // DEF
+		//{
+		//	player->m_Defense += 10;
+		//}
 
-		else if (((Item*)(*p))->ItemID == 2) // HP
-		{
-			if (GameFramework::MainGameFramework->m_pPlayer->m_Health < 2000)
-			{
-				player->m_Health += 100;
-				player->m_RemainHP += 100;
-				player->m_pHP_Dec_UI->Dec_HP = (player->m_RemainHP) / 1000;
-				player->m_pOverHP_Dec_UI->Dec_HP = (player->m_RemainHP - 1000) / 1000;
-				if (player->m_RemainHP <= 1000)
-				{
-					player->m_pOverHP_Dec_UI->Dec_HP = 0;
-				}
+		//else if (((Item*)(*p))->ItemID == 2) // HP
+		//{
+		//	if (GameFramework::MainGameFramework->m_pPlayer->m_Health < 2000)
+		//	{
+		//		player->m_Health += 100;
+		//		player->m_RemainHP += 100;
+		//		player->m_pHP_Dec_UI->Dec_HP = (player->m_RemainHP) / 1000;
+		//		player->m_pOverHP_Dec_UI->Dec_HP = (player->m_RemainHP - 1000) / 1000;
+		//		if (player->m_RemainHP <= 1000)
+		//		{
+		//			player->m_pOverHP_Dec_UI->Dec_HP = 0;
+		//		}
 
-				if (player->m_RemainHP >= 1000)
-				{
-					player->m_pHP_Dec_UI->Dec_HP = 1;
-				}
-				player->m_pHP_Dec_UI->HP = player->m_pHP_Dec_UI->Dec_HP;
-				player->m_pOverHP_Dec_UI->HP = player->m_pOverHP_Dec_UI->Dec_HP;
-			}
-		}
-		else if (((Item*)(*p))->ItemID == 3) // Eye
-		{
-			GameScene::MainScene->HaveEye = true;
-		}
-		else if (((Item*)(*p))->ItemID == 4) // Ear
-		{
-			GameScene::MainScene->HaveEar = true;
-		}
-		else if (((Item*)(*p))->ItemID == 5) // Hand
-		{
-			GameScene::MainScene->HaveHand = true;
-		}
+		//		if (player->m_RemainHP >= 1000)
+		//		{
+		//			player->m_pHP_Dec_UI->Dec_HP = 1;
+		//		}
+		//		player->m_pHP_Dec_UI->HP = player->m_pHP_Dec_UI->Dec_HP;
+		//		player->m_pOverHP_Dec_UI->HP = player->m_pOverHP_Dec_UI->Dec_HP;
+		//	}
+		//}
+		//else if (((Item*)(*p))->ItemID == 3) // Eye
+		//{
+		//	GameScene::MainScene->HaveEye = true;
+		//}
+		//else if (((Item*)(*p))->ItemID == 4) // Ear
+		//{
+		//	GameScene::MainScene->HaveEar = true;
+		//}
+		//else if (((Item*)(*p))->ItemID == 5) // Hand
+		//{
+		//	GameScene::MainScene->HaveHand = true;
+		//}
 
-		if (!((Item*)(*p))->erase) {
-			GameScene::MainScene->deletionBlendQueue.push_back(*p);
-			((Item*)(*p))->erase = true;
-		}
+		//if (!((Item*)(*p))->erase) {
+		//	GameScene::MainScene->deletionBlendQueue.push_back(*p);
+		//	((Item*)(*p))->erase = true;
+		//}
 		break;
 	}
 	case E_PACKET_SC_CREATE_ITEM_PACKET: {
