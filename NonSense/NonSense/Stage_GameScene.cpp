@@ -200,7 +200,7 @@ void Stage_GameScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	CreateItemList.emplace_back(100, 0, -16.0f, 0.5, 103.0f);*/
 
 	Item* m_Eye = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 3);
-	m_Eye->SetPosition(-22.52f, m_pTerrain->GetHeight(-22.52, -33.91), -33.91f);
+	m_Eye->SetPosition(-22.52f, 2.5f , -33.91f);
 	m_Eye->ObjectID = 9000;
 	Signal_UI* m_SignalR = new Signal_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_SignalR->SetPosition(m_Eye->GetPosition());
@@ -356,7 +356,7 @@ void Stage_GameScene::TouchStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	m_pSkyBox = m_pNightSkyBox;
 
 	Item* m_Hand = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 5);
-	m_Hand->SetPosition(61.42f, m_pTerrain->GetHeight(61.42f, 156.4f), 156.4f);
+	m_Hand->SetPosition(124.161f, 5.39f, 153.3f);
 	m_Hand->ObjectID = 9002;
 
 }
@@ -448,7 +448,7 @@ void Stage_GameScene::HearingStage(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 
 	Item* m_Ear = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 4);
-	m_Ear->SetPosition(171.12f, m_pTerrain->GetHeight(171.12f, -41.96f), -41.96f);
+	m_Ear->SetPosition(171.12f, 3.29f, -41.96f);
 	m_Ear->AddSoundEffect();
 	m_Ear->ObjectID = 9001;
 }
@@ -532,7 +532,7 @@ void Stage_GameScene::SightStage(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	m_pSkyBox = m_pDaySkyBox;
 
 	Item* m_Eye = new Item(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature, 3);
-	m_Eye->SetPosition(-22.52f, m_pTerrain->GetHeight(-22.52, -33.91), -33.91f);
+	m_Eye->SetPosition(-22.52f, 2.5f, -33.91f);
 	m_Eye->ObjectID = 9000;
 	Signal_UI* m_SignalR = new Signal_UI(pd3dDevice, pd3dCommandList, m_pGraphicsRootSignature);
 	m_SignalR->SetPosition(m_Eye->GetPosition());
