@@ -963,6 +963,15 @@ void Process_Packet(shared_ptr<RemoteClient>& p_Client, char* p_Packet, shared_p
 	}
 	case E_PACKET_CS_EAT_ITEM_PACKET: {
 		CS_EAT_ITEM_PACKET* recv_packet = reinterpret_cast<CS_EAT_ITEM_PACKET*>(p_Packet);
+		
+		if (recv_packet->itemID == 2) // HP
+		{
+			if (p_Client->m_pPlayer->GetHealth() < 2000)
+			{
+				p_Client->m_pPlayer->SetHealth(p_Client->m_pPlayer->GetHealth() + 100);
+				p_Client->m_pPlayer->SetRemainHP(p_Client->m_pPlayer->GetRemainHP() + 100);
+			}
+		}
 
 		for (auto rc : Room::roomlist[p_Client->m_roomNum]->Clients) {
 			if (rc.second->b_IsReady == false)

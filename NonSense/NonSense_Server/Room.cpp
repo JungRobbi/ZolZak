@@ -10,8 +10,13 @@
 #include "Components/BoxCollideComponent.h"
 #include "Components/BossFSMComponent.h"
 
+#include <random>
 concurrency::concurrent_unordered_map<int, shared_ptr<Room>> Room::roomlist{};
 int Room::g_roomNum = 0;
+
+std::random_device rd;
+std::default_random_engine dre(rd());
+std::uniform_int_distribution<int> uid(0, 2);
 
 Room::Room()
 {

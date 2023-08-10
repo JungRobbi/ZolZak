@@ -159,6 +159,7 @@ public:
 
 class CS_EAT_ITEM_PACKET : public PACKET_HEAD {
 public:
+	int itemID;
 	int itemNum;
 };
 

@@ -774,11 +774,12 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 	}
 	case E_PACKET_SC_EAT_ITEM_PACKET: {
 		SC_EAT_ITEM_PACKET* recv_packet = reinterpret_cast<SC_EAT_ITEM_PACKET*>(p_Packet);
-		auto p = find_if(GameScene::MainScene->blendGameObjects.begin(), GameScene::MainScene->blendGameObjects.end(),
+		auto p = find_if(GameScene::MainScene->ForwardObjects.begin(), GameScene::MainScene->ForwardObjects.end(),
 			[&recv_packet](Object* lhs) { return lhs->ObjectID == recv_packet->itemNum; });
-		if (p == GameScene::MainScene->blendGameObjects.end()) 
+		if (p == GameScene::MainScene->ForwardObjects.end()) {
+			cout << "알 수 없는 ObjectID (Item)" << endl;
 			break;
-
+		}
 		Player* player;
 		if (recv_packet->player_id == NetworkMGR::id) {
 			player = GameFramework::MainGameFramework->m_pPlayer;
