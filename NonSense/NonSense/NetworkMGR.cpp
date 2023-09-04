@@ -877,15 +877,10 @@ void NetworkMGR::Process_Packet(char* p_Packet)
 		}
 		player->GetComponent<AttackComponent>()->SkillAnimate();
 
-		//for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
-		//{
-		//	p->m_RemainHP += 200;
-		//	if (p->m_RemainHP > p->m_Health)
-		//	{
-		//		p->m_RemainHP = p->m_Health;
-		//	}
-		//	p->OnHealUI = Timer::GetTotalTime() + 2.5f;
-		//}
+		for (auto& p : GameFramework::MainGameFramework->m_OtherPlayers)
+		{
+			p->OnHealUI = Timer::GetTotalTime() + 2.5f;
+		}
 
 		//GameFramework::MainGameFramework->m_pPlayer->m_RemainHP += 200;
 		//if (GameFramework::MainGameFramework->m_pPlayer->m_RemainHP > GameFramework::MainGameFramework->m_pPlayer->m_Health)
