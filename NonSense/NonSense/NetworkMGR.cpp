@@ -85,8 +85,7 @@ void NetworkMGR::start()
 	tcpSocket = make_shared<Socket>(SocketType::Tcp);
 	
 	char isnet = 'n';
-	std::cout << "NetworkMGR::start()�� cin�� �ּ�ó�� �ϸ� ����)" << endl;
-	std::cout << "��Ʈ��ũ ���� ���� Ű �Է� (y/n - ����O/����X) :";
+	std::cout << "Server Connect (y/n) :";
 	std::cin >> isnet;
 
 	if (isnet == 'n') {
@@ -102,7 +101,7 @@ void NetworkMGR::start()
 
 	std::cout << std::endl << " ======== Login ======== " << std::endl << std::endl;
 
-	std::cout << std::endl << "���� �� �����ּҸ� �Է����ּ���(ex 197.xxx.xxx.xxx) : " << std::endl;
+	std::cout << std::endl << "Server IP Address(ex 197.xxx.xxx.xxx) : " << std::endl;
 	std::string server_s;
 	std::cin >> server_s;
 	SERVERIP = new char[server_s.size() + 1];
