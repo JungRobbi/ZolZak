@@ -3,8 +3,20 @@
 #include "DDSTextureLoader12.h"
 #include "WICTextureLoader12.h"
 
-UINT gnCbvSrvDescriptorIncrementSize = 0;
+UINT CBVSRVDescriptorSize = 0;
+UINT RTVDescriptorSize = 0;
+UINT DSVDescriptorSize = 0;
+
 UINT gnRtvDescriptorIncrementSize = 0;
+UINT gnDsvDescriptorIncrementSize = 0;
+
+FLOAT ClearColor[4] = { 1.0f, 1.0f, 0.0f, 1.0f };
+bool DebugMode = false;
+bool OptionMode = false;
+bool ScriptMode = false;
+bool LoadingMode = false;
+bool Die = false;
+UINT OBJNum = 2;
 
 ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType,
@@ -193,4 +205,18 @@ void ResourceTransition(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Resour
 	d3dResourceBarrier.Transition.StateAfter = d3dStateAfter;
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
+}
+
+D3D12_SHADER_BYTECODE CompileShaderFromFile(WCHAR* pszFileName, LPCSTR pszShaderName, LPCSTR pszShaderProfile, ID3DBlob** ppd3dShaderBlob)
+{
+	UINT nCompileFlags = 0;
+#if defined(_DEBUG)
+	nCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+	ID3DBlob* pd3dErrorBlob = NULL;
+	HRESULT hResult = ::D3DCompileFromFile(pszFileName, NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, pszShaderName, pszShaderProfile, nCompileFlags, 0, ppd3dShaderBlob, &pd3dErrorBlob);
+	D3D12_SHADER_BYTECODE d3dShaderByteCode;
+	d3dShaderByteCode.BytecodeLength = (*ppd3dShaderBlob)->GetBufferSize();
+	d3dShaderByteCode.pShaderBytecode = (*ppd3dShaderBlob)->GetBufferPointer();
+	return(d3dShaderByteCode);
 }

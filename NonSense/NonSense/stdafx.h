@@ -3,9 +3,10 @@
 //
 
 #pragma once
-
 #include "targetver.h"
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용을 Windows 헤더에서 제외합니다.
+
+//#define TESSELLATION
 // Windows 헤더 파일
 #include <windows.h>
 // C 런타임 헤더 파일입니다.
@@ -15,6 +16,7 @@
 #include <tchar.h>
 #include <chrono>
 #include <list>
+#include <map>
 #include <string>
 #include <wrl.h>
 #include <shellapi.h>
@@ -26,9 +28,11 @@
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 #include <DXGIDebug.h>
+#include <stdlib.h>
 
 #include <vector>
-
+#include <algorithm>
+#include <iostream>
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 using Microsoft::WRL::ComPtr;
@@ -37,16 +41,26 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "vivoxsdk.lib")
 
-#define FRAME_BUFFER_WIDTH 1000
-#define FRAME_BUFFER_HEIGHT 800
+#define MRT 4 // Multie Render Target의 수
 
-#define MAX_LIGHTS 8
+#define FRAME_BUFFER_WIDTH 1240
+#define FRAME_BUFFER_HEIGHT 720
+
+#define MAX_LIGHTS 2
 #define MAX_MATERIALS 8
 
 #define POINT_LIGHT 1
 #define SPOT_LIGHT 2
 #define DIRECTIONAL_LIGHT 3
+
+#define ANIMATION_TYPE_ONCE				0
+#define ANIMATION_TYPE_LOOP				1
+#define ANIMATION_TYPE_PINGPONG			2
+
+#define _WITH_STANDARD_TEXTURE_MULTIPLE_DESCRIPTORS
+#define PARAMETER_STANDARD_TEXTURE		7
 
 #define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 
@@ -56,16 +70,42 @@ using Microsoft::WRL::ComPtr;
 #define ROOT_PARAMETER_MATERIAL			3
 #define ROOT_PARAMETER_LIGHT			4
 
+
+#define RESOURCE_TEXTURE2D			0x01
+#define RESOURCE_TEXTURE2D_ARRAY	0x02	//[]
+#define RESOURCE_TEXTURE2DARRAY		0x03
+#define RESOURCE_TEXTURE_CUBE		0x04
+#define RESOURCE_BUFFER				0x05
+
+#define EPSILON					1.0e-10f
+
+inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE // 전체화면 default
 
-extern UINT	gnCbvSrvDescriptorIncrementSize;
-extern UINT gnRtvDescriptorIncrementSize;
+extern UINT	CBVSRVDescriptorSize;
+extern UINT RTVDescriptorSize;
+extern UINT DSVDescriptorSize;
+extern bool DebugMode;
+extern bool ScriptMode;
+extern bool OptionMode;
+extern bool LoadingMode;
+extern bool Die;
+extern UINT OBJNum;
+
+extern UINT	gnRtvDescriptorIncrementSize;
+extern UINT gnDsvDescriptorIncrementSize;
+
+extern FLOAT ClearColor[4];
+
+extern BYTE ReadStringFromFile(FILE* OpenedFile, char* pstrToken);
+extern int ReadIntegerFromFile(FILE* OpenedFile);
+extern float ReadFloatFromFile(FILE* OpenedFile);
 
 extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice,ID3D12GraphicsCommandList* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer = NULL);
 extern ID3D12Resource* CreateTextureResourceFromDDSFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 extern ID3D12Resource* CreateTexture2DResource(ID3D12Device* pd3dDevice, UINT nWidth, UINT nHeight, UINT nElements, UINT nMipLevels, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags, D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE* pd3dClearValue);
-
 extern void ResourceTransition(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Resource* pd3dResource, D3D12_RESOURCE_STATES d3dStateBefore, D3D12_RESOURCE_STATES d3dStateAfter);
+D3D12_SHADER_BYTECODE CompileShaderFromFile(WCHAR* pszFileName, LPCSTR pszShaderName, LPCSTR pszShaderProfile, ID3DBlob** ppd3dShaderBlob);
 
 namespace Vector3
 {
@@ -247,5 +287,44 @@ namespace Matrix4x4
 		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixLookAtLH(XMLoadFloat3(&xmf3EyePosition),
 			XMLoadFloat3(&xmf3LookAtPosition), XMLoadFloat3(&xmf3UpDirection)));
 		return(xmmtx4x4Result);
+	}
+	inline XMFLOAT4X4 Zero()
+	{
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMMatrixSet(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f));
+		return(xmf4x4Result);
+	}
+	inline XMFLOAT4X4 Add(XMFLOAT4X4& xmmtx4x4Matrix1, XMFLOAT4X4& xmmtx4x4Matrix2)
+	{
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) + XMLoadFloat4x4(&xmmtx4x4Matrix2));
+		return(xmf4x4Result);
+	}
+	inline XMFLOAT4X4 Scale(XMFLOAT4X4& xmf4x4Matrix, float fScale)
+	{
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMLoadFloat4x4(&xmf4x4Matrix) * fScale);
+		/*
+				XMVECTOR S, R, T;
+				XMMatrixDecompose(&S, &R, &T, XMLoadFloat4x4(&xmf4x4Matrix));
+				S = XMVectorScale(S, fScale);
+				T = XMVectorScale(T, fScale);
+				R = XMVectorScale(R, fScale);
+				//R = XMQuaternionMultiply(R, XMVectorSet(0, 0, 0, fScale));
+				XMStoreFloat4x4(&xmf4x4Result, XMMatrixAffineTransformation(S, XMVectorZero(), R, T));
+		*/
+		return(xmf4x4Result);
+	}
+	inline XMFLOAT4X4 Interpolate(XMFLOAT4X4& xmf4x4Matrix1, XMFLOAT4X4& xmf4x4Matrix2, float t)
+	{
+		XMFLOAT4X4 xmf4x4Result;
+		XMVECTOR S0, R0, T0, S1, R1, T1;
+		XMMatrixDecompose(&S0, &R0, &T0, XMLoadFloat4x4(&xmf4x4Matrix1));
+		XMMatrixDecompose(&S1, &R1, &T1, XMLoadFloat4x4(&xmf4x4Matrix2));
+		XMVECTOR S = XMVectorLerp(S0, S1, t);
+		XMVECTOR T = XMVectorLerp(T0, T1, t);
+		XMVECTOR R = XMQuaternionSlerp(R0, R1, t);
+		XMStoreFloat4x4(&xmf4x4Result, XMMatrixAffineTransformation(S, XMVectorZero(), R, T));
+		return(xmf4x4Result);
 	}
 }

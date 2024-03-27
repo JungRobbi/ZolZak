@@ -83,7 +83,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_NONSENSE));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hCursor        = LoadCursor(nullptr, MAKEINTRESOURCE(IDC_CURSOR1));
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_NONSENSE);
     wcex.lpszMenuName = NULL;
@@ -108,7 +108,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
    DWORD dwstyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
-   RECT rect = { 0,0,FRAME_BUFFER_WIDTH,FRAME_BUFFER_HEIGHT };
+   RECT rect = { 0,0,GameFramework::MainGameFramework->GetWndClientWidth(),GameFramework::MainGameFramework->GetWndClientHeight() };
    AdjustWindowRect(&rect, dwstyle, FALSE);
    HWND hWnd = CreateWindow(szWindowClass, szTitle, dwstyle, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInst, NULL);
    if (!hWnd)

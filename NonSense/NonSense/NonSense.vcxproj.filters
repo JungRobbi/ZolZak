@@ -16,12 +16,6 @@
     <Filter Include="소스 파일\DirectX 12">
       <UniqueIdentifier>{e01b3cd7-4898-49e0-aa36-1cf3143ed41f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Framework">
-      <UniqueIdentifier>{f393ba7c-4471-4e70-9191-53066386f2dc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\MSG">
-      <UniqueIdentifier>{8f36df8d-9d3f-42b5-9660-130b82ae17c1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\Components">
       <UniqueIdentifier>{72921a05-7971-4c38-ac8c-6bb42cbf3860}</UniqueIdentifier>
     </Filter>
@@ -39,6 +33,36 @@
     </Filter>
     <Filter Include="소스 파일\DirectX 12\TextureLoader">
       <UniqueIdentifier>{c45f60a0-87bc-4768-bbf7-40726cd51c7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Framework">
+      <UniqueIdentifier>{f393ba7c-4471-4e70-9191-53066386f2dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\GameScenes">
+      <UniqueIdentifier>{8aeb62b5-91c3-4d89-998f-9b47b016df2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\FSM">
+      <UniqueIdentifier>{3a5ff787-6e6f-441b-b17d-d53f67f5447c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Sound">
+      <UniqueIdentifier>{7a1cf6f7-9fb2-41a3-ba71-473809a71987}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Components\FSMComponent">
+      <UniqueIdentifier>{94c67844-d6e8-4436-aed2-87791ff0bafc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Components\AttackComponent">
+      <UniqueIdentifier>{747f34d2-977c-4ce0-9c4d-5ee41193aab6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Components\MovementComponent">
+      <UniqueIdentifier>{056e2f5a-60a4-4fc3-8e5d-d78bb0ea1d0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Components\CollideComponent">
+      <UniqueIdentifier>{552aa322-824f-4181-ad9a-5fc25cd4268d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Vivox">
+      <UniqueIdentifier>{d501f999-86bc-454f-b103-3a564b4af7a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Vivox\SDK">
+      <UniqueIdentifier>{09ded668-6de2-46c0-afab-bdee3b1865c9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -75,12 +99,6 @@
     <ClInclude Include="GameState.h">
       <Filter>소스 파일\Framework</Filter>
     </ClInclude>
-    <ClInclude Include="MSGQueue.h">
-      <Filter>소스 파일\MSG</Filter>
-    </ClInclude>
-    <ClInclude Include="DataMSG.h">
-      <Filter>소스 파일\MSG</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>소스 파일\PCH_AND_MISC</Filter>
     </ClInclude>
@@ -93,15 +111,6 @@
     <ClInclude Include="Component.h">
       <Filter>소스 파일\Components\base</Filter>
     </ClInclude>
-    <ClInclude Include="RotateComponent.h">
-      <Filter>소스 파일\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerMovementComponent.h">
-      <Filter>소스 파일\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="CollideComponent.h">
-      <Filter>소스 파일\Components</Filter>
-    </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>소스 파일\System</Filter>
     </ClInclude>
@@ -110,6 +119,138 @@
     </ClInclude>
     <ClInclude Include="WICTextureLoader12.h">
       <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Lobby_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Login_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Stage_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkMGR.h">
+      <Filter>소스 파일\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform3DComponent.h">
+      <Filter>소스 파일\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Characters.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="FSM.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="State.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="CloseTypeState.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>소스 파일\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="UILayer.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AnimationType.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FarTypeState.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="CloseTypeFSMComponent.h">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="FarTypeFSMComponent.h">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="RushTypeFSMComponent.h">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="RushTypeState.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="AttackComponent.h">
+      <Filter>소스 파일\Components\AttackComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="MonsterAttackComponent.h">
+      <Filter>소스 파일\Components\AttackComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerMovementComponent.h">
+      <Filter>소스 파일\Components\MovementComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="RotateComponent.h">
+      <Filter>소스 파일\Components\MovementComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxCollideComponent.h">
+      <Filter>소스 파일\Components\CollideComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereCollideComponent.h">
+      <Filter>소스 파일\Components\CollideComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="MoveForwardComponent.h">
+      <Filter>소스 파일\Components\MovementComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\vivox-config.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\Vxc.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\VxcErrors.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\VxcEvents.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\VxcExports.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\VxcRequests.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\VxcResponses.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox\VxcTypes.h">
+      <Filter>소스 파일\Vivox\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Vivox.h">
+      <Filter>소스 파일\Vivox</Filter>
+    </ClInclude>
+    <ClInclude Include="BossState.h">
+      <Filter>소스 파일\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="BossFSMComponent.h">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="BossAttackComponent.h">
+      <Filter>소스 파일\Components\AttackComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowMap.h">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClInclude>
+    <ClInclude Include="Room_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Room_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Touch_Stage_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Sight_Stage_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Hearing_Stage_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Boss_Stage_GameScene.h">
+      <Filter>소스 파일\GameScenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -140,12 +281,6 @@
     <ClCompile Include="GameState.cpp">
       <Filter>소스 파일\Framework</Filter>
     </ClCompile>
-    <ClCompile Include="MSGQueue.cpp">
-      <Filter>소스 파일\MSG</Filter>
-    </ClCompile>
-    <ClCompile Include="DataMSG.cpp">
-      <Filter>소스 파일\MSG</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일\PCH_AND_MISC</Filter>
     </ClCompile>
@@ -155,15 +290,6 @@
     <ClCompile Include="Component.cpp">
       <Filter>소스 파일\Components\base</Filter>
     </ClCompile>
-    <ClCompile Include="RotateComponent.cpp">
-      <Filter>소스 파일\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerMovementComponent.cpp">
-      <Filter>소스 파일\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="CollideComponent.cpp">
-      <Filter>소스 파일\Components</Filter>
-    </ClCompile>
     <ClCompile Include="Input.cpp">
       <Filter>소스 파일\System</Filter>
     </ClCompile>
@@ -172,6 +298,105 @@
     </ClCompile>
     <ClCompile Include="WICTextureLoader12.cpp">
       <Filter>소스 파일\DirectX 12\TextureLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Lobby_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Login_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkMGR.cpp">
+      <Filter>소스 파일\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform3DComponent.cpp">
+      <Filter>소스 파일\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Characters.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="CloseTypeState.cpp">
+      <Filter>소스 파일\FSM</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound.cpp">
+      <Filter>소스 파일\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="UILayer.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="FarTypeState.cpp">
+      <Filter>소스 파일\FSM</Filter>
+    </ClCompile>
+    <ClCompile Include="CloseTypeFSMComponent.cpp">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="FarTypeFSMComponent.cpp">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="RushTypeFSMComponent.cpp">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="RushTypeState.cpp">
+      <Filter>소스 파일\FSM</Filter>
+    </ClCompile>
+    <ClCompile Include="AttackComponent.cpp">
+      <Filter>소스 파일\Components\AttackComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="MonsterAttackComponent.cpp">
+      <Filter>소스 파일\Components\AttackComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerMovementComponent.cpp">
+      <Filter>소스 파일\Components\MovementComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="RotateComponent.cpp">
+      <Filter>소스 파일\Components\MovementComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxCollideComponent.cpp">
+      <Filter>소스 파일\Components\CollideComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereCollideComponent.cpp">
+      <Filter>소스 파일\Components\CollideComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="MoveForwardComponent.cpp">
+      <Filter>소스 파일\Components\MovementComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Vivox.cpp">
+      <Filter>소스 파일\Vivox</Filter>
+    </ClCompile>
+    <ClCompile Include="BossState.cpp">
+      <Filter>소스 파일\FSM</Filter>
+    </ClCompile>
+    <ClCompile Include="BossFSMComponent.cpp">
+      <Filter>소스 파일\Components\FSMComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="BossAttackComponent.cpp">
+      <Filter>소스 파일\Components\AttackComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMap.cpp">
+      <Filter>소스 파일\DirectX 12</Filter>
+    </ClCompile>
+    <ClCompile Include="Room_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Room_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Touch_Stage_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Sight_Stage_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Hearing_Stage_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Boss_Stage_GameScene.cpp">
+      <Filter>소스 파일\GameScenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -188,7 +413,12 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Light.hlsl" />
     <FxCompile Include="Shaders.hlsl" />
+    <FxCompile Include="Light1.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="normal.cur">
+      <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
 </Project>

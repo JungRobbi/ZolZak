@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <mswsock.h>
 #include <memory>
+#include <list>
 #else 
 #include <sys/socket.h>
 #endif
@@ -33,24 +34,56 @@ enum class SocketType
 enum class IO_TYPE
 {
 	IO_RECV,
-	IO_SEND
+	IO_SEND,
+	IO_TIMER_PLAYER_ANIMATION,
+	IO_TIMER_PLAYER_MOVE,
+	IO_TIMER_PLAYER_LOOK,
+	IO_TIMER_MONSTER_ANIMATION,
+	IO_TIMER_MONSTER_MOVE,
+	IO_TIMER_MONSTER_WANDER,
+	IO_TIMER_MONSTER_TARGET,
+
 };
 
-// Overlapped 구조체를 확장하여 사용.
-class OVERLAPPEDEX : public WSAOVERLAPPED {
+class EXP_OVER {
 public:
-	WSABUF		  m_wsaBuf;
-	char		  m_dataBuffer[MAX_SOCKBUF];
-	IO_TYPE		  m_ioType;
+	WSAOVERLAPPED _wsa_over;
+	WSABUF _wsa_buf;
+	char _buf[MAX_SOCKBUF];
+	IO_TYPE m_ioType;
+	char m_isReadOverlapped = false;
+
+public:
+	EXP_OVER() : m_ioType(IO_TYPE::IO_RECV) {
+		ZeroMemory(&_wsa_over, sizeof(_wsa_over));
+		_wsa_buf.buf = _buf;
+		_wsa_buf.len = MAX_SOCKBUF;
+		ZeroMemory(&_buf, sizeof(_buf));
+	}
+	EXP_OVER(const char* packet) : m_ioType(IO_TYPE::IO_SEND)
+	{
+		ZeroMemory(&_wsa_over, sizeof(_wsa_over));
+		_wsa_buf.buf = _buf;
+		_wsa_buf.len = packet[0];
+		ZeroMemory(&_buf, sizeof(_buf));
+		memcpy(_buf, packet, packet[0]);
+	}
+	EXP_OVER(const char* buf, short buf_size) : m_ioType(IO_TYPE::IO_SEND)
+	{
+		ZeroMemory(&_wsa_over, sizeof(_wsa_over));
+		_wsa_buf.buf = _buf;
+		_wsa_buf.len = buf_size;
+		ZeroMemory(&_buf, sizeof(_buf));
+		memcpy(_buf, buf, buf_size);
+	}
+
+	~EXP_OVER() {}
 };
 
 // 소켓 클래스
 class Socket
 {
 public:
-	static const int MaxReceiveLength = 8192;
-
-
 	SOCKET m_fd; // 소켓 핸들
 
 #ifdef _WIN32
@@ -69,9 +102,9 @@ public:
 	// overlapped receive를 하는 동안 여기가 사용됩니다. overlapped I/O가 진행되는 동안 이 값을 건드리지 마세요.
 //	char m_receiveBuffer[MaxReceiveLength];
 
-	OVERLAPPEDEX	m_recvOverlapped; // Recv Overlapped(비동기) I/O 작업을 위한 변수
-	OVERLAPPEDEX	m_sendOverlapped; // Send Overlapped(비동기) I/O 작업을 위한 변수
-
+	EXP_OVER	m_recvOverlapped = EXP_OVER(); // Recv Overlapped(비동기) I/O 작업을 위한 변수
+	std::list<std::shared_ptr<EXP_OVER>> m_sendOverlapped_list;
+	unsigned char m_prev_remain = 0;
 #ifdef _WIN32
 	// overlapped 수신을 하는 동안 여기에 recv의 flags에 준하는 값이 채워집니다. overlapped I/O가 진행되는 동안 이 값을 건드리지 마세요.
 	DWORD m_readFlags = 0;
@@ -96,7 +129,7 @@ public:
 	int Receive();
 #ifdef _WIN32
 	int ReceiveOverlapped();
-	int SendOverlapped(const char* data, int length);
+	int SendOverlapped(const char* packet);
 #endif
 	void SetNonblocking();
 	

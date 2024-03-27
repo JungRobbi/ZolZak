@@ -1,16 +1,22 @@
 #pragma once
-#define ASPECT_RATIO (float(FRAME_BUFFER_WIDTH) / float(FRAME_BUFFER_HEIGHT))
+#define ASPECT_RATIO (float(GameFramework::MainGameFramework->GetWndClientWidth()) / float(GameFramework::MainGameFramework->GetWndClientHeight()))
 
 #define FIRST_PERSON_CAMERA 0x01
 #define SPACESHIP_CAMERA 0x02
 #define THIRD_PERSON_CAMERA 0x03
+#define SCRIPT_CAMERA 0x04
 
 class Player;
 
 struct VS_CB_CAMERA_INFO
 {
-	XMFLOAT4X4 m_xmf4x4View;
-	XMFLOAT4X4 m_xmf4x4Projection;
+	XMFLOAT4X4						m_xmf4x4View;
+	XMFLOAT4X4						m_xmf4x4InverseView;
+	XMFLOAT4X4						m_xmf4x4Projection;
+	XMFLOAT4X4						m_xmf4x4InverseProjection;
+	XMFLOAT4X4						m_xm4x4ShadowTransform;
+	XMFLOAT3						m_xmf3Position;
+	XMFLOAT3						m_xmf3Direction;
 };
 
 class Camera
@@ -44,9 +50,9 @@ protected:
 
 	//카메라의 정보를 루트파라미터로 넘겨주기 위한 리소스
 	ID3D12Resource* m_pd3dcbCamera = NULL;
-	VS_CB_CAMERA_INFO* m_pcbMappedCamera = NULL;
 
 public:
+	VS_CB_CAMERA_INFO* m_pcbMappedCamera = NULL;
 	Camera();
 	Camera(Camera* pCamera);
 	virtual ~Camera() {};
@@ -98,6 +104,10 @@ public:
 	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed) { }
 	//3인칭 카메라에서 카메라가 바라보는 지점을 설정한다. 일반적으로 플레이어를 바라보도록 설정한다.
 	virtual void SetLookAt(XMFLOAT3& xmf3LookAt) { }
+
+	void SetLookVector(XMFLOAT3 xmf3Look) { m_xmf3Look = xmf3Look; }
+	void SetUpVector(XMFLOAT3 xmf3Up) { m_xmf3Up = xmf3Up; }
+	void SetRightVector(XMFLOAT3 xmf3Right) { m_xmf3Right = xmf3Right; }
 };
 
 class SpaceShipCamera : public Camera
@@ -114,6 +124,7 @@ public:
 	FirstPersonCamera(Camera* pCamera);
 	virtual ~FirstPersonCamera() { }
 	virtual void Rotate(float fPitch = 0.0f, float fYaw = 0.0f, float fRoll = 0.0f);
+	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed);
 };
 
 class ThirdPersonCamera : public Camera

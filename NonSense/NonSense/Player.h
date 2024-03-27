@@ -6,55 +6,98 @@
 #define DIR_UP 0x10
 #define DIR_DOWN 0x20
 
+#include <string>
 #include "Object.h"
 #include "Shader.h"
+#include "UI.h"
 
 class Camera;
 
 class Player : public Object
 {
 protected:
-	//?¡À?????? ??? ????, x-??(Right), y-??(Up), z-??(Look) ???????.
 	XMFLOAT3 m_xmf3Position;
 	XMFLOAT3 m_xmf3Right;
 	XMFLOAT3 m_xmf3Up;
 	XMFLOAT3 m_xmf3Look;
-	//?¡À???? ???? x-??(Right), y-??(Up), z-??(Look)???? ????? ?????¡Æ??? ???????.
 	float m_fPitch;
 	float m_fYaw;
 	float m_fRoll;
-	//?¡À?????? ??? ????? ??????? ???????.
 	XMFLOAT3 m_xmf3Velocity;
-	//?¡À???? ?????? ????? ??????? ???????.
 	XMFLOAT3 m_xmf3Gravity;
-	//xz-????? (?? ?????? ????) ?¡À?????? ??? ????? ??“S?? ???????.
 	float m_fMaxVelocityXZ;
-	//y-?? ???????? (?? ?????? ????) ?¡À?????? ??? ????? ??“S?? ???????.
 	float m_fMaxVelocityY;
-	//?¡À???? ?????? ???????? ???????.
 	float m_fFriction;
-	//?¡À?????? ????? ??? ?????? ????? OnPlayerUpdateCallback() ??????? ?????? ?????????.
-	LPVOID m_pPlayerUpdatedContext;
-	//?????? ????? ??? ?????? ????? OnCameraUpdateCallback() ??????? ?????? ?????????.
-	LPVOID m_pCameraUpdatedContext;
-	//?¡À???? ???? ?????? ???????.
-	Camera* m_pCamera = NULL;
+
+
+	XMFLOAT3 m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 public:
+	float m_Health = 1000;
+	float m_Defense = 100;
+	float m_Attack = 200;
+	float m_RemainHP = 1000;
+
+	bool Magical = false;
+	unsigned int id = 0;
+	std::string m_name;
+	Die_UI* m_Die_UI = NULL;
+	Player_State_UI* m_pUI = NULL;
+	Player_HP_UI* m_pHP_UI = NULL;
+	Player_HP_DEC_UI* m_pHP_Dec_UI = NULL;
+	Player_Over_HP_UI* m_pOverHP_UI = NULL;
+	Player_Over_DEC_HP_UI* m_pOverHP_Dec_UI = NULL;
+
+	Heal_UI** m_Heal_UI = {};
+	Buff_UI** m_Buff_UI = {};
+
+	float last_DeBuff = 0;
+	bool dark = false;
+	bool m_die = false;
+	float OnHealUI = 3.0;
+	float OnBuffUI = 3.0;
+public:
+
+	LPVOID m_pPlayerUpdatedContext;
+	LPVOID m_pCameraUpdatedContext;
+
 	Player();
 	virtual ~Player();
+	Camera* m_pCamera = NULL;
 
 	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
+	void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
+	void Move(XMFLOAT3& xmf3Shift, bool bVelocity = false);
+	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
+
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
 	void SetGravity(XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }
 	void SetMaxVelocityXZ(float fMaxVelocity) { m_fMaxVelocityXZ = fMaxVelocity; }
 	void SetMaxVelocityY(float fMaxVelocity) { m_fMaxVelocityY = fMaxVelocity; }
 	void SetVelocity(XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
-	void SetPosition(XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z), false); }
+	void SetPosition(XMFLOAT3& xmf3Position) { XMFLOAT3 pos = { xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z }; Move(pos, false); }
+	void SetAnimation();
+	void GetHit(float damage);
+
+	void SetLookVector(XMFLOAT3 xmf3Look) { m_xmf3Look = xmf3Look; }
+	void SetUpVector(XMFLOAT3 xmf3Up) { m_xmf3Up = xmf3Up; }
+	void SetRightVector(XMFLOAT3 xmf3Right) { m_xmf3Right = xmf3Right; }
+
+	void Sight_DeBuff(float sec);
+
+	float GetHealth() { return m_Health; }
+	float GetDefense() { return m_Defense; }
+	float GetAttack() { return m_Attack; }
+	float GetRemainHP() { return m_RemainHP; }
+
+	void SetHealth(float f) { m_Health = f; }
+	void SetDefense(float f) { m_Defense = f; }
+	void SetAttack(float f) { m_Attack = f; }
+	void SetRemainHP(float f) { m_RemainHP = f; }
 
 	XMFLOAT3& GetVelocity() { return(m_xmf3Velocity); }
 	float GetYaw() { return(m_fYaw); }
@@ -63,18 +106,12 @@ public:
 
 	Camera* GetCamera() { return(m_pCamera); }
 	void SetCamera(Camera* pCamera) { m_pCamera = pCamera; }
-
-	void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
-	void Move(XMFLOAT3& xmf3Shift, bool bVelocity = false);
-	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
-
 	void Rotate(float x, float y, float z);
 
-	void Update(float fTimeElapsed);
-
-	virtual void OnPlayerUpdateCallback(float fTimeElapsed) { }
+	virtual void Update(float fTimeElapsed);
+	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	void SetPlayerUpdatedContext(LPVOID pContext) { m_pPlayerUpdatedContext = pContext; }
-	virtual void OnCameraUpdateCallback(float fTimeElapsed) { }
+	virtual void OnCameraUpdateCallback(float fTimeElapsed);
 	void SetCameraUpdatedContext(LPVOID pContext) { m_pCameraUpdatedContext = pContext; }
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
@@ -86,11 +123,30 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
 };
 
-class CubePlayer : public Player
+class MagePlayer : public Player
 {
 public:
-	CubePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-	virtual ~CubePlayer();
+	FireBall* fireball;
+	Object* pWeaponObject;
+	Shader* m_pBoundingShader = NULL;
+	CubeMesh* m_pBoundMesh = NULL;
+	SphereMesh* m_pSphereMesh = NULL;
+	MagePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext, bool is_mage);
+	virtual ~MagePlayer()
+	{
+		if (pWeaponObject)
+			pWeaponObject->Release();
+		if (m_pBoundMesh)
+			m_pBoundMesh->Release();
+		if (m_pSphereMesh)
+			m_pSphereMesh->Release();
+	}
+
 	virtual Camera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
-	virtual void OnPrepareRender();
+
+	virtual void Update(float fTimeElapsed);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera = NULL);
+
+	void FootStepR();
+	void FootStepL();
 };

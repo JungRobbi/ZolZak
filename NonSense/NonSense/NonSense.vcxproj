@@ -70,6 +70,14 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(ProjectDir)\Vivox;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(ProjectDir)\Vivox\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(ProjectDir)\Vivox;D:\FMOD Studio API Windows\api\core\inc;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(ProjectDir)\Vivox\lib;D:\FMOD Studio API Windows\api\core\lib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -105,15 +113,16 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions);FMOD_STATIC=1</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\lsy01\OneDrive\바탕 화면\MainZolZak\ZolZak\NonSense\x64\Debug;C:\Users\82107\OneDrive\바탕 화면\ZolZak\NonSense\x64\Debug;D:\ZolZak\ZolZak\NonSense\x64\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ImaysNet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ImaysNet.lib;fmod_vc.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -121,64 +130,143 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions);FMOD_STATIC=1</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <PrecompiledHeader />
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\82107\OneDrive\바탕 화면\ZolZak\NonSense\x64\Release;D:\ZolZak\ZolZak\NonSense\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ImaysNet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ImaysNet.lib;fmod_vc.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\AnimationType.h" />
     <ClInclude Include="..\Globals.h" />
+    <ClInclude Include="AttackComponent.h" />
+    <ClInclude Include="BossAttackComponent.h" />
+    <ClInclude Include="BossFSMComponent.h" />
+    <ClInclude Include="BossState.h" />
+    <ClInclude Include="Boss_Stage_GameScene.h" />
+    <ClInclude Include="BoxCollideComponent.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="CollideComponent.h" />
+    <ClInclude Include="Characters.h" />
+    <ClInclude Include="CloseTypeState.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="DataMSG.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
+    <ClInclude Include="FarTypeFSMComponent.h" />
+    <ClInclude Include="FarTypeState.h" />
+    <ClInclude Include="FSM.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="GameState.h" />
+    <ClInclude Include="CloseTypeFSMComponent.h" />
+    <ClInclude Include="Hearing_Stage_GameScene.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Lobby_GameScene.h" />
+    <ClInclude Include="Login_GameScene.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MSGQueue.h" />
+    <ClInclude Include="MonsterAttackComponent.h" />
+    <ClInclude Include="MoveForwardComponent.h" />
+    <ClInclude Include="NetworkMGR.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerMovementComponent.h" />
+    <ClInclude Include="Room_GameScene.h" />
     <ClInclude Include="RotateComponent.h" />
+    <ClInclude Include="RushTypeFSMComponent.h" />
+    <ClInclude Include="RushTypeState.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="NonSense.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="ShadowMap.h" />
+    <ClInclude Include="Sight_Stage_GameScene.h" />
+    <ClInclude Include="Sound.h" />
+    <ClInclude Include="Stage_GameScene.h" />
+    <ClInclude Include="SphereCollideComponent.h" />
+    <ClInclude Include="State.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Touch_Stage_GameScene.h" />
+    <ClInclude Include="Transform3DComponent.h" />
+    <ClInclude Include="UI.h" />
+    <ClInclude Include="UILayer.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Vivox\vivox-config.h" />
+    <ClInclude Include="Vivox\Vxc.h" />
+    <ClInclude Include="Vivox\VxcErrors.h" />
+    <ClInclude Include="Vivox\VxcEvents.h" />
+    <ClInclude Include="Vivox\VxcExports.h" />
+    <ClInclude Include="Vivox\VxcRequests.h" />
+    <ClInclude Include="Vivox\VxcResponses.h" />
+    <ClInclude Include="Vivox\VxcTypes.h" />
     <ClInclude Include="WICTextureLoader12.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AttackComponent.cpp" />
+    <ClCompile Include="BossAttackComponent.cpp" />
+    <ClCompile Include="BossFSMComponent.cpp" />
+    <ClCompile Include="BossState.cpp" />
+    <ClCompile Include="Boss_Stage_GameScene.cpp" />
+    <ClCompile Include="BoxCollideComponent.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CollideComponent.cpp" />
+    <ClCompile Include="Characters.cpp" />
+    <ClCompile Include="CloseTypeState.cpp" />
     <ClCompile Include="Component.cpp" />
-    <ClCompile Include="DataMSG.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
+    <ClCompile Include="FarTypeFSMComponent.cpp" />
+    <ClCompile Include="FarTypeState.cpp" />
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="GameState.cpp" />
+    <ClCompile Include="CloseTypeFSMComponent.cpp" />
+    <ClCompile Include="Hearing_Stage_GameScene.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Lobby_GameScene.cpp" />
+    <ClCompile Include="Login_GameScene.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MSGQueue.cpp" />
+    <ClCompile Include="MonsterAttackComponent.cpp" />
+    <ClCompile Include="MoveForwardComponent.cpp" />
+    <ClCompile Include="NetworkMGR.cpp" />
     <ClCompile Include="NonSense.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerMovementComponent.cpp" />
+    <ClCompile Include="Room_GameScene.cpp" />
     <ClCompile Include="RotateComponent.cpp" />
+    <ClCompile Include="RushTypeFSMComponent.cpp" />
+    <ClCompile Include="RushTypeState.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
+    <ClCompile Include="Sight_Stage_GameScene.cpp" />
+    <ClCompile Include="Sound.cpp" />
+    <ClCompile Include="Stage_GameScene.cpp" />
+    <ClCompile Include="SphereCollideComponent.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Touch_Stage_GameScene.cpp" />
+    <ClCompile Include="Transform3DComponent.cpp" />
+    <ClCompile Include="UI.cpp" />
+    <ClCompile Include="UILayer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Vivox.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="WICTextureLoader12.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -189,12 +277,21 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Light.hlsl">
+    <FxCompile Include="Light1.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="normal.cur" />
+    <ClInclude Include="Vivox.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
